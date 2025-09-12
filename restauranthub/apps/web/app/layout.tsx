@@ -1,0 +1,122 @@
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Providers } from '@/components/providers';
+import { Toaster } from 'sonner';
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: {
+    default: 'RestaurantHub - Complete Restaurant Management Platform',
+    template: '%s | RestaurantHub',
+  },
+  description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
+  keywords: [
+    'restaurant management',
+    'hiring platform',
+    'marketplace',
+    'job portal',
+    'restaurant community',
+    'employee verification',
+    'vendor management',
+  ],
+  authors: [{ name: 'RestaurantHub Team' }],
+  creator: 'RestaurantHub',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: 'RestaurantHub - Complete Restaurant Management Platform',
+    description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
+    siteName: 'RestaurantHub',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'RestaurantHub Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RestaurantHub - Complete Restaurant Management Platform',
+    description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
+    images: ['/og-image.jpg'],
+    creator: '@restauranthub',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#ef4444',
+      },
+    ],
+  },
+  other: {
+    'msapplication-TileColor': '#ef4444',
+    'theme-color': '#ffffff',
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark')
+                } else {
+                  document.documentElement.classList.remove('dark')
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className={inter.className} suppressHydrationWarning>
+        <Providers>
+          <div className="min-h-screen bg-background font-sans antialiased">
+            {children}
+          </div>
+          <Toaster position="top-right" richColors />
+        </Providers>
+      </body>
+    </html>
+  );
+}

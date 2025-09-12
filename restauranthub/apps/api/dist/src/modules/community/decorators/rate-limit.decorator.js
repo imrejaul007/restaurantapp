@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReportLimit = exports.SearchLimit = exports.FollowLimit = exports.CommentLimit = exports.LikeActionLimit = exports.PostCreationLimit = exports.RateLimit = exports.RATE_LIMIT_KEY = void 0;
+const common_1 = require("@nestjs/common");
+exports.RATE_LIMIT_KEY = 'rate_limit';
+const RateLimit = (action, skipIf) => (0, common_1.applyDecorators)((0, common_1.SetMetadata)(exports.RATE_LIMIT_KEY, { action, skipIf }));
+exports.RateLimit = RateLimit;
+const PostCreationLimit = () => (0, exports.RateLimit)('create_post');
+exports.PostCreationLimit = PostCreationLimit;
+const LikeActionLimit = () => (0, exports.RateLimit)('like_post');
+exports.LikeActionLimit = LikeActionLimit;
+const CommentLimit = () => (0, exports.RateLimit)('comment_post');
+exports.CommentLimit = CommentLimit;
+const FollowLimit = () => (0, exports.RateLimit)('follow_user');
+exports.FollowLimit = FollowLimit;
+const SearchLimit = () => (0, exports.RateLimit)('search');
+exports.SearchLimit = SearchLimit;
+const ReportLimit = () => (0, exports.RateLimit)('report_content');
+exports.ReportLimit = ReportLimit;
+//# sourceMappingURL=rate-limit.decorator.js.map

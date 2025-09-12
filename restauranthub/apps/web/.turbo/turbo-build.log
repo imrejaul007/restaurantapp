@@ -1,0 +1,30 @@
+
+> @restauranthub/web@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.32
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/auth/signup/page.tsx:75:18
+Type error: Property 'signup' does not exist on type 'AuthContextType'.
+
+[0m [90m 73 |[39m   [36mconst[39m router [33m=[39m useRouter()[33m;[39m[0m
+[0m [90m 74 |[39m   [36mconst[39m searchParams [33m=[39m useSearchParams()[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 75 |[39m   [36mconst[39m { login[33m,[39m signup } [33m=[39m useAuth()[33m;[39m[0m
+[0m [90m    |[39m                  [31m[1m^[22m[39m[0m
+[0m [90m 76 |[39m   [0m
+[0m [90m 77 |[39m   [36mconst[39m [step[33m,[39m setStep] [33m=[39m useState([35m1[39m)[33m;[39m[0m
+[0m [90m 78 |[39m   [36mconst[39m [showPassword[33m,[39m setShowPassword] [33m=[39m useState([36mfalse[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web
+npm error workspace @restauranthub/web@1.0.0
+npm error location /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web
+npm error command failed
+npm error command sh -c next build
