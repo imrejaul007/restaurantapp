@@ -1,117 +1,265 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, DollarSign, Users, ShoppingBag, Clock, Star, Calendar, ArrowUp, ArrowDown, Download } from 'lucide-react';
+import {
+  Eye,
+  Users,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  Download,
+  BarChart3,
+  MapPin,
+  Calendar,
+  ArrowUp,
+  ArrowDown,
+  Filter,
+  Search,
+  Briefcase,
+  UserCheck,
+  Target,
+  AlertCircle
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
-export default function RestaurantAnalytics() {
-  const [timeframe, setTimeframe] = useState('week');
-  
-  const analytics = {
-    revenue: {
-      current: 15420.50,
-      previous: 13890.25,
-      change: 11.0,
-      target: 18000
-    },
-    orders: {
-      current: 342,
-      previous: 298,
-      change: 14.8,
-      target: 400
-    },
-    customers: {
-      current: 1247,
-      previous: 1098,
-      change: 13.6,
-      target: 1500
-    },
-    avgOrderValue: {
-      current: 45.09,
-      previous: 46.60,
-      change: -3.2,
-      target: 50.00
-    },
-    topItems: [
-      { name: 'Margherita Pizza', orders: 89, revenue: 1690.11, trend: 'up' },
-      { name: 'Caesar Salad', orders: 67, revenue: 869.33, trend: 'up' },
-      { name: 'Pasta Carbonara', orders: 54, revenue: 1134.00, trend: 'down' },
-      { name: 'Grilled Chicken', orders: 43, revenue: 946.50, trend: 'up' },
-      { name: 'Tiramisu', orders: 38, revenue: 304.00, trend: 'stable' }
-    ],
-    hourlyData: [
-      { hour: '11:00', orders: 12, revenue: 540 },
-      { hour: '12:00', orders: 28, revenue: 1260 },
-      { hour: '13:00', orders: 45, revenue: 2025 },
-      { hour: '14:00', orders: 38, revenue: 1710 },
-      { hour: '15:00', orders: 22, revenue: 990 },
-      { hour: '16:00', orders: 15, revenue: 675 },
-      { hour: '17:00', orders: 32, revenue: 1440 },
-      { hour: '18:00', orders: 52, revenue: 2340 },
-      { hour: '19:00', orders: 68, revenue: 3060 },
-      { hour: '20:00', orders: 58, revenue: 2610 },
-      { hour: '21:00', orders: 35, revenue: 1575 },
-      { hour: '22:00', orders: 18, revenue: 810 }
-    ],
-    customerSatisfaction: {
-      rating: 4.7,
-      reviews: 156,
-      breakdown: {
-        5: 78,
-        4: 45,
-        3: 23,
-        2: 7,
-        1: 3
-      }
-    }
+interface JobAnalytics {
+  overview: {
+    totalJobs: number;
+    activeJobs: number;
+    totalViews: number;
+    totalApplications: number;
+    applicationRate: number;
+    hireRate: number;
   };
+  jobPerformance: Array<{
+    id: string;
+    title: string;
+    views: number;
+    applications: number;
+    applicationRate: number;
+    status: 'active' | 'paused' | 'closed';
+    postedDate: string;
+    category: string;
+  }>;
+  hiringFunnel: {
+    applications: number;
+    screening: number;
+    interviews: number;
+    offers: number;
+    hired: number;
+  };
+  trafficSources: Array<{
+    source: string;
+    percentage: number;
+    count: number;
+    trend: 'up' | 'down' | 'stable';
+  }>;
+  demographics: {
+    experienceLevel: Array<{
+      level: string;
+      count: number;
+      percentage: number;
+    }>;
+    locations: Array<{
+      city: string;
+      count: number;
+      percentage: number;
+    }>;
+  };
+}
 
-  const MetricCard = ({ title, value, change, target, icon: Icon, format = 'number' }: any) => (
+export default function JobAnalyticsPage() {
+  const [timeframe, setTimeframe] = useState('month');
+  const [analytics, setAnalytics] = useState<JobAnalytics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setLoading(true);
+      try {
+        // Mock job analytics data
+        const mockAnalytics: JobAnalytics = {
+          overview: {
+            totalJobs: 24,
+            activeJobs: 18,
+            totalViews: 3420,
+            totalApplications: 287,
+            applicationRate: 8.4,
+            hireRate: 12.5
+          },
+          jobPerformance: [
+            {
+              id: '1',
+              title: 'Senior Head Chef',
+              views: 456,
+              applications: 34,
+              applicationRate: 7.5,
+              status: 'active',
+              postedDate: '2024-01-10',
+              category: 'Kitchen Staff'
+            },
+            {
+              id: '2',
+              title: 'Restaurant Manager',
+              views: 392,
+              applications: 28,
+              applicationRate: 7.1,
+              status: 'active',
+              postedDate: '2024-01-08',
+              category: 'Management'
+            },
+            {
+              id: '3',
+              title: 'Server - Weekend Shifts',
+              views: 298,
+              applications: 45,
+              applicationRate: 15.1,
+              status: 'active',
+              postedDate: '2024-01-12',
+              category: 'Front of House'
+            },
+            {
+              id: '4',
+              title: 'Bartender',
+              views: 234,
+              applications: 22,
+              applicationRate: 9.4,
+              status: 'paused',
+              postedDate: '2024-01-05',
+              category: 'Front of House'
+            },
+            {
+              id: '5',
+              title: 'Sous Chef',
+              views: 187,
+              applications: 18,
+              applicationRate: 9.6,
+              status: 'closed',
+              postedDate: '2024-01-02',
+              category: 'Kitchen Staff'
+            }
+          ],
+          hiringFunnel: {
+            applications: 287,
+            screening: 156,
+            interviews: 89,
+            offers: 34,
+            hired: 18
+          },
+          trafficSources: [
+            { source: 'Direct Search', percentage: 35, count: 1197, trend: 'up' },
+            { source: 'Job Portals', percentage: 28, count: 958, trend: 'stable' },
+            { source: 'Social Media', percentage: 22, count: 752, trend: 'up' },
+            { source: 'Company Website', percentage: 15, count: 513, trend: 'down' }
+          ],
+          demographics: {
+            experienceLevel: [
+              { level: 'Entry Level', count: 89, percentage: 31 },
+              { level: '1-3 Years', count: 126, percentage: 44 },
+              { level: '3-5 Years', count: 45, percentage: 16 },
+              { level: '5+ Years', count: 27, percentage: 9 }
+            ],
+            locations: [
+              { city: 'Mumbai', count: 98, percentage: 34 },
+              { city: 'Delhi', count: 75, percentage: 26 },
+              { city: 'Bangalore', count: 52, percentage: 18 },
+              { city: 'Chennai', count: 34, percentage: 12 },
+              { city: 'Others', count: 28, percentage: 10 }
+            ]
+          }
+        };
+        
+        setAnalytics(mockAnalytics);
+      } catch (error) {
+        console.error('Failed to fetch job analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [timeframe]);
+
+  const MetricCard = ({ 
+    title, 
+    value, 
+    change, 
+    icon: Icon, 
+    format = 'number',
+    subtitle
+  }: {
+    title: string;
+    value: number;
+    change?: number;
+    icon: React.ElementType;
+    format?: 'number' | 'percentage';
+    subtitle?: string;
+  }) => (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <div className="flex items-center space-x-2 mt-2">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-center space-x-2">
               <h3 className="text-2xl font-bold">
-                {format === 'currency' ? `$${value.toLocaleString()}` : value.toLocaleString()}
+                {format === 'percentage' ? `${value.toFixed(1)}%` : value.toLocaleString()}
               </h3>
-              <Badge variant={change >= 0 ? "default" : "destructive"} className="text-xs">
-                {change >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                {Math.abs(change).toFixed(1)}%
-              </Badge>
+              {change !== undefined && (
+                <Badge variant={change >= 0 ? "default" : "destructive"} className="text-xs">
+                  {change >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
+                  {Math.abs(change).toFixed(1)}%
+                </Badge>
+              )}
             </div>
-            {target && (
-              <div className="mt-3">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Progress to target</span>
-                  <span>{((value / target) * 100).toFixed(0)}%</span>
-                </div>
-                <Progress value={(value / target) * 100} className="h-2" />
-              </div>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}
           </div>
-          <div className="p-3 bg-blue-50 rounded-full">
-            <Icon className="h-6 w-6 text-blue-600" />
+          <div className="p-3 bg-primary/10 rounded-full">
+            <Icon className="h-6 w-6 text-primary" />
           </div>
         </div>
       </CardContent>
     </Card>
   );
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Failed to load analytics</h3>
+          <p className="text-muted-foreground">Please try refreshing the page</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
-            <p className="text-muted-foreground">Track your restaurant's performance</p>
+            <h1 className="text-3xl font-bold">Job Analytics</h1>
+            <p className="text-muted-foreground">Track your job posting performance and hiring metrics</p>
           </div>
           <div className="flex items-center space-x-3">
             <Select value={timeframe} onValueChange={setTimeframe}>
@@ -119,7 +267,6 @@ export default function RestaurantAnalytics() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="week">This Week</SelectItem>
                 <SelectItem value="month">This Month</SelectItem>
                 <SelectItem value="quarter">Quarter</SelectItem>
@@ -128,157 +275,171 @@ export default function RestaurantAnalytics() {
             </Select>
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              Export Report
             </Button>
           </div>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Overview Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <MetricCard
-              title="Revenue"
-              value={analytics.revenue.current}
-              change={analytics.revenue.change}
-              target={analytics.revenue.target}
-              icon={DollarSign}
-              format="currency"
+              title="Total Jobs"
+              value={analytics.overview.totalJobs}
+              icon={Briefcase}
+              subtitle={`${analytics.overview.activeJobs} active`}
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <MetricCard
-              title="Orders"
-              value={analytics.orders.current}
-              change={analytics.orders.change}
-              target={analytics.orders.target}
-              icon={ShoppingBag}
+              title="Total Views"
+              value={analytics.overview.totalViews}
+              change={15.3}
+              icon={Eye}
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <MetricCard
-              title="Customers"
-              value={analytics.customers.current}
-              change={analytics.customers.change}
-              target={analytics.customers.target}
+              title="Applications"
+              value={analytics.overview.totalApplications}
+              change={8.7}
               icon={Users}
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <MetricCard
-              title="Avg Order Value"
-              value={analytics.avgOrderValue.current}
-              change={analytics.avgOrderValue.change}
-              target={analytics.avgOrderValue.target}
-              icon={TrendingUp}
-              format="currency"
+              title="Application Rate"
+              value={analytics.overview.applicationRate}
+              change={2.1}
+              icon={Target}
+              format="percentage"
+            />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <MetricCard
+              title="Hire Rate"
+              value={analytics.overview.hireRate}
+              change={-1.3}
+              icon={UserCheck}
+              format="percentage"
+            />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+            <MetricCard
+              title="Time to Hire"
+              value={14}
+              change={-5.2}
+              icon={Clock}
+              subtitle="days average"
             />
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Sales Chart */}
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="performance" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="performance">Job Performance</TabsTrigger>
+            <TabsTrigger value="funnel">Hiring Funnel</TabsTrigger>
+            <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
+            <TabsTrigger value="demographics">Demographics</TabsTrigger>
+          </TabsList>
+
+          {/* Job Performance Tab */}
+          <TabsContent value="performance" className="space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <BarChart3 className="h-5 w-5 mr-2" />
+                    Individual Job Performance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {analytics.jobPerformance.map((job, index) => (
+                      <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center space-x-3">
+                            <h4 className="font-medium">{job.title}</h4>
+                            <Badge 
+                              variant={job.status === 'active' ? 'default' : job.status === 'paused' ? 'secondary' : 'outline'}
+                              className="text-xs"
+                            >
+                              {job.status}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {job.category}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground space-x-4">
+                            <span className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              Posted {new Date(job.postedDate).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-8 text-sm">
+                          <div className="text-center">
+                            <div className="font-semibold">{job.views.toLocaleString()}</div>
+                            <div className="text-muted-foreground">Views</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-semibold">{job.applications}</div>
+                            <div className="text-muted-foreground">Applications</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-semibold">{job.applicationRate.toFixed(1)}%</div>
+                            <div className="text-muted-foreground">App. Rate</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+
+          {/* Hiring Funnel Tab */}
+          <TabsContent value="funnel" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             >
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <TrendingUp className="h-5 w-5 mr-2" />
-                    Hourly Sales
+                    Hiring Funnel Analysis
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {analytics.hourlyData.map((data, index) => (
-                      <div key={index} className="flex items-center space-x-4">
-                        <div className="w-16 text-sm font-medium">{data.hour}</div>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>{data.orders} orders</span>
-                            <span>${data.revenue}</span>
-                          </div>
-                          <Progress value={(data.revenue / 3000) * 100} className="h-2" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Top Menu Items */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Menu Items</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {analytics.topItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <div className="font-medium">{item.name}</div>
-                            <div className="text-sm text-gray-600">{item.orders} orders</div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold">${item.revenue.toLocaleString()}</div>
-                          <Badge 
-                            variant={item.trend === 'up' ? 'default' : item.trend === 'down' ? 'destructive' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {item.trend === 'up' ? <ArrowUp className="h-3 w-3 mr-1" /> : 
-                             item.trend === 'down' ? <ArrowDown className="h-3 w-3 mr-1" /> : ''}
-                            {item.trend}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          <div className="space-y-6">
-            {/* Customer Satisfaction */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-yellow-500" />
-                    Customer Satisfaction
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-yellow-600">{analytics.customerSatisfaction.rating}</div>
-                    <div className="text-sm text-gray-600">{analytics.customerSatisfaction.reviews} reviews</div>
-                  </div>
-                  <div className="space-y-2">
-                    {[5, 4, 3, 2, 1].map(rating => {
-                      const count = analytics.customerSatisfaction.breakdown[rating as keyof typeof analytics.customerSatisfaction.breakdown];
-                      const percentage = (count / analytics.customerSatisfaction.reviews) * 100;
+                  <div className="space-y-6">
+                    {Object.entries(analytics.hiringFunnel).map(([stage, count], index) => {
+                      const percentage = (count / analytics.hiringFunnel.applications) * 100;
+                      const stageNames = {
+                        applications: 'Applications Received',
+                        screening: 'Passed Screening',
+                        interviews: 'Interviewed',
+                        offers: 'Offers Extended',
+                        hired: 'Successfully Hired'
+                      };
+                      
                       return (
-                        <div key={rating} className="flex items-center space-x-2 text-sm">
-                          <span className="w-8">{rating}★</span>
-                          <Progress value={percentage} className="flex-1 h-2" />
-                          <span className="w-8 text-right">{count}</span>
+                        <div key={stage} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">{stageNames[stage as keyof typeof stageNames]}</span>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-2xl font-bold">{count}</span>
+                              <span className="text-sm text-muted-foreground">
+                                ({percentage.toFixed(1)}%)
+                              </span>
+                            </div>
+                          </div>
+                          <Progress value={percentage} className="h-3" />
                         </div>
                       );
                     })}
@@ -286,79 +447,115 @@ export default function RestaurantAnalytics() {
                 </CardContent>
               </Card>
             </motion.div>
+          </TabsContent>
 
-            {/* Quick Stats */}
+          {/* Traffic Sources Tab */}
+          <TabsContent value="sources" className="space-y-6">
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.7 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             >
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Stats</CardTitle>
+                  <CardTitle className="flex items-center">
+                    <Search className="h-5 w-5 mr-2" />
+                    Traffic Sources
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Peak Hour</span>
-                    <span className="font-semibold">7:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Avg Prep Time</span>
-                    <span className="font-semibold">18 min</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Order Accuracy</span>
-                    <span className="font-semibold">98.5%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Return Rate</span>
-                    <span className="font-semibold">67%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Staff Efficiency</span>
-                    <span className="font-semibold">94%</span>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {analytics.trafficSources.map((source, index) => (
+                      <div key={source.source} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-medium">{source.source}</h4>
+                            <Badge 
+                              variant={source.trend === 'up' ? 'default' : source.trend === 'down' ? 'destructive' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {source.trend === 'up' ? <ArrowUp className="h-3 w-3 mr-1" /> : 
+                               source.trend === 'down' ? <ArrowDown className="h-3 w-3 mr-1" /> : ''}
+                              {source.trend}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {source.count.toLocaleString()} views
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{source.percentage}%</div>
+                          <Progress value={source.percentage} className="w-20 h-2 mt-1" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
+          </TabsContent>
 
-            {/* Goals */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Monthly Goals</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Revenue Target</span>
-                      <span>85.7%</span>
-                    </div>
-                    <Progress value={85.7} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Customer Growth</span>
-                      <span>83.1%</span>
-                    </div>
-                    <Progress value={83.1} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Order Volume</span>
-                      <span>85.5%</span>
-                    </div>
-                    <Progress value={85.5} />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
+          {/* Demographics Tab */}
+          <TabsContent value="demographics" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Experience Level */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Users className="h-5 w-5 mr-2" />
+                      Experience Level
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {analytics.demographics.experienceLevel.map((level) => (
+                      <div key={level.level} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-medium">{level.level}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {level.count} ({level.percentage}%)
+                          </span>
+                        </div>
+                        <Progress value={level.percentage} className="h-2" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Geographic Distribution */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <MapPin className="h-5 w-5 mr-2" />
+                      Geographic Distribution
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {analytics.demographics.locations.map((location) => (
+                      <div key={location.city} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-medium">{location.city}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {location.count} ({location.percentage}%)
+                          </span>
+                        </div>
+                        <Progress value={location.percentage} className="h-2" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

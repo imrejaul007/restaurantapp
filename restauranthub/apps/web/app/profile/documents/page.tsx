@@ -359,10 +359,25 @@ export default function ProfileDocumentsPage() {
                             </div>
                             
                             <div className="flex items-center space-x-2">
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => window.open(document.url, '_blank')}
+                                title="View document"
+                              >
                                 <Eye className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = document.url;
+                                  link.download = document.fileName;
+                                  link.click();
+                                }}
+                                title="Download document"
+                              >
                                 <Download className="h-4 w-4" />
                               </Button>
                               {document.type === 'resume' && !document.isDefault && (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   Plus,
@@ -160,6 +161,7 @@ const jobStats = [
 ];
 
 export default function RestaurantJobs() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
@@ -242,11 +244,15 @@ export default function RestaurantJobs() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => alert('Job templates feature coming soon!')}>
               <FileText className="h-4 w-4 mr-2" />
               Templates
             </Button>
-            <Button size="sm">
+            <Button variant="outline" size="sm" onClick={() => router.push('/restaurant/analytics')}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Analytics
+            </Button>
+            <Button size="sm" onClick={() => router.push('/restaurant/jobs/create')}>
               <Plus className="h-4 w-4 mr-2" />
               Post New Job
             </Button>
