@@ -11,6 +11,7 @@ import helmet from 'helmet';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
+// import { PerformanceService } from './monitoring/performance.service';
 
 async function bootstrap() {
   // Configure Winston logger
@@ -31,7 +32,7 @@ async function bootstrap() {
       // Log to file in production
       ...(process.env.NODE_ENV === 'production' ? [
         new winston.transports.File({
-          filename: 'logs/(error as Error).log',
+          filename: 'logs/error.log',
           level: 'error',
           format: winston.format.combine(
             winston.format.timestamp(),
@@ -52,41 +53,107 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger });
   const configService = app.get(ConfigService);
   const prismaService = app.get(PrismaService);
+  // const performanceService = app.get(PerformanceService);
+
+  // Initialize performance monitoring
+  // performanceService.startPerformanceMonitoring();
 
   // Trust proxy (for accurate IP addresses behind load balancers)
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
-  // Rate limiting
+  // Enhanced Rate limiting with security-focused configuration
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: configService.get('RATE_LIMIT_MAX', 1000), // limit each IP to 1000 requests per windowMs
+    windowMs: configService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes by default
+    max: configService.get('RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'production' ? 100 : 1000),
     message: {
-      error: 'Too many requests from this IP, please try again later.',
+      error: 'Too many requests from this IP. Please try again later.',
       statusCode: 429,
+      retryAfter: Math.ceil(configService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
     },
     standardHeaders: true,
     legacyHeaders: false,
-    // Skip rate limiting for certain IPs in development
+    // Enhanced logging for security monitoring
+    onLimitReached: (req: any) => {
+      logger.warn(`Rate limit exceeded for IP: ${req.ip} on ${req.path}`, {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+        method: req.method,
+      });
+    },
+    // Skip rate limiting for health checks only in development
     skip: (req: any) => {
       if (process.env.NODE_ENV === 'development') {
-        return req.ip === '127.0.0.1' || req.ip === '::1';
+        return req.path.includes('/health') && (req.ip === '127.0.0.1' || req.ip === '::1');
       }
       return false;
     },
   });
   app.use(limiter);
 
-  // Strict rate limiting for auth endpoints
+  // Strict rate limiting for authentication endpoints with progressive delays
   const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 requests per windowMs for auth endpoints
+    windowMs: configService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
+    max: configService.get('AUTH_RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'development' ? 20 : 5),
     message: {
-      error: 'Too many authentication attempts, please try again later.',
+      error: 'Too many authentication attempts. Your IP has been temporarily blocked for security.',
       statusCode: 429,
+      retryAfter: Math.ceil(configService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
+      blocked: true,
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Enhanced security logging for authentication attempts
+    onLimitReached: (req: any) => {
+      logger.error(`SECURITY ALERT: Authentication rate limit exceeded`, {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+        method: req.method,
+        timestamp: new Date().toISOString(),
+        severity: 'HIGH',
+      });
+    },
+    // Progressive delay - exponential backoff for repeated violations
+    skip: (req: any) => {
+      // Only skip health checks in development
+      if (process.env.NODE_ENV === 'development') {
+        return req.path.includes('/health');
+      }
+      return false;
     },
   });
+
+  // Extra strict rate limiting for sensitive auth operations
+  const strictAuthLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3, // Only 3 attempts per hour for password reset
+    message: {
+      error: 'Too many sensitive operations attempted. Please wait before trying again.',
+      statusCode: 429,
+      retryAfter: 3600,
+      blocked: true,
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    onLimitReached: (req: any) => {
+      logger.error(`SECURITY ALERT: Sensitive auth operation rate limit exceeded`, {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        path: req.path,
+        method: req.method,
+        timestamp: new Date().toISOString(),
+        severity: 'CRITICAL',
+      });
+    },
+  });
+
+  // Apply different rate limits to different auth endpoints
   app.use('/api/v1/auth', authLimiter);
+  app.use('/api/v1/auth/forgot-password', strictAuthLimiter);
+  app.use('/api/v1/auth/reset-password', strictAuthLimiter);
+  app.use('/api/v1/auth/change-password', strictAuthLimiter);
 
   // Security headers with Helmet
   app.use(helmet({
@@ -128,24 +195,40 @@ async function bootstrap() {
     threshold: 1024,
   }));
 
-  // CORS with more specific configuration
-  const allowedOrigins = [
-    configService.get('FRONTEND_URL'),
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://restauranthub.com',
-    'https://www.restauranthub.com',
-  ].filter(Boolean);
+  // CORS with environment-specific configuration
+  const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? (configService.get('ALLOWED_ORIGINS', '').split(',').filter(Boolean))
+    : [
+        configService.get('FRONTEND_URL'),
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:3003',
+        'http://localhost:3004',
+        'https://restauranthub.com',
+        'https://www.restauranthub.com',
+      ].filter(Boolean);
 
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, curl requests, etc.)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-        callback(null, true);
+      if (process.env.NODE_ENV === 'production') {
+        // Strict CORS in production
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          logger.warn(`CORS blocked origin: ${origin}`);
+          callback(new Error('Not allowed by CORS'));
+        }
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Development - allow all localhost origins
+        if (allowedOrigins.includes(origin) || origin?.includes('localhost')) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
       }
     },
     credentials: true,
@@ -162,19 +245,53 @@ async function bootstrap() {
     exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
   });
 
-  // CSRF Protection (only in production)
-  if (process.env.NODE_ENV === 'production') {
+  // CSRF Protection (configurable via environment)
+  const enableCsrf = configService.get('ENABLE_CSRF', 'false') === 'true' || process.env.NODE_ENV === 'production';
+  if (enableCsrf) {
     app.use(csurf({
       cookie: {
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       },
+      // Ignore CSRF for API documentation and health checks
+      ignoreMethods: process.env.NODE_ENV === 'development' ? ['GET', 'HEAD', 'OPTIONS'] : ['GET', 'HEAD'],
     }));
+
+    // Provide CSRF token endpoint
+    expressApp.get('/api/v1/csrf-token', (req: any, res: any) => {
+      res.json({ csrfToken: req.csrfToken() });
+    });
   }
 
   // Global prefix
   app.setGlobalPrefix(configService.get('API_PREFIX', 'api/v1'));
+
+  // Request logging (configurable for different environments)
+  if (configService.get('LOG_LEVEL') === 'debug') {
+    app.use((req: any, res: any, next: any) => {
+      if (logger) {
+        logger.log(`${req.method} ${req.path}`, JSON.stringify({
+          method: req.method,
+          path: req.path,
+          userAgent: req.get('User-Agent'),
+          ip: req.ip,
+          // Never log sensitive data like passwords or tokens
+          bodySize: req.body ? JSON.stringify(req.body).length : 0,
+          timestamp: new Date().toISOString(),
+        }));
+      }
+      next();
+    });
+  } else {
+    // Minimal logging for production
+    app.use((req: any, res: any, next: any) => {
+      if (req.method !== 'GET' && req.path !== '/api/v1/health') {
+        logger.log(`${req.method} ${req.path}`, { ip: req.ip });
+      }
+      next();
+    });
+  }
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -241,6 +358,11 @@ async function bootstrap() {
     .addTag('marketplace', 'B2B product marketplace')
     .addTag('orders', 'Order management and fulfillment')
     .addTag('payments', 'Payment processing and billing')
+    .addTag('financial', 'Financial management, invoicing, and accounting')
+    .addTag('inventory', 'Inventory and stock management')
+    .addTag('menu', 'Menu management and pricing')
+    .addTag('pos', 'Point of Sale and table management')
+    .addTag('customer', 'Customer relationship management')
     .addTag('messaging', 'Real-time messaging system')
     .addTag('notifications', 'Notification management')
     .addTag('analytics', 'Analytics and reporting')
@@ -279,8 +401,8 @@ async function bootstrap() {
     } else {
       logger.error('Non-error reason:', JSON.stringify(reason, null, 2));
     }
-    // Temporarily comment out process.exit to see the actual error
-    // process.exit(1);
+    // Exit with proper error code after logging
+    process.exit(1);
   });
 
   // Graceful shutdown
