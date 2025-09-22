@@ -205,7 +205,7 @@ export const AdminSidebar: React.FC = () => {
                   
                   <div className="flex items-center space-x-2">
                     {item.badge && (
-                      <Badge color={item.badge.color} size="sm">
+                      <Badge color={item.badge.color} >
                         {item.badge.text}
                       </Badge>
                     )}
@@ -262,7 +262,7 @@ export const AdminSidebar: React.FC = () => {
                     <Icon className="w-5 h-5 mr-3 flex-shrink-0 text-red-500" />
                     <span>{item.name}</span>
                   </div>
-                  <Badge color="red" size="sm">
+                  <Badge color="red" >
                     {item.count}
                   </Badge>
                 </Link>

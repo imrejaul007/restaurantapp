@@ -366,7 +366,7 @@ export function FileUpload({
                         
                         <Button
                           variant="ghost"
-                          size="sm"
+                          
                           onClick={() => removeFile(fileItem.id)}
                         >
                           <X className="h-4 w-4" />

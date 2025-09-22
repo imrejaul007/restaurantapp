@@ -274,16 +274,16 @@ export default function EmployeeProfile() {
             </div>
             {isEditing ? (
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                <Button variant="outline"  onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button size="sm" onClick={form.handleSubmit(onSubmit)}>
+                <Button  onClick={form.handleSubmit(onSubmit)}>
                   <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </Button>
               </div>
             ) : (
-              <Button size="sm" onClick={() => setIsEditing(true)}>
+              <Button  onClick={() => setIsEditing(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
@@ -522,7 +522,7 @@ export default function EmployeeProfile() {
                     Add your work history and achievements
                   </CardDescription>
                 </div>
-                <Button size="sm" onClick={() => setShowAddExperience(true)}>
+                <Button  onClick={() => setShowAddExperience(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Experience
                 </Button>
@@ -541,10 +541,10 @@ export default function EmployeeProfile() {
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                          <Button variant="ghost"  className="text-destructive hover:text-destructive">
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
@@ -576,7 +576,7 @@ export default function EmployeeProfile() {
                     Showcase your professional skills and get verified
                   </CardDescription>
                 </div>
-                <Button size="sm">
+                <Button >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Skill
                 </Button>
@@ -599,7 +599,7 @@ export default function EmployeeProfile() {
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <span>{skill.endorsements} endorsements</span>
                         {!skill.verified && (
-                          <Button variant="ghost" size="sm" className="text-xs">
+                          <Button variant="ghost"  className="text-xs">
                             Take Test
                           </Button>
                         )}
@@ -620,7 +620,7 @@ export default function EmployeeProfile() {
                     Upload and manage your important documents
                   </CardDescription>
                 </div>
-                <Button size="sm">
+                <Button >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Document
                 </Button>
@@ -652,15 +652,15 @@ export default function EmployeeProfile() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Download className="h-4 w-4 mr-1" />
                           Download
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button variant="ghost"  className="text-destructive hover:text-destructive">
                           <X className="h-4 w-4" />
                         </Button>
                       </div>

@@ -154,11 +154,11 @@ export default function AnalyticsDashboard() {
                 <SelectItem value="1y">1 Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>

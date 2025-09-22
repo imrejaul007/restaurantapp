@@ -95,11 +95,12 @@ export function MentionAutocomplete({
 
     textarea.addEventListener('input', handleInput);
     textarea.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       textarea.removeEventListener('input', handleInput);
       textarea.removeEventListener('keydown', handleKeyDown);
     };
+
   }, [textareaRef, isVisible, suggestions, selectedIndex]);
 
   // Handle clicks outside to close

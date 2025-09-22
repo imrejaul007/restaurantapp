@@ -1,0 +1,129 @@
+{
+  "name": "RestaurantHub - Complete Restaurant Management Platform",
+  "short_name": "RestaurantHub",
+  "description": "The all-in-one platform connecting restaurants, employees, and suppliers in the food industry with advanced features, AI integration, and real-time collaboration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b35",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "food"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon?size=16",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=32",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=72",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=96",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=128",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=144",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=152",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=384",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon?size=512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Restaurant Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your restaurant dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icon?size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Marketplace",
+      "short_name": "Marketplace",
+      "description": "Browse B2B marketplace",
+      "url": "/marketplace",
+      "icons": [
+        {
+          "src": "/icon?size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "short_name": "Jobs",
+      "description": "Restaurant job portal",
+      "url": "/jobs",
+      "icons": [
+        {
+          "src": "/icon?size=96",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "View your messages and notifications",
+      "url": "/messages",
+      "icons": [
+        {
+          "src": "/icon?size=96",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "prefer_related_applications": false,
+  "related_applications": []
+}

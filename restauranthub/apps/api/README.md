@@ -265,6 +265,19 @@ POST /api/v1/auth/signin
 Authorization: Bearer <access_token>
 ```
 
+### Demo Credentials
+
+For testing purposes, demo users are available with the following credentials:
+
+| Role | Email | Password |
+|------|--------|----------|
+| Admin | admin@demo.com | Password123 |
+| Restaurant | restaurant@demo.com | Password123 |
+| Vendor | vendor@demo.com | Password123 |
+| Employee | employee@demo.com | Password123 |
+
+**Note:** These demo credentials are available after running the database seed command (`npm run db:seed`).
+
 ### Rate Limiting
 
 - General API: 1000 requests per 15 minutes per IP

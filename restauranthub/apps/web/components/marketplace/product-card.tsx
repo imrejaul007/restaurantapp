@@ -119,7 +119,7 @@ export default function ProductCard({
             </div>
           </div>
           
-          <Button size="sm" onClick={handleAddToCart} disabled={!product.inStock}>
+          <Button  onClick={handleAddToCart} disabled={!product.inStock}>
             <ShoppingCart className="h-4 w-4" />
           </Button>
         </div>
@@ -147,14 +147,14 @@ export default function ProductCard({
           isHovered ? 'opacity-100' : 'opacity-0'
         )}>
           <Button 
-            size="sm" 
+             
             variant="secondary"
             onClick={() => onViewDetails?.(product)}
           >
             <Eye className="h-4 w-4 mr-1" />
             Quick View
           </Button>
-          <Button size="sm" variant="secondary">
+          <Button  variant="secondary">
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
@@ -300,7 +300,7 @@ export default function ProductCard({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Button 
-                  size="sm" 
+                   
                   variant="outline"
                   onClick={handleDecreaseQuantity}
                   disabled={selectedQuantity <= product.minOrderQuantity}
@@ -309,7 +309,7 @@ export default function ProductCard({
                 </Button>
                 <span className="font-medium w-12 text-center">{selectedQuantity}</span>
                 <Button 
-                  size="sm" 
+                   
                   variant="outline"
                   onClick={handleIncreaseQuantity}
                 >

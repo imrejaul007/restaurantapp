@@ -276,6 +276,7 @@ export default function GlobalSearch({
                     <div className="max-h-96 overflow-y-auto">
                       {results.slice(0, 5).map((result) => {
                         const Icon = getResultIcon(result.type);
+
                         return (
                           <button
                             key={result.id}
@@ -432,6 +433,7 @@ export default function GlobalSearch({
                     <div className="divide-y divide-border">
                       {results.map((result) => {
                         const Icon = getResultIcon(result.type);
+
                         return (
                           <button
                             key={result.id}
@@ -550,7 +552,7 @@ export default function GlobalSearch({
                 {/* Footer */}
                 {query && results.length > 0 && (
                   <div className="p-4 border-t border-border bg-accent/50">
-                    <Button variant="ghost" size="sm" className="w-full justify-center">
+                    <Button variant="ghost"  className="w-full justify-center" size="default">
                       View all {results.length} results
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>

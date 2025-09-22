@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
-import { Tabs } from '../../../../components/ui/Tabs';
-import { 
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../../components/ui/tabs';
+import {
   BuildingStorefrontIcon,
   StarIcon,
   MapPinIcon,
@@ -25,7 +25,7 @@ import {
   PencilIcon,
   EyeIcon,
   PhotoIcon,
-  CurrencyRupeeIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -268,7 +268,7 @@ export default function RestaurantDetailPage() {
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
-            size="sm"
+            
             onClick={() => router.back()}
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -285,11 +285,11 @@ export default function RestaurantDetailPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <PencilIcon className="w-4 h-4 mr-2" />
             Edit
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <EyeIcon className="w-4 h-4 mr-2" />
             View as Customer
           </Button>
@@ -309,7 +309,7 @@ export default function RestaurantDetailPage() {
             <div className="space-y-1">
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={() => handleStatusChange('ACTIVE')}
                 className="text-green-600 border-green-600 hover:bg-green-50 text-xs"
                 disabled={restaurant.status === 'ACTIVE'}
@@ -318,7 +318,7 @@ export default function RestaurantDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={() => handleStatusChange('SUSPENDED')}
                 className="text-red-600 border-red-600 hover:bg-red-50 text-xs"
                 disabled={restaurant.status === 'SUSPENDED'}
@@ -340,7 +340,7 @@ export default function RestaurantDetailPage() {
             <div className="space-y-1">
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={() => handleVerificationStatusChange('VERIFIED')}
                 className="text-green-600 border-green-600 hover:bg-green-50 text-xs"
                 disabled={restaurant.verificationStatus === 'VERIFIED'}
@@ -349,7 +349,7 @@ export default function RestaurantDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={() => handleVerificationStatusChange('REJECTED')}
                 className="text-red-600 border-red-600 hover:bg-red-50 text-xs"
                 disabled={restaurant.verificationStatus === 'REJECTED'}
@@ -363,7 +363,7 @@ export default function RestaurantDetailPage() {
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-green-100 rounded-lg">
-              <CurrencyRupeeIcon className="w-6 h-6 text-green-600" />
+              <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Revenue</p>
@@ -387,10 +387,20 @@ export default function RestaurantDetailPage() {
 
       {/* Tabs */}
       <Card>
-        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-        
-        <div className="p-6">
-          {activeTab === 'overview' && (
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-6">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          <TabsContent value="overview" className="p-6">
             <div className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -433,7 +443,7 @@ export default function RestaurantDetailPage() {
 
                   <div>
                     <p className="text-sm font-medium text-gray-900 mb-2">Subscription Plan</p>
-                    <Badge color="purple" size="lg">
+                    <Badge className="px-3 py-1 text-sm">
                       {restaurant.subscriptionPlan}
                     </Badge>
                   </div>
@@ -469,9 +479,9 @@ export default function RestaurantDetailPage() {
                 </div>
               )}
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === 'analytics' && (
+          <TabsContent value="analytics" className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Analytics Overview</h3>
               
@@ -517,9 +527,9 @@ export default function RestaurantDetailPage() {
                 </div>
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === 'documents' && (
+          <TabsContent value="documents" className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Verification Documents</h3>
               
@@ -546,7 +556,7 @@ export default function RestaurantDetailPage() {
                       </p>
                       {doc.uploaded && (
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" >
                             <EyeIcon className="w-4 h-4 mr-2" />
                             View
                           </Button>
@@ -554,14 +564,14 @@ export default function RestaurantDetailPage() {
                             <>
                               <Button 
                                 variant="outline" 
-                                size="sm"
+                                
                                 className="text-green-600 border-green-600 hover:bg-green-50"
                               >
                                 Approve
                               </Button>
                               <Button 
                                 variant="outline" 
-                                size="sm"
+                                
                                 className="text-red-600 border-red-600 hover:bg-red-50"
                               >
                                 Reject
@@ -575,13 +585,13 @@ export default function RestaurantDetailPage() {
                 ))}
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === 'employees' && (
+          <TabsContent value="employees" className="p-6">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Employee Management</h3>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" >
                   View All Employees
                 </Button>
               </div>
@@ -612,13 +622,13 @@ export default function RestaurantDetailPage() {
                 </Card>
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === 'orders' && (
+          <TabsContent value="orders" className="p-6">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Order History</h3>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" >
                   View All Orders
                 </Button>
               </div>
@@ -653,9 +663,9 @@ export default function RestaurantDetailPage() {
                 </Card>
               </div>
             </div>
-          )}
+          </TabsContent>
 
-          {activeTab === 'audit' && (
+          <TabsContent value="audit" className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Audit Log</h3>
               
@@ -674,8 +684,8 @@ export default function RestaurantDetailPage() {
                 ))}
               </div>
             </div>
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </Card>
     </motion.div>
   );

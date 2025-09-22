@@ -295,13 +295,13 @@ export default function ShiftManagement() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
             <Dialog open={isCreateTemplateOpen} onOpenChange={setIsCreateTemplateOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="default">
                   <Copy className="h-4 w-4 mr-2" />
                   Templates
                 </Button>
@@ -309,7 +309,7 @@ export default function ShiftManagement() {
             </Dialog>
             <Dialog open={isCreateShiftOpen} onOpenChange={setIsCreateShiftOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button size="default">
                   <Plus className="h-4 w-4 mr-2" />
                   Schedule Shift
                 </Button>
@@ -471,21 +471,21 @@ export default function ShiftManagement() {
           <div className="flex items-center space-x-2">
             <Button
               variant={viewMode === 'day' ? 'default' : 'outline'}
-              size="sm"
+              size="default"
               onClick={() => setViewMode('day')}
             >
               Day
             </Button>
             <Button
               variant={viewMode === 'week' ? 'default' : 'outline'}
-              size="sm"
+              size="default"
               onClick={() => setViewMode('week')}
             >
               Week
             </Button>
             <Button
               variant={viewMode === 'month' ? 'default' : 'outline'}
-              size="sm"
+              size="default"
               onClick={() => setViewMode('month')}
             >
               Month

@@ -1,17 +1,17 @@
-const { pathsToModuleNameMapper } = require('ts-jest');
-const { compilerOptions } = require('./tsconfig.json');
-
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/test'],
-  testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/*.(test|spec).+(ts|tsx|js)',
-  ],
+  roots: ['<rootDir>/test'],
+  testMatch: ['**/*.test.js', '**/*.spec.js', '**/*.test.ts', '**/*.spec.ts'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: false,
+    }],
+    '^.+\\.js$': 'babel-jest',
   },
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
   collectCoverageFrom: [
     'src/**/*.{ts,js}',
     '!src/**/*.d.ts',
@@ -30,10 +30,24 @@ module.exports = {
       lines: 80,
       statements: 80,
     },
+    './src/modules/auth/**/*.ts': {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
+    './src/modules/users/**/*.ts': {
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85,
+    },
   },
-  moduleNameMapping: pathsToModuleNameMapper(compilerOptions.paths || {}, {
-    prefix: '<rootDir>/',
-  }),
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@common/(.*)$': '<rootDir>/../../packages/common/src/$1',
+    '^@db/(.*)$': '<rootDir>/../../packages/db/src/$1',
+  },
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   testTimeout: 30000,
   maxWorkers: '50%',
@@ -44,21 +58,4 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   globalSetup: '<rootDir>/test/global-setup.ts',
   globalTeardown: '<rootDir>/test/global-teardown.ts',
-  projects: [
-    {
-      displayName: 'unit',
-      testMatch: ['<rootDir>/test/unit/**/*.spec.ts'],
-      testEnvironment: 'node',
-    },
-    {
-      displayName: 'integration',
-      testMatch: ['<rootDir>/test/integration/**/*.spec.ts'],
-      testEnvironment: 'node',
-    },
-    {
-      displayName: 'e2e',
-      testMatch: ['<rootDir>/test/e2e/**/*.spec.ts'],
-      testEnvironment: 'node',
-    },
-  ],
 };

@@ -92,7 +92,7 @@ const workingDays = [
 
 export default function CreateJobPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  // const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
@@ -123,20 +123,11 @@ export default function CreateJobPage() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Job Posted Successfully",
-        description: "Your job posting has been created and is now live.",
-        variant: "default"
-      });
 
+      console.log('Job Posted Successfully');
       router.push('/restaurant/jobs');
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create job posting. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Failed to create job posting:', error);
     } finally {
       setLoading(false);
     }
@@ -180,7 +171,7 @@ export default function CreateJobPage() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -317,8 +308,8 @@ export default function CreateJobPage() {
                           type="number"
                           placeholder="25000"
                           value={formData.salary.min}
-                          onChange={(e) => setFormData(prev => ({ 
-                            ...prev, 
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, min: e.target.value }
                           }))}
                           required
@@ -331,8 +322,8 @@ export default function CreateJobPage() {
                           type="number"
                           placeholder="35000"
                           value={formData.salary.max}
-                          onChange={(e) => setFormData(prev => ({ 
-                            ...prev, 
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, max: e.target.value }
                           }))}
                           required
@@ -342,8 +333,8 @@ export default function CreateJobPage() {
                         <Label htmlFor="salary-type">Salary Type *</Label>
                         <Select 
                           value={formData.salary.type} 
-                          onValueChange={(value) => setFormData(prev => ({ 
-                            ...prev, 
+                          onValueChange={(value) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, type: value }
                           }))}
                         >
@@ -416,7 +407,7 @@ export default function CreateJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('responsibilities')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -449,7 +440,7 @@ export default function CreateJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('requirements')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -482,7 +473,7 @@ export default function CreateJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('benefits')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -515,7 +506,7 @@ export default function CreateJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('skills')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -590,7 +581,7 @@ export default function CreateJobPage() {
                       <Checkbox
                         id="urgent-hiring"
                         checked={formData.urgentHiring}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, urgentHiring: !!checked }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, urgentHiring: (e.target as HTMLInputElement).checked }))}
                       />
                       <Label htmlFor="urgent-hiring">Urgent Hiring</Label>
                     </div>
@@ -598,7 +589,7 @@ export default function CreateJobPage() {
                       <Checkbox
                         id="remote-friendly"
                         checked={formData.remoteFriendly}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, remoteFriendly: !!checked }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, remoteFriendly: (e.target as HTMLInputElement).checked }))}
                       />
                       <Label htmlFor="remote-friendly">Remote Friendly</Label>
                     </div>

@@ -72,7 +72,7 @@ interface SignupFormData {
 export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, signup } = useAuth();
+  const { login } = useAuth();
   
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -239,8 +239,16 @@ export default function SignupPage() {
         }),
       };
       
-      // Call signup from auth context (which uses the API)
-      await signup(signupData);
+      // Make direct API call for signup
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Signup failed');
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Signup failed. Please try again.';
@@ -630,7 +638,7 @@ export default function SignupPage() {
                   <Checkbox
                     id="terms"
                     checked={formData.acceptTerms}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, acceptTerms: checked as boolean }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, acceptTerms: (e.target as HTMLInputElement).checked }))}
                   />
                   <label
                     htmlFor="terms"

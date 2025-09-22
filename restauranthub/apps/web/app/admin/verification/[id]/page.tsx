@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
 import { Input } from '../../../../components/ui/input';
-import { Textarea } from '../../../../components/ui/Textarea';
+import { Textarea } from '../../../../components/ui/textarea';
 import { 
   DocumentTextIcon,
   CheckCircleIcon,
   XCircleIcon,
   EyeIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   ArrowLeftIcon,
   ClockIcon,
   ExclamationTriangleIcon,
@@ -342,7 +342,7 @@ export default function VerificationWorkflowPage() {
           <ExclamationTriangleIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Verification Request Not Found</h2>
           <p className="text-gray-600 mb-4">The verification request you're looking for doesn't exist.</p>
-          <Button onClick={() => router.back()}>Go Back</Button>
+          <Button onClick={() => router.back()} size="default" variant="default">Go Back</Button>
         </div>
       </div>
     );
@@ -359,7 +359,7 @@ export default function VerificationWorkflowPage() {
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
-            size="sm"
+            size="default"
             onClick={() => router.back()}
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -392,6 +392,8 @@ export default function VerificationWorkflowPage() {
         <Card className="p-4">
           <div className="flex flex-wrap gap-2">
             <Button
+              variant="default"
+              size="default"
               onClick={() => handleOverallDecision('approve')}
               className="bg-green-600 hover:bg-green-700 text-white"
             >
@@ -399,6 +401,8 @@ export default function VerificationWorkflowPage() {
               Approve Verification
             </Button>
             <Button
+              variant="default"
+              size="default"
               onClick={() => setShowRejectionModal(true)}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
@@ -406,8 +410,9 @@ export default function VerificationWorkflowPage() {
               Reject Verification
             </Button>
             <Button
-              onClick={() => handleOverallDecision('request_changes')}
               variant="outline"
+              size="default"
+              onClick={() => handleOverallDecision('request_changes')}
               className="border-orange-600 text-orange-600 hover:bg-orange-50"
             >
               <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
@@ -513,12 +518,12 @@ export default function VerificationWorkflowPage() {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline"  size="default">
                         <EyeIcon className="w-4 h-4 mr-2" />
                         View
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <DownloadIcon className="w-4 h-4 mr-2" />
+                      <Button variant="outline"  size="default">
+                        <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
                         Download
                       </Button>
                     </div>
@@ -526,7 +531,8 @@ export default function VerificationWorkflowPage() {
                     {document.status === 'PENDING' && (
                       <div className="flex space-x-2">
                         <Button
-                          size="sm"
+                          variant="default"
+                          size="default"
                           onClick={() => handleDocumentAction(document.id, 'approve')}
                           className="bg-green-600 hover:bg-green-700 text-white"
                         >
@@ -534,7 +540,8 @@ export default function VerificationWorkflowPage() {
                           Approve
                         </Button>
                         <Button
-                          size="sm"
+                          variant="default"
+                          size="default"
                           onClick={() => {
                             setSelectedDocument(document.id);
                             setShowRejectionModal(true);
@@ -573,7 +580,7 @@ export default function VerificationWorkflowPage() {
             <div className="space-y-3">
               <select
                 value={noteType}
-                onChange={(e) => setNoteType(e.target.value as any)}
+                onChange={(e) => setNoteType(e.target.value as 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="INFO">Info</option>
@@ -589,7 +596,7 @@ export default function VerificationWorkflowPage() {
                 rows={3}
               />
               
-              <Button onClick={addNote} className="w-full" disabled={!newNote.trim()}>
+              <Button onClick={addNote} className="w-full" disabled={!newNote.trim()} size="default" variant="default">
                 Add Note
               </Button>
             </div>
@@ -603,7 +610,7 @@ export default function VerificationWorkflowPage() {
               {verificationRequest.verificationNotes.map((note) => (
                 <div key={note.id} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge color={getNoteBadgeColor(note.type)} size="sm">
+                    <Badge color={getNoteBadgeColor(note.type)} >
                       {note.type}
                     </Badge>
                     <span className="text-xs text-gray-500">
@@ -665,6 +672,8 @@ export default function VerificationWorkflowPage() {
             
             <div className="flex space-x-3">
               <Button
+                variant="default"
+                size="default"
                 onClick={() => {
                   if (selectedDocument) {
                     handleDocumentAction(selectedDocument, 'reject', rejectionReason);
@@ -682,6 +691,7 @@ export default function VerificationWorkflowPage() {
               </Button>
               <Button
                 variant="outline"
+                size="default"
                 onClick={() => {
                   setShowRejectionModal(false);
                   setSelectedDocument(null);

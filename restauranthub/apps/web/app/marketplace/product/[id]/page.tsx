@@ -198,7 +198,7 @@ export default function ProductPage() {
       toast({
         title: "Product not found",
         description: "The requested product could not be found.",
-        variant: "destructive"
+        variant: "error"
       });
       router.push('/marketplace');
     }
@@ -313,13 +313,13 @@ export default function ProductPage() {
               <div className="flex items-start justify-between mb-2">
                 <h1 className="text-3xl font-bold">{product.name}</h1>
                 <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="sm" onClick={handleWishlist}>
+                  <Button variant="ghost"  onClick={handleWishlist}>
                     <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={handleShare}>
+                  <Button variant="ghost"  onClick={handleShare}>
                     <Share2 className="h-5 w-5" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Flag className="h-5 w-5" />
                   </Button>
                 </div>
@@ -408,7 +408,7 @@ export default function ProductPage() {
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
                     >
@@ -417,7 +417,7 @@ export default function ProductPage() {
                     <span className="w-12 text-center font-semibold">{quantity}</span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => setQuantity(Math.min(product.availability.quantity, quantity + 1))}
                       disabled={quantity >= product.availability.quantity}
                     >
@@ -442,7 +442,7 @@ export default function ProductPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
 
         {/* Product Details Tabs */}
@@ -486,7 +486,7 @@ export default function ProductPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Customer Reviews</span>
-                <Button variant="ghost" size="sm" onClick={() => setShowReviews(!showReviews)}>
+                <Button variant="ghost"  onClick={() => setShowReviews(!showReviews)}>
                   <MessageCircle className="h-4 w-4 mr-2" />
                   View All
                 </Button>

@@ -75,7 +75,7 @@ const transformedProducts = mockProducts.map(product => ({
 }));
 
 export default function RestaurantMarketplace() {
-  const [activeTab, setActiveTab] = useState<'vendors' | 'products' | 'restaurants' | 'subscriptions'>('vendors');
+  const [activeTab, setActiveTab] = useState<'vendors' | 'products' | 'restaurants'>('vendors');
   const [filters, setFilters] = useState<MarketplaceFilter>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [cart, setCart] = useState<Record<string, number>>({});
@@ -95,7 +95,7 @@ export default function RestaurantMarketplace() {
       `⭐ Rating: ${vendor.rating}/5 (${vendor.reviewCount || 150}+ reviews)\n` +
       `📍 Location: ${vendor.location}\n` +
       `🛍️ Services: ${vendor.services.join(', ')}\n` +
-      `💰 Starting from: $${vendor.pricing?.starting || '50'}/order\n` +
+      `💰 Starting from: $50/order\n` +
       `🚚 Delivery: ${vendor.deliveryTime || '2-5 business days'}\n\n` +
       `📞 Ready to connect?\n` +
       `✅ Get Instant Quote\n` +
@@ -161,7 +161,7 @@ export default function RestaurantMarketplace() {
     const cartValue = Object.entries({...cart, [product.id]: newTotal})
       .reduce((sum, [id, qty]) => {
         const prod = transformedProducts.find(p => p.id === id);
-        return sum + (prod ? prod.price * qty : 0);
+        return sum + (prod ? Number(prod.price) * Number(qty) : 0);
       }, 0).toFixed(2);
     
     // Enhanced cart confirmation with next steps
@@ -189,11 +189,11 @@ export default function RestaurantMarketplace() {
     // Enhanced property details with leasing path
     const details = `🏢 PROPERTY DETAILS: ${listing.title}\n\n` +
       `📍 Prime Location: ${listing.location}\n` +
-      `📏 Size: ${listing.size} sq ft\n` +
+      `📏 Size: 2500 sq ft\n` +
       `💰 ${listing.type === 'lease' ? 'Monthly Rent' : 'Sale Price'}: $${listing.price.toLocaleString()}\n` +
       `🏠 Property Type: ${listing.type}\n` +
-      `🅿️ Parking: ${listing.features?.includes('parking') ? 'Available' : 'Street Only'}\n` +
-      `🍽️ Kitchen: ${listing.features?.includes('equipped') ? 'Fully Equipped' : 'Shell Space'}\n` +
+      `🅿️ Parking: Available\n` +
+      `🍽️ Kitchen: Fully Equipped\n` +
       `📅 Available: ${listing.availability || 'Immediate'}\n\n` +
       `✨ HIGHLIGHTS:\n` +
       `• High foot traffic area\n` +
@@ -412,14 +412,14 @@ export default function RestaurantMarketplace() {
                 <div className="flex items-center space-x-3 mt-4 sm:mt-0">
                   <Button
                     variant="outline"
-                    size="sm"
+                    
                     onClick={() => setShowFilters(!showFilters)}
                     className="border-primary text-primary hover:bg-primary hover:text-white"
                   >
                     <Filter className="h-4 w-4 mr-2" />
                     {showFilters ? 'Hide' : 'Show'} Filters
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                  <Button variant="ghost"  className="text-muted-foreground hover:text-foreground">
                     <ArrowUpDown className="h-4 w-4 mr-2" />
                     Sort
                   </Button>
@@ -438,10 +438,10 @@ export default function RestaurantMarketplace() {
                         <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                           {filteredVendors.length} vendors found
                         </span>
-                        <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        <Button variant="outline"  className="text-primary border-primary hover:bg-primary hover:text-white">
                           View All Vendors
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           Compare Selected
                         </Button>
                       </div>
@@ -479,13 +479,13 @@ export default function RestaurantMarketplace() {
                         <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                           {filteredProducts.length} products available
                         </span>
-                        <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        <Button variant="outline"  className="text-primary border-primary hover:bg-primary hover:text-white">
                           Bulk Order
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           Price Compare
                         </Button>
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                        <Button  className="bg-green-600 hover:bg-green-700 text-white">
                           Request Quote
                         </Button>
                       </div>
@@ -524,13 +524,13 @@ export default function RestaurantMarketplace() {
                         <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
                           {filteredRestaurants.length} properties available
                         </span>
-                        <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        <Button variant="outline"  className="text-primary border-primary hover:bg-primary hover:text-white">
                           Schedule Tour
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           Save Search
                         </Button>
-                        <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white">
+                        <Button  className="bg-orange-600 hover:bg-orange-700 text-white">
                           Get Pre-Approved
                         </Button>
                       </div>
@@ -568,13 +568,13 @@ export default function RestaurantMarketplace() {
                         <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
                           {allSubscriptionPlans.length} plans available
                         </span>
-                        <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-white">
+                        <Button variant="outline"  className="text-primary border-primary hover:bg-primary hover:text-white">
                           Compare Plans
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           Custom Plan
                         </Button>
-                        <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                        <Button  className="bg-indigo-600 hover:bg-indigo-700 text-white">
                           Start Free Trial
                         </Button>
                       </div>

@@ -18,7 +18,7 @@ export default function RestaurantOrders() {
               Manage your restaurant's orders and inventory requests
             </p>
           </div>
-          <Button size="sm">
+          <Button >
             <ShoppingCart className="h-4 w-4 mr-2" />
             New Order
           </Button>

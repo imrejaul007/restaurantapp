@@ -234,7 +234,7 @@ export default function DealsPage() {
       toast({
         title: "Deal unavailable",
         description: "This deal is no longer available.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -485,7 +485,7 @@ export default function DealsPage() {
                           </Button>
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => handleWishlist(deal)}
                           >
                             <Heart className="h-4 w-4" />

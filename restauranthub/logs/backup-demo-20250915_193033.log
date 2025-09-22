@@ -1,0 +1,72 @@
+[0;34m[2025-09-15 19:30:33][0m === RestaurantHub Backup & Restoration Testing Demo ===
+[0;34m[2025-09-15 19:30:33][0m ==================================================
+[0;35m[DEMO STEP][0m Setting up demo database...
+[0;34m[2025-09-15 19:30:33][0m Creating demo database with sample data...
+[0;32m[SUCCESS][0m ✓ Demo database created with sample data
+[0;35m[DEMO STEP][0m Creating database backup...
+[0;34m[2025-09-15 19:30:33][0m Creating backup: ./backups/demo/demo_backup_20250915_193033.sql
+[0;32m[SUCCESS][0m ✓ Backup created successfully
+[0;34m[2025-09-15 19:30:33][0m Backup size: 4.0K
+[0;35m[DEMO STEP][0m Testing backup integrity...
+[0;34m[2025-09-15 19:30:33][0m Verifying backup file: demo_backup_20250915_193033.sql
+[0;31m[ERROR][0m ✗ Backup integrity check failed
+[0;35m[DEMO STEP][0m Restoring database from backup...
+[0;34m[2025-09-15 19:30:33][0m Restoring to: ./backups/demo/restored_database.db
+[0;31m[ERROR][0m ✗ Database restoration failed
+[0;35m[DEMO STEP][0m Verifying restored data...
+[0;34m[2025-09-15 19:30:33][0m Restored data counts:
+[0;34m[2025-09-15 19:30:33][0m   Restaurants: 
+[0;34m[2025-09-15 19:30:33][0m   Users: 
+[0;34m[2025-09-15 19:30:33][0m   Jobs: 
+[0;31m[ERROR][0m ✗ Data verification failed - record counts don't match
+[0;35m[DEMO STEP][0m Testing incremental backup scenario...
+[0;34m[2025-09-15 19:30:33][0m Adding new data to simulate changes...
+[0;32m[SUCCESS][0m ✓ Incremental backup contains new data
+[0;35m[DEMO STEP][0m Testing point-in-time recovery...
+[0;34m[2025-09-15 19:30:33][0m Checkpoint backup created
+[0;34m[2025-09-15 19:30:33][0m Simulated data corruption (deleted job record)
+[0;32m[SUCCESS][0m ✓ Point-in-time recovery successful - deleted record restored
+[0;35m[DEMO STEP][0m Testing backup compression...
+[0;32m[SUCCESS][0m ✓ Backup compressed successfully
+[0;34m[2025-09-15 19:30:33][0m Original size: 
+[0;34m[2025-09-15 19:30:33][0m Compressed size: 4.0K
+[0;34m[2025-09-15 19:30:33][0m Compression ratio: %
+[0;35m[DEMO STEP][0m Testing automated backup validation...
+[0;34m[2025-09-15 19:30:33][0m Validating: checkpoint_backup.sql
+[0;34m[2025-09-15 19:30:33][0m   ✓ Size check passed (    2400 bytes)
+[0;34m[2025-09-15 19:30:33][0m   ✓ Schema check passed
+[0;34m[2025-09-15 19:30:33][0m   ✓ Data check passed
+[0;34m[2025-09-15 19:30:33][0m Validating: demo_backup_20250915_193033.sql
+[0;34m[2025-09-15 19:30:33][0m   ✓ Size check passed (    2135 bytes)
+[0;34m[2025-09-15 19:30:33][0m   ✓ Schema check passed
+[0;34m[2025-09-15 19:30:33][0m   ✓ Data check passed
+[0;34m[2025-09-15 19:30:33][0m Validating: demo_schema.sql
+[0;34m[2025-09-15 19:30:33][0m   ✓ Size check passed (    1990 bytes)
+[0;34m[2025-09-15 19:30:33][0m   ✓ Schema check passed
+[0;34m[2025-09-15 19:30:33][0m   ✗ Data check failed
+[0;34m[2025-09-15 19:30:33][0m Validating: incremental_backup_20250915_193033.sql
+[0;34m[2025-09-15 19:30:33][0m   ✓ Size check passed (    2400 bytes)
+[0;34m[2025-09-15 19:30:33][0m   ✓ Schema check passed
+[0;34m[2025-09-15 19:30:33][0m   ✓ Data check passed
+[0;32m[SUCCESS][0m ✓ Backup validation completed: 3 passed, 1 failed
+[0;35m[DEMO STEP][0m Generating backup report...
+[0;32m[SUCCESS][0m ✓ Backup report generated: ./backups/demo/backup_report_20250915_193033.html
+[0;34m[2025-09-15 19:30:33][0m Report available at: file:///Users/rejaulkarim/Documents/Resturistan App/restauranthub/./backups/demo/backup_report_20250915_193033.html
+[0;34m[2025-09-15 19:30:33][0m 
+==================================================
+[0;34m[2025-09-15 19:30:33][0m BACKUP & RESTORATION TESTING RESULTS
+[0;34m[2025-09-15 19:30:33][0m ==================================================
+[0;32m[SUCCESS][0m ✓ Database Setup: ✓ PASSED
+[0;32m[SUCCESS][0m ✓ Backup Creation: ✓ PASSED
+[0;31m[ERROR][0m ✗ Backup Integrity: ✗ FAILED
+[0;31m[ERROR][0m ✗ Database Restoration: ✗ FAILED
+[0;31m[ERROR][0m ✗ Data Verification: ✗ FAILED
+[0;32m[SUCCESS][0m ✓ Incremental Backup: ✓ PASSED
+[0;32m[SUCCESS][0m ✓ Point-in-Time Recovery: ✓ PASSED
+[0;32m[SUCCESS][0m ✓ Backup Compression: ✓ PASSED
+[0;31m[ERROR][0m ✗ Backup Validation: ✗ FAILED
+[0;34m[2025-09-15 19:30:33][0m 
+Summary: 5/9 tests passed
+[0;31m[ERROR][0m ✗ Some tests failed. Please review the issues before deploying to production.
+[0;34m[2025-09-15 19:30:33][0m Demo log file: ./logs/backup-demo-20250915_193033.log
+[0;34m[2025-09-15 19:30:33][0m Demo files location: ./backups/demo

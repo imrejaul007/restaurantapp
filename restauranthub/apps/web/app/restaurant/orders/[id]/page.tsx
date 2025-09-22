@@ -114,7 +114,7 @@ export default function OrderDetails() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Orders
             </Button>
@@ -401,7 +401,7 @@ export default function OrderDetails() {
                     <Button 
                       onClick={handleAddNote}
                       disabled={!newNote.trim()}
-                      size="sm"
+                      
                       className="w-full"
                     >
                       Add Note

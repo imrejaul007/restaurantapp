@@ -96,7 +96,7 @@ const workingDays = [
 export default function EditJobPage() {
   const router = useRouter();
   const params = useParams();
-  const { toast } = useToast();
+  // const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<JobFormData>({
@@ -179,18 +179,14 @@ export default function EditJobPage() {
         setFormData(mockJob);
         setHasApplications(true); // Simulate that this job has applications
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load job details.",
-          variant: "destructive"
-        });
+        console.error('Failed to load job details:', error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchJob();
-  }, [params.id, toast]);
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,20 +195,11 @@ export default function EditJobPage() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Job Updated Successfully",
-        description: "Your job posting has been updated.",
-        variant: "default"
-      });
 
+      console.log('Job Updated Successfully');
       router.push(`/restaurant/jobs/${params.id}`);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update job posting. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Failed to update job posting:', error);
     } finally {
       setSaving(false);
     }
@@ -266,7 +253,7 @@ export default function EditJobPage() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -414,8 +401,8 @@ export default function EditJobPage() {
                           type="number"
                           placeholder="25000"
                           value={formData.salary.min}
-                          onChange={(e) => setFormData(prev => ({ 
-                            ...prev, 
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, min: e.target.value }
                           }))}
                           required
@@ -428,8 +415,8 @@ export default function EditJobPage() {
                           type="number"
                           placeholder="35000"
                           value={formData.salary.max}
-                          onChange={(e) => setFormData(prev => ({ 
-                            ...prev, 
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, max: e.target.value }
                           }))}
                           required
@@ -439,8 +426,8 @@ export default function EditJobPage() {
                         <Label htmlFor="salary-type">Salary Type *</Label>
                         <Select 
                           value={formData.salary.type} 
-                          onValueChange={(value) => setFormData(prev => ({ 
-                            ...prev, 
+                          onValueChange={(value) => setFormData(prev => ({
+                            ...prev,
                             salary: { ...prev.salary, type: value }
                           }))}
                         >
@@ -513,7 +500,7 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('responsibilities')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -546,7 +533,7 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('requirements')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -579,7 +566,7 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('benefits')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -612,7 +599,7 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => addArrayField('skills')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -718,7 +705,7 @@ export default function EditJobPage() {
                       <Checkbox
                         id="urgent-hiring"
                         checked={formData.urgentHiring}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, urgentHiring: !!checked }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, urgentHiring: (e.target as HTMLInputElement).checked }))}
                       />
                       <Label htmlFor="urgent-hiring">Urgent Hiring</Label>
                     </div>
@@ -726,7 +713,7 @@ export default function EditJobPage() {
                       <Checkbox
                         id="remote-friendly"
                         checked={formData.remoteFriendly}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, remoteFriendly: !!checked }))}
+                        onChange={(e) => setFormData(prev => ({ ...prev, remoteFriendly: (e.target as HTMLInputElement).checked }))}
                       />
                       <Label htmlFor="remote-friendly">Remote Friendly</Label>
                     </div>

@@ -4,6 +4,8 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { TokenBlacklistService } from './services/token-blacklist.service';
+import { SecureTokenService } from './secure-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -15,9 +17,9 @@ import { EmailModule } from '../email/email.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get('jwt.secret'),
+        secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get('jwt.expiresIn'),
+          expiresIn: configService.get('JWT_EXPIRES_IN', '15m'),
         },
       }),
       inject: [ConfigService],
@@ -27,11 +29,13 @@ import { EmailModule } from '../email/email.module';
   ],
   providers: [
     AuthService,
+    TokenBlacklistService,
+    SecureTokenService,
     LocalStrategy,
     JwtStrategy,
     JwtRefreshStrategy,
   ],
   controllers: [AuthController],
-  exports: [AuthService, JwtModule],
+  exports: [AuthService, TokenBlacklistService, JwtModule],
 })
 export class AuthModule {}

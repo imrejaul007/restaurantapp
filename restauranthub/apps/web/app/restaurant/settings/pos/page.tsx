@@ -259,15 +259,15 @@ export default function POSIntegrationSettings() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default">
               <Download className="h-4 w-4 mr-2" />
               Export Config
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default">
               <Upload className="h-4 w-4 mr-2" />
               Import Config
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default">
               <FileText className="h-4 w-4 mr-2" />
               Documentation
             </Button>
@@ -288,7 +288,7 @@ export default function POSIntegrationSettings() {
               <h2 className="text-lg font-semibold">Connected Providers</h2>
               <Dialog open={isAddProviderOpen} onOpenChange={setIsAddProviderOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm">
+                  <Button size="default">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Provider
                   </Button>
@@ -463,7 +463,7 @@ export default function POSIntegrationSettings() {
               <h2 className="text-lg font-semibold">POS Terminals</h2>
               <Dialog open={isAddTerminalOpen} onOpenChange={setIsAddTerminalOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm">
+                  <Button size="default">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Terminal
                   </Button>

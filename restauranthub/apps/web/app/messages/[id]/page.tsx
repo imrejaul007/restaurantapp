@@ -181,7 +181,7 @@ export default function ConversationPage() {
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4" />
@@ -201,13 +201,13 @@ export default function ConversationPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" >
               <Phone className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" >
               <Video className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" >
               <MoreVertical className="h-4 w-4" />
             </Button>
           </div>
@@ -257,10 +257,10 @@ export default function ConversationPage() {
       {/* Message Input */}
       <div className="bg-white border-t border-gray-200 p-4">
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" >
             <Paperclip className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" >
             <ImageIcon className="h-4 w-4" />
           </Button>
           <div className="flex-1 relative">
@@ -273,7 +273,7 @@ export default function ConversationPage() {
             />
             <Button 
               variant="ghost" 
-              size="sm" 
+               
               className="absolute right-2 top-1/2 transform -translate-y-1/2"
             >
               <Smile className="h-4 w-4" />
@@ -282,7 +282,7 @@ export default function ConversationPage() {
           <Button 
             onClick={handleSendMessage}
             disabled={!newMessage.trim()}
-            size="sm"
+            
           >
             <Send className="h-4 w-4" />
           </Button>

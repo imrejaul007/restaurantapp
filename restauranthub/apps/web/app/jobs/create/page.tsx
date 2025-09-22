@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
@@ -21,12 +21,15 @@ import {
   Briefcase,
   Calendar,
   Building,
-  Tag
+  Tag,
+  Clipboard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
 
 const jobSchema = z.object({
@@ -113,6 +116,7 @@ export default function CreateJobPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [customSkillInput, setCustomSkillInput] = useState('');
 
   const form = useForm<JobForm>({
     resolver: zodResolver(jobSchema),
@@ -159,7 +163,7 @@ export default function CreateJobPage() {
   });
 
   // Verify user is restaurant owner
-  if (user?.role !== 'restaurant') {
+  if (user?.role !== UserRole.RESTAURANT) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
@@ -280,15 +284,22 @@ export default function CreateJobPage() {
                 <label className="text-sm font-medium text-foreground">
                   Department *
                 </label>
-                <select
-                  {...form.register('department')}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
+                <Controller
+                  name="department"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map(dept => (
+                          <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {form.formState.errors.department && (
                   <p className="text-sm text-destructive flex items-center space-x-1">
                     <AlertCircle className="h-4 w-4" />
@@ -303,33 +314,49 @@ export default function CreateJobPage() {
                   <label className="text-sm font-medium text-foreground">
                     Employment Type *
                   </label>
-                  <select
-                    {...form.register('employment.type')}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="full-time">Full-time</option>
-                    <option value="part-time">Part-time</option>
-                    <option value="contract">Contract</option>
-                    <option value="temporary">Temporary</option>
-                    <option value="internship">Internship</option>
-                  </select>
+                  <Controller
+                    name="employment.type"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select employment type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="full-time">Full-time</SelectItem>
+                          <SelectItem value="part-time">Part-time</SelectItem>
+                          <SelectItem value="contract">Contract</SelectItem>
+                          <SelectItem value="temporary">Temporary</SelectItem>
+                          <SelectItem value="internship">Internship</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">
                     Schedule
                   </label>
-                  <select
-                    {...form.register('employment.schedule')}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="morning">Morning</option>
-                    <option value="afternoon">Afternoon</option>
-                    <option value="evening">Evening</option>
-                    <option value="night">Night</option>
-                    <option value="flexible">Flexible</option>
-                    <option value="rotating">Rotating</option>
-                  </select>
+                  <Controller
+                    name="employment.schedule"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select schedule" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="morning">Morning</SelectItem>
+                          <SelectItem value="afternoon">Afternoon</SelectItem>
+                          <SelectItem value="evening">Evening</SelectItem>
+                          <SelectItem value="night">Night</SelectItem>
+                          <SelectItem value="flexible">Flexible</SelectItem>
+                          <SelectItem value="rotating">Rotating</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -362,14 +389,22 @@ export default function CreateJobPage() {
                   <label className="text-sm font-medium text-foreground">
                     Work Type *
                   </label>
-                  <select
-                    {...form.register('location.type')}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="on-site">On-site</option>
-                    <option value="remote">Remote</option>
-                    <option value="hybrid">Hybrid</option>
-                  </select>
+                  <Controller
+                    name="location.type"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select location type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="on-site">On-site</SelectItem>
+                          <SelectItem value="remote">Remote</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -422,14 +457,22 @@ export default function CreateJobPage() {
                   <label className="text-sm font-medium text-foreground">
                     Salary Type *
                   </label>
-                  <select
-                    {...form.register('salary.type')}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="hourly">Per Hour</option>
-                    <option value="monthly">Per Month</option>
-                    <option value="yearly">Per Year</option>
-                  </select>
+                  <Controller
+                    name="salary.type"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select salary period" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hourly">Per Hour</SelectItem>
+                          <SelectItem value="monthly">Per Month</SelectItem>
+                          <SelectItem value="yearly">Per Year</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -462,14 +505,22 @@ export default function CreateJobPage() {
                   <label className="text-sm font-medium text-foreground">
                     Currency
                   </label>
-                  <select
-                    {...form.register('salary.currency')}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="INR">INR (₹)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                  </select>
+                  <Controller
+                    name="salary.currency"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="INR">INR (₹)</SelectItem>
+                          <SelectItem value="USD">USD ($)</SelectItem>
+                          <SelectItem value="EUR">EUR (€)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -481,6 +532,437 @@ export default function CreateJobPage() {
                 />
                 <span className="text-sm text-foreground">Salary is negotiable</span>
               </label>
+            </CardContent>
+          </Card>
+
+          {/* Job Description */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tag className="h-5 w-5" />
+                Job Description
+              </CardTitle>
+              <CardDescription>
+                Detailed description of the role and what makes it unique
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Description *
+                </label>
+                <textarea
+                  {...form.register('description')}
+                  rows={6}
+                  placeholder="Describe the role, work environment, team culture, and what makes this position attractive to candidates..."
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
+                />
+                {form.formState.errors.description && (
+                  <p className="text-sm text-destructive flex items-center space-x-1">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{form.formState.errors.description.message}</span>
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Requirements */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clipboard className="h-5 w-5" />
+                Requirements
+              </CardTitle>
+              <CardDescription>
+                Essential qualifications and requirements for this role
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {form.watch('requirements').map((requirement, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      {...form.register(`requirements.${index}`)}
+                      placeholder="e.g. High school diploma or equivalent"
+                      className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                    {form.watch('requirements').length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        
+                        onClick={() => removeArrayField('requirements', index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  
+                  onClick={() => addArrayField('requirements')}
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Requirement</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Responsibilities */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Responsibilities
+              </CardTitle>
+              <CardDescription>
+                Key duties and responsibilities for this position
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {form.watch('responsibilities').map((responsibility, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      {...form.register(`responsibilities.${index}`)}
+                      placeholder="e.g. Prepare and cook menu items according to recipes"
+                      className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                    {form.watch('responsibilities').length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        
+                        onClick={() => removeArrayField('responsibilities', index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  
+                  onClick={() => addArrayField('responsibilities')}
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Responsibility</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Skills */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                Required Skills
+              </CardTitle>
+              <CardDescription>
+                Select relevant skills or add custom ones
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Selected Skills */}
+              {form.watch('skills').length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Selected Skills
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch('skills').map((skill) => (
+                      <div key={skill} className="flex items-center space-x-1 px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(skill)}
+                          className="hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Common Skills */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Common Skills (click to add)
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {commonSkills
+                    .filter(skill => !form.watch('skills').includes(skill))
+                    .map((skill) => (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => addSkill(skill)}
+                        className="px-3 py-1 text-sm border border-border rounded-full hover:bg-muted transition-colors"
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Custom Skill Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Add Custom Skill
+                </label>
+                <div className="flex space-x-2">
+                  <input
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    placeholder="Type a custom skill..."
+                    className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const value = customSkillInput.trim();
+                        if (value && !form.watch('skills').includes(value)) {
+                          addSkill(value);
+                          setCustomSkillInput('');
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const value = customSkillInput.trim();
+                      if (value && !form.watch('skills').includes(value)) {
+                        addSkill(value);
+                        setCustomSkillInput('');
+                      }
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              {form.formState.errors.skills && (
+                <p className="text-sm text-destructive flex items-center space-x-1">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{form.formState.errors.skills.message}</span>
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Experience & Timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Experience & Timeline
+              </CardTitle>
+              <CardDescription>
+                Experience requirements and important dates
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Experience */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Minimum Experience (years)
+                  </label>
+                  <input
+                    {...form.register('experience.min', { valueAsNumber: true })}
+                    type="number"
+                    min="0"
+                    max="20"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Maximum Experience (years)
+                  </label>
+                  <input
+                    {...form.register('experience.max', { valueAsNumber: true })}
+                    type="number"
+                    min="0"
+                    max="30"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                <div className="flex items-center space-x-2 pt-8">
+                  <input
+                    {...form.register('experience.required')}
+                    type="checkbox"
+                    className="rounded border-border"
+                  />
+                  <label className="text-sm text-foreground">
+                    Experience Required
+                  </label>
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Application Deadline *
+                  </label>
+                  <input
+                    {...form.register('applicationDeadline')}
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  {form.formState.errors.applicationDeadline && (
+                    <p className="text-sm text-destructive flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{form.formState.errors.applicationDeadline.message}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Expected Start Date *
+                  </label>
+                  <input
+                    {...form.register('startDate')}
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  {form.formState.errors.startDate && (
+                    <p className="text-sm text-destructive flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{form.formState.errors.startDate.message}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Urgent Flag */}
+              <label className="flex items-center space-x-2">
+                <input
+                  {...form.register('isUrgent')}
+                  type="checkbox"
+                  className="rounded border-border"
+                />
+                <span className="text-sm text-foreground">This is an urgent hiring need</span>
+              </label>
+            </CardContent>
+          </Card>
+
+          {/* Benefits (Optional) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Benefits & Perks (Optional)
+              </CardTitle>
+              <CardDescription>
+                Additional benefits and perks offered with this position
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {form.watch('benefits')?.map((benefit, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      {...form.register(`benefits.${index}`)}
+                      placeholder="e.g. Health insurance, Free meals, Flexible timing"
+                      className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      
+                      onClick={() => removeArrayField('benefits', index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )) || []}
+                <Button
+                  type="button"
+                  variant="outline"
+                  
+                  onClick={() => addArrayField('benefits')}
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Benefit</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Contact Information
+              </CardTitle>
+              <CardDescription>
+                How candidates should contact regarding this position
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Contact Email *
+                  </label>
+                  <input
+                    {...form.register('contactInfo.email')}
+                    type="email"
+                    placeholder="hr@restaurant.com"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                  {form.formState.errors.contactInfo?.email && (
+                    <p className="text-sm text-destructive flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{form.formState.errors.contactInfo.email.message}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Contact Phone (Optional)
+                  </label>
+                  <input
+                    {...form.register('contactInfo.phone')}
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Contact Person *
+                </label>
+                <input
+                  {...form.register('contactInfo.contactPerson')}
+                  placeholder="HR Manager / Restaurant Manager"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+                {form.formState.errors.contactInfo?.contactPerson && (
+                  <p className="text-sm text-destructive flex items-center space-x-1">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{form.formState.errors.contactInfo.contactPerson.message}</span>
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
 

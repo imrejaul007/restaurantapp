@@ -49,7 +49,7 @@ export const toast = {
   },
   
   custom: (component: React.ReactNode, options?: any) => {
-    sonnerToast.custom(component, options);
+    sonnerToast.custom(component as any, options);
   }
 };
 

@@ -162,7 +162,7 @@ export default function Payroll() {
               </div>
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Total Deductions</span>
-                <span>${Object.values(payStub.deductions).reduce((sum: number, val: number) => sum + val, 0).toFixed(2)}</span>
+                <span>${(Object.values(payStub.deductions).reduce((sum: number, val: unknown) => sum + (typeof val === 'number' ? val : 0), 0) as number).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -313,7 +313,7 @@ export default function Payroll() {
                         </div>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button  variant="outline">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
@@ -427,7 +427,7 @@ export default function Payroll() {
                           <div className="font-medium">{doc.name}</div>
                           <div className="text-gray-600">{new Date(doc.date).toLocaleDateString()}</div>
                         </div>
-                        <Button size="sm" variant="outline" disabled={doc.status === 'on_file'}>
+                        <Button  variant="outline" disabled={doc.status === 'on_file'}>
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>

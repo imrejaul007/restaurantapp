@@ -222,7 +222,7 @@ export default function ProductDetailsPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Link href="/marketplace">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Marketplace
               </Button>
@@ -230,11 +230,11 @@ export default function ProductDetailsPage() {
             <span className="text-muted-foreground">/ {product.category} / {product.subCategory}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsWishlisted(!isWishlisted)}>
+            <Button variant="ghost" onClick={() => setIsWishlisted(!isWishlisted)}>
               <Heart className={`h-4 w-4 mr-2 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
               {isWishlisted ? 'Saved' : 'Save'}
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
@@ -352,7 +352,7 @@ export default function ProductDetailsPage() {
                 <div className="flex items-center border border-border rounded-lg">
                   <Button 
                     variant="ghost" 
-                    size="sm"
+                    
                     onClick={() => handleQuantityChange(-product.minOrderQuantity)}
                     disabled={selectedQuantity <= product.minOrderQuantity}
                   >
@@ -360,17 +360,12 @@ export default function ProductDetailsPage() {
                   </Button>
                   <Input
                     value={selectedQuantity}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || product.minOrderQuantity;
-                      if (value >= product.minOrderQuantity && value <= product.maxOrderQuantity) {
-                        setSelectedQuantity(value);
-                      }
-                    }}
+                    onChange={(e) => setSelectedQuantity(parseInt(e.target.value) || 1)}
                     className="w-20 text-center border-none focus:ring-0"
                   />
                   <Button 
                     variant="ghost" 
-                    size="sm"
+                    
                     onClick={() => handleQuantityChange(product.minOrderQuantity)}
                     disabled={selectedQuantity >= product.maxOrderQuantity}
                   >
@@ -504,7 +499,7 @@ export default function ProductDetailsPage() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Customer Reviews</h3>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     Write a Review
                   </Button>
                 </div>

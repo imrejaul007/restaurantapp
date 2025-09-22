@@ -14,17 +14,19 @@ interface BreadcrumbItem {
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
   className?: string;
+  homeHref?: string;
+  homeLabel?: string;
 }
 
-export function Breadcrumb({ items, className }: BreadcrumbProps) {
+export function Breadcrumb({ items, className, homeHref = "/", homeLabel = "Home" }: BreadcrumbProps) {
   return (
     <nav className={cn("flex items-center space-x-1 text-sm text-muted-foreground", className)}>
-      <Link 
-        href="/dashboard" 
+      <Link
+        href={homeHref}
         className="flex items-center hover:text-foreground transition-colors"
       >
         <Home className="h-4 w-4" />
-        <span className="sr-only">Home</span>
+        <span className="sr-only">{homeLabel}</span>
       </Link>
       
       {items.map((item, index) => (

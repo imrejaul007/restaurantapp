@@ -136,7 +136,7 @@ function ComparisonTable({
                     {/* Action Buttons */}
                     <div className="space-y-2">
                       <Button 
-                        size="sm" 
+                         
                         className="w-full"
                         onClick={() => onAddToCart(product)}
                         disabled={!product.inStock}
@@ -145,7 +145,7 @@ function ComparisonTable({
                         {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                       </Button>
                       <Button 
-                        size="sm" 
+                         
                         variant="outline" 
                         className="w-full"
                         onClick={() => onAddToWishlist(product)}
@@ -398,7 +398,7 @@ export default function ProductComparisonPage() {
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => router.push('/marketplace')}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -409,7 +409,7 @@ export default function ProductComparisonPage() {
               <>
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   onClick={handleExport}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -418,7 +418,7 @@ export default function ProductComparisonPage() {
                 
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   onClick={handleClearAll}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
@@ -731,11 +731,11 @@ export default function ProductComparisonPage() {
                                 </div>
                                 
                                 <div className="flex space-x-2 mt-3">
-                                  <Button size="sm" onClick={() => handleAddToCart(product)}>
+                                  <Button  onClick={() => handleAddToCart(product)}>
                                     <ShoppingCart className="h-3 w-3 mr-1" />
                                     Add to Cart
                                   </Button>
-                                  <Button size="sm" variant="outline" onClick={() => handleAddToWishlist(product)}>
+                                  <Button  variant="outline" onClick={() => handleAddToWishlist(product)}>
                                     <Heart className="h-3 w-3 mr-1" />
                                     Wishlist
                                   </Button>

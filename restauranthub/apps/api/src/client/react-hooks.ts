@@ -1,18 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { RestaurantHubApiClient } from './api-client';
 import { RestaurantHubSocketClient } from './socket-client';
 import {
   User,
   Restaurant,
   Order,
-  Menu,
-  Product,
-  Job,
+  
+  
   AuthTokens,
-  PaginationParams,
+  
   SearchParams,
-  ApiResponse,
-  PaginatedResponse,
+  
+  
   OrderUpdate,
   NotificationData,
 } from './types';
@@ -362,7 +361,7 @@ export function useSocket() {
 }
 
 // Real-time Order Updates Hook
-export function useOrderUpdates(orderId?: string) {
+export function useOrderUpdates(_orderId?: string) {
   const [orderUpdate, setOrderUpdate] = useState<OrderUpdate | null>(null);
   const [socket, setSocket] = useState<RestaurantHubSocketClient | null>(null);
 

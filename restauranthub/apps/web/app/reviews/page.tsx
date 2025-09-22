@@ -385,12 +385,12 @@ export default function ReviewsPage() {
   };
 
   const handleReportReview = (reviewId: string, reason: string) => {
-    setReviews(prev => prev.map(review => 
-      review.id === reviewId 
-        ? { 
-            ...review, 
+    setReviews(prev => prev.map(review =>
+      review.id === reviewId
+        ? {
+            ...review,
             reportCount: review.reportCount + 1,
-            status: review.reportCount >= 2 ? 'flagged' as const : review.status
+            status: review.reportCount >= 2 ? ('flagged' as any) : review.status
           }
         : review
     ));

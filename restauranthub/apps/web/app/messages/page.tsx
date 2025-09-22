@@ -348,7 +348,7 @@ export default function MessagesPage() {
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-xl font-semibold text-foreground">Messages</h1>
-              <Button size="sm">
+              <Button >
                 <Plus className="h-4 w-4 mr-2" />
                 New Chat
               </Button>
@@ -457,13 +457,13 @@ export default function MessagesPage() {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Phone className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Video className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </div>
@@ -514,7 +514,7 @@ export default function MessagesPage() {
             {/* Message Input */}
             <div className="p-4 border-t border-border bg-background">
               <div className="flex items-end space-x-2">
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost"  className="p-2">
                   <Paperclip className="h-4 w-4" />
                 </Button>
                 
@@ -530,7 +530,7 @@ export default function MessagesPage() {
                   />
                   <Button 
                     variant="ghost" 
-                    size="sm" 
+                     
                     className="absolute right-1 top-1/2 transform -translate-y-1/2 p-2"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   >
@@ -541,7 +541,7 @@ export default function MessagesPage() {
                 <Button 
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim()}
-                  size="sm"
+                  
                   className="p-2"
                 >
                   <Send className="h-4 w-4" />

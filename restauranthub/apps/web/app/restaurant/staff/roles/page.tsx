@@ -244,7 +244,7 @@ export default function StaffRoleManagement() {
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button size="default" variant="default">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Role
               </Button>
@@ -264,7 +264,7 @@ export default function StaffRoleManagement() {
                       id="roleName"
                       placeholder="e.g., Assistant Manager"
                       value={newRole.name}
-                      onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
+                      onChange={(e) => setNewRole(prev => ({ ...prev, name: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -293,7 +293,7 @@ export default function StaffRoleManagement() {
                     id="roleDescription"
                     placeholder="Describe the role responsibilities..."
                     value={newRole.description}
-                    onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
+                    onChange={(e) => setNewRole(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-4">
@@ -326,10 +326,10 @@ export default function StaffRoleManagement() {
                   ))}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button variant="outline" size="default" onClick={() => setIsCreateDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateRole}>
+                  <Button onClick={handleCreateRole} size="default" variant="default">
                     Create Role
                   </Button>
                 </div>
@@ -349,7 +349,7 @@ export default function StaffRoleManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" size="default">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
@@ -409,7 +409,7 @@ export default function StaffRoleManagement() {
                     <div className="flex items-center justify-between">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => {
                           setSelectedRole(role);
                           setSelectedPermissions(role.permissions);
@@ -423,7 +423,7 @@ export default function StaffRoleManagement() {
                         <div className="flex space-x-1">
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="default"
                             onClick={() => {
                               setSelectedRole(role);
                               setSelectedPermissions(role.permissions);
@@ -434,7 +434,7 @@ export default function StaffRoleManagement() {
                           </Button>
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="default"
                             onClick={() => handleDeleteRole(role.id)}
                             className="text-destructive hover:text-destructive"
                           >
@@ -523,11 +523,11 @@ export default function StaffRoleManagement() {
                   ))}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  <Button variant="outline" size="default" onClick={() => setIsEditDialogOpen(false)}>
                     {selectedRole.isSystem ? 'Close' : 'Cancel'}
                   </Button>
                   {!selectedRole.isSystem && (
-                    <Button onClick={handleEditRole}>
+                    <Button onClick={handleEditRole} size="default" variant="default">
                       Save Changes
                     </Button>
                   )}

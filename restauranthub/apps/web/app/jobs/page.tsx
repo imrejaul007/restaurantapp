@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 import JobCard from '@/components/jobs/job-card';
 import JobApplicationForm from '@/components/jobs/job-application-form';
 import { cn } from '@/lib/utils';
@@ -512,7 +513,7 @@ export default function JobsPage() {
             </p>
           </div>
           
-          {user?.role === 'restaurant' && (
+          {user?.role === UserRole.RESTAURANT && (
             <Button onClick={() => router.push('/restaurant/jobs/create')}>
               <Plus className="h-4 w-4 mr-2" />
               Post a Job

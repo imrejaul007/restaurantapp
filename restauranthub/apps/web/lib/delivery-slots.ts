@@ -277,14 +277,14 @@ export class DeliverySlotManager {
     let slots = availability.slots;
 
     if (zoneId) {
-      slots = slots.filter(slot => slot.zone === zoneId);
+      slots = slots.filter((slot: any) => slot.zone === zoneId);
     }
 
     if (type) {
-      slots = slots.filter(slot => slot.type === type);
+      slots = slots.filter((slot: any) => slot.type === type);
     }
 
-    return slots.filter(slot => slot.available);
+    return slots.filter((slot: any) => slot.available);
   }
 
   /**
@@ -298,8 +298,8 @@ export class DeliverySlotManager {
    * Book a delivery slot
    */
   bookSlot(slotId: string): boolean {
-    for (const [date, availability] of this.schedule.entries()) {
-      const slot = availability.slots.find(s => s.id === slotId);
+    for (const [date, availability] of Array.from(this.schedule.entries())) {
+      const slot = availability.slots.find((s: any) => s.id === slotId);
       if (slot && slot.available) {
         slot.bookedCount++;
         if (slot.bookedCount >= slot.maxCapacity) {
@@ -315,8 +315,8 @@ export class DeliverySlotManager {
    * Cancel a booking
    */
   cancelBooking(slotId: string): boolean {
-    for (const [date, availability] of this.schedule.entries()) {
-      const slot = availability.slots.find(s => s.id === slotId);
+    for (const [date, availability] of Array.from(this.schedule.entries())) {
+      const slot = availability.slots.find((s: any) => s.id === slotId);
       if (slot) {
         slot.bookedCount = Math.max(0, slot.bookedCount - 1);
         slot.available = slot.bookedCount < slot.maxCapacity;
@@ -368,7 +368,7 @@ export class DeliverySlotManager {
   }): DeliverySlot[] {
     const results: DeliverySlot[] = [];
 
-    for (const [date, availability] of this.schedule.entries()) {
+    for (const [date, availability] of Array.from(this.schedule.entries())) {
       if (availability.isHoliday) continue;
 
       // Date range filter
@@ -378,19 +378,19 @@ export class DeliverySlotManager {
         }
       }
 
-      let slots = availability.slots.filter(slot => slot.available);
+      let slots = availability.slots.filter((slot: any) => slot.available);
 
       // Apply filters
       if (criteria.zoneId) {
-        slots = slots.filter(slot => slot.zone === criteria.zoneId);
+        slots = slots.filter((slot: any) => slot.zone === criteria.zoneId);
       }
 
       if (criteria.type) {
-        slots = slots.filter(slot => slot.type === criteria.type);
+        slots = slots.filter((slot: any) => slot.type === criteria.type);
       }
 
       if (criteria.maxPrice) {
-        slots = slots.filter(slot => slot.price <= criteria.maxPrice);
+        slots = slots.filter((slot: any) => slot.price <= (criteria.maxPrice || 0));
       }
 
       if (criteria.timeRange) {

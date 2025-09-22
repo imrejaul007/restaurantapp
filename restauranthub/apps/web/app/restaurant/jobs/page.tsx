@@ -244,15 +244,15 @@ export default function RestaurantJobs() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm" onClick={() => alert('Job templates feature coming soon!')}>
+            <Button variant="outline"  onClick={() => alert('Job templates feature coming soon!')}>
               <FileText className="h-4 w-4 mr-2" />
               Templates
             </Button>
-            <Button variant="outline" size="sm" onClick={() => router.push('/restaurant/analytics')}>
+            <Button variant="outline"  onClick={() => router.push('/restaurant/analytics')}>
               <TrendingUp className="h-4 w-4 mr-2" />
               Analytics
             </Button>
-            <Button size="sm" onClick={() => router.push('/restaurant/jobs/create')}>
+            <Button  onClick={() => router.push('/restaurant/jobs/create')}>
               <Plus className="h-4 w-4 mr-2" />
               Post New Job
             </Button>
@@ -332,7 +332,7 @@ export default function RestaurantJobs() {
                     <option value="closed">Closed</option>
                     <option value="draft">Draft</option>
                   </select>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     <Filter className="h-4 w-4 mr-2" />
                     More Filters
                   </Button>
@@ -347,13 +347,13 @@ export default function RestaurantJobs() {
                       {selectedJobs.length} job{selectedJobs.length > 1 ? 's' : ''} selected
                     </p>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Pause Selected
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Close Selected
                       </Button>
-                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                      <Button variant="outline"  className="text-destructive hover:text-destructive">
                         Delete Selected
                       </Button>
                     </div>
@@ -379,7 +379,7 @@ export default function RestaurantJobs() {
                 <input
                   type="checkbox"
                   checked={selectedJobs.length === filteredJobs.length && filteredJobs.length > 0}
-                  onChange={handleSelectAll}
+                  onChange={() => handleSelectAll()}
                   className="rounded border-border"
                 />
                 <label className="text-sm text-muted-foreground">Select All</label>
@@ -459,15 +459,15 @@ export default function RestaurantJobs() {
                       </div>
                       
                       <div className="flex items-center space-x-2 ml-4">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button variant="ghost"  className="text-destructive hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

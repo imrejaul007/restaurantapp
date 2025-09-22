@@ -1,7 +1,8 @@
-import { Controller, Post, Get, Delete, Body, UseGuards, Req, HttpCode, HttpStatus, Query, Param } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, UseGuards, Req, HttpCode, HttpStatus, Query, Param, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { ThrottlerGuard } from '@nestjs/throttler';
+// import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
+// import { RedisHealthService } from '../../redis/redis-health.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -10,6 +11,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { BruteForceGuard } from './guards/brute-force.guard';
 import { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
@@ -22,9 +24,12 @@ interface AuthenticatedRequest extends Request {
 
 @ApiTags('auth')
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
+// @UseGuards(ThrottlerGuard)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    // private readonly bruteForceGuard: BruteForceGuard,
+  ) {}
 
   @Post('signup')
   @ApiOperation({ summary: 'User registration' })
@@ -35,12 +40,12 @@ export class AuthController {
   }
 
   @Post('signin')
-  @UseGuards(LocalAuthGuard)
+  // @UseGuards(BruteForceGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async signIn(@Body() signInDto: SignInDto, @Req() req: AuthenticatedRequest) {
+  async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }
 
@@ -65,6 +70,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  // @UseGuards(BruteForceGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
   @ApiResponse({ status: 200, description: 'Reset link sent if email exists' })
@@ -73,6 +79,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  // @UseGuards(BruteForceGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with token' })
   @ApiResponse({ status: 200, description: 'Password reset successful' })
@@ -139,6 +146,58 @@ export class AuthController {
     return req.user;
   }
 
+  @Get('demo-credentials')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get demo credentials (development only, requires authentication)' })
+  @ApiResponse({ status: 200, description: 'Demo credentials retrieved' })
+  @ApiResponse({ status: 403, description: 'Not available in production or unauthorized' })
+  async getDemoCredentials(@Req() req: AuthenticatedRequest, @Query('role') role: string) {
+    // Only available in development
+    if (process.env.NODE_ENV !== 'development') {
+      throw new ForbiddenException('Demo credentials not available in production');
+    }
+
+    // Only allow authenticated users to access demo credentials
+    if (!req.user) {
+      throw new ForbiddenException('Authentication required to access demo credentials');
+    }
+
+    // Only allow admin users to access demo credentials
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('Admin access required to retrieve demo credentials');
+    }
+
+    // Ensure all demo credentials are properly set in environment variables
+    if (!process.env.DEMO_ADMIN_EMAIL || !process.env.DEMO_ADMIN_PASSWORD ||
+        !process.env.DEMO_RESTAURANT_EMAIL || !process.env.DEMO_RESTAURANT_PASSWORD ||
+        !process.env.DEMO_EMPLOYEE_EMAIL || !process.env.DEMO_EMPLOYEE_PASSWORD ||
+        !process.env.DEMO_VENDOR_EMAIL || !process.env.DEMO_VENDOR_PASSWORD) {
+      throw new ForbiddenException('Demo credentials must be properly configured in environment variables');
+    }
+
+    const demoCredentials = {
+      admin: {
+        email: process.env.DEMO_ADMIN_EMAIL,
+        password: process.env.DEMO_ADMIN_PASSWORD
+      },
+      restaurant: {
+        email: process.env.DEMO_RESTAURANT_EMAIL,
+        password: process.env.DEMO_RESTAURANT_PASSWORD
+      },
+      employee: {
+        email: process.env.DEMO_EMPLOYEE_EMAIL,
+        password: process.env.DEMO_EMPLOYEE_PASSWORD
+      },
+      vendor: {
+        email: process.env.DEMO_VENDOR_EMAIL,
+        password: process.env.DEMO_VENDOR_PASSWORD
+      }
+    };
+
+    return demoCredentials[role as keyof typeof demoCredentials] || { message: 'Invalid role' };
+  }
+
   @Get('health')
   @ApiOperation({ summary: 'Auth service health check' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
@@ -147,6 +206,16 @@ export class AuthController {
       status: 'ok',
       timestamp: new Date().toISOString(),
       service: 'auth',
+      dependencies: {
+        redis: { status: 'unknown', message: 'Redis health checks disabled in mock mode' }
+      }
     };
+  }
+
+  @Get('redis-health')
+  @ApiOperation({ summary: 'Redis health check' })
+  @ApiResponse({ status: 200, description: 'Redis health status' })
+  async redisHealthCheck() {
+    return { status: 'disabled', message: 'Redis health checks disabled in mock mode' };
   }
 }

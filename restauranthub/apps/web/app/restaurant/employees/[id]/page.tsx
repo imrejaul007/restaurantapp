@@ -97,7 +97,7 @@ export default function EmployeeDetails() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Team
             </Button>
@@ -314,7 +314,7 @@ export default function EmployeeDetails() {
                       </Button>
                       <Button 
                         variant="destructive" 
-                        size="sm"
+                        
                         className="w-full"
                         onClick={() => handleStatusChange('suspended')}
                       >
@@ -356,7 +356,7 @@ export default function EmployeeDetails() {
                       </Badge>
                     ))}
                   </div>
-                  <Button variant="outline" size="sm" className="w-full mt-3">
+                  <Button variant="outline"  className="w-full mt-3">
                     Manage Permissions
                   </Button>
                 </CardContent>
@@ -387,7 +387,7 @@ export default function EmployeeDetails() {
                       </div>
                     ))}
                   </div>
-                  <Button variant="outline" size="sm" className="w-full mt-3">
+                  <Button variant="outline"  className="w-full mt-3">
                     Add Document
                   </Button>
                 </CardContent>
@@ -406,7 +406,7 @@ export default function EmployeeDetails() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-3">{employee.notes}</p>
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline"  className="w-full">
                     Edit Notes
                   </Button>
                 </CardContent>

@@ -227,12 +227,12 @@ export default function OrderTracking({
             </div>
             
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" >
                 <Download className="h-4 w-4 mr-2" />
                 Invoice
               </Button>
               
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </div>
@@ -461,9 +461,9 @@ export default function OrderTracking({
                   </div>
                   
                   {currentUserRole === 'vendor' && (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="mt-2"
                       onClick={() => onContactCustomer?.(order.customer.id)}
                     >
@@ -492,9 +492,9 @@ export default function OrderTracking({
                   </div>
                   
                   {currentUserRole === 'customer' && (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="mt-2"
                       onClick={() => onContactVendor?.(order.vendor.id)}
                     >
@@ -712,7 +712,7 @@ export default function OrderTracking({
                     <label className="block text-sm font-medium mb-2">New Status</label>
                     <select
                       value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(e.target.value as Order['status'])}
+                      onChange={(e) => e.target.value}
                       className="w-full px-3 py-2 border border-border rounded-lg bg-background"
                     >
                       {statusSteps.map((step) => (

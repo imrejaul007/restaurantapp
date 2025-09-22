@@ -102,7 +102,7 @@ export default function Cart() {
                         <div className="flex items-center space-x-2">
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           >
                             <Minus className="h-4 w-4" />
@@ -110,14 +110,14 @@ export default function Cart() {
                           <span className="w-8 text-center">{item.quantity}</span>
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
-                            size="sm"
+                            
                             onClick={() => updateQuantity(item.id, 0)}
                             className="text-red-500"
                           >

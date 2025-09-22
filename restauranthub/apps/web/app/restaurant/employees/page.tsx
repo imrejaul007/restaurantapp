@@ -314,11 +314,11 @@ export default function RestaurantEmployees() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <TrendingUp className="h-4 w-4 mr-2" />
               Performance Report
             </Button>
-            <Button size="sm">
+            <Button >
               <Plus className="h-4 w-4 mr-2" />
               Add Employee
             </Button>
@@ -408,7 +408,7 @@ export default function RestaurantEmployees() {
                     <option value="on-leave">On Leave</option>
                     <option value="inactive">Inactive</option>
                   </select>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     <Filter className="h-4 w-4 mr-2" />
                     More Filters
                   </Button>
@@ -423,13 +423,13 @@ export default function RestaurantEmployees() {
                       {selectedEmployees.length} employee{selectedEmployees.length > 1 ? 's' : ''} selected
                     </p>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Send Message
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Export Data
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Mark Leave
                       </Button>
                     </div>
@@ -555,15 +555,15 @@ export default function RestaurantEmployees() {
                       </div>
                       
                       <div className="flex items-center space-x-2 ml-4">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </div>

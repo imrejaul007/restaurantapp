@@ -440,11 +440,11 @@ export default function JobDetailPage() {
           </Button>
           
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={handleShare}>
+            <Button variant="outline"  onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm" onClick={handleSaveJob}>
+            <Button variant="outline"  onClick={handleSaveJob}>
               {isSaved ? (
                 <>
                   <Bookmark className="h-4 w-4 mr-2 fill-current" />
@@ -457,7 +457,7 @@ export default function JobDetailPage() {
                 </>
               )}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLikeJob}>
+            <Button variant="outline"  onClick={handleLikeJob}>
               <Heart className={cn(
                 "h-4 w-4 mr-2",
                 isLiked ? "fill-red-500 text-red-500" : ""

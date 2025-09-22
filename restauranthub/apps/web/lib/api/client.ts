@@ -33,8 +33,6 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       (config) => {
-        // DEVELOPMENT MODE: Skip token authentication to avoid rate limiting
-        // TODO: Re-enable for production authentication
         if (typeof window !== 'undefined') {
           // Clear any existing malformed tokens that might cause issues
           const token = localStorage.getItem('accessToken');
@@ -42,11 +40,11 @@ class ApiClient {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
           }
-          // Don't attach any tokens in development to prevent JWT failures
-          // const token = localStorage.getItem('accessToken');
-          // if (token) {
-          //   config.headers.Authorization = `Bearer ${token}`;
-          // }
+          // Attach token to requests when available
+          const currentToken = localStorage.getItem('accessToken');
+          if (currentToken && currentToken !== 'mock-jwt-token-for-development') {
+            config.headers.Authorization = `Bearer ${currentToken}`;
+          }
         }
         return config;
       },

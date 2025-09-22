@@ -435,7 +435,7 @@ async function bootstrap() {
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
   const port = configService.get('API_PORT', 3000);
-  const host = configService.get('API_HOST', '0.0.0.0');
+  const host = configService.get('API_HOST', '127.0.0.1');
   
   await app.listen(port, host);
 

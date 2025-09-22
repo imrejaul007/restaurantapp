@@ -101,8 +101,9 @@ export function VendorCard({ vendor, onViewDetails, onContact }: VendorCardProps
         </div>
 
         <div className="flex gap-2">
-          <Button 
-            size="sm" 
+          <Button
+            variant="default"
+            size="default"
             className="flex-1"
             onClick={(e) => {
               e.stopPropagation();
@@ -111,9 +112,9 @@ export function VendorCard({ vendor, onViewDetails, onContact }: VendorCardProps
           >
             View Details
           </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
+          <Button
+            variant="outline"
+            size="default"
             className="flex-1"
             onClick={(e) => {
               e.stopPropagation();

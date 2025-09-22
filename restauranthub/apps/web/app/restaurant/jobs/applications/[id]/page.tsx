@@ -169,11 +169,7 @@ export default function ApplicationReviewPage() {
         setNotes(mockApplication.notes || '');
         setRating(mockApplication.rating || 0);
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load application details.",
-          variant: "destructive"
-        });
+        toast.error("Failed to load application details.");
       } finally {
         setLoading(false);
       }
@@ -191,17 +187,9 @@ export default function ApplicationReviewPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setApplication(prev => prev ? { ...prev, status } : null);
-      toast({
-        title: "Status Updated",
-        description: `Application status changed to ${status}.`,
-        variant: "default"
-      });
+      toast.success(`Application status changed to ${status}.`);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update application status.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update application status.");
     } finally {
       setUpdating(false);
     }
@@ -216,17 +204,9 @@ export default function ApplicationReviewPage() {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       setApplication(prev => prev ? { ...prev, notes, rating } : null);
-      toast({
-        title: "Notes Saved",
-        description: "Your notes and rating have been saved.",
-        variant: "default"
-      });
+      toast.success("Your notes and rating have been saved.");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save notes.",
-        variant: "destructive"
-      });
+      toast.error("Failed to save notes.");
     } finally {
       setUpdating(false);
     }
@@ -278,7 +258,7 @@ export default function ApplicationReviewPage() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -295,7 +275,7 @@ export default function ApplicationReviewPage() {
             </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -535,11 +515,11 @@ export default function ApplicationReviewPage() {
                             <span>Resume</span>
                           </div>
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">
+                            <Button  variant="outline">
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button  variant="outline">
                               <Download className="h-4 w-4 mr-2" />
                               Download
                             </Button>
@@ -553,7 +533,7 @@ export default function ApplicationReviewPage() {
                             <ExternalLink className="h-4 w-4" />
                             <span>Portfolio</span>
                           </div>
-                          <Button size="sm" variant="outline">
+                          <Button  variant="outline">
                             <ExternalLink className="h-4 w-4 mr-2" />
                             Visit
                           </Button>

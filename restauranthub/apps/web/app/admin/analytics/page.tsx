@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { Select } from '../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import PaymentDashboard from '../../../components/payments/PaymentDashboard';
-import { 
+import {
   ChartBarIcon,
   UsersIcon,
   BuildingStorefrontIcon,
-  CurrencyRupeeIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  CurrencyDollarIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ShoppingCartIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
@@ -131,23 +131,24 @@ export default function AnalyticsPage() {
         </div>
         
         <div className="flex gap-2 mt-4 sm:mt-0">
-          <Select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="min-w-[140px]"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger className="min-w-[140px]">
+              <SelectValue placeholder="Select date range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+              <SelectItem value="365">Last year</SelectItem>
+            </SelectContent>
           </Select>
           
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <CalendarDaysIcon className="w-4 h-4 mr-2" />
             Custom Range
           </Button>
           
-          <Button size="sm">
+          <Button >
             Export Report
           </Button>
         </div>
@@ -186,7 +187,7 @@ export default function AnalyticsPage() {
             <Card className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <CurrencyRupeeIcon className="w-6 h-6 text-green-600" />
+                  <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4 flex-1">
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
@@ -195,9 +196,9 @@ export default function AnalyticsPage() {
                   </p>
                   <div className="flex items-center mt-1">
                     {stats.revenue.growth > 0 ? (
-                      <TrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
+                      <ArrowTrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
                       stats.revenue.growth > 0 ? 'text-green-600' : 'text-red-600'
@@ -222,9 +223,9 @@ export default function AnalyticsPage() {
                   </p>
                   <div className="flex items-center mt-1">
                     {stats.orders.growth > 0 ? (
-                      <TrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
+                      <ArrowTrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
                       stats.orders.growth > 0 ? 'text-green-600' : 'text-red-600'
@@ -249,9 +250,9 @@ export default function AnalyticsPage() {
                   </p>
                   <div className="flex items-center mt-1">
                     {stats.users.growth > 0 ? (
-                      <TrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
+                      <ArrowTrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
                       stats.users.growth > 0 ? 'text-green-600' : 'text-red-600'
@@ -276,9 +277,9 @@ export default function AnalyticsPage() {
                   </p>
                   <div className="flex items-center mt-1">
                     {stats.aov.growth > 0 ? (
-                      <TrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-green-500 mr-1" />
                     ) : (
-                      <TrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
+                      <ArrowTrendingDownIcon className="w-4 h-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
                       stats.aov.growth > 0 ? 'text-green-600' : 'text-red-600'
@@ -393,8 +394,8 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" orientation="left" tickFormatter={(value) => `₹${value / 100000}L`} />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip 
-                  formatter={([value, name]) => [
+                <Tooltip
+                  formatter={(value: any, name: any) => [
                     name === 'revenue' ? formatCurrency(value as number) : value,
                     name === 'revenue' ? 'Revenue' : 'Orders'
                   ]}

@@ -336,7 +336,7 @@ export default function CommunityForums() {
                                     key={tag}
                                     tag={tag}
                                     variant="secondary"
-                                    size="sm"
+                                    
                                     showExternalIcon={true}
                                   />
                                 ))}
@@ -387,7 +387,7 @@ export default function CommunityForums() {
                       key={tag}
                       tag={tag}
                       variant="outline"
-                      size="sm"
+                      
                       showExternalIcon={true}
                     />
                   ))}

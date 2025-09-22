@@ -185,7 +185,7 @@ export function TwoFactorSetup({ onClose, onSuccess }: TwoFactorSetupProps) {
                 <div className="text-center">
                   <Button
                     variant="outline"
-                    size="sm"
+                    
                     onClick={() => setShowManualEntry(!showManualEntry)}
                   >
                     {showManualEntry ? (
@@ -213,7 +213,7 @@ export function TwoFactorSetup({ onClose, onSuccess }: TwoFactorSetupProps) {
                       />
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => copyToClipboard(manualEntryKey)}
                       >
                         {copiedKey ? (
@@ -235,7 +235,7 @@ export function TwoFactorSetup({ onClose, onSuccess }: TwoFactorSetupProps) {
                   id="verification-code"
                   placeholder="Enter 6-digit code"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => setVerificationCode(e.target.value)}
                   maxLength={6}
                   className="text-center text-lg font-mono tracking-widest"
                 />

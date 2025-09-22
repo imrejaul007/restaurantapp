@@ -228,7 +228,7 @@ export default function VendorVerification({
 
   const renderRequestCard = (request: VerificationRequest) => {
     const completeness = calculateCompleteness(request);
-    
+
     return (
       <motion.div
         key={request.id}
@@ -340,7 +340,7 @@ export default function VendorVerification({
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => setSelectedRequest(request)}
                   >
                     <Eye className="h-4 w-4 mr-2" />
@@ -351,7 +351,7 @@ export default function VendorVerification({
                     <>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="default"
                         onClick={() => {
                           setSelectedRequest(request);
                           setShowRejectModal(true);
@@ -361,9 +361,10 @@ export default function VendorVerification({
                         <X className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
-                      
+
                       <Button
-                        size="sm"
+                        variant="default"
+                        size="default"
                         onClick={() => {
                           setSelectedRequest(request);
                           setShowApproveModal(true);
@@ -392,7 +393,7 @@ export default function VendorVerification({
           <p className="text-muted-foreground">Reviewing {request.vendor.name}</p>
         </div>
         
-        <Button variant="outline" onClick={() => setSelectedRequest(null)}>
+        <Button variant="outline" onClick={() => setSelectedRequest(null)} size="default">
           <X className="h-4 w-4 mr-2" />
           Back to List
         </Button>
@@ -454,7 +455,7 @@ export default function VendorVerification({
               <div className="space-y-3">
                 {documentTypes.map((docType) => {
                   const document = request.documents.find(doc => doc.type === docType.value);
-                  
+
                   return (
                     <div key={docType.value} className="flex items-center justify-between p-3 border border-border rounded-lg">
                       <div className="flex items-center space-x-3">
@@ -478,7 +479,7 @@ export default function VendorVerification({
                             {getDocumentStatusIcon(document.status)}
                             <Button
                               variant="outline"
-                              size="sm"
+                              size="default"
                               onClick={() => onViewDocument(document)}
                             >
                               <Eye className="h-4 w-4 mr-2" />
@@ -588,26 +589,29 @@ export default function VendorVerification({
               <CardTitle>Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
+              <Button
                 className="w-full"
                 onClick={() => setShowApproveModal(true)}
                 disabled={request.status !== 'in_review'}
+                size="default"
+                variant="default"
               >
                 <Check className="h-4 w-4 mr-2" />
                 Approve Vendor
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 className="w-full text-red-600 border-red-600 hover:bg-red-50"
                 onClick={() => setShowRejectModal(true)}
                 disabled={request.status !== 'in_review'}
+                size="default"
               >
                 <X className="h-4 w-4 mr-2" />
                 Reject Application
               </Button>
               
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" size="default">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Request More Info
               </Button>
@@ -752,6 +756,7 @@ export default function VendorVerification({
                   <div className="flex items-center space-x-3 pt-4">
                     <Button
                       variant="outline"
+                      size="default"
                       onClick={() => setShowApproveModal(false)}
                     >
                       Cancel
@@ -759,6 +764,8 @@ export default function VendorVerification({
                     <Button
                       onClick={handleApprove}
                       className="bg-green-600 hover:bg-green-700"
+                      size="default"
+                      variant="default"
                     >
                       <Check className="h-4 w-4 mr-2" />
                       Approve Vendor
@@ -811,11 +818,14 @@ export default function VendorVerification({
                   <div className="flex items-center space-x-3 pt-4">
                     <Button
                       variant="outline"
+                      size="default"
                       onClick={() => setShowRejectModal(false)}
                     >
                       Cancel
                     </Button>
                     <Button
+                      variant="default"
+                      size="default"
                       onClick={handleReject}
                       disabled={!rejectionReason.trim()}
                       className="bg-red-600 hover:bg-red-700"

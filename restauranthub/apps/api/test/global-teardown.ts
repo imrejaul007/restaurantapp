@@ -1,12 +1,21 @@
-import { PrismaClient } from '@prisma/client';
-
-export default async function globalTeardown() {
+module.exports = async function globalTeardown() {
   console.log('🧹 Cleaning up test environment...');
+
+  // Check if we're using mock database
+  const useMockDatabase = process.env.MOCK_DATABASE === 'true';
+
+  if (useMockDatabase) {
+    console.log('✅ Test environment cleanup complete (mock mode)');
+    return;
+  }
+
+  // Real database cleanup
+  const { PrismaClient } = require('@prisma/client');
 
   const prisma = new PrismaClient({
     datasources: {
       db: {
-        url: process.env.DATABASE_URL_TEST || 
+        url: process.env.DATABASE_URL_TEST ||
           'postgresql://test:test@localhost:5432/restauranthub_test?schema=public',
       },
     },
@@ -16,7 +25,7 @@ export default async function globalTeardown() {
     // Clean up test database
     await prisma.$executeRaw`DROP SCHEMA IF EXISTS public CASCADE`;
     await prisma.$executeRaw`CREATE SCHEMA public`;
-    
+
     console.log('✅ Test environment cleanup complete');
   } catch (error) {
     console.error('❌ Test cleanup failed:', error);

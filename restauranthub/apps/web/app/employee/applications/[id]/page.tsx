@@ -157,7 +157,7 @@ export default function ApplicationDetails() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -241,11 +241,11 @@ export default function ApplicationDetails() {
                       <p className="font-semibold">{application.interviewDetails.interviewer}</p>
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm">
+                      <Button >
                         <Calendar className="h-4 w-4 mr-2" />
                         Add to Calendar
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button  variant="outline">
                         <MapPin className="h-4 w-4 mr-2" />
                         Get Directions
                       </Button>
@@ -351,7 +351,7 @@ export default function ApplicationDetails() {
                   </div>
                   <div>
                     <Label>Resume</Label>
-                    <Button variant="outline" size="sm" className="w-full mt-1">
+                    <Button variant="outline"  className="w-full mt-1">
                       <Download className="h-4 w-4 mr-2" />
                       {application.applicationData.resume}
                     </Button>

@@ -68,7 +68,7 @@ class AuthApiClient {
   private static instance: AuthApiClient;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
-  private refreshPromise: Promise<string | null> | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
 
   private constructor() {
     // Initialize tokens from server-side rendered cookies if available

@@ -359,10 +359,7 @@ export default function PaymentGateway({
             <input
               type={showCardNumber ? 'text' : 'password'}
               value={cardDetails.number}
-              onChange={(e) => setCardDetails(prev => ({ 
-                ...prev, 
-                number: formatCardNumber(e.target.value) 
-              }))}
+              onChange={(e) => setCardDetails(prev => ({ ...prev, number: formatCardNumber(e.target.value) }))}
               placeholder="1234 5678 9012 3456"
               maxLength={19}
               className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary pr-12"
@@ -387,10 +384,7 @@ export default function PaymentGateway({
             <input
               type="text"
               value={cardDetails.expiry}
-              onChange={(e) => setCardDetails(prev => ({ 
-                ...prev, 
-                expiry: formatExpiry(e.target.value) 
-              }))}
+              onChange={(e) => setCardDetails(prev => ({ ...prev, expiry: formatExpiry(e.target.value) }))}
               placeholder="MM/YY"
               maxLength={5}
               className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
@@ -403,10 +397,7 @@ export default function PaymentGateway({
               <input
                 type={showCvv ? 'text' : 'password'}
                 value={cardDetails.cvv}
-                onChange={(e) => setCardDetails(prev => ({ 
-                  ...prev, 
-                  cvv: e.target.value.replace(/\D/g, '').slice(0, 4) 
-                }))}
+                onChange={(e) => setCardDetails(prev => ({ ...prev, cvv: e.target.value }))}
                 placeholder="123"
                 maxLength={4}
                 className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary pr-12"
@@ -665,7 +656,7 @@ export default function PaymentGateway({
               </h2>
               
               {paymentStep !== 'processing' && (
-                <Button variant="ghost" size="sm" onClick={onCancel}>
+                <Button variant="ghost"  onClick={onCancel}>
                   <X className="h-4 w-4" />
                 </Button>
               )}

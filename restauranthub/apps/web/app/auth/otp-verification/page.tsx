@@ -156,7 +156,7 @@ export default function OTPVerificationPage() {
                       type="text"
                       maxLength={1}
                       value={digit}
-                      onChange={(e) => handleOTPChange(index, e.target.value)}
+                      onChange={(e) => e.target.value}
                       onKeyDown={(e) => handleOTPKeyDown(index, e)}
                       className="w-12 h-12 text-center text-lg font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
@@ -195,7 +195,7 @@ export default function OTPVerificationPage() {
                   onClick={handleResend}
                   disabled={countdown > 0 || isLoading}
                   variant="outline"
-                  size="sm"
+                  
                 >
                   {countdown > 0 ? (
                     <div className="flex items-center space-x-2">

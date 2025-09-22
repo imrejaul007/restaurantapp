@@ -78,17 +78,33 @@ async function hashPassword(password: string): Promise<string> {
 
 async function createUsers() {
   console.log('Creating users...');
-  
-  // Create 5 admin users
-  const adminUsers = [];
-  for (let i = 0; i < 5; i++) {
+
+  // Create demo admin user first
+  const demoAdmin = await prisma.user.create({
+    data: {
+      firstName: 'Demo',
+      lastName: 'Admin',
+      email: 'admin@demo.com',
+      phone: '9876543210',
+      passwordHash: await hashPassword('Password123'),
+      role: 'ADMIN',
+      isActive: true,
+      emailVerified: true,
+      phoneVerified: true,
+      avatar: faker.image.avatar(),
+    },
+  });
+
+  // Create 4 more admin users
+  const adminUsers = [demoAdmin];
+  for (let i = 0; i < 4; i++) {
     const admin = await prisma.user.create({
       data: {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         phone: faker.phone.number('##########'),
-        passwordHash: await hashPassword('admin123'),
+        passwordHash: await hashPassword('Password123'),
         role: 'ADMIN',
         isActive: true,
         emailVerified: true,
@@ -99,16 +115,32 @@ async function createUsers() {
     adminUsers.push(admin);
   }
 
-  // Create 50 restaurant users
-  const restaurantUsers = [];
-  for (let i = 0; i < 50; i++) {
+  // Create demo restaurant user first
+  const demoRestaurant = await prisma.user.create({
+    data: {
+      firstName: 'Demo',
+      lastName: 'Restaurant',
+      email: 'restaurant@demo.com',
+      phone: '9876543211',
+      passwordHash: await hashPassword('Password123'),
+      role: 'RESTAURANT',
+      isActive: true,
+      emailVerified: true,
+      phoneVerified: true,
+      avatar: faker.image.avatar(),
+    },
+  });
+
+  // Create 49 more restaurant users
+  const restaurantUsers = [demoRestaurant];
+  for (let i = 0; i < 49; i++) {
     const restaurant = await prisma.user.create({
       data: {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         phone: faker.phone.number('##########'),
-        passwordHash: await hashPassword('restaurant123'),
+        passwordHash: await hashPassword('Password123'),
         role: 'RESTAURANT',
         isActive: true,
         emailVerified: faker.datatype.boolean(0.8),
@@ -119,16 +151,32 @@ async function createUsers() {
     restaurantUsers.push(restaurant);
   }
 
-  // Create 30 vendor users
-  const vendorUsers = [];
-  for (let i = 0; i < 30; i++) {
+  // Create demo vendor user first
+  const demoVendor = await prisma.user.create({
+    data: {
+      firstName: 'Demo',
+      lastName: 'Vendor',
+      email: 'vendor@demo.com',
+      phone: '9876543212',
+      passwordHash: await hashPassword('Password123'),
+      role: 'VENDOR',
+      isActive: true,
+      emailVerified: true,
+      phoneVerified: true,
+      avatar: faker.image.avatar(),
+    },
+  });
+
+  // Create 29 more vendor users
+  const vendorUsers = [demoVendor];
+  for (let i = 0; i < 29; i++) {
     const vendor = await prisma.user.create({
       data: {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         phone: faker.phone.number('##########'),
-        passwordHash: await hashPassword('vendor123'),
+        passwordHash: await hashPassword('Password123'),
         role: 'VENDOR',
         isActive: true,
         emailVerified: faker.datatype.boolean(0.8),
@@ -139,16 +187,32 @@ async function createUsers() {
     vendorUsers.push(vendor);
   }
 
-  // Create 100 employee users
-  const employeeUsers = [];
-  for (let i = 0; i < 100; i++) {
+  // Create demo employee user first
+  const demoEmployee = await prisma.user.create({
+    data: {
+      firstName: 'Demo',
+      lastName: 'Employee',
+      email: 'employee@demo.com',
+      phone: '9876543213',
+      passwordHash: await hashPassword('Password123'),
+      role: 'EMPLOYEE',
+      isActive: true,
+      emailVerified: true,
+      phoneVerified: true,
+      avatar: faker.image.avatar(),
+    },
+  });
+
+  // Create 99 more employee users
+  const employeeUsers = [demoEmployee];
+  for (let i = 0; i < 99; i++) {
     const employee = await prisma.user.create({
       data: {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         phone: faker.phone.number('##########'),
-        passwordHash: await hashPassword('employee123'),
+        passwordHash: await hashPassword('Password123'),
         role: 'EMPLOYEE',
         isActive: true,
         emailVerified: faker.datatype.boolean(0.7),

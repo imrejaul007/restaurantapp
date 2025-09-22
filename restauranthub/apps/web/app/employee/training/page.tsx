@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Play, CheckCircle, Clock, Award, Progress, Star, Download } from 'lucide-react';
+import { BookOpen, Play, CheckCircle, Clock, Award, Star, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -341,7 +341,7 @@ export default function Training() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Progress className="h-5 w-5 mr-2" />
+                <ProgressBar className="h-5 w-5 mr-2" />
                 Training Progress
               </CardTitle>
             </CardHeader>

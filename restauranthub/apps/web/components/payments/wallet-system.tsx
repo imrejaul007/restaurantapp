@@ -182,7 +182,7 @@ export default function WalletSystem({
         </div>
         
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <Download className="h-4 w-4 mr-2" />
             Statement
           </Button>
@@ -279,8 +279,8 @@ export default function WalletSystem({
                   <CreditCard className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
-            </div>
-          </Card>
+          </CardContent>
+        </Card>
         )}
       </div>
 
@@ -481,7 +481,7 @@ export default function WalletSystem({
                         </p>
                       </div>
                       
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </div>

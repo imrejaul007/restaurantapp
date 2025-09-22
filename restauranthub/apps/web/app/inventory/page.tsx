@@ -37,7 +37,7 @@ const mockInventoryItems = [
       name: 'Green Valley Farms',
       contact: '+91 98765 43210'
     },
-    status: 'active' as const,
+    status: 'active' as 'active' | 'out_of_stock',
     quality: {
       grade: 'Grade A',
       expiryDate: '2024-02-15T23:59:59Z',
@@ -83,7 +83,7 @@ const mockInventoryItems = [
       name: 'Punjab Rice Mills',
       contact: '+91 98765 43211'
     },
-    status: 'active' as const,
+    status: 'active' as 'active' | 'out_of_stock',
     quality: {
       grade: 'Premium',
       expiryDate: '2025-01-15T23:59:59Z',
@@ -129,7 +129,7 @@ const mockInventoryItems = [
       name: 'Poultry Plus',
       contact: '+91 98765 43212'
     },
-    status: 'out_of_stock' as const,
+    status: 'out_of_stock' as 'active' | 'out_of_stock',
     quality: {
       grade: 'Grade A',
       expiryDate: '2024-01-25T23:59:59Z',
@@ -175,7 +175,7 @@ const mockInventoryItems = [
       name: 'Gourmet Imports',
       contact: '+91 98765 43213'
     },
-    status: 'active' as const,
+    status: 'active' as 'active' | 'out_of_stock',
     quality: {
       grade: 'Premium',
       expiryDate: '2025-06-15T23:59:59Z',
@@ -221,7 +221,7 @@ const mockInventoryItems = [
       name: 'Local Artisan Dairy',
       contact: '+91 98765 43214'
     },
-    status: 'active' as const,
+    status: 'active' as 'active' | 'out_of_stock',
     quality: {
       grade: 'Artisan',
       expiryDate: '2024-01-28T23:59:59Z',
@@ -345,7 +345,7 @@ export default function InventoryPage() {
             current: newStock,
             available: newStock - item.stock.reserved
           },
-          status: newStock === 0 ? 'out_of_stock' as const : item.status,
+          status: (newStock === 0 ? 'out_of_stock' : 'active') as 'active' | 'out_of_stock',
           lastUpdated: new Date().toISOString()
         };
       }

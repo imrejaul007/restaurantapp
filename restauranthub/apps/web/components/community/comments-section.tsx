@@ -294,7 +294,7 @@ export default function CommentsSection({
               <div className="relative">
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="default"
                   className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                 >
                   <MoreHorizontal className="h-3 w-3" />
@@ -393,6 +393,8 @@ export default function CommentsSection({
             onClick={handleSubmitComment}
             disabled={!newComment.trim() || isSubmitting}
             className="flex items-center space-x-2"
+            size="default"
+            variant="default"
           >
             <Send className="h-4 w-4" />
             <span>{isSubmitting ? 'Posting...' : 'Post Comment'}</span>

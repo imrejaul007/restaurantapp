@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   ArrowRight,
   ArrowLeft,
   Check,
@@ -22,7 +22,8 @@ import {
   Star,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Package
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -353,7 +354,7 @@ export default function ProfileSetupPage() {
                 </div>
                 <Button
                   type="button"
-                  size="sm"
+                  
                   className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0"
                 >
                   <Upload className="h-4 w-4" />

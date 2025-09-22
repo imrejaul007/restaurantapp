@@ -311,7 +311,7 @@ export default function PropertyDetailsPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Link href="/marketplace">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Marketplace
               </Button>
@@ -319,15 +319,15 @@ export default function PropertyDetailsPage() {
             <span className="text-muted-foreground">/ Real Estate / {property.category}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsWishlisted(!isWishlisted)}>
+            <Button variant="ghost" onClick={() => setIsWishlisted(!isWishlisted)}>
               <Heart className={`h-4 w-4 mr-2 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
               {isWishlisted ? 'Saved' : 'Save'}
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               <Download className="h-4 w-4 mr-2" />
               Brochure
             </Button>
@@ -346,11 +346,11 @@ export default function PropertyDetailsPage() {
                 
                 {/* Image Overlay Controls */}
                 <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
-                  <Button size="sm" variant="secondary" onClick={handleVirtualTour}>
+                  <Button variant="secondary" onClick={handleVirtualTour}>
                     <Video className="h-4 w-4 mr-2" />
                     Virtual Tour
                   </Button>
-                  <Button size="sm" variant="secondary">
+                  <Button variant="secondary">
                     <Camera className="h-4 w-4 mr-2" />
                     View All ({property.images.length})
                   </Button>
@@ -629,7 +629,7 @@ export default function PropertyDetailsPage() {
                                 Verified
                               </Badge>
                             )}
-                            <Button size="sm" variant="outline">
+                            <Button variant="outline">
                               <Eye className="h-4 w-4 mr-1" />
                               View
                             </Button>
@@ -709,7 +709,7 @@ export default function PropertyDetailsPage() {
                     <Input
                       id="name"
                       value={tourForm.name}
-                      onChange={(e) => setTourForm({...tourForm, name: e.target.value})}
+                      onChange={(e) => setTourForm(prev => ({ ...prev, name: e.target.value }))}
                       required
                     />
                   </div>
@@ -720,7 +720,7 @@ export default function PropertyDetailsPage() {
                       id="email"
                       type="email"
                       value={tourForm.email}
-                      onChange={(e) => setTourForm({...tourForm, email: e.target.value})}
+                      onChange={(e) => setTourForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
@@ -730,7 +730,7 @@ export default function PropertyDetailsPage() {
                     <Input
                       id="phone"
                       value={tourForm.phone}
-                      onChange={(e) => setTourForm({...tourForm, phone: e.target.value})}
+                      onChange={(e) => setTourForm(prev => ({ ...prev, phone: e.target.value }))}
                       required
                     />
                   </div>
@@ -742,7 +742,7 @@ export default function PropertyDetailsPage() {
                         id="date"
                         type="date"
                         value={tourForm.date}
-                        onChange={(e) => setTourForm({...tourForm, date: e.target.value})}
+                        onChange={(e) => setTourForm(prev => ({ ...prev, date: e.target.value }))}
                         required
                       />
                     </div>
@@ -752,7 +752,7 @@ export default function PropertyDetailsPage() {
                         id="time"
                         type="time"
                         value={tourForm.time}
-                        onChange={(e) => setTourForm({...tourForm, time: e.target.value})}
+                        onChange={(e) => setTourForm(prev => ({ ...prev, time: e.target.value }))}
                         required
                       />
                     </div>
@@ -763,7 +763,7 @@ export default function PropertyDetailsPage() {
                     <select
                       id="tourType"
                       value={tourForm.tourType}
-                      onChange={(e) => setTourForm({...tourForm, tourType: e.target.value})}
+                      onChange={(e) => setTourForm(prev => ({ ...prev, tourType: e.target.value as any }))}
                       className="w-full px-3 py-2 border border-border rounded-md bg-background"
                     >
                       <option value="physical">Physical Tour</option>
@@ -777,7 +777,7 @@ export default function PropertyDetailsPage() {
                     <Textarea
                       id="message"
                       value={tourForm.message}
-                      onChange={(e) => setTourForm({...tourForm, message: e.target.value})}
+                      onChange={(e) => setTourForm(prev => ({ ...prev, message: e.target.value }))}
                       placeholder="Any specific requirements or questions..."
                       rows={3}
                     />

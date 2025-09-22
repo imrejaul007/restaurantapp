@@ -684,7 +684,7 @@ export default function OrderTrackingPage() {
                           >
                             <Star className={cn(
                               "h-6 w-6 transition-colors",
-                              ratings[aspect as keyof typeof ratings] >= star
+                              Number(ratings[aspect as keyof typeof ratings]) >= star
                                 ? "fill-yellow-400 text-yellow-400"
                                 : "text-gray-300"
                             )} />
@@ -698,7 +698,7 @@ export default function OrderTrackingPage() {
                     <label className="text-sm font-medium">Comments (Optional)</label>
                     <textarea
                       value={ratings.comment}
-                      onChange={e => setRatings(prev => ({ ...prev, comment: e.target.value }))}
+                      onChange={(e) => setRatings(prev => ({ ...prev, comment: e.target.value }))}
                       rows={3}
                       className="w-full mt-1 p-2 border border-border rounded-md"
                       placeholder="Share your experience..."

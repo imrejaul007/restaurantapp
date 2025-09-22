@@ -327,7 +327,7 @@ export default function VendorPage() {
       toast({
         title: "Vendor not found",
         description: "The requested vendor could not be found.",
-        variant: "destructive"
+        variant: "error"
       });
       router.push('/marketplace');
     }
@@ -529,7 +529,7 @@ export default function VendorPage() {
                       <Button
                         key={category}
                         variant={selectedCategory === category ? 'default' : 'outline'}
-                        size="sm"
+                        
                         onClick={() => setSelectedCategory(category)}
                         className="capitalize"
                       >
@@ -542,14 +542,14 @@ export default function VendorPage() {
                 <div className="flex items-center space-x-2">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'outline'}
-                    size="sm"
+                    
                     onClick={() => setViewMode('grid')}
                   >
                     <Grid className="h-4 w-4" />
                   </Button>
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'outline'}
-                    size="sm"
+                    
                     onClick={() => setViewMode('list')}
                   >
                     <List className="h-4 w-4" />
@@ -617,7 +617,7 @@ export default function VendorPage() {
                                   </span>
                                 )}
                               </div>
-                              <Button size="sm">Add to Cart</Button>
+                              <Button >Add to Cart</Button>
                             </div>
                           </div>
                         </CardContent>
@@ -791,14 +791,14 @@ export default function VendorPage() {
                       <div className="flex items-center space-x-3">
                         <Phone className="h-4 w-4" />
                         <span>{vendor.contact.phone}</span>
-                        <Button size="sm" variant="outline" onClick={() => handleContact('phone')}>
+                        <Button  variant="outline" onClick={() => handleContact('phone')}>
                           Call
                         </Button>
                       </div>
                       <div className="flex items-center space-x-3">
                         <Mail className="h-4 w-4" />
                         <span>{vendor.contact.email}</span>
-                        <Button size="sm" variant="outline" onClick={() => handleContact('email')}>
+                        <Button  variant="outline" onClick={() => handleContact('email')}>
                           Email
                         </Button>
                       </div>

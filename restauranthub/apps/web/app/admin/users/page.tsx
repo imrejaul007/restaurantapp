@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import { Select } from '../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import { 
   UserIcon,
@@ -206,10 +206,10 @@ export default function UsersPage() {
           <p className="text-gray-600 mt-1">Manage all platform users and their accounts</p>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             Export Users
           </Button>
-          <Button size="sm" className="flex items-center space-x-2">
+          <Button  className="flex items-center space-x-2">
             <PlusIcon className="w-4 h-4" />
             <span>Add User</span>
           </Button>
@@ -286,8 +286,7 @@ export default function UsersPage() {
           <div className="flex gap-2">
             <Select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="min-w-[140px]"
+              onValueChange={(value) => setRoleFilter(value)}
             >
               <option value="">All Roles</option>
               <option value="ADMIN">Admin</option>
@@ -299,8 +298,7 @@ export default function UsersPage() {
             
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-[140px]"
+              onValueChange={(value) => setStatusFilter(value)}
             >
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -370,10 +368,10 @@ export default function UsersPage() {
                   
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <Badge color={user.emailVerified ? 'green' : 'red'} size="sm">
+                      <Badge color={user.emailVerified ? 'green' : 'red'} >
                         📧 {user.emailVerified ? 'Verified' : 'Pending'}
                       </Badge>
-                      <Badge color={user.phoneVerified ? 'green' : 'red'} size="sm">
+                      <Badge color={user.phoneVerified ? 'green' : 'red'} >
                         📱 {user.phoneVerified ? 'Verified' : 'Pending'}
                       </Badge>
                     </div>
@@ -395,14 +393,14 @@ export default function UsersPage() {
                     <div className="flex space-x-2">
                       <Button
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => handleUserAction('view', user.id)}
                       >
                         <EyeIcon className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
+                        
                         onClick={() => handleUserAction('edit', user.id)}
                       >
                         <PencilIcon className="w-4 h-4" />
@@ -410,7 +408,7 @@ export default function UsersPage() {
                       {user.status === 'ACTIVE' ? (
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleUserAction('suspend', user.id)}
                           className="text-red-600 border-red-600 hover:bg-red-50"
                         >
@@ -419,7 +417,7 @@ export default function UsersPage() {
                       ) : (
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleUserAction('activate', user.id)}
                           className="text-green-600 border-green-600 hover:bg-green-50"
                         >
@@ -444,7 +442,7 @@ export default function UsersPage() {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
@@ -452,7 +450,7 @@ export default function UsersPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >

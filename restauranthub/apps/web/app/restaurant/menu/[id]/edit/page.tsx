@@ -174,7 +174,7 @@ export default function EditMenuItem() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -233,7 +233,7 @@ export default function EditMenuItem() {
                           type="number"
                           step="0.01"
                           value={menuItem.price}
-                          onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
+                          onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                           className="pl-8"
                         />
                       </div>
@@ -264,7 +264,7 @@ export default function EditMenuItem() {
                           id="prepTime"
                           type="number"
                           value={menuItem.preparationTime}
-                          onChange={(e) => handleInputChange('preparationTime', parseInt(e.target.value))}
+                          onChange={(e) => handleInputChange('preparationTime', parseInt(e.target.value) || 0)}
                           className="pl-8"
                         />
                       </div>
@@ -302,7 +302,7 @@ export default function EditMenuItem() {
                       />
                       <Button
                         variant="ghost"
-                        size="sm"
+                        
                         onClick={() => removeIngredient(index)}
                       >
                         <X className="h-4 w-4" />
@@ -311,7 +311,7 @@ export default function EditMenuItem() {
                   ))}
                   <Button
                     variant="outline"
-                    size="sm"
+                    
                     onClick={addIngredient}
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -339,7 +339,7 @@ export default function EditMenuItem() {
                         id="calories"
                         type="number"
                         value={menuItem.nutritionInfo.calories}
-                        onChange={(e) => handleNutritionChange('calories', parseInt(e.target.value))}
+                        onChange={(e) => handleNutritionChange('calories', parseInt(e.target.value) || 0)}
                       />
                     </div>
                     <div>
@@ -348,7 +348,7 @@ export default function EditMenuItem() {
                         id="protein"
                         type="number"
                         value={menuItem.nutritionInfo.protein}
-                        onChange={(e) => handleNutritionChange('protein', parseInt(e.target.value))}
+                        onChange={(e) => handleNutritionChange('protein', parseInt(e.target.value) || 0)}
                       />
                     </div>
                     <div>
@@ -357,7 +357,7 @@ export default function EditMenuItem() {
                         id="carbs"
                         type="number"
                         value={menuItem.nutritionInfo.carbs}
-                        onChange={(e) => handleNutritionChange('carbs', parseInt(e.target.value))}
+                        onChange={(e) => handleNutritionChange('carbs', parseInt(e.target.value) || 0)}
                       />
                     </div>
                     <div>
@@ -366,7 +366,7 @@ export default function EditMenuItem() {
                         id="fat"
                         type="number"
                         value={menuItem.nutritionInfo.fat}
-                        onChange={(e) => handleNutritionChange('fat', parseInt(e.target.value))}
+                        onChange={(e) => handleNutritionChange('fat', parseInt(e.target.value) || 0)}
                       />
                     </div>
                   </div>
@@ -421,7 +421,7 @@ export default function EditMenuItem() {
                     <Switch
                       id="available"
                       checked={menuItem.available}
-                      onCheckedChange={(checked) => handleInputChange('available', checked)}
+                      onChange={(e) => handleInputChange('available', (e.target as HTMLInputElement).checked)}
                     />
                   </div>
                   
@@ -430,7 +430,7 @@ export default function EditMenuItem() {
                     <Switch
                       id="popular"
                       checked={menuItem.popular}
-                      onCheckedChange={(checked) => handleInputChange('popular', checked)}
+                      onChange={(e) => handleInputChange('popular', (e.target as HTMLInputElement).checked)}
                     />
                   </div>
 

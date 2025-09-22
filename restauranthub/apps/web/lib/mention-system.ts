@@ -32,16 +32,16 @@ export function getAllMentionableItems(): MentionItem[] {
     // Add vendors
     if (allMarketplaceData?.vendors) {
       allMarketplaceData.vendors.forEach(vendor => {
-        if (vendor?.id && vendor?.name) {
+        if (vendor?.id && (vendor as any)?.name) {
           items.push({
             id: vendor.id,
-            name: vendor.name,
+            name: (vendor as any).name,
             type: 'vendor',
             category: vendor.category || 'general',
             rating: vendor.rating || 0,
             description: vendor.description || '',
             avatar: vendor.logo || '',
-            verified: vendor.certifications ? vendor.certifications.length > 0 : false
+            verified: (vendor as any).certifications ? (vendor as any).certifications.length > 0 : false
           });
         }
       });
@@ -57,10 +57,10 @@ export function getAllMentionableItems(): MentionItem[] {
             type: 'product',
             category: product.category || 'general',
             price: product.price || 0,
-            unit: product.unit || 'unit',
+            unit: (product as any).unit || 'unit',
             description: product.description || '',
             avatar: product.images?.[0] || '',
-            verified: product.inStock || false
+            verified: (product as any).inStock || false
           });
         }
       });

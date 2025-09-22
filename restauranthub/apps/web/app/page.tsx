@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/lib/auth/auth-provider';
+import { useOptionalAuth } from '@/lib/auth/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -73,6 +73,41 @@ interface JobHighlight {
   urgent: boolean;
   requirements: string[];
   companyColor: string;
+}
+
+interface FeedPost {
+  id: string;
+  type: 'job' | 'vendor' | 'news' | 'community' | 'marketplace' | 'training';
+  author: {
+    name: string;
+    role: string;
+    avatar: string;
+    verified: boolean;
+  };
+  content: {
+    title: string;
+    description: string;
+    image?: string;
+    cta?: string;
+    ctaLink?: string;
+  };
+  engagement: {
+    likes: number;
+    comments: number;
+    shares: number;
+  };
+  timeAgo: string;
+  isPromoted?: boolean;
+}
+
+interface QuickAction {
+  id: string;
+  label: string;
+  icon: any;
+  href: string;
+  gradient: string;
+  description: string;
+  badge?: string;
 }
 
 // Modern mock data with better visual appeal
@@ -160,11 +195,164 @@ const mockJobHighlights: JobHighlight[] = [
   }
 ];
 
+// LinkedIn-style feed data
+const mockFeedPosts: FeedPost[] = [
+  {
+    id: '1',
+    type: 'job',
+    author: {
+      name: 'Luxury Resort Group',
+      role: 'Hospitality Company',
+      avatar: '/api/placeholder/40/40',
+      verified: true
+    },
+    content: {
+      title: 'Now Hiring: Executive Chef for Luxury Resort',
+      description: 'Join our award-winning culinary team in Goa. We\'re looking for an experienced chef to lead our kitchen operations.',
+      image: '/api/placeholder/400/250',
+      cta: 'Apply Now',
+      ctaLink: '/jobs/executive-chef-goa'
+    },
+    engagement: { likes: 42, comments: 8, shares: 3 },
+    timeAgo: '2 hours ago',
+    isPromoted: true
+  },
+  {
+    id: '2',
+    type: 'vendor',
+    author: {
+      name: 'Premium Spice Co.',
+      role: 'Spice Supplier',
+      avatar: '/api/placeholder/40/40',
+      verified: true
+    },
+    content: {
+      title: 'New Organic Spice Collection Available',
+      description: 'Discover our latest range of organic spices sourced directly from farms across India. Perfect for authentic flavors.',
+      image: '/api/placeholder/400/250',
+      cta: 'View Products',
+      ctaLink: '/marketplace/premium-spices'
+    },
+    engagement: { likes: 67, comments: 12, shares: 15 },
+    timeAgo: '4 hours ago'
+  },
+  {
+    id: '3',
+    type: 'community',
+    author: {
+      name: 'Chef Ramesh Kumar',
+      role: 'Executive Chef at Taj Hotels',
+      avatar: '/api/placeholder/40/40',
+      verified: false
+    },
+    content: {
+      title: 'Tips for Managing Food Costs During Peak Season',
+      description: 'After 15 years in the industry, here are my top strategies for maintaining profitability during busy periods...',
+      cta: 'Read More',
+      ctaLink: '/community/food-cost-management'
+    },
+    engagement: { likes: 234, comments: 45, shares: 28 },
+    timeAgo: '6 hours ago'
+  },
+  {
+    id: '4',
+    type: 'marketplace',
+    author: {
+      name: 'Fresh Farm Produce',
+      role: 'Vegetable Supplier',
+      avatar: '/api/placeholder/40/40',
+      verified: true
+    },
+    content: {
+      title: 'Farm-Fresh Vegetables - Same Day Delivery',
+      description: 'Get the freshest vegetables delivered to your restaurant within 24 hours. Special rates for bulk orders.',
+      image: '/api/placeholder/400/250',
+      cta: 'Order Now',
+      ctaLink: '/marketplace/fresh-vegetables'
+    },
+    engagement: { likes: 89, comments: 19, shares: 7 },
+    timeAgo: '8 hours ago'
+  },
+  {
+    id: '5',
+    type: 'training',
+    author: {
+      name: 'RestaurantHub Academy',
+      role: 'Training Provider',
+      avatar: '/api/placeholder/40/40',
+      verified: true
+    },
+    content: {
+      title: 'Free Webinar: Digital Marketing for Restaurants',
+      description: 'Learn how to boost your restaurant\'s online presence and attract more customers. Join our expert-led session.',
+      cta: 'Register Free',
+      ctaLink: '/training/digital-marketing-webinar'
+    },
+    engagement: { likes: 156, comments: 23, shares: 45 },
+    timeAgo: '12 hours ago'
+  }
+];
+
+// Quick actions for LinkedIn-style navigation
+const quickActions: QuickAction[] = [
+  {
+    id: '1',
+    label: 'Find Suppliers',
+    icon: Package,
+    href: '/marketplace',
+    gradient: 'from-blue-500 to-blue-600',
+    description: 'Browse 10,000+ suppliers',
+    badge: 'Popular'
+  },
+  {
+    id: '2',
+    label: 'Post a Job',
+    icon: Briefcase,
+    href: '/jobs/create',
+    gradient: 'from-emerald-500 to-emerald-600',
+    description: 'Hire the best talent'
+  },
+  {
+    id: '3',
+    label: 'Join Community',
+    icon: Users,
+    href: '/community',
+    gradient: 'from-purple-500 to-purple-600',
+    description: 'Connect with peers',
+    badge: 'New'
+  },
+  {
+    id: '4',
+    label: 'View Analytics',
+    icon: BarChart3,
+    href: '/analytics',
+    gradient: 'from-orange-500 to-orange-600',
+    description: 'Track your growth'
+  },
+  {
+    id: '5',
+    label: 'Get Training',
+    icon: Award,
+    href: '/training',
+    gradient: 'from-pink-500 to-pink-600',
+    description: 'Skill up your team'
+  },
+  {
+    id: '6',
+    label: 'Get Support',
+    icon: HeartHandshake,
+    href: '/support',
+    gradient: 'from-indigo-500 to-indigo-600',
+    description: '24/7 assistance'
+  }
+];
+
 export default function HomePage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated } = useOptionalAuth();
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => {
     setIsVisible(true);
@@ -174,458 +362,337 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gradient-to-r from-blue-600 to-purple-600"></div>
-            <p className="text-slate-600 animate-pulse">Loading your experience...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const filteredPosts = activeFilter === 'all'
+    ? mockFeedPosts
+    : mockFeedPosts.filter(post => post.type === activeFilter);
 
-  // Enhanced role-based content
-  const getRoleSpecificContent = () => {
-    if (!isAuthenticated || !user) return null;
-
-    const roleConfigs = {
-      restaurant: {
-        gradient: 'from-blue-500 to-indigo-600',
-        icon: Store,
-        title: 'Welcome back, Restaurant Owner!',
-        subtitle: 'Your business dashboard is ready',
-        actions: [
-          { label: 'Dashboard', href: '/restaurant/dashboard', icon: BarChart3 },
-          { label: 'Orders', href: '/restaurant/orders', icon: ShoppingCart },
-          { label: 'Menu', href: '/restaurant/menu', icon: Utensils },
-          { label: 'Staff', href: '/restaurant/staff', icon: Users }
-        ]
-      },
-      vendor: {
-        gradient: 'from-emerald-500 to-green-600',
-        icon: Package,
-        title: 'Vendor Control Center',
-        subtitle: 'Manage your products and grow your business',
-        actions: [
-          { label: 'Dashboard', href: '/vendor/dashboard', icon: BarChart3 },
-          { label: 'Products', href: '/vendor/products', icon: Package },
-          { label: 'Orders', href: '/vendor/orders', icon: ShoppingCart },
-          { label: 'Analytics', href: '/vendor/analytics', icon: TrendingUp }
-        ]
-      },
-      employee: {
-        gradient: 'from-purple-500 to-pink-600',
-        icon: Briefcase,
-        title: 'Your Career Hub',
-        subtitle: 'Discover opportunities and manage your professional journey',
-        actions: [
-          { label: 'Dashboard', href: '/employee/dashboard', icon: User },
-          { label: 'Schedule', href: '/employee/schedule', icon: Calendar },
-          { label: 'Find Jobs', href: '/jobs', icon: Briefcase },
-          { label: 'Training', href: '/training', icon: Award }
-        ]
-      },
-      admin: {
-        gradient: 'from-orange-500 to-red-600',
-        icon: Shield,
-        title: 'Admin Command Center',
-        subtitle: 'Platform oversight and system management',
-        actions: [
-          { label: 'Dashboard', href: '/admin/dashboard', icon: BarChart3 },
-          { label: 'Users', href: '/admin/users', icon: Users },
-          { label: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
-          { label: 'Settings', href: '/admin/settings', icon: Shield }
-        ]
-      }
-    };
-
-    const config = roleConfigs[user.role as keyof typeof roleConfigs];
-    if (!config) return null;
-
-    const Icon = config.icon;
-
-    return (
-      <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${config.gradient} p-8 mb-8 shadow-xl`}>
-        <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
-        <div className="relative z-10 flex items-start space-x-6">
-          <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
-            <Icon className="h-8 w-8 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-white mb-2">{config.title}</h3>
-            <p className="text-white/90 mb-6">{config.subtitle}</p>
-            <div className="flex flex-wrap gap-3">
-              {config.actions.map((action, index) => {
-                const ActionIcon = action.icon;
-                return (
-                  <Link key={index} href={action.href}>
-                    <Button 
-                      size="sm" 
-                      variant="secondary" 
-                      className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 transition-all duration-200"
-                    >
-                      <ActionIcon className="h-4 w-4 mr-2" />
-                      {action.label}
-                    </Button>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        {/* Decorative elements */}
-        <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-      </div>
-    );
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'job': return Briefcase;
+      case 'vendor': return Package;
+      case 'community': return MessageCircle;
+      case 'marketplace': return ShoppingCart;
+      case 'training': return Award;
+      default: return Globe;
+    }
   };
 
+  const getTypeBadgeColor = (type: string) => {
+    switch (type) {
+      case 'job': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'vendor': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'community': return 'bg-green-100 text-green-800 border-green-200';
+      case 'marketplace': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'training': return 'bg-pink-100 text-pink-800 border-pink-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-slate-50">
       <Header />
-      
+
       <main className="relative">
-        {/* Role-specific welcome section */}
-        <div className="container mx-auto px-4 pt-6">
-          {getRoleSpecificContent()}
-        </div>
-
-        {/* Hero Section - Enhanced */}
-        {!isAuthenticated && (
-          <section className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
-            {/* Animated background */}
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-3xl"></div>
-              <div className="absolute top-0 left-0 w-full h-full">
-                <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-                <div className="absolute top-40 right-20 w-72 h-72 bg-purple-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-                <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
-              </div>
+        {/* LinkedIn-style Hero Banner */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-3xl"></div>
+            <div className="absolute top-0 left-0 w-full h-full">
+              <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+              <div className="absolute top-40 right-20 w-72 h-72 bg-purple-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+              <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-500/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
             </div>
+          </div>
 
-            <div className="relative z-10 container mx-auto px-4 py-20 lg:py-32">
-              <div className="max-w-4xl mx-auto text-center">
-                <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                  <Badge className="mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm border-white/20 text-white">
+          <div className="relative z-10 container mx-auto px-4 py-16 lg:py-20">
+            <div className="max-w-6xl mx-auto">
+              <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+                <div className="text-center mb-8">
+                  <Badge className="mb-4 px-4 py-2 bg-white/10 backdrop-blur-sm border-white/20 text-white">
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Trusted by 10,000+ Restaurants Worldwide
+                    Welcome to RestaurantHub
                   </Badge>
-                  
-                  <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+
+                  <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
                     <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                      The Complete Platform
-                    </span>
-                    <br />
-                    <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      for Restaurant Success
+                      Your Restaurant Ecosystem
                     </span>
                   </h1>
-                  
-                  <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                    Manage operations, connect with suppliers, hire talent, and grow your restaurant business - all in one powerful, intelligent platform.
+
+                  <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+                    Discover suppliers, find talent, connect with peers, and grow your business - all in one unified platform.
                   </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <Link href="/auth/signup">
-                      <Button size="lg" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105">
-                        Start Free Trial
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
-                    <Button size="lg" variant="outline" className="px-8 py-4 border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 font-semibold rounded-xl transition-all duration-300">
-                      <Play className="mr-2 h-5 w-5" />
-                      Watch Demo
-                    </Button>
-                  </div>
-                  
-                  <div className="mt-12 flex items-center justify-center space-x-8 text-sm text-slate-400">
-                    <div className="flex items-center">
-                      <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                      No credit card required
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                      14-day free trial
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                      Cancel anytime
-                    </div>
-                  </div>
+                </div>
+
+                {/* Quick Action Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
+                  {quickActions.map((action) => {
+                    const Icon = action.icon;
+                    return (
+                      <Link key={action.id} href={action.href}>
+                        <Card className="group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                          <CardContent className="p-4 text-center">
+                            <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${action.gradient} mb-3 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110`}>
+                              <Icon className="h-5 w-5 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-sm mb-1">{action.label}</h3>
+                            <p className="text-xs text-slate-300">{action.description}</p>
+                            {action.badge && (
+                              <Badge className="mt-2 text-xs bg-yellow-500/20 text-yellow-200 border-yellow-500/30">
+                                {action.badge}
+                              </Badge>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Bottom wave */}
-            <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-              <svg className="relative block w-full h-20" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-slate-50"></path>
-              </svg>
-            </div>
-          </section>
-        )}
-
-        {/* Stats Section - Redesigned */}
-        <section className="container mx-auto px-4 py-16 relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {[
-              { value: '10,000+', label: 'Active Restaurants', icon: Store, color: 'from-blue-500 to-blue-600' },
-              { value: '50,000+', label: 'Happy Users', icon: Users, color: 'from-emerald-500 to-emerald-600' },
-              { value: '₹100M+', label: 'Transactions', icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
-              { value: '98%', label: 'Satisfaction', icon: Star, color: 'from-orange-500 to-orange-600' }
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="text-center group">
-                  <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${stat.color} mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110`}>
-                    <Icon className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{stat.value}</div>
-                  <div className="text-slate-600 font-medium">{stat.label}</div>
-                </div>
-              );
-            })}
+          {/* Bottom wave */}
+          <div className="absolute bottom-0 left-0 w-full overflow-hidden">
+            <svg className="relative block w-full h-16" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="fill-slate-50"></path>
+            </svg>
           </div>
         </section>
 
-        {/* Categories Grid - Enhanced */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
-              Explore Our Platform
-            </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Discover all the tools and services designed to help your restaurant thrive
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {[
-              { label: 'Marketplace', icon: ShoppingCart, href: '/marketplace', gradient: 'from-blue-500 to-blue-600', description: 'Find suppliers' },
-              { label: 'Jobs', icon: Briefcase, href: '/jobs', gradient: 'from-purple-500 to-purple-600', description: 'Hire talent' },
-              { label: 'Community', icon: Users, href: '/community', gradient: 'from-emerald-500 to-emerald-600', description: 'Connect & learn' },
-              { label: 'Analytics', icon: BarChart3, href: '/analytics', gradient: 'from-orange-500 to-orange-600', description: 'Track performance' },
-              { label: 'Training', icon: Award, href: '/training', gradient: 'from-pink-500 to-pink-600', description: 'Skill development' },
-              { label: 'Support', icon: HeartHandshake, href: '/support', gradient: 'from-indigo-500 to-indigo-600', description: '24/7 assistance' },
-              { label: 'Payments', icon: CreditCard, href: '/payments', gradient: 'from-teal-500 to-teal-600', description: 'Secure transactions' },
-              { label: 'Services', icon: Store, href: '/services', gradient: 'from-red-500 to-red-600', description: 'Business solutions' }
-            ].map((category, index) => {
-              const Icon = category.icon;
-              return (
-                <Link key={index} href={category.href}>
-                  <Card className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <CardContent className="p-6 text-center">
-                      <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${category.gradient} mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110`}>
-                        <Icon className="h-6 w-6 text-white" />
-                      </div>
-                      <h3 className="font-bold text-slate-800 mb-1">{category.label}</h3>
-                      <p className="text-sm text-slate-600">{category.description}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        {/* LinkedIn-style Main Content Layout */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* Featured Vendors - Redesigned */}
-        <section className="bg-gradient-to-r from-slate-50 to-slate-100 py-20">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-12">
-              <div>
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">
-                  Featured Vendors
-                </h2>
-                <p className="text-xl text-slate-600">Trusted partners for your success</p>
-              </div>
-              <Link href="/marketplace">
-                <Button variant="outline" className="hidden sm:flex items-center space-x-2 px-6 py-3 rounded-xl border-2 hover:shadow-lg transition-all duration-300">
-                  <span>Explore All</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {mockFeaturedVendors.map((vendor, index) => (
-                <Card key={vendor.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white border-0">
-                  <div className={`relative h-48 bg-gradient-to-r ${vendor.bgColor}`}>
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute top-4 left-4 flex items-center space-x-2">
-                      {vendor.verified && (
-                        <Badge className="bg-green-500/20 backdrop-blur-sm border-green-500/30 text-green-100">
-                          <Verified className="h-3 w-3 mr-1" />
-                          Verified
-                        </Badge>
-                      )}
-                      {vendor.featured && (
-                        <Badge className="bg-yellow-500/20 backdrop-blur-sm border-yellow-500/30 text-yellow-100">
-                          <Star className="h-3 w-3 mr-1" />
-                          Featured
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-white font-semibold">{vendor.rating}</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* Left Sidebar - Quick Stats & Navigation */}
+            <div className="lg:col-span-3">
+              <div className="space-y-6">
+                {/* Platform Stats */}
+                <Card className="bg-white shadow-sm">
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">{vendor.name}</h3>
-                    <p className="text-slate-600 mb-3">{vendor.description}</p>
-                    
-                    <div className="flex items-center text-sm text-slate-500 mb-4">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{vendor.location}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">{vendor.products} products</span>
-                      <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg">
-                        View Store
-                      </Button>
+                    <h3 className="font-bold text-lg mb-4 text-slate-800">Platform Stats</h3>
+                    <div className="space-y-4">
+                      {[
+                        { label: 'Active Restaurants', value: '10,000+', icon: Store, color: 'text-blue-600' },
+                        { label: 'Suppliers', value: '5,000+', icon: Package, color: 'text-emerald-600' },
+                        { label: 'Jobs Posted', value: '50,000+', icon: Briefcase, color: 'text-purple-600' },
+                        { label: 'Community Members', value: '25,000+', icon: Users, color: 'text-orange-600' }
+                      ].map((stat, index) => {
+                        const Icon = stat.icon;
+                        return (
+                          <div key={index} className="flex items-center space-x-3">
+                            <Icon className={`h-5 w-5 ${stat.color}`} />
+                            <div>
+                              <div className="font-bold text-slate-800">{stat.value}</div>
+                              <div className="text-sm text-slate-600">{stat.label}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Job Highlights - Enhanced */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-2">
-                Latest Opportunities
-              </h2>
-              <p className="text-xl text-slate-600">Find your dream job in hospitality</p>
-            </div>
-            <Link href="/jobs">
-              <Button variant="outline" className="hidden sm:flex items-center space-x-2 px-6 py-3 rounded-xl border-2 hover:shadow-lg transition-all duration-300">
-                <span>Browse All Jobs</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {mockJobHighlights.map((job) => (
-              <Card key={job.id} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white border-0 overflow-hidden">
-                <div className={`h-2 bg-gradient-to-r ${job.companyColor}`}></div>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${job.companyColor} flex items-center justify-center`}>
-                        <Building2 className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">{job.title}</h3>
-                        <p className="text-slate-600">{job.company}</p>
-                      </div>
-                    </div>
-                    {job.urgent && (
-                      <Badge className="bg-red-100 text-red-800 border-red-200">
-                        <Zap className="h-3 w-3 mr-1" />
-                        Urgent
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-slate-600">
-                      <MapPin className="h-4 w-4 mr-2 text-slate-400" />
-                      {job.location}
-                    </div>
-                    <div className="flex items-center text-green-600 font-semibold">
-                      <DollarSign className="h-4 w-4 mr-2" />
-                      {job.salary}
-                    </div>
-                    <div className="flex items-center text-slate-500 text-sm">
-                      <Clock className="h-4 w-4 mr-2" />
-                      Posted {job.posted}
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <div className="flex flex-wrap gap-2">
-                      {job.requirements.slice(0, 2).map((req, index) => (
-                        <Badge key={index} variant="outline" className="bg-slate-50 text-slate-700 border-slate-200">
-                          {req}
-                        </Badge>
+                {/* Trending Topics */}
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-lg mb-4 text-slate-800">Trending Topics</h3>
+                    <div className="space-y-3">
+                      {[
+                        '#FoodCostManagement',
+                        '#HiringChallenges',
+                        '#SustainableDining',
+                        '#DigitalMarketing',
+                        '#MenuOptimization'
+                      ].map((topic, index) => (
+                        <div key={index} className="text-blue-600 hover:text-blue-800 cursor-pointer text-sm font-medium">
+                          {topic}
+                        </div>
                       ))}
                     </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <Button className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg">
-                      Quick Apply
-                    </Button>
-                    <Button variant="outline" size="sm" className="rounded-lg">
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        {!isAuthenticated && (
-          <section className="bg-gradient-to-r from-indigo-900 to-purple-900 py-20">
-            <div className="container mx-auto px-4 text-center">
-              <div className="max-w-4xl mx-auto">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                  Ready to Transform Your
-                  <br />
-                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Restaurant Business?
-                  </span>
-                </h2>
-                <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                  Join thousands of restaurants already growing with RestaurantHub
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                  <Link href="/auth/signup">
-                    <Button size="lg" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105">
-                      Start Free Trial
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Button size="lg" variant="outline" className="px-8 py-4 border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 font-semibold rounded-xl transition-all duration-300">
-                    Contact Sales
-                  </Button>
-                </div>
-                
-                <div className="flex items-center justify-center space-x-6 text-sm text-slate-400">
-                  <div className="flex items-center">
-                    <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                    No credit card required
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                    14-day free trial
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle2 className="h-4 w-4 mr-2 text-green-400" />
-                    Cancel anytime
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </section>
-        )}
+
+            {/* Main Feed */}
+            <div className="lg:col-span-6">
+              <div className="space-y-6">
+                {/* Feed Filter */}
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: 'all', label: 'All Posts', icon: Globe },
+                        { key: 'job', label: 'Jobs', icon: Briefcase },
+                        { key: 'vendor', label: 'Suppliers', icon: Package },
+                        { key: 'community', label: 'Community', icon: MessageCircle },
+                        { key: 'marketplace', label: 'Marketplace', icon: ShoppingCart },
+                        { key: 'training', label: 'Training', icon: Award }
+                      ].map((filter) => {
+                        const Icon = filter.icon;
+                        return (
+                          <Button
+                            key={filter.key}
+                            size="sm"
+                            variant={activeFilter === filter.key ? "default" : "outline"}
+                            onClick={() => setActiveFilter(filter.key)}
+                            className="flex items-center space-x-2"
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span>{filter.label}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Feed Posts */}
+                {filteredPosts.map((post) => {
+                  const TypeIcon = getTypeIcon(post.type);
+                  return (
+                    <Card key={post.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-6">
+                        {/* Post Header */}
+                        <div className="flex items-start space-x-3 mb-4">
+                          <div className="w-12 h-12 bg-gradient-to-r from-slate-200 to-slate-300 rounded-full flex items-center justify-center">
+                            <User className="h-6 w-6 text-slate-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <h4 className="font-semibold text-slate-800">{post.author.name}</h4>
+                              {post.author.verified && (
+                                <Verified className="h-4 w-4 text-blue-500" />
+                              )}
+                              {post.isPromoted && (
+                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
+                                  Promoted
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-slate-600">{post.author.role}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge className={`text-xs ${getTypeBadgeColor(post.type)}`}>
+                                <TypeIcon className="h-3 w-3 mr-1" />
+                                {post.type.charAt(0).toUpperCase() + post.type.slice(1)}
+                              </Badge>
+                              <span className="text-xs text-slate-500">{post.timeAgo}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Post Content */}
+                        <div className="mb-4">
+                          <h3 className="font-bold text-lg text-slate-800 mb-2">{post.content.title}</h3>
+                          <p className="text-slate-700 mb-3">{post.content.description}</p>
+
+                          {post.content.image && (
+                            <div className="rounded-lg overflow-hidden mb-3">
+                              <div className="w-full h-48 bg-gradient-to-r from-slate-200 to-slate-300 flex items-center justify-center">
+                                <span className="text-slate-500">Image Placeholder</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {post.content.cta && (
+                            <Link href={post.content.ctaLink || '#'}>
+                              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                                {post.content.cta}
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+
+                        {/* Post Engagement */}
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                          <div className="flex items-center space-x-6 text-sm text-slate-600">
+                            <div className="flex items-center space-x-1 hover:text-blue-600 cursor-pointer">
+                              <ThumbsUp className="h-4 w-4" />
+                              <span>{post.engagement.likes}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 hover:text-blue-600 cursor-pointer">
+                              <MessageCircle className="h-4 w-4" />
+                              <span>{post.engagement.comments}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 hover:text-blue-600 cursor-pointer">
+                              <ArrowRight className="h-4 w-4" />
+                              <span>{post.engagement.shares}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Sidebar - Featured Content */}
+            <div className="lg:col-span-3">
+              <div className="space-y-6">
+                {/* Featured Vendors */}
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg text-slate-800">Featured Suppliers</h3>
+                      <Link href="/marketplace">
+                        <Button size="sm" variant="outline">View All</Button>
+                      </Link>
+                    </div>
+                    <div className="space-y-4">
+                      {mockFeaturedVendors.slice(0, 3).map((vendor) => (
+                        <div key={vendor.id} className="flex items-center space-x-3">
+                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${vendor.bgColor} flex items-center justify-center`}>
+                            <Package className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm text-slate-800">{vendor.name}</h4>
+                            <p className="text-xs text-slate-600">{vendor.category}</p>
+                            <div className="flex items-center space-x-1 mt-1">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-slate-600">{vendor.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Jobs */}
+                <Card className="bg-white shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg text-slate-800">Recent Jobs</h3>
+                      <Link href="/jobs">
+                        <Button size="sm" variant="outline">View All</Button>
+                      </Link>
+                    </div>
+                    <div className="space-y-4">
+                      {mockJobHighlights.slice(0, 3).map((job) => (
+                        <div key={job.id} className="border-l-4 border-blue-500 pl-3">
+                          <h4 className="font-semibold text-sm text-slate-800">{job.title}</h4>
+                          <p className="text-xs text-slate-600">{job.company}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <MapPin className="h-3 w-3 text-slate-400" />
+                            <span className="text-xs text-slate-600">{job.location}</span>
+                          </div>
+                          <div className="text-xs text-green-600 font-medium">{job.salary}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Enhanced Footer */}
-        <footer className="bg-slate-900 text-white">
+        <footer className="bg-slate-900 text-white mt-16">
           <div className="container mx-auto px-4 py-16">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
               <div className="space-y-4">
@@ -636,23 +703,44 @@ export default function HomePage() {
                   <span className="text-2xl font-bold">RestaurantHub</span>
                 </div>
                 <p className="text-slate-400 leading-relaxed">
-                  The complete platform for restaurant success. Empowering the hospitality industry with innovative solutions.
+                  Your unified restaurant ecosystem. Connect, discover, and grow with the hospitality industry's most comprehensive platform.
                 </p>
                 <div className="flex space-x-4">
-                  {/* Social media icons would go here */}
+                  <div className="flex space-x-4 mt-4">
+                    <Link href="/auth/signup">
+                      <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                        Join Now
+                      </Button>
+                    </Link>
+                    <Link href="/auth/login">
+                      <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                        Sign In
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
-              
+
               <div>
-                <h4 className="font-semibold mb-4 text-lg">Product</h4>
+                <h4 className="font-semibold mb-4 text-lg">Discover</h4>
                 <ul className="space-y-3 text-slate-400">
-                  <li><Link href="/marketplace" className="hover:text-white transition-colors">Marketplace</Link></li>
+                  <li><Link href="/marketplace" className="hover:text-white transition-colors">Suppliers</Link></li>
                   <li><Link href="/jobs" className="hover:text-white transition-colors">Jobs</Link></li>
                   <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
-                  <li><Link href="/analytics" className="hover:text-white transition-colors">Analytics</Link></li>
+                  <li><Link href="/training" className="hover:text-white transition-colors">Training</Link></li>
                 </ul>
               </div>
-              
+
+              <div>
+                <h4 className="font-semibold mb-4 text-lg">Platform</h4>
+                <ul className="space-y-3 text-slate-400">
+                  <li><Link href="/analytics" className="hover:text-white transition-colors">Analytics</Link></li>
+                  <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
+                  <li><Link href="/docs" className="hover:text-white transition-colors">API Docs</Link></li>
+                  <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
+                </ul>
+              </div>
+
               <div>
                 <h4 className="font-semibold mb-4 text-lg">Company</h4>
                 <ul className="space-y-3 text-slate-400">
@@ -662,18 +750,8 @@ export default function HomePage() {
                   <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
                 </ul>
               </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4 text-lg">Support</h4>
-                <ul className="space-y-3 text-slate-400">
-                  <li><Link href="/support" className="hover:text-white transition-colors">Help Center</Link></li>
-                  <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
-                  <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
-                  <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
-                </ul>
-              </div>
             </div>
-            
+
             <div className="pt-8 border-t border-slate-800 text-center text-slate-400">
               <p>© 2024 RestaurantHub. All rights reserved. Built with ❤️ for the hospitality industry.</p>
             </div>

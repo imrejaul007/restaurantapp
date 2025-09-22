@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
-import { Select } from '../ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { 
   CreditCardIcon, 
   BanknotesIcon, 
@@ -180,25 +180,33 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
             
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-[120px]"
+              onValueChange={(value) => setStatusFilter(value)}
             >
-              <option value="">All Status</option>
-              <option value="PAID">Paid</option>
-              <option value="PENDING">Pending</option>
-              <option value="FAILED">Failed</option>
-              <option value="REFUNDED">Refunded</option>
+              <SelectTrigger className="min-w-[120px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="PAID">Paid</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="FAILED">Failed</SelectItem>
+                <SelectItem value="REFUNDED">Refunded</SelectItem>
+              </SelectContent>
             </Select>
             
             <Select
               value={gatewayFilter}
-              onChange={(e) => setGatewayFilter(e.target.value)}
-              className="min-w-[120px]"
+              onValueChange={(value) => setGatewayFilter(value)}
             >
-              <option value="">All Gateways</option>
-              <option value="stripe">Stripe</option>
-              <option value="razorpay">Razorpay</option>
-              <option value="internal">Internal</option>
+              <SelectTrigger className="min-w-[120px]">
+                <SelectValue placeholder="All Gateways" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Gateways</SelectItem>
+                <SelectItem value="stripe">Stripe</SelectItem>
+                <SelectItem value="razorpay">Razorpay</SelectItem>
+                <SelectItem value="internal">Internal</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -247,7 +255,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                     
                     {showAllTransactions && payment.status === 'PAID' && (
                       <Button
-                        size="sm"
+                        
                         variant="outline"
                         onClick={() => handleRefund(payment.id)}
                         className="mt-2 text-xs"
@@ -266,7 +274,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
           <div className="flex justify-center space-x-2 mt-6">
             <Button
               variant="outline"
-              size="sm"
+              
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
@@ -279,7 +287,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
             
             <Button
               variant="outline"
-              size="sm"
+              
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
             >

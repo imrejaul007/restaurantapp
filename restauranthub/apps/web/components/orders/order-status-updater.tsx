@@ -197,7 +197,7 @@ export function OrderStatusUpdater({
                 {availableStatuses.map((status) => {
                   const config = statusConfig[status];
                   const Icon = config.icon;
-                  
+
                   return (
                     <button
                       key={status}
@@ -251,7 +251,7 @@ export function OrderStatusUpdater({
                   disabled={isUpdating || !notes.trim()}
                   variant="destructive"
                   className="flex-1"
-                >
+                  size="default">
                   {isUpdating ? (
                     <motion.div
                       animate={{ rotate: 360 }}
@@ -270,7 +270,7 @@ export function OrderStatusUpdater({
                   onClick={handleStatusUpdate}
                   disabled={isUpdating || !selectedStatus}
                   className="flex-1"
-                >
+                  size="default" variant="default">
                   {isUpdating ? (
                     <motion.div
                       animate={{ rotate: 360 }}

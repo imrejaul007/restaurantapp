@@ -257,7 +257,7 @@ export default function ServiceSubscriptionPage() {
       toast({
         title: "Service not found",
         description: "The requested service could not be found.",
-        variant: "destructive"
+        variant: "error"
       });
       router.push('/marketplace');
     }
@@ -293,7 +293,7 @@ export default function ServiceSubscriptionPage() {
       toast({
         title: "Terms required",
         description: "Please agree to the terms and conditions.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -563,7 +563,7 @@ export default function ServiceSubscriptionPage() {
                     <label className="text-sm font-medium">Auto-renewal</label>
                     <p className="text-xs text-muted-foreground">Automatically renew subscription</p>
                   </div>
-                  <Switch checked={autoRenewal} onCheckedChange={setAutoRenewal} />
+                  <Switch checked={autoRenewal} onChange={(e) => setAutoRenewal((e.target as HTMLInputElement).checked)} />
                 </div>
               </CardContent>
             </Card>
@@ -652,7 +652,7 @@ export default function ServiceSubscriptionPage() {
                   <Checkbox
                     id="terms"
                     checked={agreedToTerms}
-                    onCheckedChange={setAgreedToTerms}
+                    onChange={(e) => setAgreedToTerms((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="terms" className="text-sm">
                     I agree to the service terms and conditions, including the cancellation policy and auto-renewal settings.

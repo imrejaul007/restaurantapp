@@ -1,18 +1,32 @@
-import { execSync } from 'child_process';
-import * as dotenv from 'dotenv';
+const { execSync } = require('child_process');
+const dotenv = require('dotenv');
 
-export default async function globalSetup() {
+module.exports = async function globalSetup() {
   // Load test environment variables
   dotenv.config({ path: '.env.test' });
 
   console.log('🚀 Setting up test environment...');
 
-  // Set test database URL
-  const testDatabaseUrl = process.env.DATABASE_URL_TEST || 
-    'postgresql://test:test@localhost:5432/restauranthub_test?schema=public';
-  
-  process.env.DATABASE_URL = testDatabaseUrl;
+  // Set test environment variables
   process.env.NODE_ENV = 'test';
+  process.env.MOCK_DATABASE = 'true';
+  process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
+  process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-key-for-testing-only';
+
+  // Check if we should use mock database
+  const useMockDatabase = process.env.MOCK_DATABASE === 'true';
+
+  if (useMockDatabase) {
+    console.log('🔧 Using mock database for testing');
+    console.log('✅ Test environment setup complete (mock mode)');
+    return;
+  }
+
+  // Real database setup (if needed)
+  const testDatabaseUrl = process.env.DATABASE_URL_TEST ||
+    'postgresql://test:test@localhost:5432/restauranthub_test?schema=public';
+
+  process.env.DATABASE_URL = testDatabaseUrl;
 
   try {
     // Reset test database
@@ -38,6 +52,9 @@ export default async function globalSetup() {
     console.log('✅ Test environment setup complete');
   } catch (error) {
     console.error('❌ Test setup failed:', error);
+    if (!useMockDatabase) {
+      console.log('💡 Consider setting MOCK_DATABASE=true for testing without real database');
+    }
     process.exit(1);
   }
 };

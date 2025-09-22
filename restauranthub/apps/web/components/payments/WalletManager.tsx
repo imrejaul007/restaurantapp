@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
@@ -140,13 +140,12 @@ export const WalletManager: React.FC<WalletManagerProps> = ({ className }) => {
             <h3 className="text-lg font-semibold">Add Money to Wallet</h3>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setShowAddMoney(false)}
             >
               Cancel
             </Button>
           </div>
-          
+
           <PaymentForm
             amount={parseFloat(addAmount)}
             orderId={`WALLET_TOPUP_${Date.now()}`}
@@ -214,7 +213,7 @@ export const WalletManager: React.FC<WalletManagerProps> = ({ className }) => {
               <Button
                 key={amount}
                 variant="outline"
-                size="sm"
+                
                 onClick={() => setAddAmount(amount.toString())}
                 className="text-xs"
               >
@@ -275,7 +274,7 @@ export const WalletManager: React.FC<WalletManagerProps> = ({ className }) => {
             <div className="flex justify-center space-x-2 mt-6">
               <Button
                 variant="outline"
-                size="sm"
+                
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
               >
@@ -288,7 +287,7 @@ export const WalletManager: React.FC<WalletManagerProps> = ({ className }) => {
               
               <Button
                 variant="outline"
-                size="sm"
+                
                 disabled={page === totalPages}
                 onClick={() => setPage(page + 1)}
               >

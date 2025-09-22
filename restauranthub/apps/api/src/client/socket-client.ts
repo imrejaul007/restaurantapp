@@ -307,7 +307,7 @@ export class RestaurantHubSocketClient extends EventEmitter {
     return {
       connected: this.socket?.connected || false,
       connecting: this.isConnecting,
-      id: this.socket?.id,
+      ...(this.socket?.id && { id: this.socket.id }),
     };
   }
 

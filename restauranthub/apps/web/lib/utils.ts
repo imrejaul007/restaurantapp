@@ -108,6 +108,7 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -119,6 +120,7 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
+
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
@@ -198,4 +200,13 @@ export function isDocumentFile(file: File): boolean {
     'text/plain',
   ];
   return docTypes.includes(file.type);
+}
+
+export function formatTime(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
 }

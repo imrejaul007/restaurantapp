@@ -110,21 +110,21 @@ export default function WishlistPage() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Share2 className="h-4 w-4 mr-2" />
               Share Wishlist
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
             {stats.totalItems > 0 && (
               <Button 
                 variant="outline" 
-                size="sm" 
+                 
                 onClick={handleClearAll}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
+               size="default">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear All
               </Button>
@@ -180,11 +180,11 @@ export default function WishlistPage() {
                 Start exploring our marketplace and save your favorite products, vendors, and properties for later.
               </p>
               <div className="flex justify-center space-x-3">
-                <Button onClick={() => window.location.href = '/marketplace'}>
+                <Button onClick={() => window.location.href = '/marketplace'} size="default" variant="default">
                   <Package className="h-4 w-4 mr-2" />
                   Browse Products
                 </Button>
-                <Button variant="outline" onClick={() => window.location.href = '/marketplace?tab=vendors'}>
+                <Button variant="outline" onClick={() => window.location.href = '/marketplace?tab=vendors'} size="default">
                   <Store className="h-4 w-4 mr-2" />
                   Find Vendors
                 </Button>
@@ -213,7 +213,7 @@ export default function WishlistPage() {
                     <select
                       className="px-3 py-2 border border-gray-300 rounded-md text-sm"
                       value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value as any)}
+                      onChange={(e) => setSelectedType(e.target.value as 'all' | WishlistItem['type'])}
                     >
                       <option value="all">All Items</option>
                       <option value="product">Products</option>
@@ -225,7 +225,7 @@ export default function WishlistPage() {
                     <select
                       className="px-3 py-2 border border-gray-300 rounded-md text-sm"
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
+                      onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'price' | 'rating')}
                     >
                       <option value="date">Sort by Date</option>
                       <option value="name">Sort by Name</option>
@@ -235,8 +235,9 @@ export default function WishlistPage() {
                     
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                      size="default"
                     >
                       {sortOrder === 'asc' ? (
                         <SortAsc className="h-4 w-4" />
@@ -254,7 +255,7 @@ export default function WishlistPage() {
               <AnimatePresence>
                 {filteredItems.map((item) => {
                   const TypeIcon = getTypeIcon(item.type);
-                  
+
                   return (
                     <motion.div
                       key={`${item.id}-${item.type}`}
@@ -343,12 +344,12 @@ export default function WishlistPage() {
 
                             {/* Action Buttons */}
                             <div className="flex space-x-2 pt-2">
-                              <Button size="sm" className="flex-1">
+                              <Button className="flex-1" size="default" variant="default">
                                 <Eye className="h-4 w-4 mr-1" />
                                 View
                               </Button>
                               {item.type === 'product' && (
-                                <Button size="sm" variant="outline">
+                                <Button variant="outline" size="default">
                                   <ShoppingCart className="h-4 w-4 mr-1" />
                                   Add to Cart
                                 </Button>
@@ -380,6 +381,7 @@ export default function WishlistPage() {
                       setSearchQuery('');
                       setSelectedType('all');
                     }}
+                    size="default"
                   >
                     Clear Filters
                   </Button>

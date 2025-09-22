@@ -319,11 +319,11 @@ export default function VendorDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Calendar className="h-4 w-4 mr-2" />
               Last 30 days
             </Button>
-            <Button size="sm">
+            <Button >
               <BarChart3 className="h-4 w-4 mr-2" />
               View Analytics
             </Button>
@@ -388,7 +388,7 @@ export default function VendorDashboard() {
                   <CardTitle className="text-lg font-semibold">
                     Recent Orders
                   </CardTitle>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Eye className="h-4 w-4 mr-2" />
                     View All
                   </Button>
@@ -486,7 +486,7 @@ export default function VendorDashboard() {
                   Inventory Alerts
                 </CardTitle>
               </div>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" >
                 <ArrowUpRight className="h-4 w-4 mr-2" />
                 Manage Inventory
               </Button>
@@ -520,7 +520,7 @@ export default function VendorDashboard() {
                       <p className="text-xs text-muted-foreground">
                         Revenue: {formatCurrency(product.revenue)}
                       </p>
-                      <Button size="sm" variant="outline" className="mt-2">
+                      <Button  variant="outline" className="mt-2">
                         Restock
                       </Button>
                     </div>
@@ -542,7 +542,7 @@ export default function VendorDashboard() {
               <CardTitle className="text-lg font-semibold">
                 Recent Reviews
               </CardTitle>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 View All Reviews
               </Button>

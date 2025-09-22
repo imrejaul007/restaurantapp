@@ -205,7 +205,7 @@ export default function CommunityPage() {
       id: `post-${Date.now()}`,
       author: {
         id: user?.id || 'current-user',
-        name: user?.name || 'Current User',
+        name: user?.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'Current User',
         role: user?.role as any || 'employee',
         verified: true,
         location: postData.location

@@ -195,12 +195,7 @@ export default function DeliverySlotSelector({
               <Input
                 id="postcode"
                 placeholder="Enter your postcode"
-                onChange={(e) => {
-                  const zone = findZone(e.target.value);
-                  if (zone) {
-                    setSelectedZone(zone);
-                  }
-                }}
+                onChange={(e) => e.target.value}
               />
             </div>
             
@@ -244,7 +239,7 @@ export default function DeliverySlotSelector({
             </div>
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => setSelectedZone(null)}
             >
               Change Area
@@ -375,7 +370,7 @@ export default function DeliverySlotSelector({
                           max="500"
                           step="25"
                           value={filters.maxPrice}
-                          onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: Number(e.target.value) }))}
+                          onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: parseInt(e.target.value) }))}
                           className="w-full"
                         />
                       </div>

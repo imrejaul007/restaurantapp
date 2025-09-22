@@ -313,10 +313,10 @@ export default function PaymentHistory() {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center space-x-2">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Download className="h-4 w-4" />
                             </Button>
                           </div>

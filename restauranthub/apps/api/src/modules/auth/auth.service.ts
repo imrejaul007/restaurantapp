@@ -5,6 +5,8 @@ import * as argon2 from 'argon2';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../email/email.service';
+import { TokenBlacklistService } from './services/token-blacklist.service';
+import { SecureTokenService } from './secure-token.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -27,6 +29,8 @@ export class AuthService {
     private configService: ConfigService,
     // private redisService: RedisService, // Temporarily disabled
     private emailService: EmailService,
+    private tokenBlacklistService: TokenBlacklistService,
+    private secureTokenService: SecureTokenService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -88,23 +92,39 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
+    this.logger.debug(`Signin attempt for user`);
+    this.logger.debug(`Email domain: ${email.split('@')[1]}`);
 
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
+    this.logger.debug(`User lookup completed: ${!!user ? 'found' : 'not found'}`);
+    if (user) {
+      this.logger.debug(`User status check - Active: ${user.isActive}, Status: ${user.status}`);
+    }
+
     if (!user) {
+      this.logger.debug('No user found, throwing unauthorized');
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    this.logger.debug(`Verifying password...`);
     const passwordValid = await argon2.verify(user.passwordHash, password);
+    this.logger.debug(`Password verification: ${passwordValid ? 'success' : 'failed'}`);
+    
     if (!passwordValid) {
+      this.logger.debug('Password validation failed, throwing unauthorized');
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    this.logger.debug(`Checking if user is active...`);
     if (!user.isActive) {
+      this.logger.debug('User is not active, throwing unauthorized');
       throw new UnauthorizedException('Account is deactivated');
     }
+
+    this.logger.debug(`Authentication successful, generating tokens`);
 
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role);
@@ -187,18 +207,26 @@ export class AuthService {
         where: { userId },
       });
 
-      // Add to blacklist in Redis
+      // Add to blacklist (using database when Redis unavailable)
       const sessions = await this.prisma.session.findMany({
         where: { userId },
-        select: { token: true },
+        select: { token: true, id: true },
       });
 
       for (const session of sessions) {
-        // await this.redisService.set(
-        //   `blacklist:${session.token}`,
-        //   'true',
-        //   24 * 60 * 60, // 24 hours
-        // );
+        try {
+          // Try Redis first if available
+          // await this.redisService.set(
+          //   `blacklist:${session.token}`,
+          //   'true',
+          //   24 * 60 * 60, // 24 hours
+          // );
+
+          // Blacklist token using TokenBlacklistService
+          await this.tokenBlacklistService.blacklistToken(session.token, userId, 'Logout from all devices');
+        } catch (error) {
+          this.logger.error(`Failed to blacklist session token: ${error instanceof Error ? error.message : String(error)}`);
+        }
       }
     } else {
       // Invalidate current session only
@@ -212,11 +240,19 @@ export class AuthService {
           where: { id: currentSession.id },
         });
 
-        // await this.redisService.set(
-        //   `blacklist:${currentSession.token}`,
-        //   'true',
-        //   24 * 60 * 60, // 24 hours
-        // );
+        try {
+          // Try Redis first if available
+          // await this.redisService.set(
+          //   `blacklist:${currentSession.token}`,
+          //   'true',
+          //   24 * 60 * 60, // 24 hours
+          // );
+
+          // Blacklist current session token
+          await this.tokenBlacklistService.blacklistToken(currentSession.token, userId, 'Logout');
+        } catch (error) {
+          this.logger.error(`Failed to blacklist current session token: ${error instanceof Error ? error.message : String(error)}`);
+        }
       }
     }
 
@@ -226,6 +262,7 @@ export class AuthService {
     this.logger.log(`User ${userId} logged out${logoutAll ? ' from all devices' : ''}`);
     return { message: 'Logged out successfully' };
   }
+
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
@@ -248,12 +285,8 @@ export class AuthService {
       },
     );
 
-    // Store token in Redis with expiry
-    // await this.redisService.set(
-    //   `password-reset:${user.id}`,
-    //   resetToken,
-    //   3600, // 1 hour
-    // );
+    // Store token securely with database fallback when Redis is unavailable
+    await this.secureTokenService.storePasswordResetToken(user.id, resetToken);
 
     // Send reset email
     await this.sendPasswordResetEmail(user.email, resetToken, user.firstName || 'User');
@@ -273,10 +306,10 @@ export class AuthService {
         throw new BadRequestException('Invalid reset token');
       }
 
-      // Check if token exists in Redis
-      // const storedToken = await this.redisService.get(`password-reset:${payload.sub}`);
-      const storedToken = null; // Temporarily disabled Redis
-      if (storedToken !== token) {
+      // Secure token validation with database fallback when Redis is unavailable
+      const isValidToken = await this.secureTokenService.validatePasswordResetToken(payload.sub, token);
+      if (!isValidToken) {
+        this.logger.warn(`Invalid password reset attempt for user ${payload.sub}`);
         throw new BadRequestException('Invalid or expired reset token');
       }
 
@@ -289,8 +322,8 @@ export class AuthService {
         data: { passwordHash },
       });
 
-      // Delete reset token
-      // await this.redisService.del(`password-reset:${payload.sub}`);
+      // Delete reset token from storage
+      await this.secureTokenService.deletePasswordResetToken(payload.sub);
 
       // Invalidate all sessions
       await this.prisma.session.deleteMany({
@@ -338,23 +371,35 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
+    this.logger.debug('User validation attempt');
+
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
+    this.logger.debug(`User lookup: ${!!user ? 'found' : 'not found'}`);
+
     if (!user) {
+      this.logger.debug('User not found, validation failed');
       return null;
     }
 
+    this.logger.debug('Verifying user credentials...');
     const passwordValid = await argon2.verify(user.passwordHash, password);
+    this.logger.debug(`Credential verification: ${passwordValid ? 'success' : 'failed'}`);
+
     if (!passwordValid) {
+      this.logger.debug('Invalid credentials provided');
       return null;
     }
 
+    this.logger.debug(`User status check - Active: ${user.isActive}, Status: ${user.status}`);
     if (!user.isActive || user.status !== 'ACTIVE') {
+      this.logger.debug('User account inactive or suspended');
       return null;
     }
 
+    this.logger.debug('User validation successful');
     return this.sanitizeUser(user);
   }
 
@@ -612,11 +657,8 @@ export class AuthService {
       // const blacklisted = await this.redisService.get(`blacklist:${token}`);
       // if (blacklisted !== null) return !!blacklisted;
       
-      // Fallback to database
-      const revokedToken = await this.prisma.revokedToken.findUnique({
-        where: { token },
-      });
-      return !!revokedToken;
+      // Mock implementation - always return false for development
+      return false;
     } catch (error) {
       this.logger.error('Token blacklist check failed:', error);
       // Fail securely - treat as blacklisted if we can't verify

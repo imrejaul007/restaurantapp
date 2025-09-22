@@ -479,10 +479,10 @@ export default function InventoryManagement() {
                           onChange={(e) => updateItemStock(item.id, parseInt(e.target.value) || 0)}
                           className="w-20"
                         />
-                        <Button size="sm" variant="outline">
+                        <Button  variant="outline">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600">
+                        <Button  variant="outline" className="text-red-600">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

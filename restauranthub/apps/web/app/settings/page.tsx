@@ -55,7 +55,7 @@ export default function SettingsPage() {
 
   // Profile settings
   const [profileData, setProfileData] = useState({
-    name: user?.name || 'John Doe',
+    name: 'John Doe',
     email: user?.email || 'john@example.com',
     phone: '+91 98765 43210',
     bio: 'Restaurant owner passionate about great food and customer service.',
@@ -188,7 +188,7 @@ export default function SettingsPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="default">
                       <Camera className="h-4 w-4 mr-2" />
                       Change Photo
                     </Button>
@@ -330,8 +330,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={notifications.emailNotifications}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, emailNotifications: checked })
+                      onChange={() =>
+                        setNotifications({ ...notifications, emailNotifications: !notifications.emailNotifications })
                       }
                     />
                   </div>
@@ -345,8 +345,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={notifications.pushNotifications}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, pushNotifications: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, pushNotifications: !notifications.pushNotifications })
                       }
                     />
                   </div>
@@ -360,8 +360,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={notifications.smsNotifications}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, smsNotifications: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, smsNotifications: !notifications.smsNotifications })
                       }
                     />
                   </div>
@@ -376,8 +376,8 @@ export default function SettingsPage() {
                     <Label>Order Updates</Label>
                     <Switch
                       checked={notifications.orderUpdates}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, orderUpdates: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, orderUpdates: !notifications.orderUpdates })
                       }
                     />
                   </div>
@@ -386,8 +386,8 @@ export default function SettingsPage() {
                     <Label>Marketing Emails</Label>
                     <Switch
                       checked={notifications.marketingEmails}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, marketingEmails: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, marketingEmails: !notifications.marketingEmails })
                       }
                     />
                   </div>
@@ -396,8 +396,8 @@ export default function SettingsPage() {
                     <Label>Security Alerts</Label>
                     <Switch
                       checked={notifications.securityAlerts}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, securityAlerts: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, securityAlerts: !notifications.securityAlerts })
                       }
                     />
                   </div>
@@ -406,8 +406,8 @@ export default function SettingsPage() {
                     <Label>Weekly Reports</Label>
                     <Switch
                       checked={notifications.weeklyReports}
-                      onCheckedChange={(checked) => 
-                        setNotifications({ ...notifications, weeklyReports: checked })
+                      onChange={() => 
+                        setNotifications({ ...notifications, weeklyReports: !notifications.weeklyReports })
                       }
                     />
                   </div>
@@ -461,8 +461,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={privacy.showEmail}
-                      onCheckedChange={(checked) => 
-                        setPrivacy({ ...privacy, showEmail: checked })
+                      onChange={() => 
+                        setPrivacy({ ...privacy, showEmail: !privacy.showEmail })
                       }
                     />
                   </div>
@@ -476,8 +476,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={privacy.allowMessages}
-                      onCheckedChange={(checked) => 
-                        setPrivacy({ ...privacy, allowMessages: checked })
+                      onChange={() => 
+                        setPrivacy({ ...privacy, allowMessages: !privacy.allowMessages })
                       }
                     />
                   </div>
@@ -491,8 +491,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={privacy.dataSharing}
-                      onCheckedChange={(checked) => 
-                        setPrivacy({ ...privacy, dataSharing: checked })
+                      onChange={() => 
+                        setPrivacy({ ...privacy, dataSharing: !privacy.dataSharing })
                       }
                     />
                   </div>
@@ -570,8 +570,8 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       checked={security.loginAlerts}
-                      onCheckedChange={(checked) => 
-                        setSecurity({ ...security, loginAlerts: checked })
+                      onChange={() => 
+                        setSecurity({ ...security, loginAlerts: !security.loginAlerts })
                       }
                     />
                   </div>
@@ -602,9 +602,9 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium">Session Management</h3>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
+                    <Button
+                      variant="outline"
+                      size="default"
                       onClick={() => setShowSessionManager(true)}
                     >
                       View All Sessions
@@ -643,8 +643,8 @@ export default function SettingsPage() {
                     <p>Payment method: •••• 4242</p>
                   </div>
                   <div className="flex space-x-2 mt-4">
-                    <Button variant="outline" size="sm">Change Plan</Button>
-                    <Button variant="outline" size="sm">Cancel Subscription</Button>
+                    <Button variant="outline" size="default">Change Plan</Button>
+                    <Button variant="outline" size="default">Cancel Subscription</Button>
                   </div>
                 </div>
 
@@ -684,7 +684,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium">₹2,999</p>
-                        <Button variant="link" size="sm" className="p-0 h-auto">
+                        <Button variant="link" size="default" className="p-0 h-auto">
                           Download
                         </Button>
                       </div>

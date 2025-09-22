@@ -86,6 +86,8 @@ model User {
   twoFactorSecret       String?
   lastLoginAt           DateTime?
   refreshToken          String?
+  resetTokenHash        String?
+  resetTokenExpiresAt   DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
@@ -319,10 +321,7 @@ model Vendor {
   vendorTags        PostVendorTag[]
 
   // Financial Relations
-  expenses        Expense[]        @relation("VendorExpenses")
-  paymentsReceived Payment[]       @relation("VendorPayments")
-  invoicesReceived Invoice[]       @relation("VendorInvoices")
-  refundsGiven    Refund[]         @relation("VendorRefunds")
+  expensesReceived Expense[]       @relation("VendorExpenses")
 
   @@index([userId])
   @@index([verificationStatus])
@@ -564,9 +563,12 @@ model Order {
   restaurant    Restaurant           @relation("restaurantOrders", fields: [restaurantId], references: [id])
   vendor        Vendor?              @relation("vendorOrders", fields: [vendorId], references: [id])
   items         OrderItem[]
-  payment       Payment?
+  payments      Payment[]
   statusHistory OrderStatusHistory[]
   transactions  Transaction[]
+  invoices      Invoice[]
+  refunds       Refund[]
+  taxEntries    TaxEntry[]
 
   @@index([restaurantId])
   @@index([vendorId])
@@ -607,30 +609,6 @@ model OrderStatusHistory {
   @@index([orderId])
 }
 
-model Payment {
-  id               String        @id @default(cuid())
-  orderId          String        @unique
-  paymentGateway   String // razorpay, stripe
-  gatewayPaymentId String?
-  gatewayOrderId   String?
-  amount           Float
-  currency         String        @default("INR")
-  status           PaymentStatus @default(PENDING)
-  method           String? // card, upi, netbanking
-  metadata         Json?
-  failureReason    String?
-  refundAmount     Float?
-  refundedAt       DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  // Relations
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@index([orderId])
-  @@index([gatewayPaymentId])
-  @@index([status])
-}
 
 model Transaction {
   id              String   @id @default(cuid())
@@ -1057,6 +1035,8 @@ model AuditLog {
   oldValues  Json?
   newValues  Json?
   metadata   Json?
+  details    Json?
+  email      String?
   ipAddress  String?
   userAgent  String?
   timestamp  DateTime @default(now())
@@ -1069,6 +1049,7 @@ model AuditLog {
   @@index([entityId])
   @@index([action])
   @@index([timestamp])
+  @@index([email])
 }
 
 model AadhaarVerification {
@@ -2034,11 +2015,9 @@ model PosOrder {
   items      MenuOrderItem[]
   payments   PosPayment[]
 
-  // Financial Relations
-  invoice    Invoice?
-  Payment    Payment[]
-  refunds    Refund[]
-  taxEntries TaxEntry[]
+  // Financial Relations (simplified)
+  // invoice    Invoice?
+  // payments   Payment[]
 
   @@index([restaurantId])
   @@index([tableId])
@@ -2209,14 +2188,6 @@ enum InvoiceStatus {
   REFUNDED
 }
 
-enum PaymentStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-  CANCELLED
-  REFUNDED
-}
 
 enum PaymentMethod {
   CASH
@@ -2548,7 +2519,7 @@ model Expense {
   // Relations
   restaurant  Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   category    ExpenseCategory? @relation(fields: [categoryId], references: [id])
-  vendor      Vendor?          @relation(fields: [vendorId], references: [id])
+  vendor      Vendor?          @relation("VendorExpenses", fields: [vendorId], references: [id])
 
   @@index([restaurantId])
   @@index([categoryId])
@@ -2577,6 +2548,7 @@ model ExpenseCategory {
   parent      ExpenseCategory? @relation("ExpenseCategoryHierarchy", fields: [parentId], references: [id])
   children    ExpenseCategory[] @relation("ExpenseCategoryHierarchy")
   expenses    Expense[]
+  budgets     Budget[]
 
   @@unique([restaurantId, name])
   @@index([restaurantId])

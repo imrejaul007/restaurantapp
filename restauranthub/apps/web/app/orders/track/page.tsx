@@ -136,7 +136,7 @@ export default function OrderTracking() {
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
-            size="sm"
+            
             onClick={() => router.back()}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -268,11 +268,11 @@ export default function OrderTracking() {
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm" className="flex-1">
+                      <Button  className="flex-1">
                         <Phone className="h-4 w-4 mr-2" />
                         Call
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button  variant="outline" className="flex-1">
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Message
                       </Button>

@@ -107,7 +107,7 @@ export default function CreateSupportTicket() {
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
-            size="sm"
+            
             onClick={() => router.back()}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -230,7 +230,7 @@ export default function CreateSupportTicket() {
                   <Input
                     id="subject"
                     value={ticketData.subject}
-                    onChange={(e) => handleInputChange('subject', e.target.value)}
+                    onChange={(e) => e.target.value}
                     placeholder="Brief description of the issue"
                     required
                   />
@@ -241,7 +241,7 @@ export default function CreateSupportTicket() {
                   <Textarea
                     id="description"
                     value={ticketData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    onChange={(e) => e.target.value}
                     placeholder="Detailed description of the issue you're experiencing"
                     rows={4}
                     required
@@ -253,7 +253,7 @@ export default function CreateSupportTicket() {
                   <Input
                     id="affectedFeature"
                     value={ticketData.affectedFeature}
-                    onChange={(e) => handleInputChange('affectedFeature', e.target.value)}
+                    onChange={(e) => e.target.value}
                     placeholder="Which part of the system is affected?"
                   />
                 </div>
@@ -281,7 +281,7 @@ export default function CreateSupportTicket() {
                     <Textarea
                       id="stepsToReproduce"
                       value={ticketData.stepsToReproduce}
-                      onChange={(e) => handleInputChange('stepsToReproduce', e.target.value)}
+                      onChange={(e) => e.target.value}
                       placeholder="1. Go to... 2. Click on... 3. Enter..."
                       rows={3}
                     />
@@ -293,7 +293,7 @@ export default function CreateSupportTicket() {
                       <Textarea
                         id="expectedBehavior"
                         value={ticketData.expectedBehavior}
-                        onChange={(e) => handleInputChange('expectedBehavior', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="What should happen?"
                         rows={3}
                       />
@@ -303,7 +303,7 @@ export default function CreateSupportTicket() {
                       <Textarea
                         id="actualBehavior"
                         value={ticketData.actualBehavior}
-                        onChange={(e) => handleInputChange('actualBehavior', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="What actually happens?"
                         rows={3}
                       />
@@ -359,7 +359,7 @@ export default function CreateSupportTicket() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
+                          
                           onClick={() => removeAttachment(index)}
                         >
                           <X className="h-4 w-4" />

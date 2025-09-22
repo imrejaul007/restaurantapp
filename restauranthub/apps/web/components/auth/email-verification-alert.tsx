@@ -17,7 +17,7 @@ export function EmailVerificationAlert({ className }: EmailVerificationAlertProp
   const [isResending, setIsResending] = useState(false);
 
   // Don't show if user is already verified
-  if (!user || user.verified) {
+  if (!user || user.isVerified) {
     return null;
   }
 
@@ -51,7 +51,7 @@ export function EmailVerificationAlert({ className }: EmailVerificationAlertProp
         </div>
         <Button
           variant="outline"
-          size="sm"
+          
           onClick={resendVerificationEmail}
           disabled={isResending}
           className="ml-4"
@@ -77,7 +77,7 @@ export function EmailVerificationAlert({ className }: EmailVerificationAlertProp
 export function EmailVerificationSuccess() {
   const { user } = useAuth();
 
-  if (!user || !user.verified) {
+  if (!user || !user.isVerified) {
     return null;
   }
 

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
+import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import { Select } from '../ui/Select';
-import { 
-  CurrencyRupeeIcon,
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import {
+  CurrencyDollarIcon,
   ChartBarIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -165,16 +165,20 @@ export const PaymentDashboard: React.FC = () => {
         <div className="flex gap-2">
           <Select
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="min-w-[140px]"
+            onValueChange={(value) => setDateRange(value)}
           >
-            <option value="1">Last 24 hours</option>
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
+            <SelectTrigger className="min-w-[140px]">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Last 24 hours</SelectItem>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+            </SelectContent>
           </Select>
           
-          <Button onClick={fetchDashboardData} variant="outline" size="sm">
+          <Button onClick={fetchDashboardData} variant="outline" >
             Refresh
           </Button>
         </div>
@@ -211,7 +215,7 @@ export const PaymentDashboard: React.FC = () => {
             <Card className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <CurrencyRupeeIcon className="w-6 h-6 text-blue-600" />
+                  <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>

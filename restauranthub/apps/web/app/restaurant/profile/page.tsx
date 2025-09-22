@@ -42,6 +42,13 @@ const profileSchema = z.object({
     close: z.string(),
   }),
   capacity: z.number().min(1, 'Capacity must be at least 1'),
+  bankInfo: z.object({
+    bankName: z.string().optional(),
+    accountNumber: z.string().optional(),
+    ifscCode: z.string().optional(),
+    panNumber: z.string().optional(),
+    gstNumber: z.string().optional(),
+  }).optional(),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -115,6 +122,13 @@ export default function RestaurantProfile() {
         close: '23:00',
       },
       capacity: 80,
+      bankInfo: {
+        bankName: '',
+        accountNumber: '',
+        ifscCode: '',
+        panNumber: '',
+        gstNumber: '',
+      },
     },
   });
 
@@ -180,7 +194,7 @@ export default function RestaurantProfile() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Shield className="h-4 w-4 mr-2" />
               Verification Status
             </Button>
@@ -224,7 +238,7 @@ export default function RestaurantProfile() {
                   <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
                     <Building2 className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     <Camera className="h-4 w-4 mr-2" />
                     Upload Logo
                   </Button>
@@ -471,7 +485,7 @@ export default function RestaurantProfile() {
                               </div>
                               <Button
                                 variant="outline"
-                                size="sm"
+                                
                                 onClick={() => handleFileUpload(doc.name)}
                               >
                                 <Upload className="h-4 w-4 mr-2" />
@@ -504,27 +518,52 @@ export default function RestaurantProfile() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Bank Name</label>
-                          <input type="text" className="form-input" placeholder="State Bank of India" />
+                          <input
+                            {...register('bankInfo.bankName')}
+                            type="text"
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="State Bank of India"
+                          />
                         </div>
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Account Number</label>
-                          <input type="text" className="form-input" placeholder="1234567890" />
+                          <input
+                            {...register('bankInfo.accountNumber')}
+                            type="text"
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="1234567890"
+                          />
                         </div>
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium">IFSC Code</label>
-                          <input type="text" className="form-input" placeholder="SBIN0001234" />
+                          <input
+                            {...register('bankInfo.ifscCode')}
+                            type="text"
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="SBIN0001234"
+                          />
                         </div>
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium">PAN Number</label>
-                          <input type="text" className="form-input" placeholder="ABCDE1234F" />
+                          <input
+                            {...register('bankInfo.panNumber')}
+                            type="text"
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="ABCDE1234F"
+                          />
                         </div>
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium">GST Number</label>
-                          <input type="text" className="form-input" placeholder="27ABCDE1234F1Z5" />
+                          <input
+                            {...register('bankInfo.gstNumber')}
+                            type="text"
+                            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="27ABCDE1234F1Z5"
+                          />
                         </div>
                       </div>
                     </CardContent>

@@ -201,11 +201,11 @@ export default function RestaurantDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Calendar className="h-4 w-4 mr-2" />
               Last 30 days
             </Button>
-            <Button size="sm">
+            <Button >
               <TrendingUp className="h-4 w-4 mr-2" />
               View Reports
             </Button>
@@ -282,7 +282,7 @@ export default function RestaurantDashboard() {
                   <CardTitle className="text-lg font-semibold">
                     Recent Applications
                   </CardTitle>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Eye className="h-4 w-4 mr-2" />
                     View All
                   </Button>
@@ -390,7 +390,7 @@ export default function RestaurantDashboard() {
               <CardTitle className="text-lg font-semibold">
                 Recent Orders
               </CardTitle>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" >
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 View All Orders
               </Button>

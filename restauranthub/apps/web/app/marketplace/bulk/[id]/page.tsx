@@ -138,7 +138,7 @@ export default function BulkOrderPage() {
       toast({
         title: "Product not found",
         description: "The requested bulk product could not be found.",
-        variant: "destructive"
+        variant: "error"
       });
       router.push('/marketplace');
     }
@@ -174,14 +174,14 @@ export default function BulkOrderPage() {
       toast({
         title: "Minimum quantity required",
         description: `Minimum order quantity is ${product.minOrderQuantity} units.`,
-        variant: "destructive"
+        variant: "error"
       });
     } else if (newQuantity > product.availability.maxQuantity) {
       setQuantity(product.availability.maxQuantity);
       toast({
         title: "Maximum quantity exceeded",
         description: `Maximum available quantity is ${product.availability.maxQuantity} units.`,
-        variant: "destructive"
+        variant: "error"
       });
     } else {
       setQuantity(newQuantity);
@@ -195,7 +195,7 @@ export default function BulkOrderPage() {
       toast({
         title: "Terms and conditions required",
         description: "Please agree to the bulk order terms and conditions.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -204,7 +204,7 @@ export default function BulkOrderPage() {
       toast({
         title: "Required fields missing",
         description: "Please fill in all required fields.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -213,7 +213,7 @@ export default function BulkOrderPage() {
       toast({
         title: "Minimum order value not met",
         description: `Minimum order value is $${product.vendor.minimumOrder}.`,
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -336,7 +336,7 @@ export default function BulkOrderPage() {
                   <div className="flex items-center space-x-4">
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => handleQuantityChange(quantity - 10)}
                     >
                       <Minus className="h-4 w-4" />
@@ -344,12 +344,12 @@ export default function BulkOrderPage() {
                     <Input
                       type="number"
                       value={quantity}
-                      onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 0)}
+                      onChange={(e) => e.target.value}
                       className="w-32 text-center"
                     />
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => handleQuantityChange(quantity + 10)}
                     >
                       <Plus className="h-4 w-4" />
@@ -555,7 +555,7 @@ export default function BulkOrderPage() {
                   <Checkbox
                     id="invoice"
                     checked={requiresInvoice}
-                    onCheckedChange={setRequiresInvoice}
+                    onChange={(e) => setRequiresInvoice((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="invoice" className="text-sm">Requires formal invoice</label>
                 </div>
@@ -607,7 +607,7 @@ export default function BulkOrderPage() {
                     <Checkbox
                       id="terms"
                       checked={agreedToTerms}
-                      onCheckedChange={setAgreedToTerms}
+                      onChange={(e) => setAgreedToTerms((e.target as HTMLInputElement).checked)}
                     />
                     <label htmlFor="terms" className="text-sm">
                       I agree to the bulk order terms and conditions, including minimum order requirements, payment terms, and delivery schedule.

@@ -424,8 +424,8 @@ export default function ReviewSystem({
         {/* Actions */}
         <div className="flex items-center justify-between pt-3 border-t">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => onLikeReview?.(review.id, true)}
               className="flex items-center space-x-1"
@@ -434,8 +434,8 @@ export default function ReviewSystem({
               <span>{review.likes}</span>
             </Button>
             
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => onLikeReview?.(review.id, false)}
               className="flex items-center space-x-1"
@@ -444,8 +444,8 @@ export default function ReviewSystem({
               <span>{review.dislikes}</span>
             </Button>
             
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => onMarkHelpful?.(review.id)}
               className="flex items-center space-x-1"
@@ -585,16 +585,16 @@ export default function ReviewSystem({
                     key={index}
                     value={pro}
                     onChange={(e) => {
-                      const updatedPros = [...newReview.pros];
-                      updatedPros[index] = e.target.value;
-                      setNewReview(prev => ({ ...prev, pros: updatedPros }));
+                      const newPros = [...newReview.pros];
+                      newPros[index] = e.target.value;
+                      setNewReview(prev => ({ ...prev, pros: newPros }));
                     }}
                     placeholder={`Pro #${index + 1}`}
                   />
                 ))}
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={() => setNewReview(prev => ({ ...prev, pros: [...prev.pros, ''] }))}
                 >
@@ -611,16 +611,16 @@ export default function ReviewSystem({
                     key={index}
                     value={con}
                     onChange={(e) => {
-                      const updatedCons = [...newReview.cons];
-                      updatedCons[index] = e.target.value;
-                      setNewReview(prev => ({ ...prev, cons: updatedCons }));
+                      const newCons = [...newReview.cons];
+                      newCons[index] = e.target.value;
+                      setNewReview(prev => ({ ...prev, cons: newCons }));
                     }}
                     placeholder={`Con #${index + 1}`}
                   />
                 ))}
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={() => setNewReview(prev => ({ ...prev, cons: [...prev.cons, ''] }))}
                 >

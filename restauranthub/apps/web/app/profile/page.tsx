@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import RestaurantProfile from '@/components/profiles/restaurant-profile';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 
 // Mock restaurant profile data
 const mockRestaurantProfile = {
@@ -155,7 +156,7 @@ export default function ProfilePage() {
   };
 
   // Only show restaurant profile for restaurant users
-  if (user?.role !== 'restaurant') {
+  if (user?.role !== UserRole.RESTAURANT) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">

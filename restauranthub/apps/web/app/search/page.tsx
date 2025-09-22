@@ -316,17 +316,17 @@ export default function SearchPage() {
 
               {/* Action buttons */}
               <div className="flex items-center space-x-3 mt-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                <Button size="sm" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
+                <Button  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                   {result.type === 'job' ? 'Apply Now' : 
                    result.type === 'vendor' ? 'View Store' :
                    result.type === 'product' ? 'View Details' :
                    result.type === 'community' ? 'View Discussion' :
                    'Learn More'}
                 </Button>
-                <Button size="sm" variant="outline" className="hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105 transition-all duration-200 border-gray-200 dark:border-gray-700">
+                <Button  variant="outline" className="hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105 transition-all duration-200 border-gray-200 dark:border-gray-700">
                   <Eye className="h-3 w-3 hover:scale-110 transition-transform" />
                 </Button>
-                <Button size="sm" variant="outline" className="hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 hover:scale-105 transition-all duration-200 border-gray-200 dark:border-gray-700">
+                <Button  variant="outline" className="hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 hover:scale-105 transition-all duration-200 border-gray-200 dark:border-gray-700">
                   <Heart className="h-3 w-3 hover:scale-110 transition-transform" />
                 </Button>
               </div>

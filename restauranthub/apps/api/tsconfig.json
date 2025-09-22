@@ -12,9 +12,13 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+    "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
     "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
@@ -25,5 +29,21 @@
       "@db/*": ["../../packages/db/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "src/client/vue-composables.ts", "src/modules/admin/**/*", "src/modules/files/**/*", "src/modules/messaging/**/*", "src/modules/orders/**/*", "src/modules/payments/**/*", "src/modules/marketplace/**/*", "src/modules/websocket/**/*"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*spec.ts",
+    "src/client/vue-composables.ts",
+    "disabled_modules/**/*",
+    "src/disabled_modules/**/*",
+    "src/modules/admin/**/*",
+    "src/modules/files/**/*",
+    "src/modules/messaging/**/*",
+    "src/modules/orders/**/*",
+    "src/modules/payments/**/*",
+    "src/modules/marketplace/**/*",
+    "src/modules/websocket/**/*",
+    "src/decorators/**/*"
+  ]
 }

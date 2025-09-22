@@ -207,7 +207,7 @@ export default function CategoryPage() {
       toast({
         title: "Category not found",
         description: "The requested category could not be found.",
-        variant: "destructive"
+        variant: "error"
       });
       router.push('/marketplace');
     }
@@ -380,14 +380,14 @@ export default function CategoryPage() {
               <div className="flex items-center space-x-2">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
+                  
                   onClick={() => setViewMode('grid')}
                 >
                   <Grid className="h-4 w-4" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
+                  
                   onClick={() => setViewMode('list')}
                 >
                   <List className="h-4 w-4" />
@@ -417,7 +417,7 @@ export default function CategoryPage() {
                   <Checkbox 
                     id="in-stock" 
                     checked={showOnlyInStock}
-                    onCheckedChange={setShowOnlyInStock}
+                    onChange={(e) => setShowOnlyInStock((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="in-stock" className="text-sm">In Stock Only</label>
                 </div>
@@ -425,7 +425,7 @@ export default function CategoryPage() {
                   <Checkbox 
                     id="popular" 
                     checked={showOnlyPopular}
-                    onCheckedChange={setShowOnlyPopular}
+                    onChange={(e) => setShowOnlyPopular((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="popular" className="text-sm">Popular Items Only</label>
                 </div>
@@ -576,7 +576,7 @@ export default function CategoryPage() {
                             </Button>
                             <Button
                               variant="outline"
-                              size="sm"
+                              
                               onClick={() => handleWishlist(product.id, product.name)}
                             >
                               <Heart className="h-4 w-4" />

@@ -188,7 +188,7 @@ export default function CreatePostModal({
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-border">
                 <h2 className="text-xl font-semibold text-foreground">Create Post</h2>
-                <Button variant="ghost" size="sm" onClick={onClose}>
+                <Button variant="ghost" onClick={onClose} size="default">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -377,7 +377,8 @@ export default function CreatePostModal({
                     </div>
                     <Button
                       type="button"
-                      size="sm"
+                      size="default"
+                      variant="default"
                       onClick={handleAddTag}
                       disabled={!currentTag.trim() || tags.length >= 5}
                     >
@@ -391,7 +392,6 @@ export default function CreatePostModal({
                           key={index}
                           tag={tag}
                           variant="secondary"
-                          size="sm"
                           showRemove={true}
                           showExternalIcon={false}
                           onRemove={() => handleRemoveTag(tag)}
@@ -444,12 +444,14 @@ export default function CreatePostModal({
                   Posting as <span className="font-medium capitalize">{userRole}</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Button variant="outline" onClick={onClose}>
+                  <Button variant="outline" onClick={onClose} size="default">
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSubmit}
                     disabled={!content.trim() || isSubmitting || mentionValidationErrors.length > 0}
+                    size="default"
+                    variant="default"
                     className={mentionValidationErrors.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}
                     title={mentionValidationErrors.length > 0 ? 'Please fix invalid mentions before posting' : ''}
                   >

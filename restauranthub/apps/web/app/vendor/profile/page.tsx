@@ -287,16 +287,16 @@ export default function VendorProfile() {
             </div>
             {isEditing ? (
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                <Button variant="outline"  onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
-                <Button size="sm" onClick={form.handleSubmit(onSubmit)}>
+                <Button  onClick={form.handleSubmit(onSubmit)}>
                   <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </Button>
               </div>
             ) : (
-              <Button size="sm" onClick={() => setIsEditing(true)}>
+              <Button  onClick={() => setIsEditing(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
@@ -503,7 +503,7 @@ export default function VendorProfile() {
                     Upload and manage your business verification documents
                   </CardDescription>
                 </div>
-                <Button size="sm">
+                <Button >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Document
                 </Button>
@@ -544,15 +544,15 @@ export default function VendorProfile() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" >
                           <Download className="h-4 w-4 mr-1" />
                           Download
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button variant="ghost"  className="text-destructive hover:text-destructive">
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
@@ -572,7 +572,7 @@ export default function VendorProfile() {
                     Manage your quality certifications and industry awards
                   </CardDescription>
                 </div>
-                <Button size="sm">
+                <Button >
                   <Award className="h-4 w-4 mr-2" />
                   Add Certification
                 </Button>

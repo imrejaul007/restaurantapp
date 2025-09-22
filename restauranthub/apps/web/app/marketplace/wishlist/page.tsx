@@ -248,7 +248,7 @@ export default function WishlistPage() {
       toast({
         title: "Item unavailable",
         description: "This item is currently not available.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -385,7 +385,7 @@ export default function WishlistPage() {
             {searchQuery && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
               >
@@ -423,14 +423,14 @@ export default function WishlistPage() {
           <div className="flex items-center space-x-2">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
+              
               onClick={() => setViewMode('grid')}
             >
               <Grid className="h-4 w-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
+              
               onClick={() => setViewMode('list')}
             >
               <List className="h-4 w-4" />
@@ -444,7 +444,7 @@ export default function WishlistPage() {
             <Checkbox
               id="available"
               checked={showOnlyAvailable}
-              onCheckedChange={setShowOnlyAvailable}
+              onChange={(e) => setShowOnlyAvailable((e.target as HTMLInputElement).checked)}
             />
             <label htmlFor="available" className="text-sm">Available items only</label>
           </div>
@@ -452,7 +452,7 @@ export default function WishlistPage() {
             <Checkbox
               id="price-drops"
               checked={showOnlyPriceDrops}
-              onCheckedChange={setShowOnlyPriceDrops}
+              onChange={(e) => setShowOnlyPriceDrops((e.target as HTMLInputElement).checked)}
             />
             <label htmlFor="price-drops" className="text-sm">Price drops only</label>
           </div>
@@ -606,7 +606,7 @@ export default function WishlistPage() {
                             </Button>
                             <Button
                               variant="outline"
-                              size="sm"
+                              
                               onClick={() => handleRemoveItem(item.id)}
                             >
                               <Trash2 className="h-4 w-4" />

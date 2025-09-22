@@ -369,7 +369,7 @@ export default function CategoriesPage() {
             {searchQuery && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
               >
@@ -383,7 +383,7 @@ export default function CategoriesPage() {
               <Button
                 key={option.id}
                 variant={selectedFilter === option.id ? 'default' : 'outline'}
-                size="sm"
+                
                 onClick={() => setSelectedFilter(option.id)}
                 className="whitespace-nowrap"
               >
@@ -496,7 +496,7 @@ export default function CategoriesPage() {
                       <h4 className="font-medium text-sm mb-2">Top Vendors:</h4>
                       <div className="space-y-1">
                         {category.topVendors.slice(0, 2).map(vendor => (
-                          <div 
+                          <div
                             key={vendor.id}
                             className="flex items-center justify-between text-xs cursor-pointer hover:text-primary"
                             onClick={(e) => {
@@ -534,7 +534,7 @@ export default function CategoriesPage() {
                     </div>
 
                     {/* View Category Button */}
-                    <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground" size="default" variant="default">
                       Explore {category.name}
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>

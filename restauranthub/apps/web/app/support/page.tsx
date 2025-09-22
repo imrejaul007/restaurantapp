@@ -335,35 +335,35 @@ export default function SupportPage() {
       isEdited: false
     };
     
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { 
-            ...ticket, 
+    setTickets(prev => prev.map(ticket =>
+      ticket.id === ticketId
+        ? {
+            ...ticket,
             responses: [...ticket.responses, newResponse],
             updatedAt: new Date().toISOString(),
-            status: response.responderType === 'agent' ? 'waiting_customer' as const : 'in_progress' as const
-          }
+            status: (response.responderType === 'agent' ? 'waiting_customer' : 'in_progress') as any
+          } as any
         : ticket
     ));
   };
 
   const handleUpdateTicketStatus = (ticketId: string, status: any) => {
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { 
-            ...ticket, 
+    setTickets(prev => prev.map(ticket =>
+      ticket.id === ticketId
+        ? {
+            ...ticket,
             status,
             updatedAt: new Date().toISOString(),
             resolvedAt: status === 'resolved' ? new Date().toISOString() : ticket.resolvedAt
-          }
+          } as any
         : ticket
     ));
   };
 
   const handleRateSupport = (ticketId: string, rating: number, feedback?: string) => {
-    setTickets(prev => prev.map(ticket => 
-      ticket.id === ticketId 
-        ? { ...ticket, rating, feedback }
+    setTickets(prev => prev.map(ticket =>
+      ticket.id === ticketId
+        ? { ...ticket, rating, feedback } as any
         : ticket
     ));
   };

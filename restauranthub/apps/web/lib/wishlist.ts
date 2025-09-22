@@ -42,6 +42,14 @@ export class WishlistManager {
    * Load wishlist from localStorage
    */
   private loadFromStorage(): WishlistState {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return {
+        items: [],
+        lastUpdated: new Date().toISOString()
+      };
+    }
+
     try {
       const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
       if (stored) {
@@ -57,7 +65,7 @@ export class WishlistManager {
     } catch (error) {
       console.error('Error loading wishlist from storage:', error);
     }
-    
+
     return {
       items: [],
       lastUpdated: new Date().toISOString()
@@ -68,6 +76,12 @@ export class WishlistManager {
    * Save wishlist to localStorage
    */
   private saveToStorage() {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      this.notifyListeners();
+      return;
+    }
+
     try {
       this.wishlist.lastUpdated = new Date().toISOString();
       localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(this.wishlist));

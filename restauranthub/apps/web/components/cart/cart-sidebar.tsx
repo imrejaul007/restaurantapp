@@ -214,7 +214,7 @@ export function CartSidebar({ isOpen, onClose, onCheckout }: CartSidebarProps) {
                                 <div className="space-y-1">
                                   <Button
                                     variant="ghost"
-                                    size="sm"
+                                    
                                     className="h-6 px-2 text-xs"
                                     onClick={() => toggleNotes(item.id)}
                                   >
@@ -228,7 +228,7 @@ export function CartSidebar({ isOpen, onClose, onCheckout }: CartSidebarProps) {
                                       className="w-full text-xs p-2 border border-border rounded bg-background resize-none"
                                       rows={2}
                                       value={item.notes || ''}
-                                      onChange={(e) => updateNotes(item.id, e.target.value)}
+                                      onChange={(e) => e.target.value}
                                     />
                                   )}
                                 </div>
@@ -244,7 +244,7 @@ export function CartSidebar({ isOpen, onClose, onCheckout }: CartSidebarProps) {
                   {state.items.length > 0 && (
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={clearCart}
                       className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                     >

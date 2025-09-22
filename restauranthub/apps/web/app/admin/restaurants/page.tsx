@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import { Select } from '../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import { 
   BuildingStorefrontIcon,
@@ -286,10 +286,10 @@ export default function RestaurantsPage() {
           <p className="text-gray-600 mt-1">Manage restaurant registrations and verifications</p>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             Export Data
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             Bulk Actions
           </Button>
         </div>
@@ -365,8 +365,7 @@ export default function RestaurantsPage() {
           <div className="flex gap-2">
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-[150px]"
+              onValueChange={(value) => setStatusFilter(value)}
             >
               <option value="">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -377,8 +376,7 @@ export default function RestaurantsPage() {
             
             <Select
               value={verificationFilter}
-              onChange={(e) => setVerificationFilter(e.target.value)}
-              className="min-w-[150px]"
+              onValueChange={(value) => setVerificationFilter(value)}
             >
               <option value="">All Verification</option>
               <option value="VERIFIED">Verified</option>
@@ -497,16 +495,16 @@ export default function RestaurantsPage() {
                   
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="grid grid-cols-2 gap-1 text-xs">
-                      <Badge color={restaurant.documents.gst ? 'green' : 'red'} size="sm">
+                      <Badge color={restaurant.documents.gst ? 'green' : 'red'} >
                         GST
                       </Badge>
-                      <Badge color={restaurant.documents.fssai ? 'green' : 'red'} size="sm">
+                      <Badge color={restaurant.documents.fssai ? 'green' : 'red'} >
                         FSSAI
                       </Badge>
-                      <Badge color={restaurant.documents.pan ? 'green' : 'red'} size="sm">
+                      <Badge color={restaurant.documents.pan ? 'green' : 'red'} >
                         PAN
                       </Badge>
-                      <Badge color={restaurant.documents.businessLicense ? 'green' : 'red'} size="sm">
+                      <Badge color={restaurant.documents.businessLicense ? 'green' : 'red'} >
                         License
                       </Badge>
                     </div>
@@ -517,14 +515,14 @@ export default function RestaurantsPage() {
                       <div className="flex space-x-1">
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleRestaurantAction('view', restaurant.id)}
                         >
                           <EyeIcon className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleRestaurantAction('edit', restaurant.id)}
                         >
                           <PencilIcon className="w-4 h-4" />
@@ -535,7 +533,7 @@ export default function RestaurantsPage() {
                         <div className="flex space-x-1">
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => handleRestaurantAction('approve', restaurant.id)}
                             className="text-green-600 border-green-600 hover:bg-green-50"
                           >
@@ -543,7 +541,7 @@ export default function RestaurantsPage() {
                           </Button>
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => handleRestaurantAction('reject', restaurant.id)}
                             className="text-red-600 border-red-600 hover:bg-red-50"
                           >
@@ -555,7 +553,7 @@ export default function RestaurantsPage() {
                       {restaurant.status === 'ACTIVE' && (
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleRestaurantAction('suspend', restaurant.id)}
                           className="text-red-600 border-red-600 hover:bg-red-50 text-xs"
                         >
@@ -580,7 +578,7 @@ export default function RestaurantsPage() {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
@@ -588,7 +586,7 @@ export default function RestaurantsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >

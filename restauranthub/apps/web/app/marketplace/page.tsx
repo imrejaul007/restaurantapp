@@ -228,6 +228,7 @@ export default function MarketplacePage() {
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 5000);
+
     return () => clearInterval(timer);
   }, []);
 
@@ -363,10 +364,26 @@ export default function MarketplacePage() {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
   };
 
+  const handleB2BQuote = (deal: any) => {
+    toast({
+      title: "B2B Quote Request",
+      description: `Requesting quote for ${deal.name}`,
+    });
+    router.push(`/marketplace/b2b-quote?product=${encodeURIComponent(deal.name)}&price=${deal.salePrice}`);
+  };
+
+  const handleSubscribeService = (service: any) => {
+    toast({
+      title: "Service Subscription",
+      description: `Opening subscription for ${service.name}`,
+    });
+    router.push(`/marketplace/services/${service.id}`);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Enhanced Header with Smart Search and Quick Actions */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-40">
+      <div className="bg-white dark:bg-gray-900 shadow-sm border-b sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-6">
             {/* Smart Search Bar with Autocomplete */}
@@ -382,35 +399,35 @@ export default function MarketplacePage() {
                   }}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   onFocus={() => searchQuery && setShowSuggestions(true)}
-                  className="pl-10 pr-4 py-2 w-full"
+                  className="pl-10 pr-24 py-3 w-full border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Button 
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <Button
                   onClick={handleSearch}
-                  size="sm" 
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2"
-                >
+                  size="sm"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white"
+                 variant="default">
                   Search
                 </Button>
               </div>
               
               {/* Autocomplete Suggestions */}
               {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 z-50">
+                <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg mt-1 z-50">
                   {filteredSuggestions.map((suggestion, index) => (
                     <div
                       key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                      className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       onClick={() => handleSuggestionClick(suggestion)}
                     >
-                      <div className="flex items-center gap-2">
-                        {suggestion.type === 'product' && <Package className="h-4 w-4 text-blue-500" />}
-                        {suggestion.type === 'vendor' && <Store className="h-4 w-4 text-green-500" />}
-                        {suggestion.type === 'category' && <Grid3X3 className="h-4 w-4 text-purple-500" />}
-                        {suggestion.type === 'service' && <Wrench className="h-4 w-4 text-orange-500" />}
+                      <div className="flex items-center gap-3">
+                        {suggestion.type === 'product' && <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+                        {suggestion.type === 'vendor' && <Store className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                        {suggestion.type === 'category' && <Grid3X3 className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+                        {suggestion.type === 'service' && <Wrench className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
                         <div>
-                          <p className="font-medium text-sm">{suggestion.name}</p>
-                          <p className="text-xs text-gray-500">{suggestion.category}</p>
+                          <p className="font-medium text-sm text-gray-900 dark:text-white">{suggestion.name}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">{suggestion.category}</p>
                         </div>
                       </div>
                     </div>
@@ -422,55 +439,57 @@ export default function MarketplacePage() {
             {/* Quick Actions with Gamification */}
             <div className="flex items-center gap-4">
               {/* Gamification Elements */}
-              <div className="flex items-center gap-2 bg-yellow-50 px-3 py-1.5 rounded-full">
-                <Coins className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-semibold text-yellow-700">{coins}</span>
+              <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/50 px-3 py-2 rounded-full border border-yellow-200 dark:border-yellow-700">
+                <Coins className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                <span className="text-sm font-bold text-yellow-800 dark:text-yellow-200">{coins}</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-orange-100 dark:bg-orange-900/50 px-3 py-2 rounded-full border border-orange-200 dark:border-orange-700">
+                <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <span className="text-sm font-bold text-orange-800 dark:text-orange-200">{userStreak} day streak</span>
               </div>
               
-              <div className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full">
-                <Flame className="h-4 w-4 text-orange-500" />
-                <span className="text-sm font-semibold text-orange-700">{userStreak} day streak</span>
-              </div>
-              
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
                 onClick={handleNotifications}
               >
                 <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {notificationCount}
                   </span>
                 )}
               </Button>
-              
-              <Button 
-                variant="ghost" 
+
+              <Button
+                variant="ghost"
                 size="icon"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
                 onClick={handleWallet}
               >
                 <Wallet className="h-5 w-5" />
               </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative"
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
                 onClick={() => setShowCart(true)}
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {cartCount}
                   </span>
                 )}
               </Button>
-              
-              <Button 
-                variant="ghost" 
+
+              <Button
+                variant="ghost"
                 size="icon"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
                 onClick={handleProfile}
               >
                 <User className="h-5 w-5" />
@@ -485,12 +504,20 @@ export default function MarketplacePage() {
                 key={category.id}
                 variant={selectedCategory === category.id ? "default" : "outline"}
                 size="sm"
-                className="flex items-center gap-2 whitespace-nowrap"
+                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 transition-all ${
+                  selectedCategory === category.id
+                    ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }`}
                 onClick={() => handleCategoryClick(category.id)}
               >
                 <span className="text-lg">{category.icon}</span>
-                <span>{category.name}</span>
-                <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">
+                <span className="font-medium">{category.name}</span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  selectedCategory === category.id
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                }`}>
                   {category.count}
                 </span>
               </Button>
@@ -541,27 +568,27 @@ export default function MarketplacePage() {
       {/* Quick-Access Cards */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/marketplace/categories')}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => router.push('/marketplace/categories')}>
             <CardContent className="p-6 text-center">
-              <Grid3X3 className="h-12 w-12 text-blue-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold mb-2">Shop by Category</h3>
-              <p className="text-gray-600">Browse all product categories</p>
+              <Grid3X3 className="h-12 w-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Shop by Category</h3>
+              <p className="text-gray-600 dark:text-gray-300">Browse all product categories</p>
             </CardContent>
           </Card>
-          
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/marketplace/vendors')}>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => router.push('/marketplace/vendors')}>
             <CardContent className="p-6 text-center">
-              <Award className="h-12 w-12 text-green-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold mb-2">Top Vendors</h3>
-              <p className="text-gray-600">Verified premium suppliers</p>
+              <Award className="h-12 w-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Top Vendors</h3>
+              <p className="text-gray-600 dark:text-gray-300">Verified premium suppliers</p>
             </CardContent>
           </Card>
-          
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/marketplace/deals')}>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" onClick={() => router.push('/marketplace/deals')}>
             <CardContent className="p-6 text-center">
-              <Percent className="h-12 w-12 text-red-500 mx-auto mb-3" />
-              <h3 className="text-xl font-semibold mb-2">Latest Deals</h3>
-              <p className="text-gray-600">Best offers and discounts</p>
+              <Percent className="h-12 w-12 text-red-600 dark:text-red-400 mx-auto mb-3" />
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Latest Deals</h3>
+              <p className="text-gray-600 dark:text-gray-300">Best offers and discounts</p>
             </CardContent>
           </Card>
         </div>
@@ -569,15 +596,16 @@ export default function MarketplacePage() {
 
       {/* Flash Deals Section */}
       <div className="container mx-auto px-4 py-6">
-        <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-6">
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-lg p-6 border border-red-100 dark:border-red-800">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Flame className="h-6 w-6 text-red-500" />
-              <h2 className="text-2xl font-bold">Flash Deals & Sales</h2>
-              <span className="text-sm text-gray-600">⏰ Countdown timers</span>
+              <Flame className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Flash Deals & Sales</h2>
+              <span className="text-sm text-gray-700 dark:text-gray-300">⏰ Countdown timers</span>
             </div>
-            <Button 
+            <Button
               variant="outline"
+              className="border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/50"
               onClick={() => router.push('/marketplace/deals')}
             >
               View All Deals
@@ -586,32 +614,34 @@ export default function MarketplacePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {flashDeals.map((deal) => (
-              <Card key={deal.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={deal.id} className="relative overflow-hidden hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                 <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
                   -{deal.discount}%
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-2">{deal.name}</h3>
+                  <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">{deal.name}</h3>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl font-bold text-red-500">${deal.price}</span>
-                    <span className="text-sm line-through text-gray-400">${deal.oldPrice}</span>
+                    <span className="text-2xl font-bold text-red-600 dark:text-red-400">${deal.price}</span>
+                    <span className="text-sm line-through text-gray-500 dark:text-gray-400">${deal.oldPrice}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-3">
                     <Timer className="h-4 w-4" />
                     <span>{deal.timeLeft}</span>
                     <span className="ml-auto">Stock: {deal.stock}</span>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={() => handleAddToCart(deal)}
                     >
                       Add to Cart
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
+                      className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200"
                       onClick={() => handleViewProduct(deal.id)}
                     >
                       <Eye className="h-4 w-4" />
@@ -661,15 +691,16 @@ export default function MarketplacePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold">${product.price}</span>
                     <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => handleAddToWishlist(product)}
                       >
                         <Heart className="h-4 w-4" />
                       </Button>
-                      <Button 
+                      <Button
                         size="sm"
+                        variant="default"
                         onClick={() => handleAddToCart(product)}
                       >
                         <ShoppingCart className="h-4 w-4" />
@@ -762,15 +793,16 @@ export default function MarketplacePage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold">${product.price}</span>
                     <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => handleAddToWishlist(product)}
                       >
                         <Heart className="h-4 w-4" />
                       </Button>
-                      <Button 
+                      <Button
                         size="sm"
+                        variant="default"
                         onClick={() => handleAddToCart(product)}
                       >
                         <ShoppingCart className="h-4 w-4" />
@@ -807,7 +839,7 @@ export default function MarketplacePage() {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-4" variant="outline">
+                <Button className="w-full mt-4" variant="outline" size="default">
                   View All Recommendations
                 </Button>
               </CardContent>
@@ -830,7 +862,7 @@ export default function MarketplacePage() {
                         <p className="text-xs text-gray-600">Last ordered: {item.lastOrdered}</p>
                         <p className="text-sm font-bold text-green-600">${item.price}</p>
                       </div>
-                      <Button size="sm" onClick={() => handleReorderEssentials(item)}>
+                      <Button  onClick={() => handleReorderEssentials(item)}>
                         Reorder
                       </Button>
                     </div>
@@ -857,7 +889,7 @@ export default function MarketplacePage() {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-4" variant="outline">
+                <Button className="w-full mt-4" variant="outline" size="default">
                   View All History
                 </Button>
               </CardContent>
@@ -903,7 +935,7 @@ export default function MarketplacePage() {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-4" variant="outline">
+                <Button className="w-full mt-4" variant="outline" size="default">
                   View More Posts
                 </Button>
               </CardContent>
@@ -937,7 +969,7 @@ export default function MarketplacePage() {
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-4" variant="outline">
+                <Button className="w-full mt-4" variant="outline" size="default">
                   View All Reviews
                 </Button>
               </CardContent>
@@ -1017,7 +1049,11 @@ export default function MarketplacePage() {
                           <p className="text-sm font-bold text-green-600">${service.price}</p>
                           <p className="text-xs text-gray-500">{service.frequency}</p>
                         </div>
-                        <Button size="sm" onClick={() => router.push(`/marketplace/services/${service.id}`)}>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleSubscribeService(service)}
+                        >
                           Subscribe
                         </Button>
                       </div>
@@ -1051,7 +1087,12 @@ export default function MarketplacePage() {
                           </div>
                         </div>
                       </div>
-                      <Button className="w-full mt-2" size="sm">
+                      <Button
+                        className="w-full mt-2"
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleB2BQuote(deal)}
+                      >
                         Get B2B Quote
                       </Button>
                     </div>
@@ -1111,7 +1152,7 @@ export default function MarketplacePage() {
                 <Gamepad2 className="h-16 w-16 text-purple-500 mx-auto mb-4" />
                 <h3 className="text-xl font-bold mb-2">Spin the Wheel</h3>
                 <p className="text-gray-600 mb-4">Win extra coins and special discounts!</p>
-                <Button onClick={handleSpinWheel} disabled={showSpinWheel} className="w-full">
+                <Button onClick={handleSpinWheel} disabled={showSpinWheel} className="w-full" size="default" variant="default">
                   {showSpinWheel ? 'Spinning...' : 'Spin for Coins! 🎰'}
                 </Button>
               </CardContent>
@@ -1316,7 +1357,7 @@ export default function MarketplacePage() {
                         <span className="font-semibold">Total:</span>
                         <span className="text-xl font-bold">${calculateCartTotal()}</span>
                       </div>
-                      <Button 
+                      <Button
                         className="w-full"
                         onClick={() => {
                           setShowCart(false);

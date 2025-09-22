@@ -166,7 +166,7 @@ export default function ExpiredLinkPage() {
                   <Button
                     onClick={() => router.push('/auth/login')}
                     variant="ghost"
-                    size="sm"
+                    
                     className="justify-start"
                   >
                     Try signing in instead
@@ -174,7 +174,7 @@ export default function ExpiredLinkPage() {
                   <Button
                     onClick={() => router.push('/')}
                     variant="ghost"
-                    size="sm"
+                    
                     className="justify-start"
                   >
                     <Home className="h-4 w-4 mr-2" />

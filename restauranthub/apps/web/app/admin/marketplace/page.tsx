@@ -121,11 +121,11 @@ export default function MarketplaceDashboard() {
           </p>
         </div>
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Data
           </Button>
-          <Button size="sm">
+          <Button >
             <Settings className="h-4 w-4 mr-2" />
             Auto Settings
           </Button>
@@ -139,7 +139,7 @@ export default function MarketplaceDashboard() {
             <CardTitle className="text-sm font-medium opacity-90">Total Products</CardTitle>
             <div className="text-3xl font-bold">{productStats.total}</div>
             <p className="text-xs opacity-80">
-              {productStats.trending.total} promoted • {productStats.active} active
+              {productStats.trending.total} promoted • {productStats.total} total
             </p>
           </CardHeader>
         </Card>
@@ -149,7 +149,7 @@ export default function MarketplaceDashboard() {
             <CardTitle className="text-sm font-medium opacity-90">Total Vendors</CardTitle>
             <div className="text-3xl font-bold">{vendorStats.total}</div>
             <p className="text-xs opacity-80">
-              {vendorStats.trending.total} featured • {vendorStats.active} active
+              {vendorStats.trending.total} featured • {vendorStats.total} total
             </p>
           </CardHeader>
         </Card>

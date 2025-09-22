@@ -300,7 +300,8 @@ export default function SubscriptionPage() {
               <div>🎧 Support: {plan.limits.support}</div>
             </div>
             
-            <Button 
+            <Button
+              size="default"
               className={`w-full mt-6 ${
                 isSelected 
                   ? 'bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90' 
@@ -358,7 +359,7 @@ export default function SubscriptionPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-2">
             <Link href="/marketplace">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="default">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Marketplace
               </Button>
@@ -468,7 +469,7 @@ export default function SubscriptionPage() {
                       <Input
                         id="businessName"
                         value={formData.businessName}
-                        onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                         required
                       />
                     </div>
@@ -477,7 +478,7 @@ export default function SubscriptionPage() {
                       <Input
                         id="ownerName"
                         value={formData.ownerName}
-                        onChange={(e) => setFormData({...formData, ownerName: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
                         required
                       />
                     </div>
@@ -490,7 +491,7 @@ export default function SubscriptionPage() {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                         required
                       />
                     </div>
@@ -499,7 +500,7 @@ export default function SubscriptionPage() {
                       <Input
                         id="phone"
                         value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                         required
                       />
                     </div>
@@ -511,7 +512,7 @@ export default function SubscriptionPage() {
                       <select
                         id="restaurantType"
                         value={formData.restaurantType}
-                        onChange={(e) => setFormData({...formData, restaurantType: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                         className="w-full px-3 py-2 border border-border rounded-md bg-background"
                         required
                       >
@@ -530,7 +531,7 @@ export default function SubscriptionPage() {
                       <select
                         id="expectedOrders"
                         value={formData.expectedOrders}
-                        onChange={(e) => setFormData({...formData, expectedOrders: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                         className="w-full px-3 py-2 border border-border rounded-md bg-background"
                         required
                       >
@@ -549,7 +550,7 @@ export default function SubscriptionPage() {
                     <Input
                       id="currentSoftware"
                       value={formData.currentSoftware}
-                      onChange={(e) => setFormData({...formData, currentSoftware: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                       placeholder="e.g., POS system, existing software, or manual"
                     />
                   </div>
@@ -607,7 +608,7 @@ export default function SubscriptionPage() {
                           <Input
                             id="cardNumber"
                             value={formData.cardNumber}
-                            onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                             placeholder="1234 5678 9012 3456"
                             required
                           />
@@ -619,7 +620,7 @@ export default function SubscriptionPage() {
                             <Input
                               id="expiryDate"
                               value={formData.expiryDate}
-                              onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                               placeholder="MM/YY"
                               required
                             />
@@ -629,7 +630,7 @@ export default function SubscriptionPage() {
                             <Input
                               id="cvv"
                               value={formData.cvv}
-                              onChange={(e) => setFormData({...formData, cvv: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
                               placeholder="123"
                               required
                             />
@@ -644,7 +645,7 @@ export default function SubscriptionPage() {
                           type="checkbox"
                           id="acceptTerms"
                           checked={formData.acceptTerms}
-                          onChange={(e) => setFormData({...formData, acceptTerms: e.target.checked})}
+                          onChange={(e) => setFormData({...formData, acceptTerms: (e.target as HTMLInputElement).checked})}
                           required
                         />
                         <Label htmlFor="acceptTerms" className="text-sm">
@@ -656,7 +657,7 @@ export default function SubscriptionPage() {
                           type="checkbox"
                           id="marketingEmails"
                           checked={formData.marketingEmails}
-                          onChange={(e) => setFormData({...formData, marketingEmails: e.target.checked})}
+                          onChange={(e) => setFormData({...formData, marketingEmails: (e.target as HTMLInputElement).checked})}
                         />
                         <Label htmlFor="marketingEmails" className="text-sm">
                           Send me updates and marketing emails
@@ -664,10 +665,10 @@ export default function SubscriptionPage() {
                       </div>
                     </div>
                     
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90"
+                    <Button
                       size="lg"
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90"
                       disabled={!formData.acceptTerms}
                     >
                       <Shield className="h-4 w-4 mr-2" />

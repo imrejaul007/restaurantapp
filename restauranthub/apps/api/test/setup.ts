@@ -1,23 +1,55 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { RedisService } from '../src/redis/redis.service';
+import { MockPrismaService } from './utils/mock-prisma.service';
 
 // Global test configuration
 jest.setTimeout(30000);
 
 // Mock external services
 jest.mock('../src/modules/email/email.service');
-jest.mock('../src/modules/files/file-upload.service');
-jest.mock('../src/modules/payments/payment.service');
+
+// Mock Redis service if not available
+const mockRedisService = {
+  get: jest.fn(),
+  set: jest.fn(),
+  del: jest.fn(),
+  clear: jest.fn(),
+  exists: jest.fn(),
+  expire: jest.fn(),
+  ttl: jest.fn(),
+  keys: jest.fn(),
+  incr: jest.fn(),
+  decr: jest.fn(),
+};
 
 // Global test utilities
 export class TestUtils {
   static async createTestApp(moduleMetadata: any): Promise<INestApplication> {
-    const moduleFixture: TestingModule = await Test.createTestingModule(moduleMetadata).compile();
-    
+    // Override providers for mock database
+    const providers = moduleMetadata.providers || [];
+    const imports = moduleMetadata.imports || [];
+
+    // Add mock providers if using mock database
+    if (process.env.MOCK_DATABASE === 'true') {
+      providers.push({
+        provide: PrismaService,
+        useClass: MockPrismaService,
+      });
+      providers.push({
+        provide: 'RedisService',
+        useValue: mockRedisService,
+      });
+    }
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      ...moduleMetadata,
+      providers,
+      imports,
+    }).compile();
+
     const app = moduleFixture.createNestApplication();
-    
+
     // Apply same configuration as main app
     app.useGlobalPipes(
       new (await import('@nestjs/common')).ValidationPipe({
@@ -26,12 +58,12 @@ export class TestUtils {
         forbidNonWhitelisted: true,
       }),
     );
-    
+
     await app.init();
     return app;
   }
 
-  static async cleanupDatabase(prisma: PrismaService) {
+  static async cleanupDatabase(prisma: PrismaService | MockPrismaService) {
     // Clean up test data in reverse dependency order
     await prisma.notification.deleteMany();
     await prisma.message.deleteMany();
@@ -46,11 +78,18 @@ export class TestUtils {
     await prisma.restaurant.deleteMany();
     await prisma.profile.deleteMany();
     await prisma.user.deleteMany();
+
+    // If using mock database, call cleanup method
+    if (prisma instanceof MockPrismaService) {
+      await prisma.cleanup();
+    }
   }
 
-  static async cleanupRedis(redis: RedisService) {
+  static async cleanupRedis(redis: any) {
     // Clear test cache data
-    await redis.clear();
+    if (redis && typeof redis.clear === 'function') {
+      await redis.clear();
+    }
   }
 
   static generateMockUser(overrides = {}) {

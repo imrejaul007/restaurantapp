@@ -5,8 +5,8 @@ import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Select } from '../ui/Select';
-import { Card } from '../ui/Card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Card } from '../ui/card';
 import { toast } from 'react-hot-toast';
 import { CreditCardIcon, BanknotesIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 

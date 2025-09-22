@@ -140,7 +140,7 @@ export default function CheckoutPage() {
         type: 'standard',
         address: {
           fullName: user?.profile?.firstName ? `${user.profile.firstName} ${user.profile.lastName}` : '',
-          phone: user?.profile?.phone || '',
+          phone: '',
           addressLine1: '',
           addressLine2: '',
           city: '',
@@ -247,15 +247,6 @@ export default function CheckoutPage() {
         total: finalTotal,
         deliveryAddress: data.delivery.address,
         customerNotes: data.notes,
-        deliverySlot: selectedDeliverySlot ? {
-          id: selectedDeliverySlot.id,
-          date: selectedDeliverySlot.date,
-          startTime: selectedDeliverySlot.startTime,
-          endTime: selectedDeliverySlot.endTime,
-          type: selectedDeliverySlot.type,
-          price: selectedDeliverySlot.price,
-          zone: selectedDeliverySlot.zone
-        } : undefined,
       };
 
       // Add vendor ID if available (get from first item)

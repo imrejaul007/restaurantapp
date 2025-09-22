@@ -17,17 +17,18 @@ export const authApi = {
       email,
       password,
     };
-    
+
     if (role) {
       payload.role = role;
     }
-    
+
     if (twoFactorToken) {
       payload.twoFactorToken = twoFactorToken;
     }
 
     const response = await apiClient.post<LoginResponse>('/auth/signin', payload);
-    return response.data;
+    // Handle both wrapped and unwrapped responses
+    return (response as any).data || response;
   },
 
   async signUp(data: SignUpRequest): Promise<LoginResponse> {

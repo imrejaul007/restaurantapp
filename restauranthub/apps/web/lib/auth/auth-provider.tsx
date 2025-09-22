@@ -42,13 +42,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
           id: 'mock-user-dev-' + Date.now(),
           email: 'dev@restauranthub.local',
           role: UserRole.RESTAURANT,
-          status: 'ACTIVE' as any,
-          emailVerified: true,
+          isVerified: true,
           isActive: true,
           profile: {
+            id: 'profile-1',
+            userId: 'mock-user-1',
             firstName: 'Dev',
             lastName: 'User',
-            phone: '+1234567890',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -173,4 +175,19 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+}
+
+// Optional auth hook that doesn't throw error if no provider
+export function useOptionalAuth() {
+  const context = useContext(AuthContext);
+  return context || {
+    user: null,
+    loading: false,
+    isLoading: false,
+    login: async () => {},
+    logout: async () => {},
+    refreshToken: async () => {},
+    isAuthenticated: false,
+    hasRole: () => false,
+  };
 }

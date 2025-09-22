@@ -28,6 +28,7 @@ import { OrderStatusUpdater } from '@/components/orders/order-status-updater';
 import { NotificationIndicator } from '@/components/notifications/notification-indicator';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
 import { ordersApi, Order, OrderStats } from '@/lib/api/orders';
+import { UserRole } from '@/types/auth';
 import { toast } from 'react-hot-toast';
 
 // Using the Order interface from the API
@@ -74,7 +75,7 @@ export default function OrdersPage() {
                sortBy === 'oldest' ? 'createdAt' : 
                sortBy === 'amount-high' ? 'total' : 
                sortBy === 'amount-low' ? 'total' : 'createdAt',
-        sortOrder: sortBy === 'oldest' || sortBy === 'amount-low' ? 'ASC' : 'DESC',
+        sortOrder: (sortBy === 'oldest' || sortBy === 'amount-low' ? 'ASC' : 'DESC') as 'ASC' | 'DESC',
         ...(dateFilter !== 'all' && getDateRange(dateFilter)),
       };
 
@@ -369,8 +370,8 @@ export default function OrdersPage() {
           
           <div className="flex items-center gap-4">
             <NotificationIndicator />
-            {user?.role === 'restaurant' && (
-              <Button>
+            {user?.role === UserRole.RESTAURANT && (
+              <Button size="default" variant="default">
                 <Plus className="h-4 w-4 mr-2" />
                 New Order
               </Button>
@@ -515,7 +516,7 @@ export default function OrdersPage() {
         <div className="space-y-4">
           {sortedOrders.map((order) => {
             const StatusIcon = getStatusIcon(order.status);
-            
+
             return (
               <motion.div
                 key={order.id}
@@ -601,7 +602,7 @@ export default function OrdersPage() {
                       <div className="flex items-center space-x-2">
                         <Button
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => handleOrderView(order.id)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
@@ -611,7 +612,7 @@ export default function OrdersPage() {
                         {(user?.role === 'ADMIN' || user?.role === 'RESTAURANT' || user?.role === 'VENDOR') && (
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => toggleOrderExpansion(order.id)}
                           >
                             <Package className="h-4 w-4 mr-2" />
@@ -619,7 +620,7 @@ export default function OrdersPage() {
                           </Button>
                         )}
                         
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost"  size="default">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </div>
@@ -632,9 +633,9 @@ export default function OrdersPage() {
                   <div className="mt-4">
                     <OrderStatusUpdater
                       orderId={order.id}
-                      currentStatus={order.status}
-                      userRole={user?.role || 'CUSTOMER'}
-                      onStatusUpdate={handleStatusUpdate}
+                      currentStatus={order.status as any}
+                      userRole={(user?.role || 'CUSTOMER') as any}
+                      onStatusUpdate={(newStatus) => handleStatusUpdate(order.id, newStatus)}
                     />
                   </div>
                 )}
@@ -654,8 +655,8 @@ export default function OrdersPage() {
                 : 'Your orders will appear here once you start placing them'
               }
             </p>
-            {user?.role === 'restaurant' && (
-              <Button>
+            {user?.role === UserRole.RESTAURANT && (
+              <Button size="default" variant="default">
                 <Plus className="h-4 w-4 mr-2" />
                 Create First Order
               </Button>

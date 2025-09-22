@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import { Select } from '../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import { 
   CogIcon,
@@ -326,9 +326,9 @@ export default function SettingsPage() {
           <Input
             type={setting.type}
             value={setting.value}
-            onChange={(e) => handleSettingChange(setting.id, e.target.value)}
             placeholder={setting.description}
             required={setting.required}
+            readOnly
           />
         );
       
@@ -337,9 +337,9 @@ export default function SettingsPage() {
           <Input
             type="number"
             value={setting.value}
-            onChange={(e) => handleSettingChange(setting.id, parseInt(e.target.value) || 0)}
             placeholder={setting.description}
             required={setting.required}
+            readOnly
           />
         );
       
@@ -349,9 +349,9 @@ export default function SettingsPage() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={3}
             value={setting.value}
-            onChange={(e) => handleSettingChange(setting.id, e.target.value)}
             placeholder={setting.description}
             required={setting.required}
+            readOnly
           />
         );
       
@@ -359,7 +359,7 @@ export default function SettingsPage() {
         return (
           <Select
             value={setting.value}
-            onChange={(e) => handleSettingChange(setting.id, e.target.value)}
+            onValueChange={(value) => value}
             required={setting.required}
           >
             {setting.options?.map(option => (
@@ -481,7 +481,7 @@ export default function SettingsPage() {
                       {setting.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     {setting.sensitive && (
-                      <Badge color="red" size="sm">
+                      <Badge color="red" >
                         <KeyIcon className="w-3 h-3 mr-1" />
                         Sensitive
                       </Badge>

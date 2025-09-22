@@ -544,7 +544,7 @@ export default function SavedJobsPage() {
                 {selectedJobs.size} job{selectedJobs.size > 1 ? 's' : ''} selected
               </p>
               <div className="flex items-center space-x-2">
-                <Button size="sm" variant="outline" onClick={handleBulkRemove}>
+                <Button  variant="outline" onClick={handleBulkRemove} size="default">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Remove Selected
                 </Button>
@@ -561,7 +561,7 @@ export default function SavedJobsPage() {
               <input
                 type="checkbox"
                 checked={selectedJobs.size === sortedJobs.length && sortedJobs.length > 0}
-                onChange={toggleSelectAll}
+                onChange={() => toggleSelectAll()}
                 className="rounded border-border"
               />
               <span className="text-sm font-medium">Select All</span>
@@ -662,7 +662,7 @@ export default function SavedJobsPage() {
                             <div className="flex items-center space-x-2">
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                
                                 onClick={() => handleJobView(savedJob.job.id)}
                               >
                                 <Eye className="h-4 w-4 mr-1" />
@@ -670,7 +670,7 @@ export default function SavedJobsPage() {
                               </Button>
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                
                                 onClick={() => handleRemoveSavedJob(savedJob.id)}
                                 className="text-destructive hover:text-destructive"
                               >
@@ -678,7 +678,7 @@ export default function SavedJobsPage() {
                                 Remove
                               </Button>
                               <Button
-                                size="sm"
+                                
                                 onClick={() => handleJobApply(savedJob.job.id)}
                                 disabled={savedJob.job.application.status === 'closed'}
                               >

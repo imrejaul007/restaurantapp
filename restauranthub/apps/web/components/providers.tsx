@@ -6,7 +6,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider } from '@/lib/auth/auth-provider';
 import { CartProvider } from '@/lib/cart/cart-context';
-import { SocketProvider } from '@/lib/socket/socket-provider';
+import { ErrorBoundary } from '@/components/error-boundaries';
+import { WebVitalsProvider } from '@/components/analytics/web-vitals-provider';
+// import { SocketProvider } from '@/lib/socket/socket-provider';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -33,22 +35,26 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <AuthProvider>
-          <CartProvider>
-            <SocketProvider>
-              {children}
-            </SocketProvider>
-          </CartProvider>
-        </AuthProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary level="critical" enableRetry={true}>
+      <WebVitalsProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ErrorBoundary level="page">
+              <AuthProvider>
+                <CartProvider>
+                  {children}
+                </CartProvider>
+              </AuthProvider>
+            </ErrorBoundary>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </WebVitalsProvider>
+    </ErrorBoundary>
   );
 }

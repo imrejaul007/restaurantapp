@@ -430,7 +430,7 @@ export default function VendorsPage() {
             {searchQuery && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
               >
@@ -470,14 +470,14 @@ export default function VendorsPage() {
             <div className="flex items-center space-x-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="sm"
+                
                 onClick={() => setViewMode('grid')}
               >
                 <Grid className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="sm"
+                
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4" />
@@ -500,7 +500,7 @@ export default function VendorsPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Filters</h3>
-                <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+                <Button variant="ghost"  onClick={clearAllFilters}>
                   Clear All
                 </Button>
               </div>
@@ -511,7 +511,7 @@ export default function VendorsPage() {
                   <Checkbox 
                     id="open-now" 
                     checked={showOnlyOpen}
-                    onCheckedChange={setShowOnlyOpen}
+                    onChange={(e) => setShowOnlyOpen((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="open-now" className="text-sm">Open now</label>
                 </div>
@@ -519,7 +519,7 @@ export default function VendorsPage() {
                   <Checkbox 
                     id="verified" 
                     checked={showOnlyVerified}
-                    onCheckedChange={setShowOnlyVerified}
+                    onChange={(e) => setShowOnlyVerified((e.target as HTMLInputElement).checked)}
                   />
                   <label htmlFor="verified" className="text-sm">Verified vendors only</label>
                 </div>

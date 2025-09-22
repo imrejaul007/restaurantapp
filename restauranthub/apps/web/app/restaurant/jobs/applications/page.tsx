@@ -27,8 +27,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
 
 interface JobApplication {
@@ -203,7 +205,7 @@ export default function ApplicationsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Verify user is restaurant owner
-  if (user?.role !== 'restaurant') {
+  if (user?.role !== UserRole.RESTAURANT) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
@@ -364,30 +366,32 @@ export default function ApplicationsPage() {
               </div>
 
               {/* Status Filter */}
-              <select
-                className="px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="reviewed">Reviewed</option>
-                <option value="shortlisted">Shortlisted</option>
-                <option value="interview-scheduled">Interview Scheduled</option>
-                <option value="offered">Offered</option>
-                <option value="rejected">Rejected</option>
-              </select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="reviewed">Reviewed</SelectItem>
+                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                  <SelectItem value="interview-scheduled">Interview Scheduled</SelectItem>
+                  <SelectItem value="offered">Offered</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
 
               {/* Sort By */}
-              <select
-                className="px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'date' | 'score' | 'name')}
-              >
-                <option value="date">Sort by Date</option>
-                <option value="score">Sort by Score</option>
-                <option value="name">Sort by Name</option>
-              </select>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'score' | 'name')}>
+                <SelectTrigger className="px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Sort by Date</SelectItem>
+                  <SelectItem value="score">Sort by Score</SelectItem>
+                  <SelectItem value="name">Sort by Name</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -404,9 +408,9 @@ export default function ApplicationsPage() {
                 {selectedIds.size} application{selectedIds.size > 1 ? 's' : ''} selected
               </p>
               <div className="flex items-center space-x-2">
-                <Button size="sm" variant="outline">Mark as Reviewed</Button>
-                <Button size="sm" variant="outline">Shortlist</Button>
-                <Button size="sm" variant="outline" className="text-destructive">Reject</Button>
+                <Button  variant="outline">Mark as Reviewed</Button>
+                <Button  variant="outline">Shortlist</Button>
+                <Button  variant="outline" className="text-destructive">Reject</Button>
               </div>
             </div>
           </motion.div>
@@ -420,7 +424,7 @@ export default function ApplicationsPage() {
               <input
                 type="checkbox"
                 checked={selectedIds.size === sortedApplications.length && sortedApplications.length > 0}
-                onChange={selectAll}
+                onChange={() => selectAll()}
                 className="rounded border-border"
               />
               <span className="text-sm font-medium">Select All</span>
@@ -541,14 +545,14 @@ export default function ApplicationsPage() {
                           {application.status === 'pending' && (
                             <>
                               <Button
-                                size="sm"
+                                
                                 variant="outline"
                                 onClick={() => updateApplicationStatus(application.id, 'shortlisted')}
                               >
                                 Shortlist
                               </Button>
                               <Button
-                                size="sm"
+                                
                                 variant="destructive"
                                 onClick={() => updateApplicationStatus(application.id, 'rejected')}
                               >
@@ -558,7 +562,7 @@ export default function ApplicationsPage() {
                           )}
                           {application.status === 'shortlisted' && (
                             <Button
-                              size="sm"
+                              
                               onClick={() => updateApplicationStatus(application.id, 'interview-scheduled')}
                             >
                               Schedule Interview
@@ -566,7 +570,7 @@ export default function ApplicationsPage() {
                           )}
                           {application.status === 'interview-scheduled' && (
                             <Button
-                              size="sm"
+                              
                               className="bg-green-600 hover:bg-green-700"
                               onClick={() => updateApplicationStatus(application.id, 'offered')}
                             >

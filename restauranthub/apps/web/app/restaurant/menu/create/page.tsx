@@ -131,7 +131,7 @@ export default function CreateMenuItem() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Menu
             </Button>
@@ -172,7 +172,7 @@ export default function CreateMenuItem() {
                     <Input
                       id="name"
                       value={item.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) => e.target.value}
                       placeholder="e.g., Margherita Pizza"
                     />
                   </div>
@@ -181,7 +181,7 @@ export default function CreateMenuItem() {
                     <Textarea
                       id="description"
                       value={item.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      onChange={(e) => e.target.value}
                       placeholder="Describe your dish..."
                       rows={3}
                     />
@@ -209,7 +209,7 @@ export default function CreateMenuItem() {
                         type="number"
                         step="0.01"
                         value={item.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="0.00"
                       />
                     </div>
@@ -221,7 +221,7 @@ export default function CreateMenuItem() {
                         id="prepTime"
                         type="number"
                         value={item.preparationTime}
-                        onChange={(e) => handleInputChange('preparationTime', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="15"
                       />
                     </div>
@@ -230,7 +230,7 @@ export default function CreateMenuItem() {
                       <Input
                         id="servingSize"
                         value={item.servingSize}
-                        onChange={(e) => handleInputChange('servingSize', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="1 pizza (8 slices)"
                       />
                     </div>
@@ -254,7 +254,7 @@ export default function CreateMenuItem() {
                     <div key={index} className="flex items-center space-x-2">
                       <Input
                         value={ingredient}
-                        onChange={(e) => updateIngredient(index, e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="Enter ingredient"
                         className="flex-1"
                       />
@@ -262,7 +262,7 @@ export default function CreateMenuItem() {
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          
                           onClick={() => removeIngredient(index)}
                         >
                           <Minus className="h-4 w-4" />
@@ -273,7 +273,7 @@ export default function CreateMenuItem() {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    
                     onClick={addIngredient}
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -302,7 +302,7 @@ export default function CreateMenuItem() {
                         id="calories"
                         type="number"
                         value={item.nutritionInfo.calories}
-                        onChange={(e) => handleNutritionChange('calories', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="320"
                       />
                     </div>
@@ -312,7 +312,7 @@ export default function CreateMenuItem() {
                         id="protein"
                         type="number"
                         value={item.nutritionInfo.protein}
-                        onChange={(e) => handleNutritionChange('protein', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="14"
                       />
                     </div>
@@ -322,7 +322,7 @@ export default function CreateMenuItem() {
                         id="carbs"
                         type="number"
                         value={item.nutritionInfo.carbs}
-                        onChange={(e) => handleNutritionChange('carbs', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="35"
                       />
                     </div>
@@ -332,7 +332,7 @@ export default function CreateMenuItem() {
                         id="fat"
                         type="number"
                         value={item.nutritionInfo.fat}
-                        onChange={(e) => handleNutritionChange('fat', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="12"
                       />
                     </div>
@@ -384,7 +384,7 @@ export default function CreateMenuItem() {
                     <Checkbox
                       id="available"
                       checked={item.available}
-                      onCheckedChange={(checked) => handleInputChange('available', checked)}
+                      onChange={(e) => handleInputChange('available', (e.target as HTMLInputElement).checked)}
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -392,7 +392,7 @@ export default function CreateMenuItem() {
                     <Checkbox
                       id="popular"
                       checked={item.popular}
-                      onCheckedChange={(checked) => handleInputChange('popular', checked)}
+                      onChange={(e) => handleInputChange('popular', (e.target as HTMLInputElement).checked)}
                     />
                   </div>
                   <div>

@@ -638,7 +638,7 @@ export function JobApplicationModal({ job, isOpen, onClose, onSubmit }: JobAppli
                     type="button"
                     variant="ghost"
                     onClick={step === 1 ? onClose : prevStep}
-                  >
+                   size="default">
                     {step === 1 ? 'Cancel' : 'Previous'}
                   </Button>
                   
@@ -652,7 +652,7 @@ export function JobApplicationModal({ job, isOpen, onClose, onSubmit }: JobAppli
                           (step === 2 && form.watch('skills').length === 0) ||
                           (step === 4 && form.watch('documents.resume').length === 0)
                         }
-                      >
+                       size="default" variant="default">
                         Next
                       </Button>
                     ) : (
@@ -660,7 +660,7 @@ export function JobApplicationModal({ job, isOpen, onClose, onSubmit }: JobAppli
                         type="submit"
                         disabled={loading || !form.watch('consent.dataProcessing')}
                         className="px-6"
-                      >
+                       size="default" variant="default">
                         {loading ? (
                           <div className="flex items-center space-x-2">
                             <Loader2 className="h-4 w-4 animate-spin" />

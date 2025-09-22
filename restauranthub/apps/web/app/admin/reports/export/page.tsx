@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Input } from '../../../../components/ui/input';
-import { Select } from '../../../../components/ui/Select';
-import { Checkbox } from '../../../../components/ui/Checkbox';
-import { 
-  DocumentArrowDownIcon,
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
+import { Checkbox } from '../../../../components/ui/checkbox';
+import {
+  ArrowDownTrayIcon,
   CalendarIcon,
   ClockIcon,
   CheckCircleIcon,
@@ -130,11 +130,11 @@ export default function ExportDataPage() {
     setDateRange({ from: '', to: '' });
   };
 
-  const handleFieldToggle = (field: string) => {
-    setSelectedFields(prev => 
-      prev.includes(field) 
-        ? prev.filter(f => f !== field)
-        : [...prev, field]
+  const handleFieldToggle = (field: string, checked: boolean) => {
+    setSelectedFields(prev =>
+      checked
+        ? [...prev, field]
+        : prev.filter(f => f !== field)
     );
   };
 
@@ -178,7 +178,7 @@ export default function ExportDataPage() {
         {/* Export Configuration */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
+            <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
             Create New Export
           </h3>
 
@@ -188,31 +188,37 @@ export default function ExportDataPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Export Type</label>
               <Select
                 value={exportType}
-                onChange={(e) => {
-                  setExportType(e.target.value);
+                onValueChange={(value) => {
+                  setExportType(value);
                   setSelectedFields([]);
                 }}
               >
-                <option value="">Select export type...</option>
-                {exportTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="Select export type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {exportTypes.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
             {/* Format */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Export Format</label>
-              <Select
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
-              >
-                <option value="csv">CSV</option>
-                <option value="xlsx">Excel (XLSX)</option>
-                <option value="json">JSON</option>
-                <option value="pdf">PDF Report</option>
+              <Select value={format} onValueChange={setFormat}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="csv">CSV</SelectItem>
+                  <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="pdf">PDF Report</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -248,7 +254,7 @@ export default function ExportDataPage() {
                       <Checkbox
                         id={field}
                         checked={selectedFields.includes(field)}
-                        onChange={() => handleFieldToggle(field)}
+                        onChange={(e) => handleFieldToggle(field, (e.target as HTMLInputElement).checked)}
                       />
                       <label htmlFor={field} className="ml-2 text-sm text-gray-700 capitalize">
                         {field.replace(/([A-Z])/g, ' $1').trim()}
@@ -260,14 +266,14 @@ export default function ExportDataPage() {
                 <div className="flex space-x-2 mt-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => setSelectedFields(currentFields)}
                   >
                     Select All
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => setSelectedFields([])}
                   >
                     Clear All
@@ -281,7 +287,7 @@ export default function ExportDataPage() {
               <Checkbox
                 id="emailOnComplete"
                 checked={emailOnComplete}
-                onChange={(checked) => setEmailOnComplete(checked)}
+                onChange={(e) => setEmailOnComplete((e.target as HTMLInputElement).checked)}
               />
               <label htmlFor="emailOnComplete" className="ml-2 text-sm text-gray-700">
                 Email me when export is complete
@@ -292,8 +298,10 @@ export default function ExportDataPage() {
               onClick={handleExport}
               disabled={!exportType || selectedFields.length === 0}
               className="w-full"
+              size="default"
+              variant="default"
             >
-              <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
+              <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
               Start Export
             </Button>
           </div>
@@ -343,11 +351,11 @@ export default function ExportDataPage() {
 
                 {job.status === 'completed' && job.downloadUrl && (
                   <div className="flex space-x-2 mt-3">
-                    <Button variant="outline" size="sm">
-                      <DocumentArrowDownIcon className="w-4 h-4 mr-1" />
+                    <Button variant="outline" size="default">
+                      <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
                       Download
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="default">
                       <EnvelopeIcon className="w-4 h-4 mr-1" />
                       Resend Email
                     </Button>

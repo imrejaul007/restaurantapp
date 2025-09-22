@@ -41,9 +41,9 @@ export function NotificationIndicator() {
 
       {/* Notifications */}
       <div className="relative">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="default"
           className="relative"
           onClick={() => setShowDropdown(!showDropdown)}
         >
@@ -61,9 +61,9 @@ export function NotificationIndicator() {
               <h4 className="font-semibold">Notifications</h4>
               <div className="flex gap-2">
                 {unreadCount > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="default"
                     onClick={() => {
                       clearNotifications();
                       setShowDropdown(false);
@@ -72,9 +72,9 @@ export function NotificationIndicator() {
                     Clear all
                   </Button>
                 )}
-                <Button 
-                  variant="ghost" 
-                  size="sm"
+                <Button
+                  variant="ghost"
+                  size="default"
                   onClick={() => setShowDropdown(false)}
                 >
                   <X className="h-4 w-4" />

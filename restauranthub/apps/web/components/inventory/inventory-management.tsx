@@ -233,7 +233,7 @@ export default function InventoryManagement({
                     <div className="flex items-center space-x-1 ml-2">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        
                         className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => setSelectedItem(item)}
                       >
@@ -241,7 +241,7 @@ export default function InventoryManagement({
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        
                         className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Edit className="h-4 w-4" />
@@ -312,11 +312,11 @@ export default function InventoryManagement({
 
                   {/* Quick Actions */}
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button  variant="outline" className="flex-1">
                       <ShoppingCart className="h-4 w-4 mr-1" />
                       Reorder
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button  variant="outline">
                       <BarChart3 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -424,16 +424,16 @@ export default function InventoryManagement({
                       <div className="flex items-center space-x-1">
                         <Button
                           variant="ghost"
-                          size="sm"
+                          
                           className="h-8 w-8 p-0"
                           onClick={() => setSelectedItem(item)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost"  className="h-8 w-8 p-0">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost"  className="h-8 w-8 p-0">
                           <ShoppingCart className="h-4 w-4" />
                         </Button>
                       </div>
@@ -523,7 +523,7 @@ export default function InventoryManagement({
                     }
                   </p>
                 </div>
-                <Button size="sm" variant="outline">
+                <Button  variant="outline">
                   <ShoppingCart className="h-4 w-4" />
                 </Button>
               </div>
@@ -602,11 +602,11 @@ export default function InventoryManagement({
         </div>
         
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>

@@ -343,7 +343,7 @@ export default function SearchPage() {
                     <Button
                       key={term}
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => handleTrendingSearch(term)}
                       className="text-xs"
                     >
@@ -363,7 +363,7 @@ export default function SearchPage() {
                     <Button
                       key={filter}
                       variant="outline"
-                      size="sm"
+                      
                       className="text-xs"
                     >
                       {filter}
@@ -437,14 +437,14 @@ export default function SearchPage() {
                 <div className="flex items-center space-x-2">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'outline'}
-                    size="sm"
+                    
                     onClick={() => setViewMode('grid')}
                   >
                     <Grid className="h-4 w-4" />
                   </Button>
                   <Button
                     variant={viewMode === 'list' ? 'default' : 'outline'}
-                    size="sm"
+                    
                     onClick={() => setViewMode('list')}
                   >
                     <List className="h-4 w-4" />
@@ -467,7 +467,7 @@ export default function SearchPage() {
                 <Card className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold">Filters</h3>
-                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <Button variant="ghost"  onClick={clearFilters}>
                       Clear All
                     </Button>
                   </div>
@@ -478,7 +478,7 @@ export default function SearchPage() {
                       <Checkbox 
                         id="in-stock" 
                         checked={showOnlyInStock}
-                        onCheckedChange={setShowOnlyInStock}
+                        onChange={(e) => setShowOnlyInStock((e.target as HTMLInputElement).checked)}
                       />
                       <label htmlFor="in-stock" className="text-sm">In Stock Only</label>
                     </div>
@@ -486,7 +486,7 @@ export default function SearchPage() {
                       <Checkbox 
                         id="popular" 
                         checked={showOnlyPopular}
-                        onCheckedChange={setShowOnlyPopular}
+                        onChange={(e) => setShowOnlyPopular((e.target as HTMLInputElement).checked)}
                       />
                       <label htmlFor="popular" className="text-sm">Popular Items Only</label>
                     </div>
@@ -652,7 +652,7 @@ export default function SearchPage() {
                                 </Button>
                                 <Button
                                   variant="outline"
-                                  size="sm"
+                                  
                                   onClick={() => handleWishlist(result.id, result.name)}
                                 >
                                   <Heart className="h-4 w-4" />

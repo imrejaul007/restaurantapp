@@ -179,7 +179,7 @@ export default function CategoryManagementPage() {
     setFormData({
       name: category.name,
       description: category.description,
-      type: category.type,
+      type: category.type as "product",
       icon: category.icon || '',
       color: category.color || 'blue'
     });
@@ -192,7 +192,7 @@ export default function CategoryManagementPage() {
       toast({
         title: "Cannot Delete",
         description: "This category has associated products or vendors. Please reassign them first.",
-        variant: "destructive"
+        variant: "error"
       });
       return;
     }
@@ -310,7 +310,7 @@ export default function CategoryManagementPage() {
                 <Button
                   key={type}
                   variant={selectedType === type ? 'default' : 'outline'}
-                  size="sm"
+                  
                   onClick={() => setSelectedType(type as any)}
                   className="capitalize"
                 >
@@ -392,14 +392,14 @@ export default function CategoryManagementPage() {
                     <div className="flex items-center space-x-1">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        
                         onClick={() => handleEdit(category)}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        
                         onClick={() => handleDelete(category.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
@@ -427,7 +427,7 @@ export default function CategoryManagementPage() {
                 <h2 className="text-xl font-bold">
                   {editingCategory ? 'Edit Category' : 'Add New Category'}
                 </h2>
-                <Button variant="ghost" size="sm" onClick={resetForm}>
+                <Button variant="ghost"  onClick={resetForm}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>

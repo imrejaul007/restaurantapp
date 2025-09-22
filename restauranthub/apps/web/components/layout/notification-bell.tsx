@@ -141,7 +141,7 @@ export function NotificationBell() {
                     {unreadCount > 0 && (
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={handleMarkAllAsRead}
                         className="text-xs"
                       >
@@ -211,7 +211,7 @@ export function NotificationBell() {
                                   {!notification.isRead && (
                                     <Button
                                       variant="ghost"
-                                      size="sm"
+                                      size="default"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleMarkAsRead(notification.id);
@@ -224,7 +224,7 @@ export function NotificationBell() {
                                   )}
                                   <Button
                                     variant="ghost"
-                                    size="sm"
+                                    size="default"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleRemoveNotification(notification.id);
@@ -246,7 +246,7 @@ export function NotificationBell() {
                 {/* Footer */}
                 {notifications.length > 0 && (
                   <div className="p-3 border-t text-center">
-                    <Button variant="ghost" size="sm" className="text-xs" asChild>
+                    <Button variant="ghost" size="default" className="text-xs" asChild>
                       <Link href="/notifications">
                         View all notifications
                       </Link>

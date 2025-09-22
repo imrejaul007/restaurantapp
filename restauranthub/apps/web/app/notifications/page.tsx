@@ -254,12 +254,12 @@ export default function NotificationsPage() {
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
             {unreadCount > 0 && (
-              <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
+              <Button variant="outline"  onClick={handleMarkAllAsRead} size="default">
                 <CheckCheck className="h-4 w-4 mr-2" />
                 Mark all read
               </Button>
             )}
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
@@ -341,7 +341,7 @@ export default function NotificationsPage() {
                 
                 <Button
                   variant={showUnreadOnly ? "default" : "outline"}
-                  size="sm"
+                  
                   onClick={() => setShowUnreadOnly(!showUnreadOnly)}
                 >
                   <Filter className="h-4 w-4 mr-2" />
@@ -466,7 +466,7 @@ export default function NotificationsPage() {
                         )}
                         
                         {notification.actionUrl && (
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline"  size="default">
                             {notification.actionText || 'View Details'}
                           </Button>
                         )}

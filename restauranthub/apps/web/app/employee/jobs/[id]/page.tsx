@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast from '@/lib/toast';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  DollarSign, 
-  Users, 
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  DollarSign,
+  Users,
   Briefcase,
   CheckCircle,
   Building2,
@@ -38,6 +38,7 @@ interface JobDetail {
   applicants: number;
   status: 'Open' | 'Closed' | 'Draft';
 }
+
 
 const mockJobDetails: { [key: string]: JobDetail } = {
   '1': {
@@ -138,22 +139,22 @@ export default function JobDetailPage() {
   const handleApplicationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const loadingToast = toast.loading('Submitting application...');
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Mock API call to submit application
       const applicationPayload = {
         ...applicationData,
         jobId: params.id,
         submittedAt: new Date().toISOString()
       };
-      
+
       toast.dismiss(loadingToast);
       toast.success('Application submitted successfully!', 'The employer will review your application and contact you soon.');
       setShowApplicationForm(false);
-      
+
       // Reset form
       setApplicationData({
         fullName: '',

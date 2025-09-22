@@ -290,7 +290,7 @@ export default function PaymentMethods() {
                       {!method.isDefault && (
                         <Button 
                           variant="outline" 
-                          size="sm"
+                          
                           onClick={() => setDefaultMethod(method.id)}
                         >
                           <Check className="h-4 w-4 mr-1" />
@@ -300,7 +300,7 @@ export default function PaymentMethods() {
                       
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>

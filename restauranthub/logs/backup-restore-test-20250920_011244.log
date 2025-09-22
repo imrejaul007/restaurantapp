@@ -1,0 +1,59 @@
+[0;34m[2025-09-20 01:12:44][0m Starting RestaurantHub Backup & Restoration Testing
+[0;34m[2025-09-20 01:12:44][0m ==================================================
+[0;34m[2025-09-20 01:12:44][0m Running test: Database Connection
+[0;31m[ERROR][0m ✗ Database Connection failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Test Data Creation
+[0;34m[2025-09-20 01:12:44][0m Creating test data for backup testing...
+[0;31m[ERROR][0m Failed to create test data
+[0;31m[ERROR][0m ✗ Test Data Creation failed
+[0;34m[2025-09-20 01:12:44][0m 
+--- Backup Tests ---
+[0;34m[2025-09-20 01:12:44][0m Running test: SQL Backup Creation
+[0;34m[2025-09-20 01:12:44][0m Creating database backup...
+[0;31m[ERROR][0m Backup creation failed
+[0;31m[ERROR][0m ✗ SQL Backup Creation failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Compressed Backup Creation
+[0;34m[2025-09-20 01:12:44][0m Creating compressed database backup...
+[0;31m[ERROR][0m Compressed backup creation failed
+[0;31m[ERROR][0m ✗ Compressed Backup Creation failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Backup File Integrity (SQL)
+[0;34m[2025-09-20 01:12:44][0m Testing backup file integrity...
+[0;31m[ERROR][0m ✗ Backup File Integrity (SQL) failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Backup File Integrity (Compressed)
+[0;34m[2025-09-20 01:12:44][0m Testing backup file integrity...
+[0;31m[ERROR][0m ✗ Backup File Integrity (Compressed) failed
+[0;34m[2025-09-20 01:12:44][0m 
+--- Restoration Tests ---
+[0;34m[2025-09-20 01:12:44][0m Running test: SQL Backup Restoration
+[0;34m[2025-09-20 01:12:44][0m Restoring database from backup: 
+[0;31m[ERROR][0m Database restoration failed
+[0;31m[ERROR][0m ✗ SQL Backup Restoration failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Restored Data Verification
+[0;31m[ERROR][0m ✗ Restored Data Verification failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Compressed Backup Restoration
+[0;34m[2025-09-20 01:12:44][0m Restoring database from backup: 
+[0;31m[ERROR][0m Database restoration failed
+[0;31m[ERROR][0m ✗ Compressed Backup Restoration failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Compressed Restored Data Verification
+[0;31m[ERROR][0m ✗ Compressed Restored Data Verification failed
+[0;34m[2025-09-20 01:12:44][0m 
+--- Advanced Tests ---
+[0;34m[2025-09-20 01:12:44][0m Running test: Incremental Backup Test
+[0;34m[2025-09-20 01:12:44][0m Testing incremental backup functionality...
+[0;31m[ERROR][0m ✗ Incremental Backup Test failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Point-in-Time Recovery Test
+[0;34m[2025-09-20 01:12:44][0m Testing point-in-time recovery simulation...
+[0;34m[2025-09-20 01:12:44][0m Restoring database from backup: ./backups/pit_backup_20250920_011244.sql
+[0;31m[ERROR][0m Database restoration failed
+[0;31m[ERROR][0m ✗ Point-in-Time Recovery Test failed
+[0;34m[2025-09-20 01:12:44][0m 
+--- Performance Tests ---
+[0;34m[2025-09-20 01:12:44][0m Running test: Backup Performance Test
+[0;34m[2025-09-20 01:12:44][0m Performance: Backup completed in .002072000s
+[0;31m[ERROR][0m ✗ Backup Performance Test failed
+[0;34m[2025-09-20 01:12:44][0m Running test: Restore Performance Test
+[0;34m[2025-09-20 01:12:44][0m Performance: Restore completed in .002000000s
+[0;31m[ERROR][0m ✗ Restore Performance Test failed
+[0;34m[2025-09-20 01:12:44][0m 
+--- Cleanup ---
+[0;34m[2025-09-20 01:12:44][0m Cleaning up test database...

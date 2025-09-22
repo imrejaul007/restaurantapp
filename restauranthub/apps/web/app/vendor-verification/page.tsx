@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import VendorVerification from '@/components/verification/vendor-verification';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 
 // Mock verification requests data
 const mockVerificationRequests = [
@@ -252,8 +253,8 @@ export default function VendorVerificationPage() {
   const [requests, setRequests] = useState(mockVerificationRequests);
 
   const handleApprove = (requestId: string, notes?: string) => {
-    setRequests(prev => prev.map(request => 
-      request.id === requestId 
+    setRequests(prev => prev.map(request =>
+      request.id === requestId
         ? {
             ...request,
             status: 'approved' as const,
@@ -267,14 +268,14 @@ export default function VendorVerificationPage() {
                 details: notes || 'Vendor application approved'
               }
             ]
-          }
+          } as any
         : request
     ));
   };
 
   const handleReject = (requestId: string, reason: string) => {
-    setRequests(prev => prev.map(request => 
-      request.id === requestId 
+    setRequests(prev => prev.map(request =>
+      request.id === requestId
         ? {
             ...request,
             status: 'rejected' as const,
@@ -288,14 +289,14 @@ export default function VendorVerificationPage() {
                 details: `Rejected: ${reason}`
               }
             ]
-          }
+          } as any
         : request
     ));
   };
 
   const handleRequestMoreInfo = (requestId: string, requirements: string[]) => {
-    setRequests(prev => prev.map(request => 
-      request.id === requestId 
+    setRequests(prev => prev.map(request =>
+      request.id === requestId
         ? {
             ...request,
             status: 'incomplete' as const,
@@ -309,14 +310,14 @@ export default function VendorVerificationPage() {
                 details: `Additional requirements: ${requirements.join(', ')}`
               }
             ]
-          }
+          } as any
         : request
     ));
   };
 
   const handleAssignReviewer = (requestId: string, reviewerId: string) => {
-    setRequests(prev => prev.map(request => 
-      request.id === requestId 
+    setRequests(prev => prev.map(request =>
+      request.id === requestId
         ? {
             ...request,
             assignedTo: reviewerId,
@@ -330,13 +331,18 @@ export default function VendorVerificationPage() {
                 details: `Assigned to reviewer: ${reviewerId}`
               }
             ]
-          }
+          } as any
         : request
     ));
   };
 
+  const handleViewDocument = (document: any) => {
+    console.log('Viewing document:', document);
+    // Implement document viewing logic
+  };
+
   // Only show for admin users
-  if (user?.role !== 'admin') {
+  if (user?.role !== UserRole.ADMIN) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
@@ -354,11 +360,12 @@ export default function VendorVerificationPage() {
   return (
     <DashboardLayout>
       <VendorVerification
-        requests={requests}
+        requests={requests as any}
+        currentUserRole={user?.role as any || 'admin'}
         onApprove={handleApprove}
         onReject={handleReject}
         onRequestMoreInfo={handleRequestMoreInfo}
-        onAssignReviewer={handleAssignReviewer}
+        onViewDocument={handleViewDocument}
       />
     </DashboardLayout>
   );

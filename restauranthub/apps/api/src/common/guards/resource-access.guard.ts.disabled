@@ -1,0 +1,138 @@
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Logger,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UserRole } from '@prisma/client';
+
+export const RESOURCE_ACCESS_KEY = 'resourceAccess';
+
+export interface ResourceAccessConfig {
+  resource: string;
+  action: string;
+  ownerField?: string;
+  restaurantField?: string;
+}
+
+export const ResourceAccess = (config: ResourceAccessConfig) =>
+  Reflector.createDecorator<ResourceAccessConfig>(config);
+
+@Injectable()
+export class ResourceAccessGuard implements CanActivate {
+  private readonly logger = new Logger(ResourceAccessGuard.name);
+
+  constructor(
+    private reflector: Reflector,
+    private prisma: PrismaService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const resourceConfig = this.reflector.get<ResourceAccessConfig>(
+      ResourceAccess,
+      context.getHandler(),
+    );
+
+    if (!resourceConfig) {
+      return true; // No resource access configuration, allow access
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    const resourceId = request.params.id;
+
+    if (!user) {
+      throw new ForbiddenException('User not authenticated');
+    }
+
+    // Admin users have access to all resources
+    if (user.role === UserRole.ADMIN) {
+      return true;
+    }
+
+    try {
+      return await this.checkResourceAccess(
+        user,
+        resourceConfig,
+        resourceId,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Resource access check failed: ${error.message}`,
+        error.stack,
+      );
+      throw new ForbiddenException('Access denied to this resource');
+    }
+  }
+
+  private async checkResourceAccess(
+    user: any,
+    config: ResourceAccessConfig,
+    resourceId: string,
+  ): Promise<boolean> {
+    const { resource, ownerField, restaurantField } = config;
+
+    // Find the resource in the database
+    const resourceData = await this.findResource(resource, resourceId);
+
+    if (!resourceData) {
+      throw new ForbiddenException('Resource not found');
+    }
+
+    // Check owner access
+    if (ownerField && resourceData[ownerField] === user.id) {
+      return true;
+    }
+
+    // Check restaurant access
+    if (restaurantField && user.role === UserRole.RESTAURANT) {
+      const userRestaurantId = user.restaurant?.id;
+      if (userRestaurantId && resourceData[restaurantField] === userRestaurantId) {
+        return true;
+      }
+    }
+
+    // Check employee access to restaurant resources
+    if (restaurantField && user.role === UserRole.EMPLOYEE) {
+      const employeeRestaurantId = user.employee?.restaurantId;
+      if (employeeRestaurantId && resourceData[restaurantField] === employeeRestaurantId) {
+        return true;
+      }
+    }
+
+    // Check vendor access
+    if (user.role === UserRole.VENDOR) {
+      const userVendorId = user.vendor?.id;
+      if (userVendorId && resourceData.vendorId === userVendorId) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private async findResource(resourceType: string, resourceId: string): Promise<any> {
+    const modelMap: Record<string, any> = {
+      order: this.prisma.order,
+      product: this.prisma.product,
+      customer: this.prisma.customer,
+      table: this.prisma.table,
+      reservation: this.prisma.tableReservation,
+      menuItem: this.prisma.menuItem,
+      menuCategory: this.prisma.menuCategory,
+      posOrder: this.prisma.posOrder,
+    };
+
+    const model = modelMap[resourceType];
+    if (!model) {
+      throw new Error(`Unknown resource type: ${resourceType}`);
+    }
+
+    return await model.findUnique({
+      where: { id: resourceId },
+    });
+  }
+}

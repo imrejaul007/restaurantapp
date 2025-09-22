@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   ArrowLeft,
   Shield,
   Edit,
@@ -25,7 +25,8 @@ import {
   Eye,
   MessageSquare,
   Flag,
-  MoreHorizontal
+  MoreHorizontal,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -160,7 +161,7 @@ export default function UserDetailPage() {
   };
 
   const handleEditUser = () => {
-    toast.info('Edit functionality would open a modal or dedicated page');
+    toast.success('Edit functionality would open a modal or dedicated page');
   };
 
   const getStatusColor = (status: string) => {
@@ -236,7 +237,7 @@ export default function UserDetailPage() {
           <Button 
             onClick={() => router.back()}
             variant="outline"
-            size="sm"
+            
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
@@ -244,13 +245,13 @@ export default function UserDetailPage() {
           <h1 className="text-2xl font-bold">User Details</h1>
         </div>
         <div className="flex items-center space-x-2">
-          <Button onClick={handleEditUser} variant="outline" size="sm">
+          <Button onClick={handleEditUser} variant="outline" >
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

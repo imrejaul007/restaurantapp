@@ -106,7 +106,7 @@ export default function EditRestaurantProfile() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Profile
             </Button>
@@ -188,7 +188,7 @@ export default function EditRestaurantProfile() {
                         id="capacity"
                         type="number"
                         value={restaurant.capacity}
-                        onChange={(e) => handleInputChange('capacity', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('capacity', parseInt(e.target.value) || 0)}
                       />
                     </div>
                     <div>
@@ -197,7 +197,7 @@ export default function EditRestaurantProfile() {
                         id="established"
                         type="number"
                         value={restaurant.establishedYear}
-                        onChange={(e) => handleInputChange('establishedYear', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('establishedYear', parseInt(e.target.value) || 0)}
                       />
                     </div>
                   </div>
@@ -303,7 +303,7 @@ export default function EditRestaurantProfile() {
                       <Checkbox
                         id={`${day}-closed`}
                         checked={hours.closed}
-                        onCheckedChange={(checked) => handleHoursChange(day, 'closed', checked)}
+                        onChange={(e) => handleHoursChange(day, 'closed', (e.target as HTMLInputElement).checked)}
                       />
                       <Label htmlFor={`${day}-closed`} className="text-sm">Closed</Label>
                       {!hours.closed && (

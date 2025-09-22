@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
-import { Select } from '../../../../components/ui/Select';
-import { 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
+import {
   ChartBarIcon,
-  CurrencyRupeeIcon,
+  CurrencyDollarIcon,
   ShoppingBagIcon,
   BuildingStorefrontIcon,
   UserGroupIcon,
@@ -110,13 +110,13 @@ export default function DrillDownReportsPage() {
           <p className="text-gray-600 mt-1">Deep dive into platform analytics and performance metrics</p>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
+          <Button variant="outline"  onClick={() => handleExport('pdf')}>
             Export PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport('excel')}>
+          <Button variant="outline"  onClick={() => handleExport('excel')}>
             Export Excel
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
+          <Button variant="outline"  onClick={() => handleExport('csv')}>
             Export CSV
           </Button>
         </div>
@@ -127,57 +127,65 @@ export default function DrillDownReportsPage() {
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Metric</label>
-            <Select
-              value={selectedMetric}
-              onChange={(e) => setSelectedMetric(e.target.value)}
-            >
-              <option value="revenue">Revenue</option>
-              <option value="orders">Orders</option>
-              <option value="restaurants">Restaurants</option>
-              <option value="customers">Customers</option>
+            <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select metric" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="revenue">Revenue</SelectItem>
+                <SelectItem value="orders">Orders</SelectItem>
+                <SelectItem value="restaurants">Restaurants</SelectItem>
+                <SelectItem value="customers">Customers</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
-            <Select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-            >
-              <option value="day">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="quarter">This Quarter</option>
-              <option value="year">This Year</option>
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="quarter">This Quarter</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
-            <Select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-            >
-              <option value="all">All Regions</option>
-              <option value="mumbai">Mumbai</option>
-              <option value="delhi">Delhi</option>
-              <option value="bangalore">Bangalore</option>
-              <option value="chennai">Chennai</option>
-              <option value="kolkata">Kolkata</option>
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                <SelectItem value="mumbai">Mumbai</SelectItem>
+                <SelectItem value="delhi">Delhi</SelectItem>
+                <SelectItem value="bangalore">Bangalore</SelectItem>
+                <SelectItem value="chennai">Chennai</SelectItem>
+                <SelectItem value="kolkata">Kolkata</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <Select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="all">All Categories</option>
-              <option value="fine-dining">Fine Dining</option>
-              <option value="casual-dining">Casual Dining</option>
-              <option value="quick-service">Quick Service</option>
-              <option value="cafe">Cafe</option>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="fine-dining">Fine Dining</SelectItem>
+                <SelectItem value="casual-dining">Casual Dining</SelectItem>
+                <SelectItem value="quick-service">Quick Service</SelectItem>
+                <SelectItem value="cafe">Cafe</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -193,7 +201,7 @@ export default function DrillDownReportsPage() {
               <div className="mt-1">{formatGrowth(drillDownData.revenue.growth)}</div>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
-              <CurrencyRupeeIcon className="w-6 h-6 text-green-600" />
+              <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </Card>

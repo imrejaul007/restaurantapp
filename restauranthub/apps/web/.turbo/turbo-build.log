@@ -1,25 +1,28 @@
 
 > @restauranthub/web@1.0.0 build
-> next build
+> NODE_OPTIONS='--max_old_space_size=4096' next build
 
   ▲ Next.js 14.2.32
   - Environments: .env.local
+  - Experiments (use with caution):
+    · turbo
+    · optimizeCss
 
    Creating an optimized production build ...
  ✓ Compiled successfully
    Linting and checking validity of types ...
 Failed to compile.
 
-./app/auth/signup/page.tsx:75:18
-Type error: Property 'signup' does not exist on type 'AuthContextType'.
+./app/community/page.tsx:208:21
+Type error: Property 'name' does not exist on type 'User'.
 
-[0m [90m 73 |[39m   [36mconst[39m router [33m=[39m useRouter()[33m;[39m[0m
-[0m [90m 74 |[39m   [36mconst[39m searchParams [33m=[39m useSearchParams()[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 75 |[39m   [36mconst[39m { login[33m,[39m signup } [33m=[39m useAuth()[33m;[39m[0m
-[0m [90m    |[39m                  [31m[1m^[22m[39m[0m
-[0m [90m 76 |[39m   [0m
-[0m [90m 77 |[39m   [36mconst[39m [step[33m,[39m setStep] [33m=[39m useState([35m1[39m)[33m;[39m[0m
-[0m [90m 78 |[39m   [36mconst[39m [showPassword[33m,[39m setShowPassword] [33m=[39m useState([36mfalse[39m)[33m;[39m[0m
+[0m [90m 206 |[39m       author[33m:[39m {[0m
+[0m [90m 207 |[39m         id[33m:[39m user[33m?[39m[33m.[39mid [33m||[39m [32m'current-user'[39m[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 208 |[39m         name[33m:[39m user[33m?[39m[33m.[39mname [33m||[39m [32m'Current User'[39m[33m,[39m[0m
+[0m [90m     |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 209 |[39m         role[33m:[39m user[33m?[39m[33m.[39mrole [36mas[39m any [33m||[39m [32m'employee'[39m[33m,[39m[0m
+[0m [90m 210 |[39m         verified[33m:[39m [36mtrue[39m[33m,[39m[0m
+[0m [90m 211 |[39m         location[33m:[39m postData[33m.[39mlocation[0m
 Next.js build worker exited with code: 1 and signal: null
 npm error Lifecycle script `build` failed with error:
 npm error code 1
@@ -27,4 +30,4 @@ npm error path /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/w
 npm error workspace @restauranthub/web@1.0.0
 npm error location /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web
 npm error command failed
-npm error command sh -c next build
+npm error command sh -c NODE_OPTIONS='--max_old_space_size=4096' next build

@@ -71,7 +71,7 @@ export default function EditProfile() {
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
-              size="sm"
+              
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -107,14 +107,14 @@ export default function EditProfile() {
                     JD
                   </div>
                   <Button
-                    size="sm"
+                    
                     className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0"
                   >
                     <Camera className="h-4 w-4" />
                   </Button>
                 </div>
                 <div className="text-center">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     Change Photo
                   </Button>
                   <p className="text-xs text-muted-foreground mt-2">
@@ -147,7 +147,7 @@ export default function EditProfile() {
                     <Input
                       id="firstName"
                       value={profileData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                   <div>
@@ -155,7 +155,7 @@ export default function EditProfile() {
                     <Input
                       id="lastName"
                       value={profileData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                 </div>
@@ -171,7 +171,7 @@ export default function EditProfile() {
                       id="email"
                       type="email"
                       value={profileData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                   <div>
@@ -182,7 +182,7 @@ export default function EditProfile() {
                     <Input
                       id="phone"
                       value={profileData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export default function EditProfile() {
                     id="dateOfBirth"
                     type="date"
                     value={profileData.dateOfBirth}
-                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                    onChange={(e) => e.target.value}
                   />
                 </div>
 
@@ -209,23 +209,23 @@ export default function EditProfile() {
                   <Input
                     placeholder="Street Address"
                     value={profileData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    onChange={(e) => e.target.value}
                   />
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Input
                       placeholder="City"
                       value={profileData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                     <Input
                       placeholder="State"
                       value={profileData.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                     <Input
                       placeholder="Zip Code"
                       value={profileData.zipCode}
-                      onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                     <Select value={profileData.country} onValueChange={(value) => handleInputChange('country', value)}>
                       <SelectTrigger>
@@ -251,7 +251,7 @@ export default function EditProfile() {
                     <Input
                       id="company"
                       value={profileData.company}
-                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                   <div>
@@ -259,7 +259,7 @@ export default function EditProfile() {
                     <Input
                       id="position"
                       value={profileData.position}
-                      onChange={(e) => handleInputChange('position', e.target.value)}
+                      onChange={(e) => e.target.value}
                     />
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export default function EditProfile() {
                     id="website"
                     type="url"
                     value={profileData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
+                    onChange={(e) => e.target.value}
                   />
                 </div>
 
@@ -284,7 +284,7 @@ export default function EditProfile() {
                     rows={4}
                     placeholder="Tell us about yourself..."
                     value={profileData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    onChange={(e) => e.target.value}
                   />
                 </div>
               </CardContent>

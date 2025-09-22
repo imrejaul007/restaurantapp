@@ -100,7 +100,7 @@ export default function TableManagement() {
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
+              <Button size="default">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Table
               </Button>
@@ -271,15 +271,15 @@ export default function TableManagement() {
                   <div className="flex space-x-2 mt-4">
                     {table.status === 'available' && (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="flex-1"
                           onClick={() => updateTableStatus(table.id, 'occupied')}
                         >
                           Seat Guests
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => updateTableStatus(table.id, 'reserved')}
                         >
@@ -289,8 +289,8 @@ export default function TableManagement() {
                     )}
                     {table.status === 'occupied' && (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           className="flex-1"
                           onClick={() => updateTableStatus(table.id, 'cleaning')}
@@ -304,15 +304,15 @@ export default function TableManagement() {
                     )}
                     {table.status === 'reserved' && (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="flex-1"
                           onClick={() => updateTableStatus(table.id, 'occupied')}
                         >
                           Seat Party
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => updateTableStatus(table.id, 'available')}
                         >
@@ -321,8 +321,8 @@ export default function TableManagement() {
                       </>
                     )}
                     {table.status === 'cleaning' && (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="flex-1"
                         onClick={() => updateTableStatus(table.id, 'available')}
                       >

@@ -350,7 +350,7 @@ export default function NotificationsCenter() {
                             </div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -400,7 +400,7 @@ export default function NotificationsCenter() {
                     </div>
                     <Switch 
                       checked={settings.emailNotifications}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                      onChange={(e) => setSettings(prev => ({ ...prev, emailNotifications: (e.target as HTMLInputElement).checked }))}
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -410,7 +410,7 @@ export default function NotificationsCenter() {
                     </div>
                     <Switch 
                       checked={settings.pushNotifications}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, pushNotifications: checked }))}
+                      onChange={(e) => setSettings(prev => ({ ...prev, pushNotifications: (e.target as HTMLInputElement).checked }))}
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -420,7 +420,7 @@ export default function NotificationsCenter() {
                     </div>
                     <Switch 
                       checked={settings.smsNotifications}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, smsNotifications: checked }))}
+                      onChange={(e) => setSettings(prev => ({ ...prev, smsNotifications: (e.target as HTMLInputElement).checked }))}
                     />
                   </div>
                 </div>
@@ -444,7 +444,7 @@ export default function NotificationsCenter() {
                       </div>
                       <Switch 
                         checked={settings[key]}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, [key]: checked }))}
+                        onChange={(e) => setSettings(prev => ({ ...prev, [key]: (e.target as HTMLInputElement).checked }))}
                       />
                     </div>
                   ))}

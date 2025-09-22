@@ -392,14 +392,14 @@ export default function EmployeeApplications() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewJob(application.job.id)}>
+                        <Button variant="ghost"  onClick={() => handleViewJob(application.job.id)}>
                           <Eye className="h-4 w-4 mr-1" />
                           View Job
                         </Button>
                         {!['offered', 'rejected', 'withdrawn'].includes(application.status) && (
                           <Button 
                             variant="ghost" 
-                            size="sm" 
+                             
                             onClick={() => handleWithdrawApplication(application.id)}
                             className="text-destructive hover:text-destructive"
                           >
@@ -527,7 +527,7 @@ export default function EmployeeApplications() {
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" >
                             <MessageSquare className="h-4 w-4 mr-1" />
                             Message Employer
                           </Button>

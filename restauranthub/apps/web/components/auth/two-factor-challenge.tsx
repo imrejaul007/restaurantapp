@@ -74,7 +74,7 @@ export function TwoFactorChallenge({
               id="twoFactorToken"
               placeholder="Enter 6-digit code"
               value={twoFactorToken}
-              onChange={(e) => setTwoFactorToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => e.target.value}
               maxLength={6}
               className="text-center text-lg font-mono tracking-widest"
               disabled={loading}

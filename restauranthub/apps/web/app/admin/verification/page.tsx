@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import { Select } from '../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Badge } from '../../../components/ui/badge';
 import { 
   DocumentIcon,
@@ -254,32 +254,32 @@ export default function VerificationPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'VERIFIED':
-        return 'green';
+        return 'default';
       case 'PENDING':
-        return 'yellow';
+        return 'secondary';
       case 'IN_REVIEW':
-        return 'blue';
+        return 'outline';
       case 'REJECTED':
-        return 'red';
+        return 'destructive';
       case 'REQUIRES_INFO':
-        return 'orange';
+        return 'warning';
       default:
-        return 'gray';
+        return 'secondary';
     }
   };
 
   const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
       case 'URGENT':
-        return 'red';
+        return 'destructive';
       case 'HIGH':
-        return 'orange';
+        return 'warning';
       case 'MEDIUM':
-        return 'blue';
+        return 'default';
       case 'LOW':
-        return 'gray';
+        return 'secondary';
       default:
-        return 'gray';
+        return 'secondary';
     }
   };
 
@@ -432,39 +432,51 @@ export default function VerificationPage() {
           <div className="flex gap-2">
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-[120px]"
+              onValueChange={(value) => setStatusFilter(value)}
             >
-              <option value="">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="IN_REVIEW">In Review</option>
-              <option value="VERIFIED">Verified</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="REQUIRES_INFO">Requires Info</option>
+              <SelectTrigger className="min-w-[120px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="IN_REVIEW">In Review</SelectItem>
+                <SelectItem value="VERIFIED">Verified</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
+                <SelectItem value="REQUIRES_INFO">Requires Info</SelectItem>
+              </SelectContent>
             </Select>
             
             <Select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="min-w-[120px]"
+              onValueChange={(value) => setTypeFilter(value)}
             >
-              <option value="">All Types</option>
-              <option value="IDENTITY">Identity</option>
-              <option value="BUSINESS">Business</option>
-              <option value="DOCUMENT">Document</option>
-              <option value="BACKGROUND">Background</option>
+              <SelectTrigger className="min-w-[120px]">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="IDENTITY">Identity</SelectItem>
+                <SelectItem value="BUSINESS">Business</SelectItem>
+                <SelectItem value="DOCUMENT">Document</SelectItem>
+                <SelectItem value="BACKGROUND">Background</SelectItem>
+              </SelectContent>
             </Select>
             
             <Select
               value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              className="min-w-[120px]"
+              onValueChange={(value) => setPriorityFilter(value)}
             >
-              <option value="">All Priority</option>
-              <option value="URGENT">Urgent</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
+              <SelectTrigger className="min-w-[120px]">
+                <SelectValue placeholder="All Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Priority</SelectItem>
+                <SelectItem value="URGENT">Urgent</SelectItem>
+                <SelectItem value="HIGH">High</SelectItem>
+                <SelectItem value="MEDIUM">Medium</SelectItem>
+                <SelectItem value="LOW">Low</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -512,7 +524,7 @@ export default function VerificationPage() {
                         <div className="text-sm font-medium text-gray-900">{request.applicantName}</div>
                         <div className="text-sm text-gray-500">{request.email}</div>
                         <div className="text-sm text-gray-500">{request.phone}</div>
-                        <Badge color="gray" size="sm">{request.applicantType}</Badge>
+                        <Badge variant="secondary" className="text-xs">{request.applicantType}</Badge>
                       </div>
                     </td>
                     
@@ -523,7 +535,7 @@ export default function VerificationPage() {
                           <div className="text-sm font-medium text-gray-900">
                             {request.verificationType}
                           </div>
-                          <Badge color={getPriorityBadgeColor(request.priority)} size="sm">
+                          <Badge variant={getPriorityBadgeColor(request.priority)} className="text-xs">
                             {request.priority}
                           </Badge>
                         </div>
@@ -531,7 +543,7 @@ export default function VerificationPage() {
                     </td>
                     
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge color={getStatusBadgeColor(request.status)}>
+                      <Badge variant={getStatusBadgeColor(request.status)}>
                         {request.status.replace('_', ' ')}
                       </Badge>
                       {request.reviewedBy && (
@@ -726,7 +738,7 @@ export default function VerificationPage() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge color={document.status === 'APPROVED' ? 'green' : document.status === 'REJECTED' ? 'red' : 'yellow'}>
+                          <Badge variant={document.status === 'APPROVED' ? 'default' : document.status === 'REJECTED' ? 'destructive' : 'secondary'}>
                             {document.status}
                           </Badge>
                           <Button variant="outline" size="sm">

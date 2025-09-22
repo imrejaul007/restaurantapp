@@ -427,7 +427,7 @@ export default function AnalyticsDashboard({
               <Button
                 key={option.value}
                 variant={timeRange === option.value ? 'default' : 'outline'}
-                size="sm"
+                
                 onClick={() => onTimeRangeChange(option.value as any)}
               >
                 {option.label}
@@ -435,12 +435,12 @@ export default function AnalyticsDashboard({
             ))}
           </div>
           
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
+          <Button variant="outline"  onClick={handleRefresh} disabled={isLoading}>
             <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
             Refresh
           </Button>
           
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShoppingCart,
+  ShoppingCart as ShoppingCartIcon,
   X,
   Plus,
   Minus,
@@ -135,13 +135,13 @@ export default function ShoppingCart({
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border">
               <div className="flex items-center space-x-2">
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCartIcon className="h-5 w-5" />
                 <h2 className="text-lg font-semibold">Shopping Cart</h2>
                 {items.length > 0 && (
                   <Badge variant="secondary">{items.length}</Badge>
                 )}
               </div>
-              <Button variant="ghost" size="sm" onClick={onClose}>
+              <Button variant="ghost"  onClick={onClose}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -152,7 +152,7 @@ export default function ShoppingCart({
               <div className="flex-1 flex items-center justify-center p-6">
                 <div className="text-center">
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                    <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                    <ShoppingCartIcon className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-lg font-medium text-foreground mb-2">Your cart is empty</h3>
                   <p className="text-muted-foreground mb-4">
@@ -219,7 +219,7 @@ export default function ShoppingCart({
                               <div className="flex items-center justify-between mt-3">
                                 <div className="flex items-center space-x-2">
                                   <Button
-                                    size="sm"
+                                    
                                     variant="outline"
                                     className="h-6 w-6 p-0"
                                     onClick={() => handleDecreaseQuantity(item)}
@@ -231,7 +231,7 @@ export default function ShoppingCart({
                                     {item.quantity}
                                   </span>
                                   <Button
-                                    size="sm"
+                                    
                                     variant="outline"
                                     className="h-6 w-6 p-0"
                                     onClick={() => handleIncreaseQuantity(item)}
@@ -245,7 +245,7 @@ export default function ShoppingCart({
                                     {formatCurrency(item.price * item.quantity)}
                                   </span>
                                   <Button
-                                    size="sm"
+                                    
                                     variant="ghost"
                                     className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
                                     onClick={() => onRemoveItem(item.id)}
@@ -286,7 +286,7 @@ export default function ShoppingCart({
                             <span className="text-xs text-muted-foreground">10% discount applied</span>
                           </div>
                           <Button
-                            size="sm"
+                            
                             variant="ghost"
                             onClick={() => setAppliedPromo('')}
                             className="text-xs"
@@ -304,7 +304,7 @@ export default function ShoppingCart({
                             className="flex-1 px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
                           />
                           <Button
-                            size="sm"
+                            
                             onClick={handleApplyPromo}
                             disabled={!promoCode.trim()}
                           >

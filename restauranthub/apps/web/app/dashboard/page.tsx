@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { UserRole } from '@/types/auth';
 
 export default function GeneralDashboard() {
   const router = useRouter();
@@ -36,19 +37,19 @@ export default function GeneralDashboard() {
     if (!user) return [];
     
     switch (user.role) {
-      case 'restaurant':
+      case UserRole.RESTAURANT:
         return [
           { label: 'Post Job', icon: Briefcase, onClick: () => router.push('/jobs/create'), color: 'bg-blue-500' },
           { label: 'Order Supplies', icon: ShoppingCart, onClick: () => router.push('/marketplace'), color: 'bg-green-500' },
           { label: 'View Applications', icon: Users, onClick: () => router.push('/jobs/applications'), color: 'bg-purple-500' },
         ];
-      case 'vendor':
+      case UserRole.VENDOR:
         return [
           { label: 'Add Product', icon: Package, onClick: () => router.push('/marketplace/add-product'), color: 'bg-green-500' },
           { label: 'View Orders', icon: ShoppingCart, onClick: () => router.push('/orders'), color: 'bg-blue-500' },
           { label: 'Manage Inventory', icon: BarChart3, onClick: () => router.push('/inventory'), color: 'bg-purple-500' },
         ];
-      case 'employee':
+      case UserRole.EMPLOYEE:
         return [
           { label: 'Browse Jobs', icon: Briefcase, onClick: () => router.push('/jobs'), color: 'bg-blue-500' },
           { label: 'My Applications', icon: Users, onClick: () => router.push('/jobs/my-applications'), color: 'bg-green-500' },
@@ -88,7 +89,7 @@ export default function GeneralDashboard() {
       description: 'Manage your restaurant operations',
       href: '/restaurant/dashboard',
       color: 'text-blue-600',
-      visible: !user || user.role === 'restaurant'
+      visible: !user || user.role === UserRole.RESTAURANT
     },
     {
       icon: Package,
@@ -96,7 +97,7 @@ export default function GeneralDashboard() {
       description: 'Supply products to restaurants',
       href: '/vendor/dashboard',
       color: 'text-green-600',
-      visible: !user || user.role === 'vendor'
+      visible: !user || user.role === UserRole.VENDOR
     },
     {
       icon: Briefcase,
@@ -104,7 +105,7 @@ export default function GeneralDashboard() {
       description: 'Find employment opportunities',
       href: '/employee/dashboard',
       color: 'text-purple-600',
-      visible: !user || user.role === 'employee'
+      visible: !user || user.role === UserRole.EMPLOYEE
     },
     {
       icon: Shield,
@@ -112,7 +113,7 @@ export default function GeneralDashboard() {
       description: 'Platform administration',
       href: '/admin/dashboard',
       color: 'text-orange-600',
-      visible: !user || user.role === 'admin'
+      visible: !user || user.role === UserRole.ADMIN
     }
   ].filter(action => action.visible);
 
@@ -238,7 +239,7 @@ export default function GeneralDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
-                  {user ? `Welcome back, ${user.name || 'User'}!` : 'Get Started with RestaurantHub'}
+                  {user ? `Welcome back, ${user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'User'}!` : 'Get Started with RestaurantHub'}
                 </CardTitle>
               </CardHeader>
               <CardContent>

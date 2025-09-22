@@ -294,29 +294,29 @@ export default function KitchenDisplaySystem() {
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => setIsPaused(!isPaused)}
             >
               {isPaused ? <Play className="h-4 w-4 mr-2" /> : <Pause className="h-4 w-4 mr-2" />}
               {isPaused ? 'Resume' : 'Pause'}
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Bell className="h-4 w-4 mr-2" />
               Alerts
             </Button>
             <Button 
               variant="outline" 
-              size="sm"
+              
               onClick={() => setIsFullscreen(!isFullscreen)}
             >
               <Maximize2 className="h-4 w-4 mr-2" />
               Fullscreen
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Settings className="h-4 w-4" />
             </Button>
           </div>
@@ -332,7 +332,7 @@ export default function KitchenDisplaySystem() {
               <Button
                 key={station.id}
                 variant={isSelected ? "default" : "outline"}
-                size="sm"
+                
                 onClick={() => setSelectedStation(station.id)}
                 className={cn(
                   "flex items-center space-x-2",
@@ -519,7 +519,7 @@ export default function KitchenDisplaySystem() {
                           <div className="flex space-x-1">
                             {item.status === 'pending' && (
                               <Button
-                                size="sm"
+                                
                                 variant="outline"
                                 onClick={() => updateItemStatus(order.id, item.id, 'preparing')}
                                 className="h-8 w-8 p-0"
@@ -529,7 +529,7 @@ export default function KitchenDisplaySystem() {
                             )}
                             {item.status === 'preparing' && (
                               <Button
-                                size="sm"
+                                
                                 variant="outline"
                                 onClick={() => updateItemStatus(order.id, item.id, 'ready')}
                                 className="h-8 w-8 p-0"
@@ -562,7 +562,7 @@ export default function KitchenDisplaySystem() {
                     <div className="flex space-x-2">
                       {order.status === 'new' && (
                         <Button
-                          size="sm"
+                          
                           onClick={() => updateOrderStatus(order.id, 'preparing')}
                           className="flex-1"
                         >
@@ -572,7 +572,7 @@ export default function KitchenDisplaySystem() {
                       )}
                       {order.status === 'preparing' && (
                         <Button
-                          size="sm"
+                          
                           onClick={() => updateOrderStatus(order.id, 'ready')}
                           className="flex-1"
                         >
@@ -582,7 +582,7 @@ export default function KitchenDisplaySystem() {
                       )}
                       {order.status === 'ready' && (
                         <Button
-                          size="sm"
+                          
                           onClick={() => updateOrderStatus(order.id, 'served')}
                           className="flex-1"
                         >
@@ -592,7 +592,7 @@ export default function KitchenDisplaySystem() {
                       )}
                       {(order.status === 'preparing' || order.status === 'delayed') && (
                         <Button
-                          size="sm"
+                          
                           variant="outline"
                           onClick={() => updateOrderStatus(order.id, 'new')}
                         >

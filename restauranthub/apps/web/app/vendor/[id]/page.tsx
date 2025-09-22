@@ -286,7 +286,7 @@ export default function VendorProfilePage() {
         {/* Back Button */}
         <div className="mb-6">
           <Link href="/marketplace">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="default">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Marketplace
             </Button>
@@ -578,14 +578,14 @@ export default function VendorProfilePage() {
                             {product.inStock ? 'In Stock' : 'Out of Stock'}
                           </Badge>
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => handleProductView(product.id)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button 
+                            <Button
                               size="sm"
                               disabled={!product.inStock}
                             >
@@ -663,7 +663,7 @@ export default function VendorProfilePage() {
                             <Input
                               id="name"
                               value={contactForm.name}
-                              onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                              onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                               required
                             />
                           </div>
@@ -673,7 +673,7 @@ export default function VendorProfilePage() {
                               id="email"
                               type="email"
                               value={contactForm.email}
-                              onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                              onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                               required
                             />
                           </div>
@@ -685,7 +685,7 @@ export default function VendorProfilePage() {
                             <Input
                               id="phone"
                               value={contactForm.phone}
-                              onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
+                              onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
                               required
                             />
                           </div>
@@ -694,7 +694,7 @@ export default function VendorProfilePage() {
                             <select
                               id="orderType"
                               value={contactForm.orderType}
-                              onChange={(e) => setContactForm({...contactForm, orderType: e.target.value})}
+                              onChange={(e) => setContactForm({ ...contactForm, orderType: e.target.value })}
                               className="w-full px-3 py-2 border border-border rounded-md bg-background"
                             >
                               <option value="bulk">Bulk Order</option>
@@ -710,7 +710,7 @@ export default function VendorProfilePage() {
                           <Input
                             id="subject"
                             value={contactForm.subject}
-                            onChange={(e) => setContactForm({...contactForm, subject: e.target.value})}
+                            onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
                             required
                           />
                         </div>
@@ -720,7 +720,7 @@ export default function VendorProfilePage() {
                           <Textarea
                             id="message"
                             value={contactForm.message}
-                            onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                            onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                             rows={4}
                             required
                           />

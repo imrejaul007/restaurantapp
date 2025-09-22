@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useAuth } from './auth-context';
+import { useAuth } from '@/lib/auth/auth-provider';
 
 interface WebSocketContextType {
   socket: Socket | null;
@@ -34,10 +34,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (user && token) {
+    if (user) {
+      const token = localStorage.getItem('token');
       // Connect to WebSocket server
       const socketInstance = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3000', {
         auth: {
@@ -126,7 +127,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         setIsConnected(false);
       };
     }
-  }, [user, token]);
+  }, [user]);
 
   const clearNotifications = () => {
     setNotifications([]);

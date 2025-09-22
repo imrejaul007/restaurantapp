@@ -2,22 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
 import { Input } from '../../../../components/ui/input';
-import { Select } from '../../../../components/ui/Select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import { 
   DocumentTextIcon,
   MagnifyingGlassIcon,
   EyeIcon,
-  DownloadIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
   FunnelIcon,
   PhotoIcon,
-  DocumentArrowDownIcon,
   CalendarIcon,
   UserIcon,
   BuildingStorefrontIcon,
@@ -338,13 +336,13 @@ export default function DocumentsPage() {
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
           <Button
             variant="outline"
-            size="sm"
+            
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
           >
             <FolderIcon className="w-4 h-4 mr-2" />
             {viewMode === 'grid' ? 'List View' : 'Grid View'}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -422,8 +420,7 @@ export default function DocumentsPage() {
             <div className="flex gap-2">
               <Select
                 value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="min-w-[150px]"
+                onValueChange={(value) => setTypeFilter(value)}
               >
                 <option value="">All Types</option>
                 <option value="GST">GST Certificate</option>
@@ -436,8 +433,7 @@ export default function DocumentsPage() {
               
               <Select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="min-w-[140px]"
+                onValueChange={(value) => setStatusFilter(value)}
               >
                 <option value="">All Status</option>
                 <option value="PENDING">Pending</option>
@@ -447,8 +443,7 @@ export default function DocumentsPage() {
               
               <Select
                 value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="min-w-[140px]"
+                onValueChange={(value) => setDateFilter(value)}
               >
                 <option value="">All Dates</option>
                 <option value="today">Today</option>
@@ -466,28 +461,28 @@ export default function DocumentsPage() {
               </span>
               <div className="flex space-x-2">
                 <Button
-                  size="sm"
+                  
                   onClick={() => handleBulkAction('approve')}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Approve All
                 </Button>
                 <Button
-                  size="sm"
+                  
                   onClick={() => handleBulkAction('reject')}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
                   Reject All
                 </Button>
                 <Button
-                  size="sm"
+                  
                   variant="outline"
                   onClick={() => handleBulkAction('download')}
                 >
                   Download All
                 </Button>
                 <Button
-                  size="sm"
+                  
                   variant="outline"
                   onClick={() => setSelectedDocuments([])}
                 >
@@ -525,7 +520,7 @@ export default function DocumentsPage() {
                       }}
                       className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
-                    <Badge color={getStatusBadgeColor(document.status)} size="sm">
+                    <Badge color={getStatusBadgeColor(document.status)} >
                       {document.status}
                     </Badge>
                   </div>
@@ -552,13 +547,13 @@ export default function DocumentsPage() {
                       <span>{format(parseISO(document.uploadedAt), 'MMM dd, yyyy')}</span>
                     </div>
                     <div className="flex items-center">
-                      <DocumentArrowDownIcon className="w-4 h-4 mr-1" />
+                      <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
                       <span>{formatFileSize(document.fileSize)}</span>
                     </div>
                   </div>
                   
                   <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" >
                       <EyeIcon className="w-3 h-3 mr-1" />
                       View
                     </Button>
@@ -566,14 +561,14 @@ export default function DocumentsPage() {
                     {document.status === 'PENDING' && (
                       <div className="flex space-x-1">
                         <Button
-                          size="sm"
+                          
                           onClick={() => handleDocumentAction(document.id, 'approve')}
                           className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
                         >
                           <CheckCircleIcon className="w-3 h-3" />
                         </Button>
                         <Button
-                          size="sm"
+                          
                           onClick={() => handleDocumentAction(document.id, 'reject', 'Rejected by admin')}
                           className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1"
                         >
@@ -685,19 +680,19 @@ export default function DocumentsPage() {
                       
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" >
                             <EyeIcon className="w-4 h-4 mr-1" />
                             View
                           </Button>
-                          <Button variant="outline" size="sm">
-                            <DownloadIcon className="w-4 h-4 mr-1" />
+                          <Button variant="outline" >
+                            <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
                             Download
                           </Button>
                           
                           {document.status === 'PENDING' && (
                             <div className="flex space-x-1">
                               <Button
-                                size="sm"
+                                
                                 onClick={() => handleDocumentAction(document.id, 'approve')}
                                 className="bg-green-600 hover:bg-green-700 text-white"
                               >
@@ -705,7 +700,7 @@ export default function DocumentsPage() {
                                 Approve
                               </Button>
                               <Button
-                                size="sm"
+                                
                                 onClick={() => handleDocumentAction(document.id, 'reject', 'Rejected by admin')}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                               >
@@ -734,7 +729,7 @@ export default function DocumentsPage() {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
@@ -742,7 +737,7 @@ export default function DocumentsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >

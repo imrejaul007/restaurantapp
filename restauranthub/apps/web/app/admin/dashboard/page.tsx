@@ -146,11 +146,11 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <Calendar className="h-4 w-4 mr-2" />
               Last 30 days
             </Button>
-            <Button size="sm">
+            <Button >
               Generate Report
             </Button>
           </div>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                 <CardTitle className="text-lg font-semibold">
                   Pending Verifications
                 </CardTitle>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" >
                   View All
                 </Button>
               </CardHeader>
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" >
                         Review
                       </Button>
                     </div>
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
                 <CardTitle className="text-lg font-semibold">
                   Recent Activity
                 </CardTitle>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" >
                   <Activity className="h-4 w-4" />
                 </Button>
               </CardHeader>

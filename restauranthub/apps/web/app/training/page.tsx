@@ -431,9 +431,9 @@ export default function TrainingPage() {
                 progress: 0,
                 attempts: 0,
                 timeSpent: 0
-              }
+              } as any
             ]
-          };
+          } as any;
         }
       }
       return employee;
@@ -449,7 +449,7 @@ export default function TrainingPage() {
 
   const handleStartTraining = (moduleId: string) => {
     const currentEmployeeId = user?.id || 'current-user';
-    
+
     setEmployeeProgress(prev => prev.map(employee => {
       if (employee.employeeId === currentEmployeeId) {
         const updatedProgress = employee.moduleProgress.map(p =>
@@ -458,7 +458,7 @@ export default function TrainingPage() {
                 ...p,
                 status: 'in_progress' as const,
                 startDate: p.startDate || new Date().toISOString()
-              }
+              } as any
             : p
         );
 
@@ -472,14 +472,14 @@ export default function TrainingPage() {
             startDate: new Date().toISOString(),
             attempts: 1,
             timeSpent: 0
-          });
+          } as any);
         }
 
         return {
           ...employee,
           moduleProgress: updatedProgress,
           lastActivity: new Date().toISOString()
-        };
+        } as any;
       }
       return employee;
     }));

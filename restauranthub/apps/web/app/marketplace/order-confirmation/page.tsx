@@ -145,11 +145,11 @@ export default function OrderConfirmation() {
                   <p className="text-gray-600">{orderData.restaurant.address}</p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     <Phone className="h-4 w-4 mr-2" />
                     Call Restaurant
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" >
                     <Mail className="h-4 w-4 mr-2" />
                     Contact Support
                   </Button>
@@ -206,7 +206,7 @@ export default function OrderConfirmation() {
               <Download className="h-4 w-4 mr-2" />
               Download Receipt
             </Button>
-            <Button onClick={() => router.push(`/orders/${orderData.id.replace('#', '')}`)}>>
+            <Button onClick={() => router.push(`/orders/${orderData.id.replace('#', '')}`)}>
               Track Order
             </Button>
           </div>

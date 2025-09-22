@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
             <Progress value={100} className="mb-6" />
             
             <Link href="/auth/login">
-              <Button className="w-full" size="lg">
+              <Button className="w-full" size="lg" variant="default">
                 Go to Login
               </Button>
             </Link>
@@ -190,10 +190,7 @@ export default function ResetPasswordPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError('');
-                  }}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   placeholder="Enter new password"
                   required
@@ -282,10 +279,7 @@ export default function ResetPasswordPage() {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    setError('');
-                  }}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
                   placeholder="Confirm new password"
                   required
@@ -309,7 +303,7 @@ export default function ResetPasswordPage() {
               className="w-full"
               size="lg"
               disabled={loading || !token}
-            >
+             variant="default">
               {loading ? 'Resetting Password...' : 'Reset Password'}
             </Button>
           </form>

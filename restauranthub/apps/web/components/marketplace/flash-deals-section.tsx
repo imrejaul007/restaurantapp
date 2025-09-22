@@ -245,11 +245,11 @@ function FlashDealCard({
                   {deal.remainingQuantity} of {deal.totalQuantity} left
                 </span>
               </div>
-              <Progress 
-                value={progress} 
-                className="h-2"
-                indicatorClassName={cn(
-                  lowStock ? "bg-red-500" : progress > 70 ? "bg-orange-500" : "bg-green-500"
+              <Progress
+                value={progress}
+                className={cn(
+                  "h-2",
+                  lowStock ? "[&>div]:bg-red-500" : progress > 70 ? "[&>div]:bg-orange-500" : "[&>div]:bg-green-500"
                 )}
               />
             </div>
@@ -271,7 +271,7 @@ function FlashDealCard({
             {/* Action Buttons */}
             <div className="flex space-x-2 pt-2">
               <Button 
-                size="sm" 
+                 
                 variant="outline" 
                 className="flex-1"
                 onClick={() => onViewDeal && onViewDeal(deal)}
@@ -280,7 +280,7 @@ function FlashDealCard({
                 View
               </Button>
               <Button 
-                size="sm" 
+                 
                 className="flex-1 bg-red-600 hover:bg-red-700"
                 onClick={handleAddToCart}
                 disabled={deal.remainingQuantity === 0}
@@ -371,7 +371,7 @@ export default function FlashDealsSection({
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
@@ -383,7 +383,7 @@ export default function FlashDealsSection({
               <div className="flex items-center space-x-1">
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   onClick={handlePrevious}
                   className="px-2"
                 >
@@ -391,7 +391,7 @@ export default function FlashDealsSection({
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  
                   onClick={handleNext}
                   className="px-2"
                 >

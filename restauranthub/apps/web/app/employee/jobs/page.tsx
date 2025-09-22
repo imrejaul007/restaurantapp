@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   Search,
   Filter,
   MapPin,
@@ -274,11 +274,11 @@ export default function EmployeeJobs() {
     const matchesLocation = locationFilter === 'all' || job.location.toLowerCase().includes(locationFilter.toLowerCase());
     const matchesType = typeFilter === 'all' || job.type === typeFilter;
     const matchesExperience = experienceFilter === 'all' || (
-      job.experience.min <= parseInt(experienceFilter) && 
+      job.experience.min <= parseInt(experienceFilter) &&
       job.experience.max >= parseInt(experienceFilter)
     );
     const matchesSalary = salaryFilter === 'all' || job.salary.min >= parseInt(salaryFilter) * 1000;
-    
+
     return matchesSearch && matchesLocation && matchesType && matchesExperience && matchesSalary;
   });
 
@@ -300,8 +300,8 @@ export default function EmployeeJobs() {
   });
 
   const toggleSaveJob = (jobId: string) => {
-    setSavedJobs(prev => 
-      prev.includes(jobId) 
+    setSavedJobs(prev =>
+      prev.includes(jobId)
         ? prev.filter(id => id !== jobId)
         : [...prev, jobId]
     );
@@ -322,143 +322,145 @@ export default function EmployeeJobs() {
     }
   };
 
-  const JobCard = ({ job }: { job: Job }) => (
-    <Card 
-      className="hover:shadow-lg transition-all duration-300 cursor-pointer"
-      onClick={() => router.push(`/employee/jobs/${job.id}`)}
-    >
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start space-x-4 flex-1">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h3 className="font-semibold text-foreground text-lg line-clamp-1">
-                    {job.title}
-                    {job.matchPercentage && (
-                      <span className="ml-2 text-sm bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200 px-2 py-1 rounded-full">
-                        {job.matchPercentage}% match
-                      </span>
-                    )}
-                  </h3>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <p className="text-muted-foreground font-medium">{job.company.name}</p>
-                    {job.company.verified && (
-                      <CheckCircle className="h-4 w-4 text-primary" />
-                    )}
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-muted-foreground">{job.company.rating}</span>
+  const JobCard = ({ job }: { job: Job }) => {
+    return (
+      <Card
+        className="hover:shadow-lg transition-all duration-300 cursor-pointer"
+        onClick={() => router.push(`/employee/jobs/${job.id}`)}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start space-x-4 flex-1">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="font-semibold text-foreground text-lg line-clamp-1">
+                      {job.title}
+                      {job.matchPercentage && (
+                        <span className="ml-2 text-sm bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200 px-2 py-1 rounded-full">
+                          {job.matchPercentage}% match
+                        </span>
+                      )}
+                    </h3>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <p className="text-muted-foreground font-medium">{job.company.name}</p>
+                      {job.company.verified && (
+                        <CheckCircle className="h-4 w-4 text-primary" />
+                      )}
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm text-muted-foreground">{job.company.rating}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSaveJob(job.id);
-                    }}
-                  >
-                    <Heart className={cn(
-                      "h-4 w-4",
-                      savedJobs.includes(job.id) ? "fill-destructive text-destructive" : "text-muted-foreground"
-                    )} />
-                  </Button>
-                </div>
-              </div>
-              
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                {job.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                <div className={`text-xs px-2 py-1 rounded-full ${getJobTypeColor(job.type)}`}>
-                  {job.type.replace('-', ' ')}
-                </div>
-                {job.isUrgent && (
-                  <div className="bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">
-                    Urgent
-                  </div>
-                )}
-                {job.isFeatured && (
-                  <div className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    Featured
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{job.location}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <DollarSign className="h-4 w-4" />
-                  <span>
-                    {formatCurrency(job.salary.min)} - {formatCurrency(job.salary.max)}
-                    {job.salary.negotiable && ' (Negotiable)'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{job.experience.min}-{job.experience.max} years</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Users className="h-4 w-4" />
-                  <span>{job.applicationsCount} applicants</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {job.skills.slice(0, 3).map((skill, index) => (
-                    <span
-                      key={index}
-                      className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                  {job.skills.length > 3 && (
-                    <span className="text-xs text-muted-foreground">
-                      +{job.skills.length - 3} more
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(job.postedAt, { month: 'short', day: 'numeric' })}
-                  </p>
-                  {job.isApplied ? (
-                    <Button variant="outline" size="sm" disabled>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Applied
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="sm"
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="default"
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/employee/jobs/${job.id}`);
+                        toggleSaveJob(job.id);
                       }}
                     >
-                      <Send className="h-4 w-4 mr-2" />
-                      Apply Now
+                      <Heart className={cn(
+                        "h-4 w-4",
+                        savedJobs.includes(job.id) ? "fill-destructive text-destructive" : "text-muted-foreground"
+                      )} />
                     </Button>
+                  </div>
+                </div>
+
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                  {job.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className={`text-xs px-2 py-1 rounded-full ${getJobTypeColor(job.type)}`}>
+                    {job.type.replace('-', ' ')}
+                  </div>
+                  {job.isUrgent && (
+                    <div className="bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">
+                      Urgent
+                    </div>
                   )}
+                  {job.isFeatured && (
+                    <div className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      Featured
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="h-4 w-4" />
+                    <span>{job.location}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <DollarSign className="h-4 w-4" />
+                    <span>
+                      {formatCurrency(job.salary.min)} - {formatCurrency(job.salary.max)}
+                      {job.salary.negotiable && ' (Negotiable)'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{job.experience.min}-{job.experience.max} years</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Users className="h-4 w-4" />
+                    <span>{job.applicationsCount} applicants</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-1">
+                    {job.skills.slice(0, 3).map((skill, index) => (
+                      <span
+                        key={index}
+                        className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {job.skills.length > 3 && (
+                      <span className="text-xs text-muted-foreground">
+                        +{job.skills.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(job.postedAt, { month: 'short', day: 'numeric' })}
+                    </p>
+                    {job.isApplied ? (
+                      <Button variant="outline" disabled size="default">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Applied
+                      </Button>
+                    ) : (
+                      <Button
+                        size="default"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/employee/jobs/${job.id}`);
+                        }}
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        Apply Now
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -472,15 +474,15 @@ export default function EmployeeJobs() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button 
-              variant="outline" 
-              size="sm"
+            <Button
+              variant="outline"
+              size="default"
               onClick={() => router.push('/jobs/saved')}
             >
               <Bookmark className="h-4 w-4 mr-2" />
               Saved Jobs ({savedJobs.length})
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="default">
               <TrendingUp className="h-4 w-4 mr-2" />
               Job Alerts
             </Button>
@@ -586,7 +588,7 @@ export default function EmployeeJobs() {
                   </select>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <SlidersHorizontal className="h-4 w-4 mr-2" />
@@ -623,7 +625,7 @@ export default function EmployeeJobs() {
                 <p className="text-muted-foreground mb-4">
                   Try adjusting your search criteria or browse our featured jobs
                 </p>
-                <Button>
+                <Button size="default" variant="default">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Browse Featured Jobs
                 </Button>

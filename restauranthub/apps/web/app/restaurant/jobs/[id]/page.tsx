@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../components/ui/Card';
+import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
-import { Tabs } from '../../../../components/ui/Tabs';
-import { 
+import { Tabs, TabsList, TabsTrigger } from '../../../../components/ui/tabs';
+import {
   BriefcaseIcon,
   MapPinIcon,
-  CurrencyRupeeIcon,
+  CurrencyDollarIcon,
   ClockIcon,
   UserGroupIcon,
   EyeIcon,
@@ -272,7 +272,7 @@ export default function JobDetailPage() {
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"
-            size="sm"
+            
             onClick={() => router.back()}
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -289,18 +289,18 @@ export default function JobDetailPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <EyeIcon className="w-4 h-4 mr-2" />
             Preview
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <PencilIcon className="w-4 h-4 mr-2" />
             Edit
           </Button>
           {job.status === 'active' ? (
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => handleStatusChange('paused')}
             >
               <PauseIcon className="w-4 h-4 mr-2" />
@@ -309,7 +309,7 @@ export default function JobDetailPage() {
           ) : (
             <Button
               variant="outline"
-              size="sm"
+              
               onClick={() => handleStatusChange('active')}
             >
               <PlayIcon className="w-4 h-4 mr-2" />
@@ -374,7 +374,16 @@ export default function JobDetailPage() {
 
       {/* Tabs */}
       <Card>
-        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            {tabs.map(tab => (
+              <TabsTrigger key={tab.id} value={tab.id}>
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         
         <div className="p-6">
           {activeTab === 'overview' && (
@@ -393,7 +402,7 @@ export default function JobDetailPage() {
                       <span className="text-gray-900">{job.type} • {job.experience}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CurrencyRupeeIcon className="w-5 h-5 text-gray-400" />
+                      <CurrencyDollarIcon className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
                         ₹{job.salary.min.toLocaleString()} - ₹{job.salary.max.toLocaleString()} per month
                       </span>
@@ -447,7 +456,7 @@ export default function JobDetailPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Applications</h3>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" >
                   Export Applications
                 </Button>
               </div>
@@ -554,11 +563,11 @@ export default function JobDetailPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           <EyeIcon className="w-4 h-4 mr-1" />
                           View Resume
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" >
                           <ChatBubbleLeftIcon className="w-4 h-4 mr-1" />
                           Message
                         </Button>
@@ -567,14 +576,14 @@ export default function JobDetailPage() {
                       {application.status === 'pending' && (
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'shortlist')}
                             className="bg-yellow-600 hover:bg-yellow-700 text-white"
                           >
                             Shortlist
                           </Button>
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'reject')}
                             className="bg-red-600 hover:bg-red-700 text-white"
                           >
@@ -586,14 +595,14 @@ export default function JobDetailPage() {
                       {application.status === 'shortlisted' && (
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'interview')}
                             className="bg-blue-600 hover:bg-blue-700 text-white"
                           >
                             Interview
                           </Button>
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'reject')}
                             className="bg-red-600 hover:bg-red-700 text-white"
                           >
@@ -605,14 +614,14 @@ export default function JobDetailPage() {
                       {application.status === 'interviewed' && (
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'hire')}
                             className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             Hire
                           </Button>
                           <Button
-                            size="sm"
+                            
                             onClick={() => handleApplicationAction(application.id, 'reject')}
                             className="bg-red-600 hover:bg-red-700 text-white"
                           >

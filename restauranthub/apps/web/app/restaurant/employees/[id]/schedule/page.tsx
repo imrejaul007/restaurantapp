@@ -93,7 +93,7 @@ export default function EmployeeSchedule() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Employee
             </Button>
@@ -139,7 +139,7 @@ export default function EmployeeSchedule() {
                             <Checkbox
                               id={`${day}-off`}
                               checked={hours.off}
-                              onCheckedChange={(checked) => handleScheduleChange(day, 'off', checked)}
+                              onChange={(e) => handleScheduleChange(day, 'off', (e.target as HTMLInputElement).checked)}
                             />
                             <Label htmlFor={`${day}-off`} className="text-sm">Off</Label>
                           </div>

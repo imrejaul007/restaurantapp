@@ -70,7 +70,7 @@ export default function AddEmployee() {
       setEmployee(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(prev[parent as keyof typeof prev] as object),
           [child]: value
         }
       }));
@@ -123,7 +123,7 @@ export default function AddEmployee() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost"  onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Team
             </Button>
@@ -168,7 +168,7 @@ export default function AddEmployee() {
                       <Input
                         id="firstName"
                         value={employee.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="John"
                       />
                     </div>
@@ -177,7 +177,7 @@ export default function AddEmployee() {
                       <Input
                         id="lastName"
                         value={employee.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="Smith"
                       />
                     </div>
@@ -192,7 +192,7 @@ export default function AddEmployee() {
                           id="email"
                           type="email"
                           value={employee.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          onChange={(e) => e.target.value}
                           className="pl-10"
                           placeholder="john.smith@restaurant.com"
                         />
@@ -205,7 +205,7 @@ export default function AddEmployee() {
                         <Input
                           id="phone"
                           value={employee.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          onChange={(e) => e.target.value}
                           className="pl-10"
                           placeholder="+1 (555) 123-4567"
                         />
@@ -220,7 +220,7 @@ export default function AddEmployee() {
                       <Input
                         id="address"
                         value={employee.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        onChange={(e) => e.target.value}
                         className="pl-10"
                         placeholder="123 Main St, City, State 12345"
                       />
@@ -286,7 +286,7 @@ export default function AddEmployee() {
                           id="hireDate"
                           type="date"
                           value={employee.hireDate}
-                          onChange={(e) => handleInputChange('hireDate', e.target.value)}
+                          onChange={(e) => e.target.value}
                           className="pl-10"
                         />
                       </div>
@@ -297,7 +297,7 @@ export default function AddEmployee() {
                         id="salary"
                         type="number"
                         value={employee.salary}
-                        onChange={(e) => handleInputChange('salary', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="50000"
                       />
                     </div>
@@ -322,7 +322,7 @@ export default function AddEmployee() {
                     <Input
                       id="emergencyName"
                       value={employee.emergencyContact.name}
-                      onChange={(e) => handleInputChange('emergencyContact.name', e.target.value)}
+                      onChange={(e) => e.target.value}
                       placeholder="Jane Smith"
                     />
                   </div>
@@ -332,7 +332,7 @@ export default function AddEmployee() {
                       <Input
                         id="relationship"
                         value={employee.emergencyContact.relationship}
-                        onChange={(e) => handleInputChange('emergencyContact.relationship', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="Spouse, Parent, etc."
                       />
                     </div>
@@ -341,7 +341,7 @@ export default function AddEmployee() {
                       <Input
                         id="emergencyPhone"
                         value={employee.emergencyContact.phone}
-                        onChange={(e) => handleInputChange('emergencyContact.phone', e.target.value)}
+                        onChange={(e) => e.target.value}
                         placeholder="+1 (555) 987-6543"
                       />
                     </div>
@@ -372,7 +372,7 @@ export default function AddEmployee() {
                       <Checkbox
                         id={`${day}-off`}
                         checked={hours.off}
-                        onCheckedChange={(checked) => handleScheduleChange(day, 'off', checked)}
+                        onChange={(e) => handleScheduleChange(day, 'off', (e.target as HTMLInputElement).checked)}
                       />
                       <Label htmlFor={`${day}-off`} className="text-sm">Off</Label>
                       {!hours.off && (
@@ -380,14 +380,14 @@ export default function AddEmployee() {
                           <Input
                             type="time"
                             value={hours.start}
-                            onChange={(e) => handleScheduleChange(day, 'start', e.target.value)}
+                            onChange={(e) => e.target.value}
                             className="w-32"
                           />
                           <span>to</span>
                           <Input
                             type="time"
                             value={hours.end}
-                            onChange={(e) => handleScheduleChange(day, 'end', e.target.value)}
+                            onChange={(e) => e.target.value}
                             className="w-32"
                           />
                         </>
@@ -467,7 +467,7 @@ export default function AddEmployee() {
                 <CardContent>
                   <Textarea
                     value={employee.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                    onChange={(e) => e.target.value}
                     placeholder="Add any notes about this employee..."
                     rows={4}
                   />

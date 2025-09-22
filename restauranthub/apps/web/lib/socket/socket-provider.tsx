@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '@/lib/auth/auth-provider';
-import toast from 'react-hot-toast';
+import { toast } from '@/lib/toast';
 
 interface Notification {
   id: number;
@@ -41,21 +41,20 @@ export function SocketProvider({ children }: SocketProviderProps) {
   
   // Try to get user, but don't throw error if AuthProvider is not available
   let user = null;
-  let token = null;
   try {
     const auth = useAuth();
     user = auth.user;
-    token = auth.token;
   } catch (error) {
     // AuthProvider not available, which is fine
   }
 
   useEffect(() => {
-    if (user && token) {
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'ws://localhost:3000';
+    if (user) {
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'ws://localhost:3001';
+      const accessToken = localStorage.getItem('accessToken');
       const newSocket = io(socketUrl, {
         auth: {
-          token: token,
+          token: accessToken,
         },
         transports: ['websocket', 'polling'],
       });
@@ -87,10 +86,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
           timestamp: new Date(),
         };
         setNotifications(prev => [...prev, notification]);
-        toast.success(notification.message, {
-          icon: '📦',
-          duration: 5000,
-        });
+        toast.success(notification.message);
       });
 
       newSocket.on('newOrder', (data) => {
@@ -103,10 +99,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
           timestamp: new Date(),
         };
         setNotifications(prev => [...prev, notification]);
-        toast.success(notification.message, {
-          icon: '🍽️',
-          duration: 5000,
-        });
+        toast.success(notification.message);
       });
 
       newSocket.on('notification', (data) => {
@@ -119,10 +112,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
           timestamp: new Date(),
         };
         setNotifications(prev => [...prev, notification]);
-        toast(notification.message, {
-          icon: '🔔',
-          duration: 4000,
-        });
+        toast.info(notification.message);
       });
 
       // Handle pending notifications
@@ -137,16 +127,14 @@ export function SocketProvider({ children }: SocketProviderProps) {
         }));
         setNotifications(prev => [...prev, ...mappedNotifications]);
         if (mappedNotifications.length > 0) {
-          toast(`You have ${mappedNotifications.length} pending notifications`, {
-            icon: '📬',
-          });
+          toast.info(`You have ${mappedNotifications.length} pending notifications`);
         }
       });
 
       // Auto-join user room
       newSocket.emit('joinRoom', { room: user.id });
-      
-      // Auto-join role room  
+
+      // Auto-join role room
       newSocket.emit('joinRoom', { room: `role:${user.role}` });
 
       // Auto-join restaurant room if user is restaurant owner
@@ -166,7 +154,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
         setConnected(false);
       }
     }
-  }, [user, token]);
+  }, [user]);
 
   const clearNotifications = () => {
     setNotifications([]);

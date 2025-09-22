@@ -282,17 +282,17 @@ export default function ReservationSystem() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Upload className="h-4 w-4 mr-2" />
               Import
             </Button>
             <Dialog open={isAddReservationOpen} onOpenChange={setIsAddReservationOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button  size="default" variant="default">
                   <Plus className="h-4 w-4 mr-2" />
                   New Reservation
                 </Button>
@@ -416,7 +416,7 @@ export default function ReservationSystem() {
                     />
                   </div>
                   <div className="col-span-2 flex space-x-2">
-                    <Button onClick={addReservation} className="flex-1">
+                    <Button onClick={addReservation} className="flex-1" size="default" variant="default">
                       Create Reservation
                     </Button>
                     <Button variant="outline" onClick={() => setIsAddReservationOpen(false)}>
@@ -767,15 +767,15 @@ export default function ReservationSystem() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button className="flex-1">
+                  <Button className="flex-1" size="default" variant="default">
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit Reservation
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" size="default">
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Contact Customer
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" size="default">
                     <Bell className="h-4 w-4 mr-2" />
                     Send Reminder
                   </Button>

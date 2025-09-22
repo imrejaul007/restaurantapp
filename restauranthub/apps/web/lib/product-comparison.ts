@@ -54,6 +54,14 @@ export class ProductComparisonManager {
    * Load comparison data from localStorage
    */
   private loadFromStorage(): ComparisonState {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return {
+        products: [],
+        lastUpdated: new Date().toISOString()
+      };
+    }
+
     try {
       const stored = localStorage.getItem(COMPARISON_STORAGE_KEY);
       if (stored) {
@@ -68,7 +76,7 @@ export class ProductComparisonManager {
     } catch (error) {
       console.error('Error loading product comparison from storage:', error);
     }
-    
+
     return {
       products: [],
       lastUpdated: new Date().toISOString()
@@ -79,6 +87,12 @@ export class ProductComparisonManager {
    * Save comparison data to localStorage
    */
   private saveToStorage() {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      this.notifyListeners();
+      return;
+    }
+
     try {
       this.comparisonState.lastUpdated = new Date().toISOString();
       localStorage.setItem(COMPARISON_STORAGE_KEY, JSON.stringify(this.comparisonState));

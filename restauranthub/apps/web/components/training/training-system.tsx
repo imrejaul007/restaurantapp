@@ -276,17 +276,18 @@ export default function TrainingSystem({
             </div>
             
             <div className="flex space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm"
+              <Button
+                variant="outline"
+                size="default"
                 onClick={() => setSelectedModule(module)}
               >
                 <Eye className="h-4 w-4 mr-1" />
                 Details
               </Button>
               {userRole === 'employee' && (
-                <Button 
-                  size="sm"
+                <Button
+                  variant="default"
+                  size="default"
                   onClick={() => onStartTraining?.(module.id)}
                   disabled={progress?.status === 'completed'}
                 >
@@ -337,9 +338,9 @@ export default function TrainingSystem({
                 Joined {new Date(employee.joinedDate).toLocaleDateString()}
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
+            <Button
+              variant="outline"
+              size="default"
               onClick={() => setSelectedEmployee(employee)}
             >
               View Details
@@ -389,7 +390,7 @@ export default function TrainingSystem({
           </p>
         </div>
         {(userRole === 'admin' || userRole === 'restaurant') && (
-          <Button onClick={() => setShowCreateModule(true)}>
+          <Button variant="default" size="default" onClick={() => setShowCreateModule(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Module
           </Button>
@@ -559,7 +560,7 @@ export default function TrainingSystem({
                             </p>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="default">
                           <Download className="h-4 w-4 mr-1" />
                           Download
                         </Button>
@@ -686,18 +687,20 @@ export default function TrainingSystem({
 
               <div className="flex space-x-4 pt-4">
                 {userRole === 'employee' && (
-                  <Button 
+                  <Button
                     onClick={() => {
                       onStartTraining?.(selectedModule.id);
                       setSelectedModule(null);
                     }}
                     className="flex-1"
+                    size="default"
+                    variant="default"
                   >
                     <PlayCircle className="h-4 w-4 mr-2" />
                     Start Training
                   </Button>
                 )}
-                <Button variant="outline" onClick={() => setSelectedModule(null)}>
+                <Button variant="outline" size="default" onClick={() => setSelectedModule(null)}>
                   Close
                 </Button>
               </div>

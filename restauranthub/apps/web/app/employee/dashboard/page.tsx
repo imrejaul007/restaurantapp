@@ -278,11 +278,11 @@ export default function EmployeeDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" >
               <BookOpen className="h-4 w-4 mr-2" />
               Learning Hub
             </Button>
-            <Button size="sm">
+            <Button >
               <Briefcase className="h-4 w-4 mr-2" />
               Browse Jobs
             </Button>
@@ -347,7 +347,7 @@ export default function EmployeeDashboard() {
                   <CardTitle className="text-lg font-semibold">
                     Recent Applications
                   </CardTitle>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" >
                     <Eye className="h-4 w-4 mr-2" />
                     View All
                   </Button>
@@ -448,7 +448,7 @@ export default function EmployeeDashboard() {
               <CardTitle className="text-lg font-semibold">
                 Recommended for You
               </CardTitle>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" >
                 <TrendingUp className="h-4 w-4 mr-2" />
                 View All
               </Button>
@@ -505,7 +505,7 @@ export default function EmployeeDashboard() {
                       )}
                     </div>
 
-                    <Button size="sm" className="w-full">
+                    <Button  className="w-full">
                       Apply Now
                     </Button>
                   </div>

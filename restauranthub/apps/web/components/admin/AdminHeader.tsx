@@ -98,7 +98,7 @@ export const AdminHeader: React.FC = () => {
           {/* Theme Toggle */}
           <Button
             variant="outline"
-            size="sm"
+            size="default"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2"
           >
@@ -113,7 +113,7 @@ export const AdminHeader: React.FC = () => {
           <div className="relative">
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2"
             >
@@ -168,7 +168,7 @@ export const AdminHeader: React.FC = () => {
                 </div>
                 
                 <div className="px-4 py-2 border-t border-gray-200">
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" size="default" className="w-full">
                     View All Notifications
                   </Button>
                 </div>
@@ -179,7 +179,7 @@ export const AdminHeader: React.FC = () => {
           {/* Settings */}
           <Button
             variant="outline"
-            size="sm"
+            size="default"
             className="p-2"
           >
             <Cog6ToothIcon className="h-5 w-5" />
@@ -189,7 +189,7 @@ export const AdminHeader: React.FC = () => {
           <div className="relative">
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               onClick={() => setShowProfile(!showProfile)}
               className="flex items-center space-x-2 px-3 py-2"
             >

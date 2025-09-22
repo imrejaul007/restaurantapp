@@ -299,15 +299,15 @@ export default function MarketplaceProductsPage() {
           </p>
         </div>
         <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <Download className="h-4 w-4 mr-2" />
             Export Data
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" >
             <RefreshCw className="h-4 w-4 mr-2" />
             Sync Data
           </Button>
-          <Button size="sm">
+          <Button >
             <Settings className="h-4 w-4 mr-2" />
             Auto Rules
           </Button>
@@ -480,7 +480,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={product.isTrending}
                                 onCheckedChange={() => handleManualToggle(product.id, 'trending', true)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 Trending {product.autoTrending && <span className="text-green-600">(Auto)</span>}
@@ -490,7 +489,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={product.isNew}
                                 onCheckedChange={() => handleManualToggle(product.id, 'new', true)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 New {product.autoNew && <span className="text-green-600">(Auto)</span>}
@@ -500,7 +498,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={product.isBestSeller}
                                 onCheckedChange={() => handleManualToggle(product.id, 'bestSeller', true)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 Best Seller {product.autoBestSeller && <span className="text-green-600">(Auto)</span>}
@@ -510,13 +507,13 @@ export default function MarketplaceProductsPage() {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Edit2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </div>
@@ -679,7 +676,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={vendor.isTrending}
                                 onCheckedChange={() => handleManualToggle(vendor.id, 'trending', false)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 Trending {vendor.autoTrending && <span className="text-green-600">(Auto)</span>}
@@ -689,7 +685,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={vendor.isNew}
                                 onCheckedChange={() => handleManualToggle(vendor.id, 'new', false)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 New {vendor.autoNew && <span className="text-green-600">(Auto)</span>}
@@ -699,7 +694,6 @@ export default function MarketplaceProductsPage() {
                               <Switch
                                 checked={vendor.isBestSeller}
                                 onCheckedChange={() => handleManualToggle(vendor.id, 'bestSeller', false)}
-                                size="sm"
                               />
                               <span className="text-xs">
                                 Best Seller {vendor.autoBestSeller && <span className="text-green-600">(Auto)</span>}
@@ -709,13 +703,13 @@ export default function MarketplaceProductsPage() {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Edit2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </div>

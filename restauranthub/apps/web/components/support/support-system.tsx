@@ -332,7 +332,7 @@ export default function SupportSystem({
                         <div className="flex items-center space-x-2">
                           <Button 
                             variant="ghost" 
-                            size="sm"
+                            
                             onClick={() => onVoteFAQ?.(faq.id, true)}
                           >
                             <ThumbsUp className="h-4 w-4 mr-1" />
@@ -340,7 +340,7 @@ export default function SupportSystem({
                           </Button>
                           <Button 
                             variant="ghost" 
-                            size="sm"
+                            
                             onClick={() => onVoteFAQ?.(faq.id, false)}
                           >
                             <ThumbsDown className="h-4 w-4 mr-1" />
@@ -539,7 +539,7 @@ export default function SupportSystem({
           <p className="text-muted-foreground mb-4">
             Speak directly with our experts
           </p>
-          <Button variant="outline" className="w-full">Call Now</Button>
+          <Button size="sm" variant="outline" className="w-full" onClick={() => window.open('tel:+1-800-SUPPORT', '_self')}>Call Now</Button>
           <p className="text-xs text-muted-foreground mt-2">
             Mon-Fri, 9 AM - 6 PM
           </p>

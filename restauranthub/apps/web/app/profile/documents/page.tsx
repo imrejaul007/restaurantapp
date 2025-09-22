@@ -266,7 +266,7 @@ export default function ProfileDocumentsPage() {
         <div className="space-y-8">
           {documentTypes.map((docType, index) => {
             const typeDocuments = getDocumentsByType(docType.type);
-            
+
             return (
               <motion.div
                 key={docType.type}
@@ -361,7 +361,7 @@ export default function ProfileDocumentsPage() {
                             <div className="flex items-center space-x-2">
                               <Button 
                                 variant="ghost" 
-                                size="sm"
+                                
                                 onClick={() => window.open(document.url, '_blank')}
                                 title="View document"
                               >
@@ -369,9 +369,9 @@ export default function ProfileDocumentsPage() {
                               </Button>
                               <Button 
                                 variant="ghost" 
-                                size="sm"
+                                
                                 onClick={() => {
-                                  const link = document.createElement('a');
+                                  const link = window.document.createElement('a');
                                   link.href = document.url;
                                   link.download = document.fileName;
                                   link.click();
@@ -383,7 +383,7 @@ export default function ProfileDocumentsPage() {
                               {document.type === 'resume' && !document.isDefault && (
                                 <Button
                                   variant="ghost"
-                                  size="sm"
+                                  
                                   onClick={() => handleSetDefault(document.id)}
                                 >
                                   Set Default
@@ -391,7 +391,7 @@ export default function ProfileDocumentsPage() {
                               )}
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                
                                 onClick={() => handleDelete(document.id)}
                                 className="text-destructive hover:text-destructive"
                               >

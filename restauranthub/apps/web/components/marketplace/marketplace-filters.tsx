@@ -99,7 +99,7 @@ export function MarketplaceFilters({
             )}
           </CardTitle>
           {getActiveFilterCount() > 0 && (
-            <Button variant="outline" size="sm" onClick={onClearFilters}>
+            <Button variant="outline"  onClick={onClearFilters}>
               <X className="h-4 w-4 mr-1" />
               Clear All
             </Button>
@@ -118,7 +118,7 @@ export function MarketplaceFilters({
               id="search"
               placeholder="Search vendors, products, services..."
               value={filters.searchQuery || ''}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={(e) => e.target.value}
               className="pl-10"
             />
           </div>
@@ -205,7 +205,7 @@ export function MarketplaceFilters({
             id="location"
             placeholder="Enter city or area"
             value={filters.location || ''}
-            onChange={(e) => handleLocationChange(e.target.value)}
+            onChange={(e) => e.target.value}
             className="mt-1"
           />
         </div>

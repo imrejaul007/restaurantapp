@@ -276,11 +276,11 @@ export default function OrderStatusManagement() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline"  size="default">
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </Button>
@@ -541,7 +541,7 @@ export default function OrderStatusManagement() {
                         <div className="flex items-center space-x-2">
                           <Button
                             variant="outline"
-                            size="sm"
+                            
                             onClick={() => {
                               setSelectedOrder(order);
                               setIsDetailsOpen(true);
@@ -550,13 +550,13 @@ export default function OrderStatusManagement() {
                             <Eye className="h-4 w-4 mr-2" />
                             Details
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline"  size="default">
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Contact
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost"  size="default">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>

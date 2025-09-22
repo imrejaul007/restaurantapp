@@ -196,13 +196,26 @@ export default function RestaurantProfile({
   };
 
   const updateField = (section: string, field: string, value: any) => {
-    setEditedProfile(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof RestaurantProfile],
-        [field]: value
+    setEditedProfile(prev => {
+      const sectionData = prev[section as keyof RestaurantProfile];
+
+      // Ensure we're only spreading objects, not arrays or primitives
+      if (typeof sectionData === 'object' && sectionData !== null && !Array.isArray(sectionData)) {
+        return {
+          ...prev,
+          [section]: {
+            ...sectionData,
+            [field]: value
+          }
+        };
       }
-    }));
+
+      // For non-object sections, just set the value directly
+      return {
+        ...prev,
+        [section]: value
+      };
+    });
   };
 
   const addSocialMedia = () => {
@@ -252,7 +265,10 @@ export default function RestaurantProfile({
           <input
             type="text"
             value={editedProfile.basicInfo.name}
-            onChange={(e) => updateField('basicInfo', 'name', e.target.value)}
+            onChange={(e) => setEditedProfile(prev => ({
+              ...prev,
+              basicInfo: { ...prev.basicInfo, name: e.target.value }
+            }))}
             className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           />
         ) : (
@@ -266,7 +282,10 @@ export default function RestaurantProfile({
           <input
             type="text"
             value={editedProfile.basicInfo.tagline || ''}
-            onChange={(e) => updateField('basicInfo', 'tagline', e.target.value)}
+            onChange={(e) => setEditedProfile(prev => ({
+              ...prev,
+              basicInfo: { ...prev.basicInfo, tagline: e.target.value }
+            }))}
             placeholder="e.g., Authentic Italian Cuisine"
             className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -280,7 +299,10 @@ export default function RestaurantProfile({
         {isEditing ? (
           <textarea
             value={editedProfile.basicInfo.description}
-            onChange={(e) => updateField('basicInfo', 'description', e.target.value)}
+            onChange={(e) => setEditedProfile(prev => ({
+              ...prev,
+              basicInfo: { ...prev.basicInfo, description: e.target.value }
+            }))}
             rows={4}
             className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
@@ -296,7 +318,10 @@ export default function RestaurantProfile({
             <input
               type="text"
               value={editedProfile.basicInfo.founded}
-              onChange={(e) => updateField('basicInfo', 'founded', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                basicInfo: { ...prev.basicInfo, founded: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -310,7 +335,10 @@ export default function RestaurantProfile({
             <input
               type="text"
               value={editedProfile.basicInfo.registrationNumber}
-              onChange={(e) => updateField('basicInfo', 'registrationNumber', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                basicInfo: { ...prev.basicInfo, registrationNumber: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -324,7 +352,10 @@ export default function RestaurantProfile({
             <input
               type="text"
               value={editedProfile.basicInfo.gstNumber}
-              onChange={(e) => updateField('basicInfo', 'gstNumber', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                basicInfo: { ...prev.basicInfo, gstNumber: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -344,7 +375,10 @@ export default function RestaurantProfile({
             <input
               type="email"
               value={editedProfile.contact.email}
-              onChange={(e) => updateField('contact', 'email', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                contact: { ...prev.contact, email: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -358,7 +392,10 @@ export default function RestaurantProfile({
             <input
               type="tel"
               value={editedProfile.contact.phone}
-              onChange={(e) => updateField('contact', 'phone', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                contact: { ...prev.contact, phone: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -372,7 +409,10 @@ export default function RestaurantProfile({
             <input
               type="tel"
               value={editedProfile.contact.whatsapp || ''}
-              onChange={(e) => updateField('contact', 'whatsapp', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                contact: { ...prev.contact, whatsapp: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -386,7 +426,10 @@ export default function RestaurantProfile({
             <input
               type="url"
               value={editedProfile.contact.website || ''}
-              onChange={(e) => updateField('contact', 'website', e.target.value)}
+              onChange={(e) => setEditedProfile(prev => ({
+                ...prev,
+                contact: { ...prev.contact, website: e.target.value }
+              }))}
               className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
             />
           ) : (
@@ -408,7 +451,7 @@ export default function RestaurantProfile({
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-medium text-foreground">Social Media</h4>
           {isEditing && (
-            <Button size="sm" onClick={addSocialMedia}>
+            <Button variant="outline" size="sm" onClick={addSocialMedia}>
               <Plus className="h-4 w-4 mr-2" />
               Add Social Media
             </Button>
@@ -565,7 +608,10 @@ export default function RestaurantProfile({
               <input
                 type="number"
                 value={editedProfile.capacity.seatingCapacity}
-                onChange={(e) => updateField('capacity', 'seatingCapacity', parseInt(e.target.value) || 0)}
+                onChange={(e) => setEditedProfile(prev => ({
+                  ...prev,
+                  capacity: { ...prev.capacity, seatingCapacity: parseInt(e.target.value) }
+                }))}
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               />
             ) : (
@@ -579,7 +625,10 @@ export default function RestaurantProfile({
               <input
                 type="number"
                 value={editedProfile.capacity.staffCount}
-                onChange={(e) => updateField('capacity', 'staffCount', parseInt(e.target.value) || 0)}
+                onChange={(e) => setEditedProfile(prev => ({
+                  ...prev,
+                  capacity: { ...prev.capacity, staffCount: parseInt(e.target.value) }
+                }))}
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               />
             ) : (
@@ -593,7 +642,10 @@ export default function RestaurantProfile({
               <input
                 type="text"
                 value={editedProfile.capacity.kitchenSize}
-                onChange={(e) => updateField('capacity', 'kitchenSize', e.target.value)}
+                onChange={(e) => setEditedProfile(prev => ({
+                  ...prev,
+                  capacity: { ...prev.capacity, kitchenSize: e.target.value }
+                }))}
                 placeholder="e.g., 500 sq ft"
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -608,7 +660,10 @@ export default function RestaurantProfile({
               <input
                 type="number"
                 value={editedProfile.capacity.privateRooms || 0}
-                onChange={(e) => updateField('capacity', 'privateRooms', parseInt(e.target.value) || 0)}
+                onChange={(e) => setEditedProfile(prev => ({
+                  ...prev,
+                  capacity: { ...prev.capacity, privateRooms: parseInt(e.target.value) }
+                }))}
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               />
             ) : (

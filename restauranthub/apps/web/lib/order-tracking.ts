@@ -626,6 +626,7 @@ export function useOrderTracking(orderId: string) {
       unsubscribe();
       clearInterval(statsInterval);
     };
+
   }, [orderId]);
 
   const updateStatus = React.useCallback((status: DeliveryStatus) => {

@@ -268,7 +268,7 @@ export default function MenuCategoryManagement() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={newCategory.isVisible}
-                    onCheckedChange={(checked) => setNewCategory(prev => ({ ...prev, isVisible: checked }))}
+                    onChange={(e) => setNewCategory(prev => ({ ...prev, isVisible: (e.target as HTMLInputElement).checked }))}
                   />
                   <Label>Visible to customers</Label>
                 </div>
@@ -419,7 +419,7 @@ export default function MenuCategoryManagement() {
                         {editingCategory?.id === category.id ? (
                           <div className="flex items-center space-x-1">
                             <Button
-                              size="sm"
+                              
                               onClick={() => {
                                 handleUpdateCategory(category.id, {
                                   name: editingCategory.name,

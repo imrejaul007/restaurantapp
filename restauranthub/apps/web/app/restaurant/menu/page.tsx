@@ -443,13 +443,13 @@ export default function MenuManagementPage() {
                   <div className="flex items-center space-x-2">
                     <Button
                       variant={showUnavailable ? "default" : "outline"}
-                      size="sm"
+                      
                       onClick={() => setShowUnavailable(!showUnavailable)}
                     >
                       <EyeOff className="h-4 w-4 mr-2" />
                       Show Unavailable
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" >
                       <Filter className="h-4 w-4 mr-2" />
                       More Filters
                     </Button>

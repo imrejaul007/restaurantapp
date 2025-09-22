@@ -93,7 +93,7 @@ export default function BanUserPage() {
           <Button 
             onClick={() => router.back()}
             variant="outline"
-            size="sm"
+            
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
@@ -197,7 +197,7 @@ export default function BanUserPage() {
                 <Checkbox 
                   id="notification"
                   checked={sendNotification}
-                  onCheckedChange={setSendNotification}
+                  onChange={(e) => setSendNotification((e.target as HTMLInputElement).checked)}
                 />
                 <Label htmlFor="notification" className="text-sm">
                   Send notification email to user
