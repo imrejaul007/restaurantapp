@@ -1,0 +1,150 @@
+
+> @restauranthub/api@1.0.0 start
+> node dist/src/main
+
+2025-09-24T18:36:40.785Z [[32minfo[39m]: Starting Nest application... {
+  "context": "NestFactory",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.790Z [[32minfo[39m]: PrismaService initialized in MOCK MODE - database operations will be bypassed {
+  "context": "PrismaService",
+  "ms": "+5ms"
+}
+2025-09-24T18:36:40.801Z [[32minfo[39m]: PrismaModule dependencies initialized {
+  "context": "InstanceLoader",
+  "ms": "+11ms"
+}
+2025-09-24T18:36:40.814Z [[32minfo[39m]: ConfigHostModule dependencies initialized {
+  "context": "InstanceLoader",
+  "ms": "+13ms"
+}
+2025-09-24T18:36:40.814Z [[32minfo[39m]: ConfigModule dependencies initialized {
+  "context": "InstanceLoader",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.814Z [[32minfo[39m]: AppModule dependencies initialized {
+  "context": "InstanceLoader",
+  "ms": "+0ms"
+}
+ChangeWarning: The onLimitReached configuration option is deprecated and will be removed in express-rate-limit v7. See https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/ for more information.
+    at _Validations.<anonymous> (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:283:15)
+    at _Validations.wrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:313:18)
+    at _Validations.onLimitReached (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:281:10)
+    at parseOptions (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:523:15)
+    at rateLimit (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:583:18)
+    at bootstrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/dist/src/main.js:76:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
+  help: 'https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/'
+}
+ChangeWarning: The onLimitReached configuration option is deprecated and will be removed in express-rate-limit v7. See https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/ for more information.
+    at _Validations.<anonymous> (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:283:15)
+    at _Validations.wrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:313:18)
+    at _Validations.onLimitReached (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:281:10)
+    at parseOptions (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:523:15)
+    at rateLimit (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:583:18)
+    at bootstrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/dist/src/main.js:102:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
+  help: 'https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/'
+}
+ChangeWarning: The onLimitReached configuration option is deprecated and will be removed in express-rate-limit v7. See https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/ for more information.
+    at _Validations.<anonymous> (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:283:15)
+    at _Validations.wrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:313:18)
+    at _Validations.onLimitReached (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:281:10)
+    at parseOptions (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:523:15)
+    at rateLimit (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/node_modules/express-rate-limit/dist/index.cjs:583:18)
+    at bootstrap (/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/dist/src/main.js:130:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
+  help: 'https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_ON_LIMIT_REACHED/'
+}
+2025-09-24T18:36:40.931Z [[32minfo[39m]: AppController {/api/v1}: {
+  "context": "RoutesResolver",
+  "ms": "+117ms"
+}
+2025-09-24T18:36:40.932Z [[32minfo[39m]: Mapped {/api/v1, GET} route {
+  "context": "RouterExplorer",
+  "ms": "+1ms"
+}
+2025-09-24T18:36:40.932Z [[32minfo[39m]: Mapped {/api/v1/health, GET} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.932Z [[32minfo[39m]: Mapped {/api/v1/auth/login, POST} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.932Z [[32minfo[39m]: Mapped {/api/v1/auth/register, POST} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.932Z [[32minfo[39m]: Mapped {/api/v1/jobs, GET} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.933Z [[32minfo[39m]: Mapped {/api/v1/jobs, POST} route {
+  "context": "RouterExplorer",
+  "ms": "+1ms"
+}
+2025-09-24T18:36:40.933Z [[32minfo[39m]: Mapped {/api/v1/community/posts, GET} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.933Z [[32minfo[39m]: Mapped {/api/v1/users/me, GET} route {
+  "context": "RouterExplorer",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.933Z [[32minfo[39m]: Mock database mode enabled - skipping real database connection {
+  "context": "PrismaService",
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.934Z [[32minfo[39m]: Nest application successfully started {
+  "context": "NestApplication",
+  "ms": "+1ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 🚀 RestaurantHub API is running! {
+  "ms": "+2ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 📊 API Endpoint: http://127.0.0.1:5555/api/v1 {
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 📚 Documentation: http://127.0.0.1:5555/docs {
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 🔧 Health Check: http://127.0.0.1:5555/api/v1/health {
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 🌍 Environment: development {
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 📈 Rate Limit: 1000 requests per 15 minutes {
+  "ms": "+0ms"
+}
+2025-09-24T18:36:40.936Z [[32minfo[39m]: 🔐 Security: CORS, Helmet, Rate Limiting  {
+  "ms": "+0ms"
+}
+2025-09-24T18:37:11.108Z [[32minfo[39m]: POST /api/v1/auth/login {
+  "context": {
+    "ip": "127.0.0.1"
+  },
+  "ms": "+30s"
+}
+2025-09-24T18:37:12.014Z [[32minfo[39m]: POST /api/v1/auth/register {
+  "context": {
+    "ip": "127.0.0.1"
+  },
+  "ms": "+906ms"
+}
+2025-09-24T18:37:23.467Z [[32minfo[39m]: POST /api/v1/auth/signup {
+  "context": {
+    "ip": "127.0.0.1"
+  },
+  "ms": "+11s"
+}
+2025-09-24T18:37:24.459Z [[32minfo[39m]: POST /api/v1/auth/signin {
+  "context": {
+    "ip": "127.0.0.1"
+  },
+  "ms": "+992ms"
+}

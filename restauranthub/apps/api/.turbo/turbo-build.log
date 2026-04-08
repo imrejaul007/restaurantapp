@@ -6,3 +6,794 @@
 > @restauranthub/api@1.0.0 build
 > nest build
 
+[96msrc/health/health.controller.ts[0m:[93m80[0m:[93m16[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m80[0m         error: error.message,
+[7m  [0m [91m               ~~~~~[0m
+[96msrc/modules/auth/enhanced-mfa.service.ts[0m:[93m399[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m399[0m     const existingPrefs = await this.prisma.userPreferences.findUnique({
+[7m   [0m [91m                                            ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/enhanced-mfa.service.ts[0m:[93m412[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m412[0m       await this.prisma.userPreferences.update({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/enhanced-mfa.service.ts[0m:[93m417[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m417[0m       await this.prisma.userPreferences.create({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/enhanced-mfa.service.ts[0m:[93m442[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m442[0m       await this.prisma.userPreferences.updateMany({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/guards/role-based-access.guard.ts[0m:[93m158[0m:[93m11[0m - [91merror[0m[90m TS2741: [0mProperty 'CUSTOMER' is missing in type '{ ADMIN: { action: string; resource: string; }[]; RESTAURANT: { action: string; resource: string; }[]; VENDOR: { action: string; resource: string; }[]; EMPLOYEE: { action: string; resource: string; }[]; }' but required in type 'Record<UserRole, Permission[]>'.
+
+[7m158[0m     const permissionMatrix: Record<UserRole, Permission[]> = {
+[7m   [0m [91m          ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/guards/role-based-access.guard.ts[0m:[93m442[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type '(Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput)'.
+
+[7m442[0m           entityType: 'Security',
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m43[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type 'Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput'.
+
+[7m43[0m           entityType: 'User',
+[7m  [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m149[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m149[0m         timestamp: {
+[7m   [0m [91m        ~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m154[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]'.
+
+[7m154[0m         timestamp: 'desc',
+[7m   [0m [91m        ~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m209[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type 'Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput'.
+
+[7m209[0m         entityType: 'User',
+[7m   [0m [91m        ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m234[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m234[0m         timestamp: {
+[7m   [0m [91m        ~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m43942[0m:[93m5[0m
+    [7m43942[0m     where?: AuditLogWhereInput
+    [7m     [0m [96m    ~~~~~[0m
+    The expected type comes from property 'where' which is declared here on type '{ where?: AuditLogWhereInput | undefined; orderBy?: AuditLogOrderByWithAggregationInput | AuditLogOrderByWithAggregationInput[] | undefined; ... 6 more ...; _max?: AuditLogMaxAggregateInputType | undefined; } & { ...; }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m250[0m:[93m23[0m - [91merror[0m[90m TS18048: [0m'attempt._count' is possibly 'undefined'.
+
+[7m250[0m       failedAttempts: attempt._count.id,
+[7m   [0m [91m                      ~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m250[0m:[93m38[0m - [91merror[0m[90m TS2339: [0mProperty 'id' does not exist on type 'true | { id?: number | undefined; userId?: number | undefined; action?: number | undefined; entity?: number | undefined; resource?: number | undefined; entityId?: number | undefined; ... 5 more ...; _all?: number | undefined; }'.
+  Property 'id' does not exist on type 'true'.
+
+[7m250[0m       failedAttempts: attempt._count.id,
+[7m   [0m [91m                                     ~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m267[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m267[0m         timestamp: {
+[7m   [0m [91m        ~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m43942[0m:[93m5[0m
+    [7m43942[0m     where?: AuditLogWhereInput
+    [7m     [0m [96m    ~~~~~[0m
+    The expected type comes from property 'where' which is declared here on type '{ where?: AuditLogWhereInput | undefined; orderBy?: AuditLogOrderByWithAggregationInput | AuditLogOrderByWithAggregationInput[] | undefined; ... 6 more ...; _max?: AuditLogMaxAggregateInputType | undefined; } & { ...; }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m286[0m:[93m23[0m - [91merror[0m[90m TS18048: [0m'activity._count' is possibly 'undefined'.
+
+[7m286[0m       failedAttempts: activity._count.id,
+[7m   [0m [91m                      ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m286[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 'id' does not exist on type 'true | { id?: number | undefined; userId?: number | undefined; action?: number | undefined; entity?: number | undefined; resource?: number | undefined; entityId?: number | undefined; ... 5 more ...; _all?: number | undefined; }'.
+  Property 'id' does not exist on type 'true'.
+
+[7m286[0m       failedAttempts: activity._count.id,
+[7m   [0m [91m                                      ~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m287[0m:[93m17[0m - [91merror[0m[90m TS18048: [0m'activity._count' is possibly 'undefined'.
+
+[7m287[0m       severity: activity._count.id > 100 ? 'CRITICAL' : 'HIGH',
+[7m   [0m [91m                ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m287[0m:[93m33[0m - [91merror[0m[90m TS2339: [0mProperty 'id' does not exist on type 'true | { id?: number | undefined; userId?: number | undefined; action?: number | undefined; entity?: number | undefined; resource?: number | undefined; entityId?: number | undefined; ... 5 more ...; _all?: number | undefined; }'.
+  Property 'id' does not exist on type 'true'.
+
+[7m287[0m       severity: activity._count.id > 100 ? 'CRITICAL' : 'HIGH',
+[7m   [0m [91m                                ~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m298[0m:[93m14[0m - [91merror[0m[90m TS2322: [0mType '(string | null)[]' is not assignable to type 'string[]'.
+  Type 'string | null' is not assignable to type 'string'.
+    Type 'null' is not assignable to type 'string'.
+
+[7m298[0m     return { suspiciousIps, alerts };
+[7m   [0m [91m             ~~~~~~~~~~~~~[0m
+
+  [96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m256[0m:[93m5[0m
+    [7m256[0m     suspiciousIps: string[];
+    [7m   [0m [96m    ~~~~~~~~~~~~~[0m
+    The expected type comes from property 'suspiciousIps' which is declared here on type '{ suspiciousIps: string[]; alerts: any[]; }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m311[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type 'Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput'.
+
+[7m311[0m           entityType: 'Security',
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m348[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m348[0m           timestamp: { gte: since },
+[7m   [0m [91m          ~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m354[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m354[0m           timestamp: { gte: since },
+[7m   [0m [91m          ~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m360[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m360[0m           timestamp: { gte: since },
+[7m   [0m [91m          ~~~~~~~~~[0m
+[96msrc/modules/auth/services/account-lockout.service.ts[0m:[93m372[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogWhereInput'.
+
+[7m372[0m         timestamp: { gte: new Date(Date.now() - 60 * 60 * 1000) }, // Last hour
+[7m   [0m [91m        ~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m43942[0m:[93m5[0m
+    [7m43942[0m     where?: AuditLogWhereInput
+    [7m     [0m [96m    ~~~~~[0m
+    The expected type comes from property 'where' which is declared here on type '{ where?: AuditLogWhereInput | undefined; orderBy?: AuditLogOrderByWithAggregationInput | AuditLogOrderByWithAggregationInput[] | undefined; ... 6 more ...; _max?: AuditLogMaxAggregateInputType | undefined; } & { ...; }'
+[96msrc/modules/auth/services/encryption.service.ts[0m:[93m295[0m:[93m29[0m - [91merror[0m[90m TS2551: [0mProperty 'createCipherGCM' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipher'?
+
+[7m295[0m       const cipher = crypto.createCipherGCM(this.algorithm, key, iv);
+[7m   [0m [91m                            ~~~~~~~~~~~~~~~[0m
+
+  [96m../../node_modules/@types/node/crypto.d.ts[0m:[93m728[0m:[93m14[0m
+    [7m728[0m     function createCipher(algorithm: CipherCCMTypes, password: BinaryLike, options: CipherCCMOptions): CipherCCM;
+    [7m   [0m [96m             ~~~~~~~~~~~~[0m
+    'createCipher' is declared here.
+[96msrc/modules/auth/services/encryption.service.ts[0m:[93m331[0m:[93m31[0m - [91merror[0m[90m TS2551: [0mProperty 'createDecipherGCM' does not exist on type 'typeof import("crypto")'. Did you mean 'createDecipher'?
+
+[7m331[0m       const decipher = crypto.createDecipherGCM(this.algorithm, key, iv);
+[7m   [0m [91m                              ~~~~~~~~~~~~~~~~~[0m
+
+  [96m../../node_modules/@types/node/crypto.d.ts[0m:[93m1029[0m:[93m14[0m
+    [7m1029[0m     function createDecipher(algorithm: CipherCCMTypes, password: BinaryLike, options: CipherCCMOptions): DecipherCCM;
+    [7m    [0m [96m             ~~~~~~~~~~~~~~[0m
+    'createDecipher' is declared here.
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m7[0m:[93m27[0m - [91merror[0m[90m TS2307: [0mCannot find module 'archiver' or its corresponding type declarations.
+
+[7m7[0m import * as archiver from 'archiver';
+[7m [0m [91m                          ~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m106[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m106[0m       await this.prisma.userConsent.updateMany({
+[7m   [0m [91m                        ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m115[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m115[0m       const consent = await this.prisma.userConsent.create({
+[7m   [0m [91m                                        ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m183[0m:[93m51[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m183[0m         const existingConsent = await this.prisma.userConsent.findFirst({
+[7m   [0m [91m                                                  ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m194[0m:[93m31[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m194[0m             await this.prisma.userConsent.update({
+[7m   [0m [91m                              ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m202[0m:[93m31[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m202[0m             await this.prisma.userConsent.update({
+[7m   [0m [91m                              ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m213[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m213[0m         await this.prisma.userConsent.updateMany({
+[7m   [0m [91m                          ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m248[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'userConsent' does not exist on type 'PrismaService'.
+
+[7m248[0m       const consent = await this.prisma.userConsent.findFirst({
+[7m   [0m [91m                                        ~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m284[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m284[0m       const existingRequest = await this.prisma.dataExportRequest.findFirst({
+[7m   [0m [91m                                                ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m296[0m:[93m47[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m296[0m       const exportRequest = await this.prisma.dataExportRequest.create({
+[7m   [0m [91m                                              ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m358[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'dataDeletionRequest' does not exist on type 'PrismaService'.
+
+[7m358[0m       const deletionRequest = await this.prisma.dataDeletionRequest.create({
+[7m   [0m [91m                                                ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m416[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m416[0m       await this.prisma.dataExportRequest.update({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m421[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m421[0m       const request = await this.prisma.dataExportRequest.findUnique({
+[7m   [0m [91m                                        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m440[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m440[0m       await this.prisma.dataExportRequest.update({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m467[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m467[0m       await this.prisma.dataExportRequest.update({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m486[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'userPreferences' does not exist in type 'UserInclude<DefaultArgs>'.
+
+[7m486[0m             userPreferences: true,
+[7m   [0m [91m            ~~~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m8932[0m:[93m5[0m
+    [7m8932[0m     include?: UserInclude<ExtArgs> | null
+    [7m    [0m [96m    ~~~~~~~[0m
+    The expected type comes from property 'include' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; }'
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m497[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'profile' does not exist on type '{ firstName: string | null; lastName: string | null; id: string; email: string; phone: string | null; passwordHash: string; role: UserRole; status: UserStatus; isActive: boolean; ... 10 more ...; deletedAt: Date | null; }'.
+
+[7m497[0m           profile: user?.profile,
+[7m   [0m [91m                         ~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m498[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type '{ firstName: string | null; lastName: string | null; id: string; email: string; phone: string | null; passwordHash: string; role: UserRole; status: UserStatus; isActive: boolean; ... 10 more ...; deletedAt: Date | null; }'.
+
+[7m498[0m           preferences: user?.userPreferences,
+[7m   [0m [91m                             ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m511[0m:[93m19[0m - [91merror[0m[90m TS2561: [0mObject literal may only specify known properties, but 'payments' does not exist in type 'OrderInclude<DefaultArgs>'. Did you mean to write 'payment'?
+
+[7m511[0m                   payments: true,
+[7m   [0m [91m                  ~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m516[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'orders' does not exist on type '{ name: string; description: string | null; id: string; isActive: boolean; createdAt: Date; updatedAt: Date; deletedAt: Date | null; userId: string; businessName: string | null; ... 13 more ...; totalReviews: number; }'.
+
+[7m516[0m           userData.orders = restaurant?.orders || [];
+[7m   [0m [91m                                        ~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m530[0m:[93m22[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]'.
+
+[7m530[0m           orderBy: { timestamp: 'desc' },
+[7m   [0m [91m                     ~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m601[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m601[0m     const existingPrefs = await this.prisma.userPreferences.findUnique({
+[7m   [0m [91m                                            ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m606[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m606[0m       await this.prisma.userPreferences.update({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m611[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'userPreferences' does not exist on type 'PrismaService'.
+
+[7m611[0m       await this.prisma.userPreferences.create({
+[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m699[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m699[0m       const expiredRequests = await this.prisma.dataExportRequest.findMany({
+[7m   [0m [91m                                                ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/gdpr-compliance.service.ts[0m:[93m716[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 'dataExportRequest' does not exist on type 'PrismaService'.
+
+[7m716[0m           await this.prisma.dataExportRequest.update({
+[7m   [0m [91m                            ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m47[0m:[93m26[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m47[0m     /((\%27)|(\'))union/ix,
+[7m  [0m [91m                         ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m48[0m:[93m29[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m48[0m     /exec(\s|\+)+(s|x)p\w+/ix,
+[7m  [0m [91m                            ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m49[0m:[93m40[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m49[0m     /union([^a-z]|[\s\+\-\/*])*select/ix,
+[7m  [0m [91m                                       ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m50[0m:[93m39[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m50[0m     /select([^a-z]|[\s\+\-\/*])*from/ix,
+[7m  [0m [91m                                      ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m51[0m:[93m39[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m51[0m     /insert([^a-z]|[\s\+\-\/*])*into/ix,
+[7m  [0m [91m                                      ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m52[0m:[93m39[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m52[0m     /delete([^a-z]|[\s\+\-\/*])*from/ix,
+[7m  [0m [91m                                      ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m53[0m:[93m38[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m53[0m     /update([^a-z]|[\s\+\-\/*])*set/ix,
+[7m  [0m [91m                                     ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m54[0m:[93m38[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m54[0m     /drop([^a-z]|[\s\+\-\/*])*table/ix,
+[7m  [0m [91m                                     ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m55[0m:[93m40[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m55[0m     /create([^a-z]|[\s\+\-\/*])*table/ix,
+[7m  [0m [91m                                       ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m56[0m:[93m39[0m - [91merror[0m[90m TS1499: [0mUnknown regular expression flag.
+
+[7m56[0m     /alter([^a-z]|[\s\+\-\/*])*table/ix,
+[7m  [0m [91m                                      ~[0m
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m143[0m:[93m9[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  The last overload gave the following error.
+    Type '{ [key: string]: string[]; }' is missing the following properties from type 'string[]': length, pop, push, concat, and 31 more.
+
+[7m143[0m         ALLOWED_ATTR: options.allowedAttributes || {},
+[7m   [0m [91m        ~~~~~~~~~~~~[0m
+
+  [96m../../node_modules/dompurify/dist/purify.cjs.d.ts[0m:[93m285[0m:[93m5[0m
+    [7m285[0m     sanitize(dirty: string | Node, cfg?: Config): string;
+    [7m   [0m [96m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    The last overload is declared here.
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m254[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'errors' does not exist on type 'Promise<ValidationResult>'.
+
+[7m254[0m     errors.push(...securityResult.errors);
+[7m   [0m [91m                                  ~~~~~~[0m
+
+  [96msrc/modules/auth/services/input-validation.service.ts[0m:[93m254[0m:[93m35[0m
+    [7m254[0m     errors.push(...securityResult.errors);
+    [7m   [0m [96m                                  ~~~~~~[0m
+    Did you forget to use 'await'?
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m349[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'errors' does not exist on type 'Promise<ValidationResult>'.
+
+[7m349[0m     errors.push(...securityResult.errors);
+[7m   [0m [91m                                  ~~~~~~[0m
+
+  [96msrc/modules/auth/services/input-validation.service.ts[0m:[93m349[0m:[93m35[0m
+    [7m349[0m     errors.push(...securityResult.errors);
+    [7m   [0m [96m                                  ~~~~~~[0m
+    Did you forget to use 'await'?
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m386[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'errors' does not exist on type 'Promise<ValidationResult>'.
+
+[7m386[0m     errors.push(...securityResult.errors);
+[7m   [0m [91m                                  ~~~~~~[0m
+
+  [96msrc/modules/auth/services/input-validation.service.ts[0m:[93m386[0m:[93m35[0m
+    [7m386[0m     errors.push(...securityResult.errors);
+    [7m   [0m [96m                                  ~~~~~~[0m
+    Did you forget to use 'await'?
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m507[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'errors' does not exist on type 'Promise<ValidationResult>'.
+
+[7m507[0m     errors.push(...securityResult.errors);
+[7m   [0m [91m                                  ~~~~~~[0m
+
+  [96msrc/modules/auth/services/input-validation.service.ts[0m:[93m507[0m:[93m35[0m
+    [7m507[0m     errors.push(...securityResult.errors);
+    [7m   [0m [96m                                  ~~~~~~[0m
+    Did you forget to use 'await'?
+[96msrc/modules/auth/services/input-validation.service.ts[0m:[93m564[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'errors' does not exist on type 'Promise<ValidationResult>'.
+
+[7m564[0m     errors.push(...securityResult.errors);
+[7m   [0m [91m                                  ~~~~~~[0m
+
+  [96msrc/modules/auth/services/input-validation.service.ts[0m:[93m564[0m:[93m35[0m
+    [7m564[0m     errors.push(...securityResult.errors);
+    [7m   [0m [96m                                  ~~~~~~[0m
+    Did you forget to use 'await'?
+[96msrc/modules/auth/services/password-security.service.ts[0m:[93m211[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type 'Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput'.
+
+[7m211[0m           entityType: 'User',
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/password-security.service.ts[0m:[93m245[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'resetTokenHash' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+
+[7m245[0m         resetTokenHash: tokenHash,
+[7m   [0m [91m        ~~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m9155[0m:[93m5[0m
+    [7m9155[0m     data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    [7m    [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; data: (Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput); where: UserWhereUniqueInput; }'
+[96msrc/modules/auth/services/password-security.service.ts[0m:[93m258[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'resetTokenHash' does not exist in type 'UserWhereInput'.
+
+[7m258[0m         resetTokenHash: tokenHash,
+[7m   [0m [91m        ~~~~~~~~~~~~~~[0m
+[96msrc/modules/auth/services/password-security.service.ts[0m:[93m273[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'resetTokenHash' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+
+[7m273[0m         resetTokenHash: null,
+[7m   [0m [91m        ~~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m9155[0m:[93m5[0m
+    [7m9155[0m     data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    [7m    [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; data: (Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput); where: UserWhereUniqueInput; }'
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m104[0m:[93m56[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Omit<SecurityEvent, "timestamp" | "source">' is not assignable to parameter of type 'SecurityEvent'.
+  Type 'Omit<SecurityEvent, "timestamp" | "source">' is missing the following properties from type 'SecurityEvent': timestamp, source
+
+[7m104[0m         this.updateThreatIntelligence(event.ipAddress, event);
+[7m   [0m [91m                                                       ~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m293[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'timestamp' does not exist in type 'AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]'.
+
+[7m293[0m           timestamp: 'desc',
+[7m   [0m [91m          ~~~~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m299[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{ eventType: string; severity: "HIGH" | "CRITICAL" | "LOW" | "MEDIUM"; userId: string | null; userEmail: any; userRole: undefined; ipAddress: string | null; userAgent: string | null; ... 7 more ...; source: string; }[]' is not assignable to type 'SecurityEvent[]'.
+  Type '{ eventType: string; severity: "HIGH" | "CRITICAL" | "LOW" | "MEDIUM"; userId: string | null; userEmail: any; userRole: undefined; ipAddress: string | null; userAgent: string | null; ... 7 more ...; source: string; }' is not assignable to type 'SecurityEvent'.
+    Types of property 'userId' are incompatible.
+      Type 'string | null' is not assignable to type 'string | undefined'.
+        Type 'null' is not assignable to type 'string | undefined'.
+
+[7m299[0m       const events: SecurityEvent[] = auditLogs.map(log => ({
+[7m   [0m [91m            ~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m303[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'email' does not exist on type '{ id: string; createdAt: Date; userId: string | null; resource: string | null; ipAddress: string | null; userAgent: string | null; action: string; entity: string; entityId: string | null; oldData: JsonValue; newData: JsonValue; }'.
+
+[7m303[0m         userEmail: log.email,
+[7m   [0m [91m                       ~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m309[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'entityType' does not exist on type '{ id: string; createdAt: Date; userId: string | null; resource: string | null; ipAddress: string | null; userAgent: string | null; action: string; entity: string; entityId: string | null; oldData: JsonValue; newData: JsonValue; }'.
+
+[7m309[0m         resourceType: log.entityType,
+[7m   [0m [91m                          ~~~~~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m311[0m:[93m22[0m - [91merror[0m[90m TS2339: [0mProperty 'details' does not exist on type '{ id: string; createdAt: Date; userId: string | null; resource: string | null; ipAddress: string | null; userAgent: string | null; action: string; entity: string; entityId: string | null; oldData: JsonValue; newData: JsonValue; }'.
+
+[7m311[0m         details: log.details,
+[7m   [0m [91m                     ~~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m312[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 'metadata' does not exist on type '{ id: string; createdAt: Date; userId: string | null; resource: string | null; ipAddress: string | null; userAgent: string | null; action: string; entity: string; entityId: string | null; oldData: JsonValue; newData: JsonValue; }'.
+
+[7m312[0m         metadata: log.metadata,
+[7m   [0m [91m                      ~~~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m313[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'timestamp' does not exist on type '{ id: string; createdAt: Date; userId: string | null; resource: string | null; ipAddress: string | null; userAgent: string | null; action: string; entity: string; entityId: string | null; oldData: JsonValue; newData: JsonValue; }'.
+
+[7m313[0m         timestamp: log.timestamp,
+[7m   [0m [91m                       ~~~~~~~~~[0m
+[96msrc/modules/auth/services/security-audit.service.ts[0m:[93m410[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'entityType' does not exist in type 'Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput'.
+
+[7m410[0m           entityType: event.resourceType || 'SYSTEM',
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m44651[0m:[93m5[0m
+    [7m44651[0m     data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: AuditLogSelect<DefaultArgs> | null | undefined; include?: AuditLogInclude<DefaultArgs> | null | undefined; data: (Without<...> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput); }'
+[96msrc/modules/auth/services/validation.service.ts[0m:[93m266[0m:[93m19[0m - [91merror[0m[90m TS2349: [0mThis expression is not callable.
+  Type 'typeof import("xss")' has no call signatures.
+
+[7m266[0m       sanitized = xss(sanitized, {
+[7m   [0m [91m                  ~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m66[0m:[93m11[0m - [91merror[0m[90m TS2564: [0mProperty 'notificationConfig' has no initializer and is not definitely assigned in the constructor.
+
+[7m66[0m   private notificationConfig: NotificationConfig;
+[7m  [0m [91m          ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m193[0m:[93m58[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m193[0m       this.logger.error('Failed to check system alerts', error.stack);
+[7m   [0m [91m                                                         ~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m203[0m:[93m60[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m203[0m       this.logger.error('Failed to check database alerts', error.stack);
+[7m   [0m [91m                                                           ~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m213[0m:[93m63[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m213[0m       this.logger.error('Failed to check application alerts', error.stack);
+[7m   [0m [91m                                                              ~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m226[0m:[93m63[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m226[0m       this.logger.error('Failed to check performance alerts', error.stack);
+[7m   [0m [91m                                                              ~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m251[0m:[93m57[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m251[0m       this.logger.error('Failed to cleanup old alerts', error.stack);
+[7m   [0m [91m                                                        ~~~~~[0m
+[96msrc/modules/monitoring/alert.service.ts[0m:[93m361[0m:[93m63[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m361[0m       this.logger.error('Failed to send alert notifications', error.stack);
+[7m   [0m [91m                                                              ~~~~~[0m
+[96msrc/modules/monitoring/metrics.service.ts[0m:[93m150[0m:[93m53[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m150[0m       this.logger.error('Failed to export metrics', error.stack);
+[7m   [0m [91m                                                    ~~~~~[0m
+[96msrc/modules/monitoring/metrics.service.ts[0m:[93m216[0m:[93m73[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m216[0m       this.logger.error('Failed to collect system metrics for storage', error.stack);
+[7m   [0m [91m                                                                        ~~~~~[0m
+[96msrc/modules/monitoring/metrics.service.ts[0m:[93m233[0m:[93m75[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m233[0m       this.logger.error('Failed to collect database metrics for storage', error.stack);
+[7m   [0m [91m                                                                          ~~~~~[0m
+[96msrc/modules/monitoring/metrics.service.ts[0m:[93m255[0m:[93m75[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m255[0m       this.logger.error('Failed to collect business metrics for storage', error.stack);
+[7m   [0m [91m                                                                          ~~~~~[0m
+[96msrc/modules/monitoring/metrics.service.ts[0m:[93m277[0m:[93m58[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m277[0m       this.logger.error('Failed to cleanup old metrics', error.stack);
+[7m   [0m [91m                                                         ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.controller.ts[0m:[93m103[0m:[93m48[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m103[0m       this.logger.error('Health check failed', error.stack);
+[7m   [0m [91m                                               ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.controller.ts[0m:[93m107[0m:[93m16[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m107[0m         error: error.message,
+[7m   [0m [91m               ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.controller.ts[0m:[93m160[0m:[93m58[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m160[0m       this.logger.error('Failed to collect all metrics', error.stack);
+[7m   [0m [91m                                                         ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.controller.ts[0m:[93m310[0m:[93m57[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m310[0m       this.logger.error('Failed to get dashboard data', error.stack);
+[7m   [0m [91m                                                        ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.module.ts[0m:[93m5[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module '@digikare/nestjs-prom' or its corresponding type declarations.
+
+[7m5[0m import { PromModule } from '@digikare/nestjs-prom';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.module.ts[0m:[93m8[0m:[93m34[0m - [91merror[0m[90m TS2307: [0mCannot find module './health.controller' or its corresponding type declarations.
+
+[7m8[0m import { HealthController } from './health.controller';
+[7m [0m [91m                                 ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.module.ts[0m:[93m9[0m:[93m31[0m - [91merror[0m[90m TS2307: [0mCannot find module './health.service' or its corresponding type declarations.
+
+[7m9[0m import { HealthService } from './health.service';
+[7m [0m [91m                              ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.module.ts[0m:[93m14[0m:[93m30[0m - [91merror[0m[90m TS2307: [0mCannot find module '../prisma/prisma.module' or its corresponding type declarations.
+
+[7m14[0m import { PrismaModule } from '../prisma/prisma.module';
+[7m  [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m4[0m:[93m30[0m - [91merror[0m[90m TS2307: [0mCannot find module '@digikare/nestjs-prom' or its corresponding type declarations.
+
+[7m4[0m import { InjectMetric } from '@digikare/nestjs-prom';
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m8[0m:[93m31[0m - [91merror[0m[90m TS2307: [0mCannot find module '../prisma/prisma.service' or its corresponding type declarations.
+
+[7m8[0m import { PrismaService } from '../prisma/prisma.service';
+[7m [0m [91m                              ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m219[0m:[93m61[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m219[0m       this.logger.error('Failed to collect system metrics', error.stack);
+[7m   [0m [91m                                                            ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m303[0m:[93m63[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m303[0m       this.logger.error('Failed to collect database metrics', error.stack);
+[7m   [0m [91m                                                              ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m350[0m:[93m66[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m350[0m       this.logger.error('Failed to collect application metrics', error.stack);
+[7m   [0m [91m                                                                 ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m465[0m:[93m63[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m465[0m       this.logger.error('Failed to collect business metrics', error.stack);
+[7m   [0m [91m                                                              ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m501[0m:[93m73[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m501[0m       this.logger.error('Failed to collect system metrics in cron job', error.stack);
+[7m   [0m [91m                                                                        ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m510[0m:[93m75[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m510[0m       this.logger.error('Failed to collect database metrics in cron job', error.stack);
+[7m   [0m [91m                                                                          ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m519[0m:[93m75[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m519[0m       this.logger.error('Failed to collect business metrics in cron job', error.stack);
+[7m   [0m [91m                                                                          ~~~~~[0m
+[96msrc/modules/monitoring/monitoring.service.ts[0m:[93m539[0m:[93m48[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m539[0m       this.logger.error('Health check failed', error.stack);
+[7m   [0m [91m                                               ~~~~~[0m
+[96msrc/modules/monitoring/performance.middleware.ts[0m:[93m81[0m:[93m26[0m - [91merror[0m[90m TS2554: [0mExpected 3-4 arguments, but got 2.
+
+[7m81[0m       return originalEnd.call(res, chunk);
+[7m  [0m [91m                         ~~~~[0m
+[96msrc/modules/monitoring/performance.service.ts[0m:[93m150[0m:[93m66[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m150[0m       this.logger.error('Failed to generate performance report', error.stack);
+[7m   [0m [91m                                                                 ~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m61[0m:[93m11[0m - [91merror[0m[90m TS2564: [0mProperty 'metricsCollectionInterval' has no initializer and is not definitely assigned in the constructor.
+
+[7m61[0m   private metricsCollectionInterval: NodeJS.Timeout;
+[7m  [0m [91m          ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m153[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'userSession' does not exist on type 'PrismaService'.
+
+[7m153[0m       this.prismaService.userSession?.count() || 0,
+[7m   [0m [91m                         ~~~~~~~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m205[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'menuItem' does not exist on type 'PrismaService'.
+
+[7m205[0m       this.prismaService.menuItem?.count() || 0,
+[7m   [0m [91m                         ~~~~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m251[0m:[93m11[0m - [91merror[0m[90m TS2561: [0mObject literal may only specify known properties, but 'isVerified' does not exist in type 'VendorWhereInput'. Did you mean to write 'verifiedAt'?
+
+[7m251[0m           isVerified: true,
+[7m   [0m [91m          ~~~~~~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m284[0m:[93m11[0m - [91merror[0m[90m TS2322: [0mType '"ACTIVE"' is not assignable to type 'JobStatus | EnumJobStatusFilter<"Job"> | undefined'.
+
+[7m284[0m           status: 'ACTIVE',
+[7m   [0m [91m          ~~~~~~[0m
+[96msrc/monitoring/business-metrics.service.ts[0m:[93m337[0m:[93m11[0m - [91merror[0m[90m TS2322: [0mType '"COMPLETED"' is not assignable to type 'EnumOrderStatusFilter<"Order"> | OrderStatus | undefined'.
+
+[7m337[0m           status: 'COMPLETED',
+[7m   [0m [91m          ~~~~~~[0m
+[96msrc/monitoring/controllers/metrics.controller.ts[0m:[93m420[0m:[93m33[0m - [91merror[0m[90m TS2339: [0mProperty 'recordBusinessOperation' does not exist on type 'BusinessMetricsService'.
+
+[7m420[0m     this.businessMetricsService.recordBusinessOperation('frontend_session', 1);
+[7m   [0m [91m                                ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/controllers/metrics.controller.ts[0m:[93m423[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'recordBusinessOperation' does not exist on type 'BusinessMetricsService'.
+
+[7m423[0m       this.businessMetricsService.recordBusinessOperation('frontend_user_session', 1);
+[7m   [0m [91m                                  ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/interceptors/performance.interceptor.ts[0m:[93m54[0m:[93m5[0m - [91merror[0m[90m TS2740: [0mType 'Promise<Observable<any>>' is missing the following properties from type 'Observable<any>': source, operator, lift, subscribe, and 3 more.
+
+[7m54[0m     return this.tracingService.traceHttpRequest(
+[7m  [0m [91m    ~~~~~~[0m
+[96msrc/monitoring/interceptors/performance.interceptor.ts[0m:[93m300[0m:[93m16[0m - [91merror[0m[90m TS18046: [0m'error' is of type 'unknown'.
+
+[7m300[0m         error: error.message,
+[7m   [0m [91m               ~~~~~[0m
+[96msrc/monitoring/performance.service.ts[0m:[93m30[0m:[93m11[0m - [91merror[0m[90m TS2564: [0mProperty 'performanceObserver' has no initializer and is not definitely assigned in the constructor.
+
+[7m30[0m   private performanceObserver: PerformanceObserver;
+[7m  [0m [91m          ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/performance.service.ts[0m:[93m31[0m:[93m11[0m - [91merror[0m[90m TS2564: [0mProperty 'metricsInterval' has no initializer and is not definitely assigned in the constructor.
+
+[7m31[0m   private metricsInterval: NodeJS.Timeout;
+[7m  [0m [91m          ~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/performance.service.ts[0m:[93m80[0m:[93m16[0m - [91merror[0m[90m TS2678: [0mType '"navigation"' is not comparable to type 'EntryType'.
+
+[7m80[0m           case 'navigation':
+[7m  [0m [91m               ~~~~~~~~~~~~[0m
+[96msrc/monitoring/performance.service.ts[0m:[93m94[0m:[93m31[0m - [91merror[0m[90m TS2322: [0mType '"navigation"' is not assignable to type 'EntryType'.
+
+[7m94[0m       entryTypes: ['measure', 'navigation', 'resource', 'mark']
+[7m  [0m [91m                              ~~~~~~~~~~~~[0m
+[96msrc/monitoring/performance.service.ts[0m:[93m302[0m:[93m41[0m - [91merror[0m[90m TS1064: [0mThe return type of an async function or method must be the global Promise<T> type. Did you mean to write 'Promise<void>'?
+
+[7m302[0m   private async collectAndLogMetrics(): void {
+[7m   [0m [91m                                        ~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m11[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'httpRequestsTotal' has no initializer and is not definitely assigned in the constructor.
+
+[7m11[0m   private readonly httpRequestsTotal: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m12[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'httpRequestDuration' has no initializer and is not definitely assigned in the constructor.
+
+[7m12[0m   private readonly httpRequestDuration: promClient.Histogram<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m13[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'httpRequestsInFlight' has no initializer and is not definitely assigned in the constructor.
+
+[7m13[0m   private readonly httpRequestsInFlight: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m14[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'nodeMemoryUsage' has no initializer and is not definitely assigned in the constructor.
+
+[7m14[0m   private readonly nodeMemoryUsage: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m15[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'nodeCpuUsage' has no initializer and is not definitely assigned in the constructor.
+
+[7m15[0m   private readonly nodeCpuUsage: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m16[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'eventLoopDelay' has no initializer and is not definitely assigned in the constructor.
+
+[7m16[0m   private readonly eventLoopDelay: promClient.Histogram<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m17[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'eventLoopUtilization' has no initializer and is not definitely assigned in the constructor.
+
+[7m17[0m   private readonly eventLoopUtilization: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m20[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'dbOperationsTotal' has no initializer and is not definitely assigned in the constructor.
+
+[7m20[0m   private readonly dbOperationsTotal: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m21[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'dbOperationDuration' has no initializer and is not definitely assigned in the constructor.
+
+[7m21[0m   private readonly dbOperationDuration: promClient.Histogram<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m22[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'dbConnectionsActive' has no initializer and is not definitely assigned in the constructor.
+
+[7m22[0m   private readonly dbConnectionsActive: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m23[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'dbConnectionsIdle' has no initializer and is not definitely assigned in the constructor.
+
+[7m23[0m   private readonly dbConnectionsIdle: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m24[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'dbQueryErrors' has no initializer and is not definitely assigned in the constructor.
+
+[7m24[0m   private readonly dbQueryErrors: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m27[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'cacheOperationsTotal' has no initializer and is not definitely assigned in the constructor.
+
+[7m27[0m   private readonly cacheOperationsTotal: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m28[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'cacheHitRatio' has no initializer and is not definitely assigned in the constructor.
+
+[7m28[0m   private readonly cacheHitRatio: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m29[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'cacheSize' has no initializer and is not definitely assigned in the constructor.
+
+[7m29[0m   private readonly cacheSize: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m30[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'cacheEvictions' has no initializer and is not definitely assigned in the constructor.
+
+[7m30[0m   private readonly cacheEvictions: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m33[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'userRegistrations' has no initializer and is not definitely assigned in the constructor.
+
+[7m33[0m   private readonly userRegistrations: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m34[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'userLogins' has no initializer and is not definitely assigned in the constructor.
+
+[7m34[0m   private readonly userLogins: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m35[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'jobPostings' has no initializer and is not definitely assigned in the constructor.
+
+[7m35[0m   private readonly jobPostings: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m36[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'jobApplications' has no initializer and is not definitely assigned in the constructor.
+
+[7m36[0m   private readonly jobApplications: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m37[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'orderCreations' has no initializer and is not definitely assigned in the constructor.
+
+[7m37[0m   private readonly orderCreations: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m38[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'paymentTransactions' has no initializer and is not definitely assigned in the constructor.
+
+[7m38[0m   private readonly paymentTransactions: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m39[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'restaurantRegistrations' has no initializer and is not definitely assigned in the constructor.
+
+[7m39[0m   private readonly restaurantRegistrations: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m40[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'vendorRegistrations' has no initializer and is not definitely assigned in the constructor.
+
+[7m40[0m   private readonly vendorRegistrations: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m43[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'errorTotal' has no initializer and is not definitely assigned in the constructor.
+
+[7m43[0m   private readonly errorTotal: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m44[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'uncaughtExceptions' has no initializer and is not definitely assigned in the constructor.
+
+[7m44[0m   private readonly uncaughtExceptions: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m45[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'unhandledRejections' has no initializer and is not definitely assigned in the constructor.
+
+[7m45[0m   private readonly unhandledRejections: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m48[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'activeUsers' has no initializer and is not definitely assigned in the constructor.
+
+[7m48[0m   private readonly activeUsers: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m49[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'conversionRate' has no initializer and is not definitely assigned in the constructor.
+
+[7m49[0m   private readonly conversionRate: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m50[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'customerSatisfactionScore' has no initializer and is not definitely assigned in the constructor.
+
+[7m50[0m   private readonly customerSatisfactionScore: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m51[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'revenueTotal' has no initializer and is not definitely assigned in the constructor.
+
+[7m51[0m   private readonly revenueTotal: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m54[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'frontendMetrics' has no initializer and is not definitely assigned in the constructor.
+
+[7m54[0m   private readonly frontendMetrics: promClient.Gauge<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m55[0m:[93m20[0m - [91merror[0m[90m TS2564: [0mProperty 'frontendCounters' has no initializer and is not definitely assigned in the constructor.
+
+[7m55[0m   private readonly frontendCounters: promClient.Counter<string>;
+[7m  [0m [91m                   ~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m89[0m:[93m10[0m - [91merror[0m[90m TS2540: [0mCannot assign to 'httpRequestsTotal' because it is a read-only property.
+
+[7m89[0m     this.httpRequestsTotal = new promClient.Counter({
+[7m  [0m [91m         ~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m96[0m:[93m10[0m - [91merror[0m[90m TS2540: [0mCannot assign to 'httpRequestDuration' because it is a read-only property.
+
+[7m96[0m     this.httpRequestDuration = new promClient.Histogram({
+[7m  [0m [91m         ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/monitoring/prometheus.service.ts[0m:[93m104[0m:[93m10[0m - [91merror[0m[90m TS2540: [0mCannot assign to 'httpRequestsInFlight' because it is a read-only property.
+
+[7m104[0m     this.httpRequestsInFlight = new promClient.Gauge({
+[7m   [0m [91m         ~~~~~~~~~~~~~~~~~~~~[0m
+Found 215 error(s).
+
+[96msrc/monitoring/prometheus.service.ts[0m:[93m110[0m:[93m10[0m - [91merror[0m[90m TS2540: [0mCannot assign to 'nodeMenpm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api
+npm error workspace @restauranthub/api@1.0.0
+npm error location /Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api
+npm error command failed
+npm error command sh -c nest build

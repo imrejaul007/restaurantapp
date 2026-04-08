@@ -31,6 +31,8 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
+import { jobsApi } from '@/lib/api/jobs';
+import { toast } from 'react-hot-toast';
 
 const jobSchema = z.object({
   title: z.string().min(3, 'Job title must be at least 3 characters'),
@@ -184,18 +186,59 @@ export default function CreateJobPage() {
 
   const onSubmit = async (data: JobForm) => {
     setLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Job posted:', data);
+      // Transform form data to API format
+      const jobData = {
+        title: data.title,
+        description: data.description,
+        requirements: data.requirements.filter(req => req.trim() !== ''),
+        responsibilities: data.responsibilities.filter(resp => resp.trim() !== ''),
+        benefits: data.benefits?.filter(benefit => benefit.trim() !== '') || [],
+        employmentType: mapEmploymentType(data.employment.type),
+        experience: mapExperience(data.experience.min, data.experience.max),
+        salaryMin: data.salary.min,
+        salaryMax: data.salary.max,
+        currency: data.salary.currency,
+        location: `${data.location.city}, ${data.location.state}`,
+        isRemote: data.location.type === 'remote',
+        skills: data.skills,
+        category: data.department,
+        applicationDeadline: data.applicationDeadline,
+        startDate: data.startDate
+      };
+
+      // Use the jobs API to create the job
+      const response = await jobsApi.createJob(jobData);
+
+      console.log('Job posted successfully:', response.data);
+      toast.success('Job posted successfully!');
+
       router.push('/restaurant/jobs?posted=true');
     } catch (error) {
       console.error('Failed to post job:', error);
+      toast.error('Failed to post job. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper functions to map form data to API format
+  const mapEmploymentType = (type: string) => {
+    const mapping: Record<string, string> = {
+      'full-time': 'FULL_TIME',
+      'part-time': 'PART_TIME',
+      'contract': 'CONTRACT',
+      'temporary': 'CONTRACT',
+      'internship': 'INTERNSHIP'
+    };
+    return mapping[type] || 'FULL_TIME';
+  };
+
+  const mapExperience = (min: number, max: number) => {
+    if (max <= 2) return 'ENTRY_LEVEL';
+    if (max <= 5) return 'MID_LEVEL';
+    return 'SENIOR_LEVEL';
   };
 
   const addArrayField = (fieldName: keyof Pick<JobForm, 'requirements' | 'responsibilities' | 'benefits'>) => {

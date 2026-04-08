@@ -5,6 +5,11 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import RestaurantProfile from '@/components/profiles/restaurant-profile';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { UserRole } from '@/types/auth';
+import { RezVerifiedBadge } from '@/components/ui/rez-verified-badge';
+import { RezConsentModal } from '@/components/profile/rez-consent-modal';
+import { useRezProfile } from '@/hooks/use-rez-profile';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
 // Mock restaurant profile data
 const mockRestaurantProfile = {
@@ -137,6 +142,19 @@ const mockRestaurantProfile = {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(mockRestaurantProfile);
+  const [consentOpen, setConsentOpen] = useState(false);
+
+  const { profile: rezProfile, refetch: refetchRez } = useRezProfile(user?.id ?? '');
+
+  const handleConsentSave = async (tier: 0 | 1 | 2) => {
+    await fetch('/api/users/consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ consentTier: tier }),
+    });
+    refetchRez();
+  };
 
   const handleUpdateProfile = (updatedProfile: typeof mockRestaurantProfile) => {
     setProfile(updatedProfile);
@@ -173,12 +191,41 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout>
+      {rezProfile?.isRezVerified && (
+        <div className="flex items-center gap-3 px-6 pt-4 pb-0">
+          <RezVerifiedBadge size="md" />
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() => setConsentOpen(true)}
+          >
+            <Settings className="h-3.5 w-3.5" />
+            REZ Data Settings
+          </Button>
+          {rezProfile.consentTier > 0 && (
+            <span className="text-xs text-muted-foreground">
+              Sharing: Tier {rezProfile.consentTier}
+            </span>
+          )}
+        </div>
+      )}
+
       <RestaurantProfile
         profile={profile}
         isOwner={true}
         onUpdateProfile={handleUpdateProfile}
         onUploadImage={handleUploadImage}
       />
+
+      {rezProfile && (
+        <RezConsentModal
+          open={consentOpen}
+          onOpenChange={setConsentOpen}
+          currentTier={rezProfile.consentTier as 0 | 1 | 2}
+          onSave={handleConsentSave}
+        />
+      )}
     </DashboardLayout>
   );
 }

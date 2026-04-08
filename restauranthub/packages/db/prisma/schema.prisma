@@ -12,6 +12,7 @@ enum UserRole {
   RESTAURANT
   EMPLOYEE
   VENDOR
+  CUSTOMER
 }
 
 enum VerificationStatus {
@@ -38,6 +39,7 @@ enum ApplicationStatus {
 enum OrderStatus {
   PENDING
   CONFIRMED
+  PREPARING
   PROCESSING
   SHIPPED
   DELIVERED
@@ -149,10 +151,22 @@ model User {
   dataDeletionRequests  DataDeletionRequest[]
   userSessions          UserSession[]
   blacklistedTokens     BlacklistedToken[]
+  apiKeys               ApiKey[]
+
+  // Training Academy
+  courseCompletions     CourseCompletion[]
 
   @@index([email])
+  @@index([phone])
   @@index([role])
+  @@index([isActive])
+  @@index([isVerified])
+  @@index([lastLoginAt])
   @@index([createdAt])
+  @@index([role, isActive])
+  @@index([email, isActive])
+  @@index([resetTokenHash])
+  @@index([refreshToken])
 }
 
 model Profile {
@@ -177,18 +191,22 @@ model Profile {
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  ipAddress String?
-  userAgent String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id             String    @id @default(cuid())
+  userId         String
+  token          String    @unique
+  ipAddress      String?
+  userAgent      String?
+  deviceInfo     String?   // JSON string with device information
+  expiresAt      DateTime
+  lastAccessedAt DateTime?
+  createdAt      DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
+  @@index([expiresAt])
+  @@index([lastAccessedAt])
 }
 
 model Restaurant {
@@ -255,6 +273,15 @@ model Restaurant {
   @@index([userId])
   @@index([verificationStatus])
   @@index([name])
+  @@index([isActive])
+  @@index([rating])
+  @@index([createdAt])
+  @@index([verificationStatus, isActive])
+  @@index([rating, isActive])
+  @@index([name, isActive])
+  @@index([licenseNumber])
+  @@index([gstNumber])
+  @@index([cuisineType])
 }
 
 model Branch {
@@ -500,6 +527,18 @@ model Product {
   @@index([status])
   @@index([stock])
   @@index([minStock])
+  @@index([rating])
+  @@index([price])
+  @@index([createdAt])
+  @@index([viewCount])
+  @@index([sku])
+  @@index([status, stock])
+  @@index([categoryId, status])
+  @@index([vendorId, status])
+  @@index([restaurantId, status])
+  @@index([price, status])
+  @@index([rating, status])
+  @@index([tags])
 }
 
 model Cart {
@@ -1738,18 +1777,72 @@ model CommunityLeaderboard {
 
 model BlacklistedToken {
   id        String   @id @default(cuid())
-  token     String   @unique // The JWT token that is blacklisted
+  jti       String   @unique // JWT ID (hashed for security)
+  userId    String
+  reason    String   @default("logout") // logout, security, admin_action
   expiresAt DateTime // When the token expires (for cleanup)
-  userId    String?  // Optional: user who owned the token
-  reason    String?  // Optional: reason for blacklisting
   createdAt DateTime @default(now())
 
   // Relations
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
-  @@index([expiresAt])
+  @@index([jti])
   @@index([userId])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+// Security models for comprehensive protection
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String    // Descriptive name for the key
+  keyHash     String    @unique // Hashed API key
+  userId      String
+  permissions String[]  // Array of permissions
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime?
+  usageCount  Int       @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([keyHash])
+  @@index([userId])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model FailedAttempt {
+  id          String   @id @default(cuid())
+  ipAddress   String
+  endpoint    String
+  email       String?
+  userAgent   String?
+  attemptedAt DateTime @default(now())
+
+  @@index([ipAddress])
+  @@index([endpoint])
+  @@index([attemptedAt])
+  @@index([ipAddress, endpoint])
+  @@index([ipAddress, attemptedAt])
+}
+
+model BlockedIp {
+  id           String    @id @default(cuid())
+  ipAddress    String    @unique
+  reason       String
+  blockedAt    DateTime
+  blockedUntil DateTime
+  blockCount   Int       @default(1)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([ipAddress])
+  @@index([blockedUntil])
+  @@index([blockedAt])
 }
 
 // ============== INVENTORY MANAGEMENT MODELS ==============
@@ -2628,4 +2721,18 @@ model FinancialSettings {
   restaurant  Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
+}
+
+// Training Academy — tracks course completions per RestaurantHub user
+model CourseCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  courseSlug  String
+  completedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseSlug])
+  @@index([userId])
+  @@index([courseSlug])
 }

@@ -10,8 +10,9 @@ import * as express from 'express';
 import helmet from 'helmet';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
-import { PrismaService } from './prisma/prisma.service';
-// import { PerformanceService } from './monitoring/performance.service';
+import { SecurityMiddleware } from './common/middleware/security.middleware';
+import { getHttpsConfig, securityHeaders } from './config/https.config';
+import { SecurityModule } from './common/modules/security.module';
 
 async function bootstrap() {
   // Configure Winston logger
@@ -50,37 +51,56 @@ async function bootstrap() {
     ],
   });
 
-  const app = await NestFactory.create(AppModule, { logger });
-  const configService = app.get(ConfigService);
-  const prismaService = app.get(PrismaService);
-  // const performanceService = app.get(PerformanceService);
+  // Get HTTPS configuration
+  const configService = new ConfigService();
+  const httpsConfig = getHttpsConfig(configService);
 
-  // Initialize performance monitoring
-  // performanceService.startPerformanceMonitoring();
+  const app = await NestFactory.create(AppModule, {
+    logger,
+    httpsOptions: httpsConfig.enabled ? httpsConfig.options : undefined
+  });
+
+  const appConfigService = app.get(ConfigService);
 
   // Trust proxy (for accurate IP addresses behind load balancers)
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
 
+  // Apply security middleware early in the chain
+  app.use(new SecurityMiddleware(appConfigService).use.bind(new SecurityMiddleware(appConfigService)));
+
+  // Set additional security headers
+  const environment = appConfigService.get('NODE_ENV', 'development');
+  Object.entries(SecurityModule.getSecurityHeaders(environment)).forEach(([key, value]) => {
+    expressApp.use((req: any, res: any, next: any) => {
+      res.setHeader(key, value);
+      next();
+    });
+  });
+
   // Enhanced Rate limiting with security-focused configuration
   const limiter = rateLimit({
-    windowMs: configService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes by default
-    max: configService.get('RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'production' ? 100 : 1000),
+    windowMs: appConfigService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes by default
+    max: appConfigService.get('RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'production' ? 100 : 1000),
     message: {
       error: 'Too many requests from this IP. Please try again later.',
       statusCode: 429,
-      retryAfter: Math.ceil(configService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
+      retryAfter: Math.ceil(appConfigService.get('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
     },
     standardHeaders: true,
     legacyHeaders: false,
-    // Enhanced logging for security monitoring
-    onLimitReached: (req: any) => {
-      logger.warn(`Rate limit exceeded for IP: ${req.ip} on ${req.path}`, {
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        path: req.path,
-        method: req.method,
-      });
+    // Enhanced logging for security monitoring using modern handler
+    handler: (req: any, res: any, next: any, options: any) => {
+      // Check if this is the first request to exceed the limit (equivalent to onLimitReached)
+      if (req.rateLimit.used === req.rateLimit.limit + 1) {
+        logger.warn(`Rate limit exceeded for IP: ${req.ip} on ${req.path}`, {
+          ip: req.ip,
+          userAgent: req.get('User-Agent'),
+          path: req.path,
+          method: req.method,
+        });
+      }
+      res.status(options.statusCode).send(options.message);
     },
     // Skip rate limiting for health checks only in development
     skip: (req: any) => {
@@ -94,26 +114,30 @@ async function bootstrap() {
 
   // Strict rate limiting for authentication endpoints with progressive delays
   const authLimiter = rateLimit({
-    windowMs: configService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
-    max: configService.get('AUTH_RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'development' ? 20 : 5),
+    windowMs: appConfigService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
+    max: appConfigService.get('AUTH_RATE_LIMIT_MAX_REQUESTS', process.env.NODE_ENV === 'development' ? 20 : 5),
     message: {
       error: 'Too many authentication attempts. Your IP has been temporarily blocked for security.',
       statusCode: 429,
-      retryAfter: Math.ceil(configService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
+      retryAfter: Math.ceil(appConfigService.get('AUTH_RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000) / 1000),
       blocked: true,
     },
     standardHeaders: true,
     legacyHeaders: false,
-    // Enhanced security logging for authentication attempts
-    onLimitReached: (req: any) => {
-      logger.error(`SECURITY ALERT: Authentication rate limit exceeded`, {
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        path: req.path,
-        method: req.method,
-        timestamp: new Date().toISOString(),
-        severity: 'HIGH',
-      });
+    // Enhanced security logging for authentication attempts using modern handler
+    handler: (req: any, res: any, next: any, options: any) => {
+      // Check if this is the first request to exceed the limit (equivalent to onLimitReached)
+      if (req.rateLimit.used === req.rateLimit.limit + 1) {
+        logger.error(`SECURITY ALERT: Authentication rate limit exceeded`, {
+          ip: req.ip,
+          userAgent: req.get('User-Agent'),
+          path: req.path,
+          method: req.method,
+          timestamp: new Date().toISOString(),
+          severity: 'HIGH',
+        });
+      }
+      res.status(options.statusCode).send(options.message);
     },
     // Progressive delay - exponential backoff for repeated violations
     skip: (req: any) => {
@@ -137,15 +161,20 @@ async function bootstrap() {
     },
     standardHeaders: true,
     legacyHeaders: false,
-    onLimitReached: (req: any) => {
-      logger.error(`SECURITY ALERT: Sensitive auth operation rate limit exceeded`, {
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        path: req.path,
-        method: req.method,
-        timestamp: new Date().toISOString(),
-        severity: 'CRITICAL',
-      });
+    // Enhanced security logging for sensitive auth operations using modern handler
+    handler: (req: any, res: any, next: any, options: any) => {
+      // Check if this is the first request to exceed the limit (equivalent to onLimitReached)
+      if (req.rateLimit.used === req.rateLimit.limit + 1) {
+        logger.error(`SECURITY ALERT: Sensitive auth operation rate limit exceeded`, {
+          ip: req.ip,
+          userAgent: req.get('User-Agent'),
+          path: req.path,
+          method: req.method,
+          timestamp: new Date().toISOString(),
+          severity: 'CRITICAL',
+        });
+      }
+      res.status(options.statusCode).send(options.message);
     },
   });
 
@@ -183,23 +212,51 @@ async function bootstrap() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Compression
+  // Enhanced Compression with smart filtering and performance optimizations
   app.use(compression({
     filter: (req: any, res: any) => {
+      // Skip compression if explicitly requested
       if (req.headers['x-no-compression']) {
         return false;
       }
+
+      // Skip compression for real-time endpoints (WebSocket upgrades, SSE)
+      if (req.headers.upgrade || req.headers['accept'] === 'text/event-stream') {
+        return false;
+      }
+
+      // Skip compression for already compressed content types
+      const contentType = res.getHeader('content-type') || '';
+      const skipTypes = [
+        'image/', 'video/', 'audio/', 'application/pdf',
+        'application/zip', 'application/gzip', 'application/x-rar'
+      ];
+
+      if (skipTypes.some(type => contentType.toString().includes(type))) {
+        return false;
+      }
+
+      // Skip compression for very small responses (overhead not worth it)
+      const contentLength = res.getHeader('content-length');
+      if (contentLength && parseInt(contentLength.toString()) < 500) {
+        return false;
+      }
+
       return compression.filter(req, res);
     },
-    level: 6,
-    threshold: 1024,
+    level: process.env.NODE_ENV === 'production' ? 6 : 4, // Higher compression in production
+    threshold: 500, // Compress responses larger than 500 bytes
+    chunkSize: 1024 * 16, // 16KB chunks for better performance
+    windowBits: 15, // Maximum window size for better compression ratio
+    memLevel: 8, // Balanced memory usage
+    // strategy: compression.constants.Z_DEFAULT_STRATEGY, // Commented out due to compatibility issues
   }));
 
   // CORS with environment-specific configuration
   const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? (configService.get('ALLOWED_ORIGINS', '').split(',').filter(Boolean))
+    ? (appConfigService.get('ALLOWED_ORIGINS', '').split(',').filter(Boolean))
     : [
-        configService.get('FRONTEND_URL'),
+        appConfigService.get('FRONTEND_URL'),
         'http://localhost:3000',
         'http://localhost:3001',
         'http://localhost:3002',
@@ -211,9 +268,17 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl requests, etc.)
-      if (!origin) return callback(null, true);
-      
+      // Security enhancement: whitelist specific no-origin requests only for known mobile apps
+      if (!origin) {
+        const allowNoOrigin = process.env.ALLOW_NO_ORIGIN_REQUESTS === 'true' || process.env.NODE_ENV === 'development';
+        if (allowNoOrigin) {
+          return callback(null, true);
+        } else {
+          logger.warn('CORS blocked: No origin header present and not whitelisted');
+          return callback(new Error('Origin header required'));
+        }
+      }
+
       if (process.env.NODE_ENV === 'production') {
         // Strict CORS in production
         if (allowedOrigins.includes(origin)) {
@@ -246,7 +311,7 @@ async function bootstrap() {
   });
 
   // CSRF Protection (configurable via environment)
-  const enableCsrf = configService.get('ENABLE_CSRF', 'false') === 'true' || process.env.NODE_ENV === 'production';
+  const enableCsrf = appConfigService.get('ENABLE_CSRF', 'false') === 'true' || process.env.NODE_ENV === 'production';
   if (enableCsrf) {
     app.use(csurf({
       cookie: {
@@ -265,10 +330,10 @@ async function bootstrap() {
   }
 
   // Global prefix
-  app.setGlobalPrefix(configService.get('API_PREFIX', 'api/v1'));
+  app.setGlobalPrefix(appConfigService.get('API_PREFIX', 'api/v1'));
 
   // Request logging (configurable for different environments)
-  if (configService.get('LOG_LEVEL') === 'debug') {
+  if (appConfigService.get('LOG_LEVEL') === 'debug') {
     app.use((req: any, res: any, next: any) => {
       if (logger) {
         logger.log(`${req.method} ${req.path}`, JSON.stringify({
@@ -305,8 +370,8 @@ async function bootstrap() {
     }),
   );
 
-  // Prisma shutdown hook
-  await prismaService.enableShutdownHooks(app);
+  // Prisma shutdown hook - enabling app shutdown hooks
+  app.enableShutdownHooks();
 
   // Enhanced Swagger documentation
   const config = new DocumentBuilder()
@@ -408,20 +473,10 @@ async function bootstrap() {
   // Graceful shutdown
   const gracefulShutdown = (signal: string) => {
     logger.log(`Received ${signal}. Shutting down gracefully...`);
-    
-    app.close().then(() => {
+
+    app.close().then(async () => {
       logger.log('HTTP server closed.');
-      
-      // Close database connections
-      prismaService.$disconnect()
-        .then(() => {
-          logger.log('Database connections closed.');
-          process.exit(0);
-        })
-        .catch((error: any) => {
-          logger.error('Error during database disconnect:', error);
-          process.exit(1);
-        });
+      process.exit(0);
     });
 
     // Force close after 10 seconds
@@ -434,20 +489,20 @@ async function bootstrap() {
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-  const port = configService.get('API_PORT', 3000);
-  const host = configService.get('API_HOST', '127.0.0.1');
+  const port = appConfigService.get('API_PORT', 3000);
+  const host = appConfigService.get('API_HOST', '127.0.0.1');
   
   await app.listen(port, host);
 
   const baseUrl = `http://${host}:${port}`;
-  const apiPrefix = configService.get('API_PREFIX', 'api/v1');
+  const apiPrefix = appConfigService.get('API_PREFIX', 'api/v1');
   
   logger.log(`🚀 RestaurantHub API is running!`);
   logger.log(`📊 API Endpoint: ${baseUrl}/${apiPrefix}`);
   logger.log(`📚 Documentation: ${baseUrl}/docs`);
   logger.log(`🔧 Health Check: ${baseUrl}/${apiPrefix}/health`);
   logger.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  logger.log(`📈 Rate Limit: ${configService.get('RATE_LIMIT_MAX', 1000)} requests per 15 minutes`);
+  logger.log(`📈 Rate Limit: ${appConfigService.get('RATE_LIMIT_MAX', 1000)} requests per 15 minutes`);
   logger.log(`🔐 Security: CORS, Helmet, Rate Limiting ${process.env.NODE_ENV === 'production' ? '+ CSRF' : ''}`);
 }
 

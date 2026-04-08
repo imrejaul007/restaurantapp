@@ -1,52 +1,67 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ExecutionContext } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../../../prisma/prisma.service';
 import { TokenBlacklistService } from '../services/token-blacklist.service';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
-    private reflector: Reflector,
-    private prisma: PrismaService,
     private tokenBlacklistService: TokenBlacklistService,
+    private reflector: Reflector,
   ) {
     super();
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-
-    if (isPublic) {
-      return true;
-    }
-
-    // First check JWT validity
     const canActivate = await super.canActivate(context);
+
     if (!canActivate) {
       return false;
     }
 
-    // Additional check for blacklisted tokens
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
-    if (token) {
-      const isBlacklisted = await this.tokenBlacklistService.isTokenBlacklisted(token, request.user?.id);
-      if (isBlacklisted) {
-        throw new UnauthorizedException('Token has been revoked');
-      }
+    if (token && await this.tokenBlacklistService.isTokenBlacklisted(token)) {
+      throw new UnauthorizedException('Token has been revoked');
     }
 
     return true;
   }
 
-  private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+    if (err || !user) {
+      // Enhanced error messages for different scenarios
+      if (info?.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token has expired');
+      } else if (info?.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid token format');
+      } else if (info?.name === 'NotBeforeError') {
+        throw new UnauthorizedException('Token not active yet');
+      }
+
+      throw err || new UnauthorizedException('Authentication required');
+    }
+
+    // Additional security checks
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    return user;
+  }
+
+  private extractTokenFromHeader(request: any): string | null {
+    const authorization = request.headers.authorization;
+    if (!authorization || typeof authorization !== 'string') {
+      return null;
+    }
+
+    const parts = authorization.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return null;
+    }
+
+    return parts[1];
   }
 }

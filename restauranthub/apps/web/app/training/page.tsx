@@ -1,509 +1,249 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import TrainingSystem from '@/components/training/training-system';
+import { RecommendedCourseCard, RecommendedModule } from '@/components/training/recommended-course-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { Award, BookOpen, Clock, Filter, GraduationCap } from 'lucide-react';
 
-// Mock training data
-const mockTrainingModules = [
-  {
-    id: '1',
-    title: 'Food Safety Fundamentals',
-    description: 'Essential food safety practices including HACCP principles, temperature control, cross-contamination prevention, and proper hygiene protocols for restaurant staff.',
-    category: 'food_safety' as const,
-    level: 'beginner' as const,
-    duration: 180, // 3 hours
-    type: 'video' as const,
-    requirements: [],
-    objectives: [
-      'Understand HACCP principles and their application',
-      'Master proper food temperature control procedures',
-      'Implement effective cross-contamination prevention',
-      'Follow personal hygiene and sanitation protocols',
-      'Recognize and respond to food safety hazards'
-    ],
-    content: {
-      lessons: 8,
-      assessments: 3,
-      resources: 15
-    },
-    certification: {
-      available: true,
-      validityPeriod: 12,
-      renewalRequired: true
-    },
-    createdBy: 'admin-1',
-    createdAt: '2024-01-01T08:00:00Z',
-    lastUpdated: '2024-01-15T10:30:00Z',
-    isActive: true,
-    tags: ['HACCP', 'hygiene', 'safety', 'certification'],
-    difficulty: 2,
-    rating: 4.8,
-    enrollmentCount: 45,
-    completionRate: 87
-  },
-  {
-    id: '2',
-    title: 'Customer Service Excellence',
-    description: 'Comprehensive customer service training covering communication skills, complaint handling, upselling techniques, and creating memorable dining experiences.',
-    category: 'customer_service' as const,
-    level: 'intermediate' as const,
-    duration: 240, // 4 hours
-    type: 'interactive' as const,
-    requirements: ['Basic Communication Skills'],
-    objectives: [
-      'Master effective communication with diverse customers',
-      'Handle customer complaints professionally',
-      'Implement upselling and cross-selling techniques',
-      'Create positive customer experiences',
-      'Manage difficult situations with confidence'
-    ],
-    content: {
-      lessons: 12,
-      assessments: 4,
-      resources: 20
-    },
-    certification: {
-      available: true,
-      validityPeriod: 24,
-      renewalRequired: false
-    },
-    createdBy: 'admin-1',
-    createdAt: '2024-01-02T09:00:00Z',
-    lastUpdated: '2024-01-16T14:20:00Z',
-    isActive: true,
-    tags: ['communication', 'upselling', 'customer experience'],
-    difficulty: 3,
-    rating: 4.6,
-    enrollmentCount: 38,
-    completionRate: 79
-  },
-  {
-    id: '3',
-    title: 'Kitchen Operations Management',
-    description: 'Advanced training for kitchen managers covering workflow optimization, inventory management, cost control, and team leadership in fast-paced kitchen environments.',
-    category: 'operations' as const,
-    level: 'advanced' as const,
-    duration: 360, // 6 hours
-    type: 'document' as const,
-    requirements: ['Food Safety Fundamentals', '2+ years kitchen experience'],
-    objectives: [
-      'Optimize kitchen workflow and efficiency',
-      'Implement effective inventory control systems',
-      'Control food costs and minimize waste',
-      'Lead and motivate kitchen teams',
-      'Ensure quality consistency during peak hours'
-    ],
-    content: {
-      lessons: 15,
-      assessments: 5,
-      resources: 25
-    },
-    certification: {
-      available: true,
-      validityPeriod: 36,
-      renewalRequired: true
-    },
-    createdBy: 'admin-2',
-    createdAt: '2024-01-03T10:00:00Z',
-    lastUpdated: '2024-01-17T16:45:00Z',
-    isActive: true,
-    tags: ['management', 'efficiency', 'inventory', 'leadership'],
-    difficulty: 5,
-    rating: 4.9,
-    enrollmentCount: 22,
-    completionRate: 68
-  },
-  {
-    id: '4',
-    title: 'Compliance and Legal Requirements',
-    description: 'Comprehensive overview of restaurant compliance including labor laws, health regulations, licensing requirements, and documentation standards.',
-    category: 'compliance' as const,
-    level: 'intermediate' as const,
-    duration: 150, // 2.5 hours
-    type: 'document' as const,
-    requirements: [],
-    objectives: [
-      'Understand relevant labor laws and regulations',
-      'Maintain compliance with health department standards',
-      'Manage licensing and permit requirements',
-      'Implement proper documentation procedures',
-      'Handle compliance audits and inspections'
-    ],
-    content: {
-      lessons: 6,
-      assessments: 2,
-      resources: 30
-    },
-    certification: {
-      available: true,
-      validityPeriod: 12,
-      renewalRequired: true
-    },
-    createdBy: 'admin-1',
-    createdAt: '2024-01-04T11:00:00Z',
-    lastUpdated: '2024-01-18T09:15:00Z',
-    isActive: true,
-    tags: ['legal', 'regulations', 'documentation', 'audits'],
-    difficulty: 4,
-    rating: 4.4,
-    enrollmentCount: 31,
-    completionRate: 82
-  },
-  {
-    id: '5',
-    title: 'Leadership and Team Development',
-    description: 'Leadership skills for restaurant managers focusing on team building, performance management, conflict resolution, and creating positive work environments.',
-    category: 'leadership' as const,
-    level: 'advanced' as const,
-    duration: 300, // 5 hours
-    type: 'interactive' as const,
-    requirements: ['2+ years management experience'],
-    objectives: [
-      'Develop effective leadership styles',
-      'Build high-performing restaurant teams',
-      'Manage employee performance and development',
-      'Resolve workplace conflicts professionally',
-      'Create positive and inclusive work cultures'
-    ],
-    content: {
-      lessons: 10,
-      assessments: 3,
-      resources: 18
-    },
-    certification: {
-      available: true,
-      validityPeriod: 24,
-      renewalRequired: false
-    },
-    createdBy: 'admin-2',
-    createdAt: '2024-01-05T12:00:00Z',
-    lastUpdated: '2024-01-19T11:30:00Z',
-    isActive: true,
-    tags: ['leadership', 'team building', 'management', 'conflict resolution'],
-    difficulty: 4,
-    rating: 4.7,
-    enrollmentCount: 18,
-    completionRate: 72
-  },
-  {
-    id: '6',
-    title: 'POS System Mastery',
-    description: 'Complete training on restaurant point-of-sale systems including order processing, payment handling, reporting, and troubleshooting common issues.',
-    category: 'technical' as const,
-    level: 'beginner' as const,
-    duration: 120, // 2 hours
-    type: 'interactive' as const,
-    requirements: [],
-    objectives: [
-      'Navigate POS system interfaces efficiently',
-      'Process orders and payments accurately',
-      'Generate and interpret sales reports',
-      'Handle refunds and modifications',
-      'Troubleshoot common technical issues'
-    ],
-    content: {
-      lessons: 5,
-      assessments: 2,
-      resources: 12
-    },
-    certification: {
-      available: false,
-      renewalRequired: false
-    },
-    createdBy: 'admin-1',
-    createdAt: '2024-01-06T13:00:00Z',
-    lastUpdated: '2024-01-20T08:45:00Z',
-    isActive: true,
-    tags: ['POS', 'technology', 'payments', 'troubleshooting'],
-    difficulty: 2,
-    rating: 4.5,
-    enrollmentCount: 52,
-    completionRate: 91
-  }
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
-const mockEmployeeProgress = [
-  {
-    employeeId: 'emp-1',
-    employeeName: 'Sarah Johnson',
-    employeeRole: 'Server',
-    avatar: '/avatars/sarah.jpg',
-    moduleProgress: [
-      {
-        moduleId: '1',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-10T09:00:00Z',
-        completionDate: '2024-01-12T16:30:00Z',
-        score: 92,
-        attempts: 1,
-        timeSpent: 185
-      },
-      {
-        moduleId: '2',
-        status: 'in_progress' as const,
-        progress: 65,
-        startDate: '2024-01-15T10:00:00Z',
-        score: 78,
-        attempts: 1,
-        timeSpent: 156
-      },
-      {
-        moduleId: '6',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-08T14:00:00Z',
-        completionDate: '2024-01-08T16:30:00Z',
-        score: 96,
-        attempts: 1,
-        timeSpent: 125
-      }
-    ],
-    certifications: [
-      {
-        id: 'cert-1',
-        moduleId: '1',
-        name: 'Food Safety Fundamentals Certificate',
-        issuedDate: '2024-01-12T16:30:00Z',
-        expiryDate: '2025-01-12T16:30:00Z',
-        status: 'active' as const,
-        score: 92
-      }
-    ],
-    overallProgress: 75,
-    joinedDate: '2024-01-08T08:00:00Z',
-    lastActivity: '2024-01-19T14:20:00Z'
-  },
-  {
-    employeeId: 'emp-2',
-    employeeName: 'Mike Chen',
-    employeeRole: 'Kitchen Manager',
-    avatar: '/avatars/mike.jpg',
-    moduleProgress: [
-      {
-        moduleId: '1',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-05T08:00:00Z',
-        completionDate: '2024-01-07T17:00:00Z',
-        score: 88,
-        attempts: 1,
-        timeSpent: 190
-      },
-      {
-        moduleId: '3',
-        status: 'in_progress' as const,
-        progress: 80,
-        startDate: '2024-01-12T09:00:00Z',
-        score: 85,
-        attempts: 1,
-        timeSpent: 288
-      },
-      {
-        moduleId: '4',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-08T11:00:00Z',
-        completionDate: '2024-01-10T15:30:00Z',
-        score: 94,
-        attempts: 1,
-        timeSpent: 155
-      }
-    ],
-    certifications: [
-      {
-        id: 'cert-2',
-        moduleId: '1',
-        name: 'Food Safety Fundamentals Certificate',
-        issuedDate: '2024-01-07T17:00:00Z',
-        expiryDate: '2025-01-07T17:00:00Z',
-        status: 'active' as const,
-        score: 88
-      },
-      {
-        id: 'cert-3',
-        moduleId: '4',
-        name: 'Compliance and Legal Requirements Certificate',
-        issuedDate: '2024-01-10T15:30:00Z',
-        expiryDate: '2025-01-10T15:30:00Z',
-        status: 'active' as const,
-        score: 94
-      }
-    ],
-    overallProgress: 85,
-    joinedDate: '2024-01-05T08:00:00Z',
-    lastActivity: '2024-01-19T16:45:00Z'
-  },
-  {
-    employeeId: 'emp-3',
-    employeeName: 'Emma Rodriguez',
-    employeeRole: 'Assistant Manager',
-    avatar: '/avatars/emma.jpg',
-    moduleProgress: [
-      {
-        moduleId: '2',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-09T10:00:00Z',
-        completionDate: '2024-01-11T18:30:00Z',
-        score: 91,
-        attempts: 1,
-        timeSpent: 245
-      },
-      {
-        moduleId: '5',
-        status: 'in_progress' as const,
-        progress: 45,
-        startDate: '2024-01-16T09:00:00Z',
-        score: 82,
-        attempts: 1,
-        timeSpent: 135
-      },
-      {
-        moduleId: '6',
-        status: 'completed' as const,
-        progress: 100,
-        startDate: '2024-01-06T13:00:00Z',
-        completionDate: '2024-01-06T15:30:00Z',
-        score: 98,
-        attempts: 1,
-        timeSpent: 118
-      }
-    ],
-    certifications: [
-      {
-        id: 'cert-4',
-        moduleId: '2',
-        name: 'Customer Service Excellence Certificate',
-        issuedDate: '2024-01-11T18:30:00Z',
-        expiryDate: '2026-01-11T18:30:00Z',
-        status: 'active' as const,
-        score: 91
-      }
-    ],
-    overallProgress: 67,
-    joinedDate: '2024-01-06T08:00:00Z',
-    lastActivity: '2024-01-19T12:15:00Z'
-  }
-];
+interface TrainingModule {
+  slug: string;
+  title: string;
+  description: string;
+  duration: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
+  modules: number;
+}
+
+interface TrainingFeed {
+  recommended: RecommendedModule[];
+  allCourses: TrainingModule[];
+  completedSlugs: string[];
+}
+
+const LEVEL_COLORS: Record<string, string> = {
+  beginner: 'bg-green-100 text-green-700',
+  intermediate: 'bg-amber-100 text-amber-700',
+  advanced: 'bg-red-100 text-red-700',
+};
+
+const ALL_TAGS = ['costs', 'menu', 'margins', 'hiring', 'culture', 'retention', 'pricing',
+  'revenue', 'operations', 'waste', 'speed', 'marketing', 'loyalty', 'growth',
+  'procurement', 'finance', 'compliance'];
 
 export default function TrainingPage() {
   const { user } = useAuth();
-  const [modules, setModules] = useState(mockTrainingModules);
-  const [employeeProgress, setEmployeeProgress] = useState(mockEmployeeProgress);
+  const router = useRouter();
+  const [feed, setFeed] = useState<TrainingFeed | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeLevel, setActiveLevel] = useState<string | null>(null);
 
-  const handleCreateModule = (newModule: any) => {
-    const module = {
-      ...newModule,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      createdBy: user?.id || 'current-user',
-      enrollmentCount: 0,
-      completionRate: 0,
-      rating: 0
-    };
-    setModules(prev => [module, ...prev]);
-  };
-
-  const handleUpdateModule = (moduleId: string, updates: any) => {
-    setModules(prev => prev.map(module => 
-      module.id === moduleId 
-        ? { ...module, ...updates, lastUpdated: new Date().toISOString() }
-        : module
-    ));
-  };
-
-  const handleEnrollEmployee = (moduleId: string, employeeId: string) => {
-    setEmployeeProgress(prev => prev.map(employee => {
-      if (employee.employeeId === employeeId) {
-        const existingProgress = employee.moduleProgress.find(p => p.moduleId === moduleId);
-        if (!existingProgress) {
-          return {
-            ...employee,
-            moduleProgress: [
-              ...employee.moduleProgress,
-              {
-                moduleId,
-                status: 'not_started' as const,
-                progress: 0,
-                attempts: 0,
-                timeSpent: 0
-              } as any
-            ]
-          } as any;
+  useEffect(() => {
+    async function loadFeed() {
+      setLoading(true);
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        const res = await fetch(`${API_BASE}/training/feed`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFeed(data);
+        } else {
+          // Not authenticated — load public catalog
+          const pubRes = await fetch(`${API_BASE}/training/courses`);
+          if (pubRes.ok) {
+            const courses = await pubRes.json();
+            setFeed({
+              recommended: courses.map((c: TrainingModule) => ({ ...c, isGeneral: true })),
+              allCourses: courses,
+              completedSlugs: [],
+            });
+          }
         }
+      } catch {
+        // silently fail — show empty state
+      } finally {
+        setLoading(false);
       }
-      return employee;
-    }));
+    }
+    loadFeed();
+  }, []);
 
-    // Update module enrollment count
-    setModules(prev => prev.map(module =>
-      module.id === moduleId
-        ? { ...module, enrollmentCount: module.enrollmentCount + 1 }
-        : module
-    ));
-  };
+  const filteredCourses = (feed?.allCourses ?? []).filter((c) => {
+    if (activeTag && !c.tags.includes(activeTag)) return false;
+    if (activeLevel && c.level !== activeLevel) return false;
+    return true;
+  });
 
-  const handleStartTraining = (moduleId: string) => {
-    const currentEmployeeId = user?.id || 'current-user';
-
-    setEmployeeProgress(prev => prev.map(employee => {
-      if (employee.employeeId === currentEmployeeId) {
-        const updatedProgress = employee.moduleProgress.map(p =>
-          p.moduleId === moduleId
-            ? {
-                ...p,
-                status: 'in_progress' as const,
-                startDate: p.startDate || new Date().toISOString()
-              } as any
-            : p
-        );
-
-        // If module not found, add it
-        const moduleExists = employee.moduleProgress.some(p => p.moduleId === moduleId);
-        if (!moduleExists) {
-          updatedProgress.push({
-            moduleId,
-            status: 'in_progress' as const,
-            progress: 0,
-            startDate: new Date().toISOString(),
-            attempts: 1,
-            timeSpent: 0
-          } as any);
-        }
-
-        return {
-          ...employee,
-          moduleProgress: updatedProgress,
-          lastActivity: new Date().toISOString()
-        } as any;
-      }
-      return employee;
-    }));
-
-    console.log(`Starting training for module: ${moduleId}`);
-  };
-
-  const handleCompleteLesson = (moduleId: string, lessonId: string) => {
-    console.log(`Completing lesson ${lessonId} in module ${moduleId}`);
-  };
+  const completedSlugs = new Set(feed?.completedSlugs ?? []);
 
   return (
     <DashboardLayout>
-      <TrainingSystem
-        modules={modules}
-        employeeProgress={employeeProgress}
-        userRole={user?.role as any || 'employee'}
-        currentUserId={user?.id}
-        onCreateModule={handleCreateModule}
-        onUpdateModule={handleUpdateModule}
-        onEnrollEmployee={handleEnrollEmployee}
-        onStartTraining={handleStartTraining}
-        onCompleteLesson={handleCompleteLesson}
-      />
+      <div className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+
+        {/* Hero */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Your Personalized Academy</h1>
+            <p className="mt-1 text-muted-foreground">
+              {user
+                ? 'Courses recommended based on your restaurant\'s operational data.'
+                : 'Browse all courses. Connect your REZ account for personalized recommendations.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm">
+            <GraduationCap className="h-5 w-5 text-primary" />
+            <span className="font-medium">{completedSlugs.size} completed</span>
+          </div>
+        </div>
+
+        {/* Recommended for You */}
+        {!loading && feed && feed.recommended.length > 0 && (
+          <section>
+            <h2 className="mb-4 text-xl font-semibold">
+              {feed.recommended.some((r) => !r.isGeneral)
+                ? 'Recommended for You'
+                : 'Popular Courses'}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {feed.recommended.slice(0, 6).map((module) => (
+                <RecommendedCourseCard
+                  key={module.slug}
+                  module={module}
+                  isCompleted={completedSlugs.has(module.slug)}
+                  onStart={() => router.push(`/training/${module.slug}`)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-52 rounded-xl bg-muted animate-pulse" />
+            ))}
+          </div>
+        )}
+
+        {/* All Courses */}
+        <section>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-semibold">All Courses</h2>
+
+            {/* Tag filters */}
+            <div className="flex flex-wrap gap-2">
+              <Filter className="h-4 w-4 mt-1 text-muted-foreground" />
+              {['costs', 'marketing', 'operations', 'hiring', 'compliance', 'finance'].map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    activeTag === tag
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+              {['beginner', 'intermediate', 'advanced'].map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setActiveLevel(activeLevel === level ? null : level)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    activeLevel === level
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {!loading && filteredCourses.length === 0 && (
+            <p className="text-sm text-muted-foreground">No courses match the selected filters.</p>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCourses.map((course) => (
+              <Card
+                key={course.slug}
+                className="flex flex-col transition-shadow hover:shadow-md cursor-pointer"
+                onClick={() => router.push(`/training/${course.slug}`)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-sm leading-tight">{course.title}</h3>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${LEVEL_COLORS[course.level]}`}
+                    >
+                      {course.level}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{course.description}</p>
+                </CardHeader>
+                <CardContent className="flex-1 pb-2">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {course.duration}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      {course.modules} modules
+                    </span>
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-0 gap-1 flex-wrap">
+                  {course.tags.slice(0, 3).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {completedSlugs.has(course.slug) && (
+                    <Badge className="text-xs bg-green-100 text-green-700 border-0">
+                      Completed
+                    </Badge>
+                  )}
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Certifications strip */}
+        {completedSlugs.size > 0 && (
+          <section className="rounded-xl border bg-muted/40 px-6 py-5 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Award className="h-6 w-6 text-amber-500" />
+              <div>
+                <p className="font-medium">
+                  You have {completedSlugs.size} certificate{completedSlugs.size > 1 ? 's' : ''}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Visible on your RestaurantHub profile
+                </p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => router.push('/profile')}>
+              View Profile
+            </Button>
+          </section>
+        )}
+      </div>
     </DashboardLayout>
   );
 }

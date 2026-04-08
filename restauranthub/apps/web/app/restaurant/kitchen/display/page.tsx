@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Clock, 
-  ChefHat, 
-  Timer, 
-  CheckCircle, 
-  AlertTriangle, 
+import {
+  Clock,
+  ChefHat,
+  Timer,
+  CheckCircle,
+  AlertTriangle,
   Flame,
   Users,
   UtensilsCrossed,
@@ -21,9 +22,13 @@ import {
   Bell,
   Settings,
   Maximize2,
-  RefreshCw
+  RefreshCw,
+  Wifi,
+  WifiOff,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useKitchenOrders } from '@/hooks/useKitchenOrders';
 
 interface KitchenOrder {
   id: string;
@@ -54,147 +59,7 @@ interface OrderItem {
   allergens?: string[];
 }
 
-const mockOrders: KitchenOrder[] = [
-  {
-    id: 'order-001',
-    orderNumber: '#2024-001',
-    tableNumber: 'T-12',
-    customerName: 'John Doe',
-    orderType: 'dine-in',
-    status: 'new',
-    priority: 'high',
-    totalItems: 3,
-    estimatedTime: 18,
-    elapsedTime: 0,
-    orderTime: '12:45 PM',
-    specialInstructions: 'Extra spicy, no onions',
-    allergens: ['gluten', 'dairy'],
-    station: 'grill',
-    items: [
-      {
-        id: 'item-001',
-        name: 'Grilled Chicken Burger',
-        quantity: 1,
-        modifications: ['No pickles', 'Extra cheese'],
-        cookingTime: 12,
-        station: 'grill',
-        status: 'pending',
-        allergens: ['gluten', 'dairy']
-      },
-      {
-        id: 'item-002',
-        name: 'Truffle Fries',
-        quantity: 1,
-        modifications: [],
-        cookingTime: 8,
-        station: 'fryer',
-        status: 'pending'
-      },
-      {
-        id: 'item-003',
-        name: 'Caesar Salad',
-        quantity: 1,
-        modifications: ['Dressing on side'],
-        cookingTime: 5,
-        station: 'salad',
-        status: 'pending',
-        allergens: ['dairy']
-      }
-    ]
-  },
-  {
-    id: 'order-002',
-    orderNumber: '#2024-002',
-    customerName: 'Sarah Wilson',
-    orderType: 'takeout',
-    status: 'preparing',
-    priority: 'normal',
-    totalItems: 2,
-    estimatedTime: 15,
-    elapsedTime: 8,
-    orderTime: '12:38 PM',
-    station: 'saute',
-    items: [
-      {
-        id: 'item-004',
-        name: 'Pasta Carbonara',
-        quantity: 1,
-        modifications: ['Extra parmesan'],
-        cookingTime: 12,
-        station: 'saute',
-        status: 'preparing'
-      },
-      {
-        id: 'item-005',
-        name: 'Garlic Bread',
-        quantity: 1,
-        modifications: [],
-        cookingTime: 6,
-        station: 'oven',
-        status: 'ready'
-      }
-    ]
-  },
-  {
-    id: 'order-003',
-    orderNumber: '#2024-003',
-    tableNumber: 'T-05',
-    customerName: 'Mike Chen',
-    orderType: 'dine-in',
-    status: 'ready',
-    priority: 'normal',
-    totalItems: 4,
-    estimatedTime: 22,
-    elapsedTime: 20,
-    orderTime: '12:25 PM',
-    station: 'mixed',
-    items: [
-      {
-        id: 'item-006',
-        name: 'Fish & Chips',
-        quantity: 2,
-        modifications: [],
-        cookingTime: 15,
-        station: 'fryer',
-        status: 'ready'
-      },
-      {
-        id: 'item-007',
-        name: 'Coleslaw',
-        quantity: 2,
-        modifications: [],
-        cookingTime: 3,
-        station: 'salad',
-        status: 'ready'
-      }
-    ]
-  },
-  {
-    id: 'order-004',
-    orderNumber: '#2024-004',
-    customerName: 'Lisa Park',
-    orderType: 'delivery',
-    status: 'delayed',
-    priority: 'urgent',
-    totalItems: 1,
-    estimatedTime: 25,
-    elapsedTime: 30,
-    orderTime: '12:15 PM',
-    specialInstructions: 'Customer called - running late',
-    station: 'grill',
-    items: [
-      {
-        id: 'item-008',
-        name: 'Premium Steak',
-        quantity: 1,
-        modifications: ['Medium rare', 'No mushrooms'],
-        cookingTime: 25,
-        station: 'grill',
-        status: 'preparing'
-      }
-    ]
-  }
-];
+// Mock orders removed - using real-time data from useKitchenOrders hook
 
 const kitchenStations = [
   { id: 'all', name: 'All Stations', icon: UtensilsCrossed, color: 'blue' },
@@ -206,30 +71,55 @@ const kitchenStations = [
 ];
 
 export default function KitchenDisplaySystem() {
-  const [orders, setOrders] = useState<KitchenOrder[]>(mockOrders);
+  const router = useRouter();
   const [selectedStation, setSelectedStation] = useState('all');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Get merchant and store IDs (from auth context or URL params)
+  const [merchantId, setMerchantId] = useState<string>('');
+  const [storeId, setStoreId] = useState<string>('');
+
+  // Load from localStorage or context
+  useEffect(() => {
+    const stored = typeof window !== 'undefined' ? {
+      merchantId: localStorage.getItem('merchant_id') || '',
+      storeId: localStorage.getItem('store_id') || '',
+    } : { merchantId: '', storeId: '' };
+
+    if (!stored.merchantId || !stored.storeId) {
+      // In production, redirect to login/store selection if not available
+      console.warn('Missing merchant_id or store_id');
+    }
+
+    setMerchantId(stored.merchantId);
+    setStoreId(stored.storeId);
+  }, []);
+
+  // Use the kitchen orders hook
+  const {
+    orders,
+    updateItemStatus,
+    updateOrderStatus,
+    isLoading,
+    error,
+    isConnected,
+  } = useKitchenOrders(merchantId, storeId);
+
+  // Update elapsed time for orders in preparing status
   useEffect(() => {
     const timer = setInterval(() => {
       if (!isPaused) {
         setCurrentTime(new Date());
-        setOrders(prev => 
-          prev.map(order => ({
-            ...order,
-            elapsedTime: order.status === 'preparing' ? order.elapsedTime + 1 : order.elapsedTime
-          }))
-        );
       }
     }, 60000);
 
     return () => clearInterval(timer);
   }, [isPaused]);
 
-  const filteredOrders = selectedStation === 'all' 
-    ? orders 
+  const filteredOrders = selectedStation === 'all'
+    ? orders
     : orders.filter(order => order.station === selectedStation || order.items.some(item => item.station === selectedStation));
 
   const getStatusColor = (status: string) => {
@@ -253,40 +143,64 @@ export default function KitchenDisplaySystem() {
     }
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: KitchenOrder['status']) => {
-    setOrders(prev =>
-      prev.map(order =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
-    );
-  };
-
-  const updateItemStatus = (orderId: string, itemId: string, newStatus: OrderItem['status']) => {
-    setOrders(prev =>
-      prev.map(order =>
-        order.id === orderId
-          ? {
-              ...order,
-              items: order.items.map(item =>
-                item.id === itemId ? { ...item, status: newStatus } : item
-              )
-            }
-          : order
-      )
-    );
-  };
-
   const formatTime = (minutes: number) => {
     return `${Math.floor(minutes / 60)}:${(minutes % 60).toString().padStart(2, '0')}`;
   };
 
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin">
+              <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Loading Kitchen Display</h2>
+            <p className="text-muted-foreground">Connecting to order system...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Kitchen Display System</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-foreground">Kitchen Display System</h1>
+              <div className={cn(
+                'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
+                isConnected
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-yellow-100 text-yellow-800'
+              )}>
+                {isConnected ? (
+                  <>
+                    <Wifi className="h-3 w-3" />
+                    Connected
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="h-3 w-3" />
+                    Connecting...
+                  </>
+                )}
+              </div>
+            </div>
             <p className="text-muted-foreground mt-1">
               Real-time order management for kitchen operations - {currentTime.toLocaleTimeString()}
             </p>

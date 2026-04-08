@@ -19,11 +19,15 @@ import {
   Check,
   AlertCircle,
   Clock,
-  Send
+  Send,
+  Shield,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { VerificationBadge } from '@/components/verification/verification-badge';
+import { verificationService } from '@/lib/api/verification';
 import { cn } from '@/lib/utils';
 
 interface JobApplicationFormProps {
@@ -141,20 +145,44 @@ export default function JobApplicationForm({
   onClose,
   onSubmit
 }: JobApplicationFormProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0); // Start with verification check
   const [formData, setFormData] = useState<ApplicationData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [verificationStatus, setVerificationStatus] = useState<any>(null);
+  const [isLoadingVerification, setIsLoadingVerification] = useState(true);
 
-  const totalSteps = 5;
+  const totalSteps = 6; // Added verification step
 
   const steps = [
+    { id: 0, title: 'Verification', icon: Shield },
     { id: 1, title: 'Personal Info', icon: User },
     { id: 2, title: 'Experience', icon: Briefcase },
     { id: 3, title: 'Education & Skills', icon: GraduationCap },
     { id: 4, title: 'Documents', icon: FileText },
     { id: 5, title: 'Final Details', icon: Send }
   ];
+
+  // Load verification status when form opens
+  React.useEffect(() => {
+    if (isOpen) {
+      loadVerificationStatus();
+    }
+  }, [isOpen]);
+
+  const loadVerificationStatus = async () => {
+    try {
+      setIsLoadingVerification(true);
+      // Mock employee ID - in real app this would come from auth context
+      const employeeId = 'emp_123';
+      const status = await verificationService.checkVerificationStatus(employeeId);
+      setVerificationStatus(status);
+    } catch (error) {
+      console.error('Failed to load verification status:', error);
+    } finally {
+      setIsLoadingVerification(false);
+    }
+  };
 
   const updateFormData = (section: keyof ApplicationData, data: any) => {
     setFormData(prev => ({
@@ -214,13 +242,21 @@ export default function JobApplicationForm({
   };
 
   const handleNext = () => {
+    // Special handling for verification step
+    if (currentStep === 0) {
+      if (!verificationStatus?.canApplyForJobs) {
+        // Don't allow proceeding without verification
+        return;
+      }
+    }
+
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps - 1));
     }
   };
 
   const handlePrevious = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
   const handleSubmit = async () => {
@@ -241,6 +277,148 @@ export default function JobApplicationForm({
 
   const renderStepContent = () => {
     switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold mb-4">Verification Status</h3>
+
+            {isLoadingVerification ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full"></div>
+              </div>
+            ) : verificationStatus ? (
+              <div className="space-y-4">
+                {/* Verification Status Overview */}
+                <Card className={cn(
+                  'border-2',
+                  verificationStatus.canApplyForJobs
+                    ? 'border-green-200 bg-green-50'
+                    : 'border-orange-200 bg-orange-50'
+                )}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      {verificationStatus.canApplyForJobs ? (
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                      ) : (
+                        <AlertCircle className="h-6 w-6 text-orange-600" />
+                      )}
+                      <div>
+                        <h4 className={cn(
+                          'font-semibold',
+                          verificationStatus.canApplyForJobs ? 'text-green-800' : 'text-orange-800'
+                        )}>
+                          {verificationStatus.canApplyForJobs
+                            ? 'Profile Verified - Ready to Apply'
+                            : 'Verification Required'
+                          }
+                        </h4>
+                        <p className={cn(
+                          'text-sm',
+                          verificationStatus.canApplyForJobs ? 'text-green-600' : 'text-orange-600'
+                        )}>
+                          {verificationStatus.canApplyForJobs
+                            ? 'Your profile is fully verified. You can proceed with your job application.'
+                            : 'Please complete your profile verification before applying for jobs.'
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Verification Score */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="font-medium">Verification Score</span>
+                        <span className="font-bold">{verificationStatus.verificationScore}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            'h-full transition-all duration-300',
+                            verificationStatus.verificationScore >= 80 ? 'bg-green-500' :
+                            verificationStatus.verificationScore >= 60 ? 'bg-yellow-500' :
+                            verificationStatus.verificationScore >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                          )}
+                          style={{ width: `${Math.min(verificationStatus.verificationScore, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Missing Requirements */}
+                    {verificationStatus.missingRequirements.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-orange-800 mb-2">
+                          Complete these requirements to unlock job applications:
+                        </p>
+                        <ul className="space-y-1">
+                          {verificationStatus.missingRequirements.map((requirement: string, index: number) => (
+                            <li key={index} className="flex items-center gap-2 text-sm text-orange-700">
+                              <div className="h-1.5 w-1.5 bg-orange-500 rounded-full"></div>
+                              {requirement}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Action Buttons */}
+                {!verificationStatus.canApplyForJobs && (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <h4 className="font-medium mb-3">Complete Your Verification</h4>
+                      <div className="space-y-2">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            // Navigate to profile verification page
+                            window.open('/employee/profile', '_blank');
+                          }}
+                        >
+                          <Shield className="h-4 w-4 mr-2" />
+                          Go to Profile Verification
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          Complete your Aadhaar verification and upload required documents to proceed.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Job Requirements Notice */}
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Shield className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium mb-1">Why Verification is Required</p>
+                        <p>
+                          We require profile verification to ensure the safety and authenticity of all
+                          job applications. This helps restaurants trust that applicants are genuine
+                          and qualified candidates.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-red-600 font-medium mb-2">Unable to Load Verification Status</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Please try again or contact support if the problem persists.
+                </p>
+                <Button onClick={loadVerificationStatus} variant="outline">
+                  Retry
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+
       case 1:
         return (
           <div className="space-y-4">
@@ -814,21 +992,28 @@ export default function JobApplicationForm({
             {/* Footer */}
             <div className="flex items-center justify-between p-6 border-t border-border">
               <div className="text-sm text-muted-foreground">
-                Step {currentStep} of {totalSteps}
+                Step {currentStep + 1} of {totalSteps}
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
-                  disabled={currentStep === 1}
+                  disabled={currentStep === 0}
                 >
                   Previous
                 </Button>
-                
-                {currentStep < totalSteps ? (
-                  <Button onClick={handleNext}>
-                    Next
+
+                {currentStep < totalSteps - 1 ? (
+                  <Button
+                    onClick={handleNext}
+                    disabled={currentStep === 0 && !verificationStatus?.canApplyForJobs}
+                  >
+                    {currentStep === 0 && !verificationStatus?.canApplyForJobs ? (
+                      'Complete Verification First'
+                    ) : (
+                      'Next'
+                    )}
                   </Button>
                 ) : (
                   <Button 

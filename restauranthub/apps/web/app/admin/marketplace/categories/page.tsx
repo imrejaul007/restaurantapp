@@ -150,7 +150,7 @@ export default function CategoryManagementPage() {
         isActive: true,
         productCount: 0,
         vendorCount: 0,
-        createdAt: new Date().toISOString().split('T')[0]
+        createdAt: new Date().toISOString().split('T')[0] || new Date().toISOString()
       };
       setCategories(prev => [newCategory, ...prev]);
       toast({

@@ -1,677 +1,409 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import toast from '@/lib/toast';
-import { 
+import {
   User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Briefcase,
-  GraduationCap,
-  Award,
-  Upload,
-  Download,
-  Eye,
-  Edit,
-  Plus,
-  X,
-  Save,
-  CheckCircle,
-  AlertCircle,
+  Shield,
   FileText,
-  Camera
+  Briefcase,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  Award,
+  AlertCircle,
+  CheckCircle,
+  Settings,
+  Edit3
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { formatDate, cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { VerificationBadge, VerificationStatus } from '@/components/verification/verification-badge';
+import { DocumentUpload } from '@/components/verification/document-upload';
+import { AadhaarVerification } from '@/components/verification/aadhaar-verification';
+import { verificationService } from '@/lib/api/verification';
+import { cn } from '@/lib/utils';
 
-const profileSchema = z.object({
-  // Personal Information
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
-  gender: z.enum(['male', 'female', 'other']),
-  
-  // Address
-  address: z.object({
-    street: z.string().min(5, 'Street address must be at least 5 characters'),
-    city: z.string().min(2, 'City must be at least 2 characters'),
-    state: z.string().min(2, 'State must be at least 2 characters'),
-    pincode: z.string().min(6, 'Pincode must be 6 digits').max(6, 'Pincode must be 6 digits'),
-    country: z.string().min(2, 'Country is required')
-  }),
-  
-  // Professional Information
-  currentSalary: z.number().optional(),
-  expectedSalary: z.number().min(1, 'Expected salary is required'),
-  experience: z.number().min(0, 'Experience cannot be negative'),
-  noticePeriod: z.enum(['immediate', '15-days', '1-month', '2-months', '3-months']),
-  
-  // Preferences
-  jobTypes: z.array(z.string()).min(1, 'Select at least one job type'),
-  preferredLocations: z.array(z.string()).min(1, 'Select at least one preferred location'),
-  willingToRelocate: z.boolean(),
-  
-  // About
-  summary: z.string().max(500, 'Summary must be less than 500 characters').optional()
-});
-
-type ProfileForm = z.infer<typeof profileSchema>;
-
-interface WorkExperience {
+interface EmployeeProfile {
   id: string;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  description: string;
-  skills: string[];
+  employeeCode: string;
+  designation: string;
+  department?: string;
+  joiningDate: string;
+  isActive: boolean;
+  user: {
+    id: string;
+    email: string;
+    profile?: {
+      firstName: string;
+      lastName: string;
+      phone?: string;
+      avatar?: string;
+      dateOfBirth?: string;
+      address?: string;
+    };
+  };
+  restaurant: {
+    id: string;
+    name: string;
+    location: string;
+  };
 }
 
-interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startYear: string;
-  endYear: string;
-  percentage?: number;
-}
-
-interface Skill {
-  id: string;
-  name: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  verified: boolean;
-  endorsements: number;
-}
-
-interface Document {
-  id: string;
-  type: 'resume' | 'aadhaar' | 'pan' | 'passport' | 'certificate' | 'photo';
-  name: string;
-  uploadedAt: string;
-  verified: boolean;
-  size: string;
-}
-
-const mockExperience: WorkExperience[] = [
-  {
-    id: '1',
-    company: 'Royal Kitchen Restaurant',
-    position: 'Sous Chef',
-    startDate: '2022-06-01',
-    endDate: '2023-12-31',
-    current: false,
-    description: 'Managed kitchen operations, supervised junior chefs, and maintained food quality standards. Specialized in Indian and Continental cuisine.',
-    skills: ['Indian Cuisine', 'Kitchen Management', 'Food Safety', 'Team Leadership']
-  },
-  {
-    id: '2',
-    company: 'Hotel Grand Palace',
-    position: 'Junior Chef',
-    startDate: '2020-03-15',
-    endDate: '2022-05-30',
-    current: false,
-    description: 'Assisted head chef in daily operations, prepared various dishes, and maintained kitchen hygiene standards.',
-    skills: ['Food Preparation', 'Kitchen Hygiene', 'Continental Cuisine']
-  }
-];
-
-const mockEducation: Education[] = [
-  {
-    id: '1',
-    institution: 'Institute of Hotel Management',
-    degree: 'Diploma',
-    field: 'Hotel Management & Culinary Arts',
-    startYear: '2018',
-    endYear: '2020',
-    percentage: 85
-  },
-  {
-    id: '2',
-    institution: 'Mumbai University',
-    degree: 'Bachelor of Commerce',
-    field: 'Commerce',
-    startYear: '2015',
-    endYear: '2018',
-    percentage: 72
-  }
-];
-
-const mockSkills: Skill[] = [
-  { id: '1', name: 'Indian Cuisine', level: 'expert', verified: true, endorsements: 15 },
-  { id: '2', name: 'Continental Cuisine', level: 'advanced', verified: true, endorsements: 12 },
-  { id: '3', name: 'Kitchen Management', level: 'advanced', verified: false, endorsements: 8 },
-  { id: '4', name: 'Food Safety & Hygiene', level: 'expert', verified: true, endorsements: 20 },
-  { id: '5', name: 'Team Leadership', level: 'intermediate', verified: false, endorsements: 6 },
-  { id: '6', name: 'Menu Planning', level: 'intermediate', verified: false, endorsements: 4 }
-];
-
-const mockDocuments: Document[] = [
-  { id: '1', type: 'resume', name: 'Resume_AmitSharma.pdf', uploadedAt: '2024-01-01T00:00:00Z', verified: true, size: '245 KB' },
-  { id: '2', type: 'aadhaar', name: 'Aadhaar_Card.pdf', uploadedAt: '2023-12-15T00:00:00Z', verified: true, size: '180 KB' },
-  { id: '3', type: 'pan', name: 'PAN_Card.pdf', uploadedAt: '2023-12-15T00:00:00Z', verified: false, size: '150 KB' },
-  { id: '4', type: 'certificate', name: 'HACCP_Certificate.pdf', uploadedAt: '2024-01-05T00:00:00Z', verified: true, size: '320 KB' },
-  { id: '5', type: 'photo', name: 'Profile_Photo.jpg', uploadedAt: '2023-12-01T00:00:00Z', verified: true, size: '95 KB' }
-];
-
-export default function EmployeeProfile() {
-  const [activeTab, setActiveTab] = useState('personal');
-  const [isEditing, setIsEditing] = useState(false);
-  const [showAddExperience, setShowAddExperience] = useState(false);
-  const [showAddEducation, setShowAddEducation] = useState(false);
-
-  const form = useForm<ProfileForm>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: 'Amit',
-      lastName: 'Sharma',
-      email: 'amit.sharma@example.com',
-      phone: '+91 9876543210',
-      dateOfBirth: '1995-05-15',
-      gender: 'male',
-      address: {
-        street: '123 Linking Road',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pincode: '400050',
-        country: 'India'
-      },
-      expectedSalary: 45000,
-      experience: 4,
-      noticePeriod: '1-month',
-      jobTypes: ['full-time'],
-      preferredLocations: ['Mumbai', 'Pune'],
-      willingToRelocate: false,
-      summary: 'Experienced chef with 4+ years in hotel and restaurant industry. Specialized in Indian and Continental cuisine with strong leadership skills.'
+// Mock data - in real app this would come from API
+const mockProfile: EmployeeProfile = {
+  id: 'emp_123',
+  employeeCode: 'EMP001',
+  designation: 'Senior Chef',
+  department: 'Kitchen',
+  joiningDate: '2023-01-15',
+  isActive: true,
+  user: {
+    id: 'user_123',
+    email: 'john.doe@email.com',
+    profile: {
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '+91 98765 43210',
+      dateOfBirth: '1990-05-15',
+      address: 'Mumbai, Maharashtra'
     }
-  });
+  },
+  restaurant: {
+    id: 'rest_123',
+    name: 'The Grand Restaurant',
+    location: 'Mumbai, India'
+  }
+};
 
-  const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: User },
-    { id: 'experience', label: 'Experience', icon: Briefcase },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-    { id: 'skills', label: 'Skills', icon: Award },
-    { id: 'documents', label: 'Documents', icon: FileText },
-  ];
+export default function EmployeeProfilePage() {
+  const [profile] = useState<EmployeeProfile>(mockProfile);
+  const [verificationStatus, setVerificationStatus] = useState<any>(null);
+  const [aadhaarStatus, setAadhaarStatus] = useState<any>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const onSubmit = async (data: ProfileForm) => {
-    const loadingToast = toast.loading('Saving profile...');
-    
+  useEffect(() => {
+    loadVerificationData();
+  }, []);
+
+  const loadVerificationData = async () => {
     try {
-      // Simulate API call to save profile
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock API call - in real app, this would be an actual API endpoint
-      const profileUpdateData = {
-        ...data,
-        updatedAt: new Date().toISOString()
-      };
-      
-      toast.dismiss(loadingToast);
-      toast.success('Profile updated successfully!', 'Your changes have been saved.');
-      setIsEditing(false);
+      setIsLoading(true);
+
+      // Load verification status, Aadhaar status, and documents
+      const [verStatus, aadhaarStat, docs] = await Promise.all([
+        verificationService.getEmployeeVerificationStatus(profile.id),
+        verificationService.getAadhaarVerificationStatus(),
+        verificationService.getEmployeeDocuments(profile.id)
+      ]);
+
+      setVerificationStatus(verStatus);
+      setAadhaarStatus(aadhaarStat);
+      setDocuments(docs);
     } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error('Failed to update profile', 'Please try again later.');
+      console.error('Failed to load verification data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getSkillLevelColor = (level: Skill['level']) => {
-    switch (level) {
-      case 'beginner':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'intermediate':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'advanced':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'expert':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  const handleDocumentUpload = async (file: File, documentType: string) => {
+    try {
+      setIsUploading(true);
+
+      // Upload file and get URL
+      const fileUrl = await verificationService.uploadFile(file, documentType);
+
+      // Create document record
+      await verificationService.uploadDocument({
+        type: documentType,
+        name: file.name,
+        url: fileUrl,
+        employeeId: profile.id
+      });
+
+      // Reload data
+      await loadVerificationData();
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const getDocumentTypeIcon = (type: Document['type']) => {
-    switch (type) {
-      case 'resume':
-        return <FileText className="h-5 w-5" />;
-      case 'photo':
-        return <Camera className="h-5 w-5" />;
-      default:
-        return <FileText className="h-5 w-5" />;
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      await verificationService.deleteDocument(documentId);
+      await loadVerificationData();
+    } catch (error) {
+      console.error('Delete failed:', error);
     }
   };
 
-  const profileCompletion = 85; // Mock calculation
+  const handleAadhaarVerification = async (data: any) => {
+    try {
+      await verificationService.initiateAadhaarVerification(data);
+      await loadVerificationData();
+    } catch (error) {
+      console.error('Aadhaar verification failed:', error);
+    }
+  };
 
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your professional information and preferences
-            </p>
-          </div>
-          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <div className="text-sm">
-              <span className="text-muted-foreground">Profile Completion: </span>
-              <span className="font-medium text-primary">{profileCompletion}%</span>
-            </div>
-            {isEditing ? (
-              <div className="flex items-center space-x-2">
-                <Button variant="outline"  onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-                <Button  onClick={form.handleSubmit(onSubmit)}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
+  const getVerificationAlert = () => {
+    if (!verificationStatus) return null;
+
+    if (verificationStatus.isFullyVerified) {
+      return (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <div>
+                <p className="font-medium text-green-800">Profile Fully Verified</p>
+                <p className="text-sm text-green-600">
+                  You can now apply for jobs and access all platform features.
+                </p>
               </div>
-            ) : (
-              <Button  onClick={() => setIsEditing(true)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="border-orange-200 bg-orange-50">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium text-orange-800">Verification Required</p>
+              <p className="text-sm text-orange-600 mb-2">
+                Complete your profile verification to unlock job applications.
+              </p>
+              <div className="text-xs text-orange-600">
+                <p>Missing requirements:</p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  {!verificationStatus.aadharVerified && (
+                    <li>Aadhaar verification</li>
+                  )}
+                  {verificationStatus.requiredDocuments
+                    .filter((docType: string) =>
+                      !verificationStatus.verifiedDocuments.some((doc: any) => doc.type === docType)
+                    )
+                    .map((docType: string) => (
+                      <li key={docType}>
+                        {docType.charAt(0).toUpperCase() + docType.slice(1).replace('_', ' ')} document
+                      </li>
+                    ))
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="h-96 bg-muted rounded-lg"></div>
+              <div className="lg:col-span-2 h-96 bg-muted rounded-lg"></div>
+            </div>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Profile Completion Progress */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-foreground">Profile Completion</h3>
-                <span className="text-sm text-muted-foreground">{profileCompletion}% Complete</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2 mb-3">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${profileCompletion}%` }}
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Employee Profile</h1>
+            <p className="text-muted-foreground">
+              Manage your profile and verification status
+            </p>
+          </div>
+          <Button variant="outline">
+            <Edit3 className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
+        </div>
+
+        {/* Verification Alert */}
+        {getVerificationAlert()}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          {/* Profile Overview */}
+          <div className="space-y-6">
+            {/* Basic Info Card */}
+            <Card>
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="h-12 w-12 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {profile.user.profile?.firstName} {profile.user.profile?.lastName}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{profile.designation}</p>
+                    <Badge variant="secondary" className="mt-2">
+                      {profile.employeeCode}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{profile.user.email}</span>
+                </div>
+                {profile.user.profile?.phone && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{profile.user.profile.phone}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{profile.restaurant.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{profile.restaurant.location}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    Joined {new Date(profile.joiningDate).toLocaleDateString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Verification Status Card */}
+            {verificationStatus && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Verification Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <VerificationStatus
+                    verificationScore={verificationStatus.verificationScore}
+                    aadharVerified={verificationStatus.aadharVerified}
+                    aadhaarStatus={verificationStatus.aadhaarStatus}
+                    requiredDocuments={verificationStatus.requiredDocuments}
+                    verifiedDocuments={verificationStatus.verifiedDocuments}
+                    isFullyVerified={verificationStatus.isFullyVerified}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="verification" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="verification">Verification</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="verification" className="space-y-6">
+                {/* Aadhaar Verification */}
+                <AadhaarVerification
+                  currentStatus={aadhaarStatus}
+                  onInitiateVerification={handleAadhaarVerification}
+                  isLoading={isUploading}
                 />
-              </div>
-              <div className="flex flex-wrap gap-2 text-xs">
-                <span className="bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200 px-2 py-1 rounded-full">
-                  ✓ Basic Info
-                </span>
-                <span className="bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200 px-2 py-1 rounded-full">
-                  ✓ Experience
-                </span>
-                <span className="bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-200 px-2 py-1 rounded-full">
-                  ! Skills Verification
-                </span>
-                <span className="bg-warning-100 text-warning-800 dark:bg-warning-900 dark:text-warning-200 px-2 py-1 rounded-full">
-                  ! Document Upload
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Tab Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              <div className="flex flex-wrap border-b">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        'flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors hover:text-primary',
-                        activeTab === tab.id
-                          ? 'border-b-2 border-primary text-primary bg-primary/5'
-                          : 'text-muted-foreground'
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                {/* Document Upload */}
+                <DocumentUpload
+                  documents={documents}
+                  onUpload={handleDocumentUpload}
+                  onDelete={handleDeleteDocument}
+                  isUploading={isUploading}
+                />
+              </TabsContent>
 
-        {/* Tab Content */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {activeTab === 'personal' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>
-                  Update your personal details and contact information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">First Name</label>
-                      <input
-                        {...form.register('firstName')}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                      {form.formState.errors.firstName && (
-                        <p className="text-sm text-destructive">{form.formState.errors.firstName.message}</p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Last Name</label>
-                      <input
-                        {...form.register('lastName')}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                      {form.formState.errors.lastName && (
-                        <p className="text-sm text-destructive">{form.formState.errors.lastName.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Email</label>
-                      <input
-                        {...form.register('email')}
-                        disabled={!isEditing}
-                        type="email"
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                      {form.formState.errors.email && (
-                        <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Phone</label>
-                      <input
-                        {...form.register('phone')}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                      {form.formState.errors.phone && (
-                        <p className="text-sm text-destructive">{form.formState.errors.phone.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Date of Birth</label>
-                      <input
-                        {...form.register('dateOfBirth')}
-                        disabled={!isEditing}
-                        type="date"
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Gender</label>
-                      <select
-                        {...form.register('gender')}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      >
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-foreground">Address</h4>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">Street Address</label>
-                      <input
-                        {...form.register('address.street')}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">City</label>
-                        <input
-                          {...form.register('address.city')}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
+              <TabsContent value="documents" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {documents.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No documents uploaded yet</p>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">State</label>
-                        <input
-                          {...form.register('address.state')}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Pincode</label>
-                        <input
-                          {...form.register('address.pincode')}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">Country</label>
-                        <input
-                          {...form.register('address.country')}
-                          disabled={!isEditing}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Professional Summary</label>
-                    <textarea
-                      {...form.register('summary')}
-                      disabled={!isEditing}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                      placeholder="Brief description of your professional background and career objectives..."
-                    />
-                    <p className="text-xs text-muted-foreground">Maximum 500 characters</p>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'experience' && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>Work Experience</CardTitle>
-                  <CardDescription>
-                    Add your work history and achievements
-                  </CardDescription>
-                </div>
-                <Button  onClick={() => setShowAddExperience(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Experience
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {mockExperience.map((exp, index) => (
-                    <div key={exp.id} className="p-4 border border-border rounded-lg">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-foreground">{exp.position}</h4>
-                          <p className="text-sm text-muted-foreground">{exp.company}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {formatDate(exp.startDate, { month: 'short', year: 'numeric' })} - 
-                            {exp.current ? ' Present' : formatDate(exp.endDate!, { month: 'short', year: 'numeric' })}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost"  className="text-destructive hover:text-destructive">
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{exp.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {exp.skills.map((skill, skillIndex) => (
-                          <span
-                            key={skillIndex}
-                            className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded"
+                    ) : (
+                      <div className="space-y-3">
+                        {documents.map((doc) => (
+                          <div
+                            key={doc.id}
+                            className="flex items-center justify-between p-3 border border-border rounded-lg"
                           >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'skills' && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>Skills & Expertise</CardTitle>
-                  <CardDescription>
-                    Showcase your professional skills and get verified
-                  </CardDescription>
-                </div>
-                <Button >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Skill
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {mockSkills.map((skill) => (
-                    <div key={skill.id} className="p-4 border border-border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-foreground">{skill.name}</h4>
-                        <div className="flex items-center space-x-2">
-                          {skill.verified && (
-                            <CheckCircle className="h-4 w-4 text-success-500" />
-                          )}
-                          <div className={`text-xs px-2 py-1 rounded-full ${getSkillLevelColor(skill.level)}`}>
-                            {skill.level}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>{skill.endorsements} endorsements</span>
-                        {!skill.verified && (
-                          <Button variant="ghost"  className="text-xs">
-                            Take Test
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === 'documents' && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>Documents</CardTitle>
-                  <CardDescription>
-                    Upload and manage your important documents
-                  </CardDescription>
-                </div>
-                <Button >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Document
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockDocuments.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          {getDocumentTypeIcon(doc.type)}
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-foreground text-sm">{doc.name}</h4>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-xs text-muted-foreground">{doc.size}</span>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDate(doc.uploadedAt, { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </span>
-                            <div className={`text-xs px-2 py-1 rounded-full ${
-                              doc.verified 
-                                ? 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200'
-                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            }`}>
-                              {doc.verified ? 'Verified' : 'Pending'}
+                            <div className="flex items-center gap-3">
+                              <FileText className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="font-medium">{doc.name}</p>
+                                <p className="text-xs text-muted-foreground capitalize">
+                                  {doc.type.replace('_', ' ')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <VerificationBadge status={doc.verificationStatus} size="sm" />
+                              <Button variant="ghost" size="sm">
+                                View
+                              </Button>
                             </div>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button variant="ghost" >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
-                        <Button variant="ghost"  className="text-destructive hover:text-destructive">
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </motion.div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      Profile Settings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      Profile settings will be available here.
+                    </p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

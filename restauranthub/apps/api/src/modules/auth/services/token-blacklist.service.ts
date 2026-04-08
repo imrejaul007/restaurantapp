@@ -1,131 +1,156 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TokenBlacklistService {
   private readonly logger = new Logger(TokenBlacklistService.name);
-  private inMemoryBlacklist = new Set<string>(); // Fallback for Redis failures
 
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
-  async blacklistToken(token: string, userId?: string, reason?: string): Promise<void> {
+  async blacklistToken(token: string, userId: string, reason: string = 'logout'): Promise<void> {
     try {
-      // Decode token to get expiration time
-      const decoded = this.jwtService.decode(token) as any;
-      const expiresAt = decoded?.exp
-        ? new Date(decoded.exp * 1000)
-        : new Date(Date.now() + 24 * 60 * 60 * 1000);
+      // Extract JTI (JWT ID) from token
+      const payload = this.extractPayloadFromToken(token);
+      const jti = payload?.jti;
 
-      // Add to in-memory blacklist for immediate effect
-      this.inMemoryBlacklist.add(token);
-
-      // Skip database operations in mock mode
-      if (process.env.MOCK_DATABASE === 'true') {
-        this.logger.debug(`MOCK: Token blacklisted for user ${userId}: ${reason}`);
+      if (!jti) {
+        this.logger.warn('Cannot blacklist token without JTI');
         return;
       }
 
-      // Try to persist to database
-      try {
-        await this.prisma.$executeRaw`
-          INSERT INTO "BlacklistedToken" (id, token, "expiresAt", "userId", reason, "createdAt", "updatedAt")
-          VALUES (gen_random_uuid(), ${token}, ${expiresAt}, ${userId}, ${reason}, NOW(), NOW())
-          ON CONFLICT (token) DO NOTHING
-        `;
+      // Hash the JTI for secure storage
+      const hashedJti = crypto.createHash('sha256').update(jti).digest('hex');
 
-        this.logger.debug(`Token blacklisted for user ${userId}: ${reason}`);
-      } catch (dbError) {
-        this.logger.warn(`Failed to persist blacklisted token to database: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
-        // Continue with in-memory blacklist as fallback
-      }
+      await this.prisma.blacklistedToken.create({
+        data: {
+          jti: hashedJti,
+          userId,
+          reason,
+          expiresAt: new Date(Date.now() + this.getTokenExpiration()),
+        },
+      });
 
+      this.logger.log(`Token blacklisted for user ${userId}, reason: ${reason}`);
     } catch (error) {
-      this.logger.error(`Failed to blacklist token: ${error instanceof Error ? error.message : String(error)}`);
-      // Fail safely by adding to in-memory blacklist
-      this.inMemoryBlacklist.add(token);
+      this.logger.error('Failed to blacklist token:', error);
+      throw error;
     }
   }
 
-  async isTokenBlacklisted(token: string, userId?: string): Promise<boolean> {
+  async isTokenBlacklisted(token: string): Promise<boolean> {
     try {
-      // Check in-memory blacklist first (fastest)
-      if (this.inMemoryBlacklist.has(token)) {
-        return true;
-      }
+      const payload = this.extractPayloadFromToken(token);
+      const jti = payload?.jti;
 
-      // In mock mode, only use in-memory blacklist
-      if (process.env.MOCK_DATABASE === 'true') {
+      if (!jti) {
         return false;
       }
 
-      // Check database blacklist
-      try {
-        const result = await this.prisma.$queryRaw`
-          SELECT 1 FROM "BlacklistedToken"
-          WHERE token = ${token} AND "expiresAt" > NOW()
-          LIMIT 1
-        `;
+      const hashedJti = crypto.createHash('sha256').update(jti).digest('hex');
 
-        const isBlacklisted = Array.isArray(result) && result.length > 0;
+      const blacklistedToken = await this.prisma.blacklistedToken.findFirst({
+        where: {
+          jti: hashedJti,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
 
-        if (isBlacklisted) {
-          // Add to in-memory cache for faster future lookups
-          this.inMemoryBlacklist.add(token);
-        }
-
-        return isBlacklisted;
-      } catch (dbError) {
-        this.logger.warn(`Database blacklist check failed: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
-        // Fail open - return false to maintain availability
-        return false;
-      }
-
+      return !!blacklistedToken;
     } catch (error) {
-      this.logger.error(`Token blacklist check failed: ${error instanceof Error ? error.message : String(error)}`);
-      return false; // Fail open for availability
+      this.logger.error('Error checking token blacklist:', error);
+      return false;
     }
   }
 
-  async cleanupExpiredTokens(): Promise<number> {
+  async blacklistAllUserTokens(userId: string, reason: string = 'security'): Promise<void> {
     try {
-      if (process.env.MOCK_DATABASE === 'true') {
-        // Clean up in-memory blacklist
-        const currentTime = Date.now();
-        let cleaned = 0;
+      // Get all active sessions for the user
+      const sessions = await this.prisma.session.findMany({
+        where: {
+          userId,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
 
-        for (const token of this.inMemoryBlacklist) {
-          try {
-            const decoded = this.jwtService.decode(token) as any;
-            if (decoded?.exp && decoded.exp * 1000 < currentTime) {
-              this.inMemoryBlacklist.delete(token);
-              cleaned++;
-            }
-          } catch {
-            // Invalid token, remove it
-            this.inMemoryBlacklist.delete(token);
-            cleaned++;
-          }
-        }
-
-        this.logger.debug(`Cleaned up ${cleaned} expired tokens from memory`);
-        return cleaned;
+      // Blacklist each session token
+      for (const session of sessions) {
+        await this.blacklistToken(session.token, userId, reason);
       }
 
-      // Clean up database
-      const result = await this.prisma.$executeRaw`
-        DELETE FROM "BlacklistedToken" WHERE "expiresAt" < NOW()
-      `;
+      // Delete all sessions
+      await this.prisma.session.deleteMany({
+        where: { userId },
+      });
 
-      this.logger.debug(`Cleaned up ${result} expired blacklisted tokens from database`);
-      return Number(result);
+      // Clear refresh token
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { refreshToken: null },
+      });
 
+      this.logger.log(`All tokens blacklisted for user ${userId}, reason: ${reason}`);
     } catch (error) {
-      this.logger.error(`Failed to cleanup expired tokens: ${error instanceof Error ? error.message : String(error)}`);
-      return 0;
+      this.logger.error('Failed to blacklist all user tokens:', error);
+      throw error;
     }
+  }
+
+  async cleanupExpiredTokens(): Promise<void> {
+    try {
+      const result = await this.prisma.blacklistedToken.deleteMany({
+        where: {
+          expiresAt: {
+            lt: new Date(),
+          },
+        },
+      });
+
+      this.logger.log(`Cleaned up ${result.count} expired blacklisted tokens`);
+    } catch (error) {
+      this.logger.error('Failed to cleanup expired tokens:', error);
+    }
+  }
+
+  private extractPayloadFromToken(token: string): any {
+    try {
+      // Extract payload without verification (we just need the JTI)
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      const payload = JSON.parse(
+        Buffer.from(parts[1], 'base64url').toString('utf8')
+      );
+
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  private getTokenExpiration(): number {
+    // Default to 24 hours if no configuration found
+    const expiresIn = this.configService.get('JWT_EXPIRES_IN', '15m');
+
+    // Convert to milliseconds
+    if (expiresIn.endsWith('m')) {
+      return parseInt(expiresIn) * 60 * 1000;
+    } else if (expiresIn.endsWith('h')) {
+      return parseInt(expiresIn) * 60 * 60 * 1000;
+    } else if (expiresIn.endsWith('d')) {
+      return parseInt(expiresIn) * 24 * 60 * 60 * 1000;
+    }
+
+    return 24 * 60 * 60 * 1000; // 24 hours default
   }
 }

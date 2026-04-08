@@ -12,7 +12,7 @@ export default function AnalyticsPage() {
   return (
     <DashboardLayout>
       <AnalyticsDashboard
-        userRole={user?.role as any || 'employee'}
+        userRole={user?.role as any || 'restaurant'}
         timeRange={timeRange}
         onTimeRangeChange={setTimeRange}
       />

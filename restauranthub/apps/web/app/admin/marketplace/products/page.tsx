@@ -117,7 +117,7 @@ const generateProductAnalytics = (): ProductAnalytics[] => {
       rating: Math.random() * 2 + 3, // 3-5 rating
       revenue,
       stock: Math.floor(Math.random() * 100) + 10,
-      createdAt: new Date(Date.now() - createdDaysAgo * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      createdAt: new Date(Date.now() - createdDaysAgo * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || new Date().toISOString(),
       isActive: product.inStock,
       // Auto-calculated
       autoTrending,

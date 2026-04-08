@@ -3,62 +3,86 @@ const nextConfig = {
   // Performance optimizations
   compress: true,
   poweredByHeader: false,
-  generateEtags: true,
+  productionBrowserSourceMaps: false,
 
-  // Image optimization
+  // Experimental features for performance
+  experimental: {
+    // Enable server components
+    serverComponentsExternalPackages: ['@prisma/client'],
+    // Optimize bundle splitting
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // Enable SWC minification
+    swcMinify: true,
+    // Enable middleware optimization
+    middlewareSourceMaps: false,
+    // Optimize CSS
+    optimizeCss: true,
+  },
+
+  // Enhanced image configuration
   images: {
+    formats: ['image/webp', 'image/avif'],
     domains: [
       'localhost',
       'restauranthub-assets.s3.amazonaws.com',
       'images.unsplash.com',
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/webp', 'image/avif'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
     minimumCacheTTL: 86400, // 24 hours
-    dangerouslyAllowSVG: true,
+    dangerouslyAllowSVG: false,
+    contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Experimental features for performance
-  experimental: {
-    optimizeCss: true,
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
-  },
-
-  // Webpack optimizations
+  // Build optimization
   webpack: (config, { dev, isServer }) => {
-    // Bundle analyzer in development
-    if (dev && !isServer) {
-      config.resolve.fallback = { fs: false, net: false, tls: false };
-    }
-
-    // Optimize bundle splitting
+    // Production optimizations
     if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            enforce: true,
+      config.optimization = {
+        ...config.optimization,
+        sideEffects: false,
+        usedExports: true,
+        // Optimize chunks
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: 10,
+              reuseExistingChunk: true,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              priority: 5,
+              reuseExistingChunk: true,
+            },
           },
         },
       };
+
+      // Bundle analyzer (optional)
+      if (process.env.ANALYZE === 'true') {
+        const BundleAnalyzerPlugin = require('@next/bundle-analyzer')();
+        config.plugins.push(new BundleAnalyzerPlugin.webpack.BundleAnalyzerPlugin());
+      }
     }
+
+    // Performance optimizations
+    config.optimization = {
+      ...config.optimization,
+      moduleIds: 'deterministic',
+    };
 
     return config;
   },
@@ -70,7 +94,7 @@ const nextConfig = {
     NEXT_PUBLIC_APP_NAME: 'RestaurantHub',
   },
 
-  // Redirects
+  // Optimized redirects
   async redirects() {
     return [
       {
@@ -81,16 +105,58 @@ const nextConfig = {
     ];
   },
 
-  // Security and performance headers
+  // Enhanced headers for performance and security
   async headers() {
     return [
+      // Static assets caching
       {
-        source: '/(.*)',
+        source: '/_next/static/(.*)',
         headers: [
-          // Security headers
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      // Image optimization headers
+      {
+        source: '/_next/image(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400',
+          },
+        ],
+      },
+      // API routes headers
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
           {
             key: 'X-Frame-Options',
             value: 'DENY',
+          },
+        ],
+      },
+      // General security headers
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
@@ -101,39 +167,46 @@ const nextConfig = {
             value: 'strict-origin-when-cross-origin',
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
-          },
-          // Performance headers
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/api/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, no-cache, must-revalidate',
-          },
-        ],
-      },
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
     ];
+  },
+
+  // Rewrites for API proxy (optional)
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+      },
+    ];
+  },
+
+  // Output configuration for deployment
+  output: 'standalone',
+
+  // TypeScript configuration
+  typescript: {
+    // Ignore TypeScript errors during production builds (use with caution)
+    ignoreBuildErrors: false,
+  },
+
+  // ESLint configuration
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+
+  // Compiler options
+  compiler: {
+    // Remove console statements in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+    // React optimization
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
 };
 

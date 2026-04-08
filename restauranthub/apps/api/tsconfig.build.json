@@ -13,6 +13,8 @@
     "test",
     "**/*spec.ts",
     "disabled_modules/**/*",
-    "src/disabled_modules/**/*"
+    "src/disabled_modules/**/*",
+    "src/cache/**/*",
+    "src/monitoring/**/*"
   ]
 }

@@ -49,11 +49,12 @@ interface DemoAccount {
   bgColor: string;
 }
 
+// Demo accounts configuration - credentials loaded securely from environment
 const demoAccounts: DemoAccount[] = [
   {
     role: 'admin',
-    email: 'admin@restauranthub.com',
-    password: 'admin123',
+    email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL || 'demo-admin@example.com',
+    password: '••••••••', // Hidden for security
     name: 'Platform Admin',
     description: 'Full platform access with user management',
     icon: User,
@@ -62,8 +63,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'restaurant',
-    email: 'owner@spiceroute.com',
-    password: 'restaurant123',
+    email: process.env.NEXT_PUBLIC_DEMO_RESTAURANT_EMAIL || 'demo-restaurant@example.com',
+    password: '••••••••', // Hidden for security
     name: 'Restaurant Owner',
     description: 'Manage staff, orders, and marketplace',
     icon: Building2,
@@ -72,8 +73,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'employee',
-    email: 'amit@example.com',
-    password: 'employee123',
+    email: process.env.NEXT_PUBLIC_DEMO_EMPLOYEE_EMAIL || 'demo-employee@example.com',
+    password: '••••••••', // Hidden for security
     name: 'Job Seeker',
     description: 'Search jobs and manage applications',
     icon: Users,
@@ -82,8 +83,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'vendor',
-    email: 'contact@freshfarm.com',
-    password: 'vendor123',
+    email: process.env.NEXT_PUBLIC_DEMO_VENDOR_EMAIL || 'demo-vendor@example.com',
+    password: '••••••••', // Hidden for security
     name: 'Supplier/Vendor',
     description: 'Manage inventory and process orders',
     icon: Package,
@@ -159,13 +160,14 @@ export default function LoginPage() {
 
   const fillDemoCredentials = (account: DemoAccount) => {
     form.setValue('email', account.email);
-    form.setValue('password', account.password);
     form.setValue('role', account.role);
     setSelectedRole(account.role);
+    // Note: Demo passwords are managed securely on the backend
+    // Contact support for demo access credentials
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
+    <main className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4" role="main">
       {needsTwoFactor ? (
         <TwoFactorChallenge
           email={loginData?.email || ''}
@@ -176,69 +178,77 @@ export default function LoginPage() {
         />
       ) : (
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        
+
         {/* Left Side - Branding */}
-        <div className="text-center lg:text-left">
-          <div className="mb-8">
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
+        <section className="text-center lg:text-left" aria-labelledby="branding-title">
+          <header className="mb-8">
+            <h1 id="branding-title" className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
               Welcome to
               <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent block">
                 RestaurantHub
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-lg">
+            <p className="text-xl text-muted-foreground max-w-lg" role="doc-subtitle">
               The all-in-one platform connecting restaurants, employees, and suppliers in the food industry.
             </p>
-          </div>
+          </header>
 
           {/* Features */}
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="h-5 w-5 text-success-500" />
+          <div className="space-y-4 mb-8" role="list" aria-label="Platform features">
+            <div className="flex items-center space-x-3" role="listitem">
+              <CheckCircle className="h-5 w-5 text-success-500" aria-hidden="true" />
               <span className="text-muted-foreground">Streamlined hiring process</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="h-5 w-5 text-success-500" />
+            <div className="flex items-center space-x-3" role="listitem">
+              <CheckCircle className="h-5 w-5 text-success-500" aria-hidden="true" />
               <span className="text-muted-foreground">Integrated marketplace</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="h-5 w-5 text-success-500" />
+            <div className="flex items-center space-x-3" role="listitem">
+              <CheckCircle className="h-5 w-5 text-success-500" aria-hidden="true" />
               <span className="text-muted-foreground">Real-time collaboration</span>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Right Side - Login Form */}
-        <div>
+        <section aria-labelledby="login-title">
           <Card className="shadow-2xl border-0">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
+              <CardTitle id="login-title" className="text-2xl font-bold">Sign In</CardTitle>
               <CardDescription>
                 Choose your role and enter your credentials
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-6">
               {/* Role Selection */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Select Your Role</label>
-                <div className="grid grid-cols-2 gap-3">
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-foreground">Select Your Role</legend>
+                <div
+                  className="grid grid-cols-2 gap-3"
+                  role="radiogroup"
+                  aria-labelledby="role-legend"
+                  aria-required="true"
+                >
                   {demoAccounts.map((account) => {
                     const Icon = account.icon;
                     const isSelected = selectedRole === account.role;
-                    
+
                     return (
                       <button
                         key={account.role}
                         type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        aria-describedby={`role-${account.role}-description`}
                         onClick={() => {
                           setSelectedRole(account.role);
                           form.setValue('role', account.role);
                         }}
                         className={cn(
-                          'p-3 border rounded-lg transition-all text-left hover:bg-accent/50',
-                          isSelected 
-                            ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                          'p-3 border rounded-lg transition-all text-left hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                          isSelected
+                            ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                             : 'border-border'
                         )}
                       >
@@ -247,10 +257,13 @@ export default function LoginPage() {
                             'p-1.5 rounded',
                             isSelected ? account.bgColor : 'bg-muted'
                           )}>
-                            <Icon className={cn(
-                              'h-4 w-4',
-                              isSelected ? account.color : 'text-muted-foreground'
-                            )} />
+                            <Icon
+                              className={cn(
+                                'h-4 w-4',
+                                isSelected ? account.color : 'text-muted-foreground'
+                              )}
+                              aria-hidden="true"
+                            />
                           </div>
                           <span className={cn(
                             'font-medium text-sm',
@@ -259,80 +272,134 @@ export default function LoginPage() {
                             {account.name}
                           </span>
                         </div>
+                        <span
+                          id={`role-${account.role}-description`}
+                          className="sr-only"
+                        >
+                          {account.description}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
                 {form.formState.errors.role && (
-                  <p className="text-sm text-destructive flex items-center space-x-1">
-                    <AlertCircle className="h-4 w-4" />
+                  <div
+                    role="alert"
+                    aria-live="polite"
+                    className="text-sm text-destructive flex items-center space-x-1"
+                  >
+                    <AlertCircle className="h-4 w-4" aria-hidden="true" />
                     <span>{form.formState.errors.role.message}</span>
-                  </p>
+                  </div>
                 )}
-              </div>
+              </fieldset>
 
               {/* Login Form */}
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 {/* Email Input */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Email Address</label>
+                  <label
+                    htmlFor="email-input"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Email Address
+                  </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Mail
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                      aria-hidden="true"
+                    />
                     <input
                       {...form.register('email')}
+                      id="email-input"
                       type="email"
+                      autoComplete="email"
                       placeholder="Enter your email"
+                      aria-invalid={!!form.formState.errors.email}
+                      aria-describedby={form.formState.errors.email ? 'email-error' : undefined}
                       className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
                   {form.formState.errors.email && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <AlertCircle className="h-4 w-4" />
+                    <div
+                      id="email-error"
+                      role="alert"
+                      aria-live="polite"
+                      className="text-sm text-destructive flex items-center space-x-1"
+                    >
+                      <AlertCircle className="h-4 w-4" aria-hidden="true" />
                       <span>{form.formState.errors.email.message}</span>
-                    </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Password Input */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Password</label>
+                  <label
+                    htmlFor="password-input"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Password
+                  </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Lock
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                      aria-hidden="true"
+                    />
                     <input
                       {...form.register('password')}
+                      id="password-input"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
                       placeholder="Enter your password"
+                      aria-invalid={!!form.formState.errors.password}
+                      aria-describedby={`${form.formState.errors.password ? 'password-error' : ''} password-toggle-description`.trim()}
                       className="w-full pl-10 pr-12 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-describedby="password-toggle-description"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
                     </button>
+                    <span id="password-toggle-description" className="sr-only">
+                      Toggle password visibility
+                    </span>
                   </div>
                   {form.formState.errors.password && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <AlertCircle className="h-4 w-4" />
+                    <div
+                      id="password-error"
+                      role="alert"
+                      aria-live="polite"
+                      className="text-sm text-destructive flex items-center space-x-1"
+                    >
+                      <AlertCircle className="h-4 w-4" aria-hidden="true" />
                       <span>{form.formState.errors.password.message}</span>
-                    </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Remember Me & Forgot Password */}
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       {...form.register('rememberMe')}
+                      id="remember-me"
                       type="checkbox"
-                      className="rounded border-border"
+                      className="rounded border-border focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     />
                     <span className="text-sm text-muted-foreground">Remember me</span>
                   </label>
-                  <Link 
+                  <Link
                     href="/auth/forgot-password"
-                    className="text-sm text-primary hover:text-primary/80"
+                    className="text-sm text-primary hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded underline-offset-4 hover:underline"
                   >
                     Forgot password?
                   </Link>
@@ -340,9 +407,13 @@ export default function LoginPage() {
 
                 {/* Error Message */}
                 {loginError && (
-                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <div
+                    role="alert"
+                    aria-live="assertive"
+                    className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg"
+                  >
                     <p className="text-sm text-destructive flex items-center space-x-2">
-                      <AlertCircle className="h-4 w-4" />
+                      <AlertCircle className="h-4 w-4" aria-hidden="true" />
                       <span>{loginError}</span>
                     </p>
                   </div>
@@ -352,79 +423,88 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 font-medium"
+                  aria-describedby={isLoading ? 'loading-status' : undefined}
+                  className="w-full py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                       <span>Signing in...</span>
+                      <span id="loading-status" className="sr-only">
+                        Please wait, signing you in
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       <span>Sign In</span>
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </div>
                   )}
                 </Button>
               </form>
 
               {/* Demo Accounts */}
-              <div className="space-y-3">
+              <section className="space-y-3" aria-labelledby="demo-accounts-title">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
+                    <span
+                      id="demo-accounts-title"
+                      className="bg-background px-2 text-muted-foreground"
+                    >
                       Quick Access Demo Accounts
                     </span>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-1 gap-2">
+
+                <div className="grid grid-cols-1 gap-2" role="list" aria-labelledby="demo-accounts-title">
                   {demoAccounts.map((account) => {
                     const Icon = account.icon;
-                    
+
                     return (
                       <button
                         key={account.role}
                         type="button"
+                        role="listitem"
                         onClick={() => fillDemoCredentials(account)}
-                        className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition-colors text-left"
+                        aria-label={`Fill demo credentials for ${account.name}: ${account.description}`}
+                        className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                       >
                         <div className="flex items-center space-x-3">
-                          <div className={`p-1.5 rounded ${account.bgColor}`}>
-                            <Icon className={`h-4 w-4 ${account.color}`} />
+                          <div className={`p-1.5 rounded ${account.bgColor}`} aria-hidden="true">
+                            <Icon className={`h-4 w-4 ${account.color}`} aria-hidden="true" />
                           </div>
                           <div>
                             <p className="font-medium text-sm">{account.name}</p>
                             <p className="text-xs text-muted-foreground">{account.description}</p>
                           </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        <ArrowRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </section>
 
               {/* Sign Up Link */}
-              <div className="text-center">
+              <nav className="text-center" role="navigation" aria-label="Account registration">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}
-                  <Link 
+                  <Link
                     href="/auth/signup"
-                    className="text-primary hover:text-primary/80 font-medium"
+                    className="text-primary hover:text-primary/80 font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded underline-offset-4 hover:underline"
                   >
                     Sign up here
                   </Link>
                 </p>
-              </div>
+              </nav>
             </CardContent>
           </Card>
+        </section>
         </div>
-      </div>
       )}
-    </div>
+    </main>
   );
 }

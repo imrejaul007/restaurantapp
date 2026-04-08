@@ -1,15 +1,19 @@
-// RestaurantHub Service Worker
-const CACHE_NAME = 'restauranthub-v1.0.0';
-const RUNTIME_CACHE = 'restauranthub-runtime';
+// RestaurantHub Service Worker - Advanced PWA
+const CACHE_NAME = 'restauranthub-v1.2.0';
+const STATIC_CACHE = 'restauranthub-static-v1.2.0';
+const DYNAMIC_CACHE = 'restauranthub-dynamic-v1.2.0';
+const API_CACHE = 'restauranthub-api-v1.2.0';
+const OFFLINE_CACHE = 'restauranthub-offline-v1.2.0';
 
-// Assets to cache on install
-const STATIC_CACHE_URLS = [
+// Resources to cache immediately
+const STATIC_ASSETS = [
   '/',
   '/dashboard',
   '/jobs',
   '/marketplace',
   '/offline',
   '/manifest.json',
+  '/favicon.ico',
 ];
 
 // API endpoints to cache with network-first strategy
@@ -32,7 +36,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Caching static assets');
-        return cache.addAll(STATIC_CACHE_URLS);
+        return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
         console.log('Service Worker installed');
@@ -47,7 +51,9 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
+          if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE &&
+              cacheName !== DYNAMIC_CACHE && cacheName !== API_CACHE &&
+              cacheName !== OFFLINE_CACHE) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -104,7 +110,8 @@ async function networkFirstStrategy(request) {
 
     // Only cache successful responses
     if (networkResponse.status === 200) {
-      const cache = await caches.open(RUNTIME_CACHE);
+      const cacheName = request.url.includes('/api/') ? API_CACHE : DYNAMIC_CACHE;
+      const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
     }
 
@@ -148,7 +155,7 @@ async function cacheFirstStrategy(request) {
     const networkResponse = await fetch(request);
 
     if (networkResponse.status === 200) {
-      const cache = await caches.open(RUNTIME_CACHE);
+      const cache = await caches.open(STATIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
 
@@ -214,26 +221,238 @@ async function navigationStrategy(request) {
   }
 }
 
-// Background sync for offline actions
+// Offline data storage and management
+const OFFLINE_DATA_STORE = 'restauranthub-offline-data';
+const SYNC_QUEUE_STORE = 'restauranthub-sync-queue';
+
+// IndexedDB setup for offline data storage
+let db;
+
+async function initializeOfflineDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('RestaurantHubOfflineDB', 1);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+
+    request.onupgradeneeded = (event) => {
+      const database = event.target.result;
+
+      // Create stores for offline data
+      if (!database.objectStoreNames.contains('offlineActions')) {
+        const store = database.createObjectStore('offlineActions', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
+        store.createIndex('type', 'type', { unique: false });
+      }
+
+      if (!database.objectStoreNames.contains('cacheData')) {
+        const cacheStore = database.createObjectStore('cacheData', { keyPath: 'key' });
+        cacheStore.createIndex('timestamp', 'timestamp', { unique: false });
+        cacheStore.createIndex('expiry', 'expiry', { unique: false });
+      }
+    };
+  });
+}
+
+// Store offline actions for later sync
+async function storeOfflineAction(action) {
+  if (!db) await initializeOfflineDB();
+
+  const transaction = db.transaction(['offlineActions'], 'readwrite');
+  const store = transaction.objectStore('offlineActions');
+
+  const actionData = {
+    ...action,
+    timestamp: Date.now(),
+    synced: false
+  };
+
+  return store.add(actionData);
+}
+
+// Get pending offline actions
+async function getPendingActions() {
+  if (!db) await initializeOfflineDB();
+
+  const transaction = db.transaction(['offlineActions'], 'readonly');
+  const store = transaction.objectStore('offlineActions');
+
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => {
+      const actions = request.result.filter(action => !action.synced);
+      resolve(actions);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Mark action as synced
+async function markActionSynced(actionId) {
+  if (!db) await initializeOfflineDB();
+
+  const transaction = db.transaction(['offlineActions'], 'readwrite');
+  const store = transaction.objectStore('offlineActions');
+
+  const getRequest = store.get(actionId);
+  getRequest.onsuccess = () => {
+    const action = getRequest.result;
+    if (action) {
+      action.synced = true;
+      action.syncedAt = Date.now();
+      store.put(action);
+    }
+  };
+}
+
+// Enhanced background sync for offline actions
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
-    event.waitUntil(
-      // Handle background sync tasks
-      handleBackgroundSync()
-    );
+    event.waitUntil(handleBackgroundSync());
+  } else if (event.tag === 'offline-actions-sync') {
+    event.waitUntil(syncOfflineActions());
+  } else if (event.tag === 'critical-data-sync') {
+    event.waitUntil(syncCriticalData());
   }
 });
 
 async function handleBackgroundSync() {
-  console.log('Performing background sync');
+  console.log('Performing comprehensive background sync');
 
-  // Try to sync any pending offline actions
   try {
-    // This would typically sync any stored offline actions
-    // For now, just log the attempt
-    console.log('Background sync completed');
+    // Sync offline actions
+    await syncOfflineActions();
+
+    // Sync critical data
+    await syncCriticalData();
+
+    // Update cache with fresh data
+    await updateCacheWithFreshData();
+
+    console.log('Background sync completed successfully');
   } catch (error) {
     console.error('Background sync failed:', error);
+  }
+}
+
+async function syncOfflineActions() {
+  try {
+    const pendingActions = await getPendingActions();
+
+    for (const action of pendingActions) {
+      try {
+        const response = await fetch(action.url, {
+          method: action.method || 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...action.headers
+          },
+          body: action.data ? JSON.stringify(action.data) : undefined
+        });
+
+        if (response.ok) {
+          await markActionSynced(action.id);
+          console.log(`Synced offline action: ${action.type}`);
+        } else {
+          console.warn(`Failed to sync action ${action.type}:`, response.status);
+        }
+      } catch (error) {
+        console.error(`Error syncing action ${action.type}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Error in syncOfflineActions:', error);
+  }
+}
+
+async function syncCriticalData() {
+  try {
+    // Sync user profile data
+    await syncUserProfile();
+
+    // Sync restaurant data if user is a restaurant
+    await syncRestaurantData();
+
+    // Sync job applications if any
+    await syncJobApplications();
+
+  } catch (error) {
+    console.error('Error in syncCriticalData:', error);
+  }
+}
+
+async function syncUserProfile() {
+  try {
+    const response = await fetch('/api/v1/auth/me');
+    if (response.ok) {
+      const userData = await response.json();
+      await cacheUserData('current-user', userData);
+    }
+  } catch (error) {
+    console.log('Could not sync user profile:', error);
+  }
+}
+
+async function syncRestaurantData() {
+  try {
+    const response = await fetch('/api/v1/restaurants/my');
+    if (response.ok) {
+      const restaurantData = await response.json();
+      await cacheUserData('user-restaurant', restaurantData);
+    }
+  } catch (error) {
+    console.log('Could not sync restaurant data:', error);
+  }
+}
+
+async function syncJobApplications() {
+  try {
+    const response = await fetch('/api/v1/jobs/applications/my');
+    if (response.ok) {
+      const applications = await response.json();
+      await cacheUserData('user-job-applications', applications);
+    }
+  } catch (error) {
+    console.log('Could not sync job applications:', error);
+  }
+}
+
+async function cacheUserData(key, data) {
+  if (!db) await initializeOfflineDB();
+
+  const transaction = db.transaction(['cacheData'], 'readwrite');
+  const store = transaction.objectStore('cacheData');
+
+  const cacheItem = {
+    key,
+    data,
+    timestamp: Date.now(),
+    expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+  };
+
+  return store.put(cacheItem);
+}
+
+async function updateCacheWithFreshData() {
+  try {
+    // Update restaurants cache
+    const restaurantsResponse = await fetch('/api/v1/restaurants?limit=50');
+    if (restaurantsResponse.ok) {
+      const cache = await caches.open(API_CACHE);
+      cache.put('/api/v1/restaurants?limit=50', restaurantsResponse.clone());
+    }
+
+    // Update jobs cache
+    const jobsResponse = await fetch('/api/v1/jobs?limit=50');
+    if (jobsResponse.ok) {
+      const cache = await caches.open(API_CACHE);
+      cache.put('/api/v1/jobs?limit=50', jobsResponse.clone());
+    }
+  } catch (error) {
+    console.log('Could not update cache with fresh data:', error);
   }
 }
 
@@ -292,11 +511,210 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Message handling from main thread
+// Advanced message handling from main thread
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+  const { data } = event;
+
+  if (!data) return;
+
+  switch (data.type) {
+    case 'SKIP_WAITING':
+      self.skipWaiting();
+      break;
+
+    case 'CACHE_IMPORTANT_DATA':
+      event.waitUntil(cacheImportantData(data.payload));
+      break;
+
+    case 'STORE_OFFLINE_ACTION':
+      event.waitUntil(storeOfflineAction(data.payload));
+      break;
+
+    case 'CLEAR_OFFLINE_CACHE':
+      event.waitUntil(clearOfflineCache());
+      break;
+
+    case 'GET_CACHE_STATUS':
+      event.waitUntil(sendCacheStatus(event.ports[0]));
+      break;
+
+    case 'SYNC_NOW':
+      // Trigger immediate sync
+      self.registration.sync.register('critical-data-sync');
+      break;
   }
 });
 
-console.log('RestaurantHub Service Worker loaded');
+// Cache important data on demand
+async function cacheImportantData(data) {
+  try {
+    const cache = await caches.open(OFFLINE_CACHE);
+    const response = new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    await cache.put(`/offline-data/${data.key}`, response);
+    console.log(`Cached important data: ${data.key}`);
+  } catch (error) {
+    console.error('Failed to cache important data:', error);
+  }
+}
+
+// Clear offline cache
+async function clearOfflineCache() {
+  try {
+    await caches.delete(OFFLINE_CACHE);
+
+    if (db) {
+      const transaction = db.transaction(['offlineActions', 'cacheData'], 'readwrite');
+      transaction.objectStore('offlineActions').clear();
+      transaction.objectStore('cacheData').clear();
+    }
+
+    console.log('Offline cache cleared');
+  } catch (error) {
+    console.error('Failed to clear offline cache:', error);
+  }
+}
+
+// Send cache status to main thread
+async function sendCacheStatus(port) {
+  try {
+    const cacheNames = await caches.keys();
+    const cacheStatus = {};
+
+    for (const cacheName of cacheNames) {
+      const cache = await caches.open(cacheName);
+      const keys = await cache.keys();
+      cacheStatus[cacheName] = keys.length;
+    }
+
+    // Get offline actions count
+    let offlineActionsCount = 0;
+    if (db) {
+      const pendingActions = await getPendingActions();
+      offlineActionsCount = pendingActions.length;
+    }
+
+    port.postMessage({
+      type: 'CACHE_STATUS',
+      data: {
+        caches: cacheStatus,
+        offlineActions: offlineActionsCount,
+        dbInitialized: !!db
+      }
+    });
+  } catch (error) {
+    console.error('Failed to get cache status:', error);
+    port.postMessage({
+      type: 'CACHE_STATUS_ERROR',
+      error: error.message
+    });
+  }
+}
+
+// Periodic cache cleanup
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'cache-cleanup') {
+    event.waitUntil(performCacheCleanup());
+  }
+});
+
+async function performCacheCleanup() {
+  try {
+    // Clean up expired cache entries
+    if (db) {
+      const transaction = db.transaction(['cacheData'], 'readwrite');
+      const store = transaction.objectStore('cacheData');
+      const index = store.index('expiry');
+
+      const now = Date.now();
+      const expiredRange = IDBKeyRange.upperBound(now);
+
+      const request = index.openCursor(expiredRange);
+      request.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        }
+      };
+    }
+
+    // Clean up old cached responses
+    const cacheNames = await caches.keys();
+    for (const cacheName of cacheNames) {
+      if (cacheName.includes('v1.1.0') || cacheName.includes('v1.0.0')) {
+        await caches.delete(cacheName);
+        console.log(`Deleted old cache: ${cacheName}`);
+      }
+    }
+
+    console.log('Cache cleanup completed');
+  } catch (error) {
+    console.error('Cache cleanup failed:', error);
+  }
+}
+
+// Network quality detection
+let networkQuality = 'good';
+
+function detectNetworkQuality() {
+  if ('connection' in navigator) {
+    const connection = navigator.connection;
+    const downlink = connection.downlink;
+    const effectiveType = connection.effectiveType;
+
+    if (effectiveType === 'slow-2g' || effectiveType === '2g' || downlink < 0.5) {
+      networkQuality = 'poor';
+    } else if (effectiveType === '3g' || downlink < 1.5) {
+      networkQuality = 'moderate';
+    } else {
+      networkQuality = 'good';
+    }
+  }
+
+  return networkQuality;
+}
+
+// Adaptive caching based on network quality
+async function adaptiveCacheStrategy(request) {
+  const quality = detectNetworkQuality();
+
+  switch (quality) {
+    case 'poor':
+      // Aggressive caching for poor network
+      return cacheFirstStrategy(request);
+
+    case 'moderate':
+      // Balanced approach
+      return networkFirstStrategy(request);
+
+    case 'good':
+    default:
+      // Prefer fresh content
+      return networkFirstStrategy(request);
+  }
+}
+
+// Initialize service worker
+async function initializeServiceWorker() {
+  try {
+    await initializeOfflineDB();
+    console.log('Offline database initialized');
+
+    // Register for periodic sync if available
+    if ('serviceWorker' in navigator && 'periodicsync' in window.ServiceWorkerRegistration.prototype) {
+      const registration = await self.registration;
+      await registration.periodicSync.register('cache-cleanup', {
+        minInterval: 24 * 60 * 60 * 1000 // 24 hours
+      });
+    }
+
+    console.log('RestaurantHub Service Worker v1.2.0 loaded with advanced PWA features');
+  } catch (error) {
+    console.error('Service Worker initialization failed:', error);
+  }
+}
+
+// Initialize on load
+initializeServiceWorker();
