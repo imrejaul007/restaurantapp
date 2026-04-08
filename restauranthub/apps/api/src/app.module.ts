@@ -8,6 +8,7 @@ import { CacheConfigModule } from './cache/cache.module';
 import { SecurityModule } from './common/modules/security.module';
 import { RezBridgeModule } from './modules/auth/rez-bridge/rez-bridge.module';
 import { UsersModule } from './modules/users/users.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { TrainingModule } from './modules/training/training.module';
@@ -41,6 +42,7 @@ import { FintechModule } from './modules/fintech/fintech.module';
     SecurityModule,
     RezBridgeModule,
     UsersModule,
+    OrdersModule,
     JobsModule,
     MarketplaceModule,
     TrainingModule,
