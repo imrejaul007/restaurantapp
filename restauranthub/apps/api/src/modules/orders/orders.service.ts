@@ -11,6 +11,7 @@ import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto, OrderQueryDto } from './dto/update-order.dto';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { createHmac } from 'crypto';
 
 /**
  * Orders Service
@@ -24,7 +25,12 @@ export class OrdersService {
   private readonly rezBackendUrl = process.env.REZ_BACKEND_URL || 'http://localhost:4000';
   private readonly webhookSecret = process.env.REZ_WEBHOOK_SECRET;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+    // BUG-002 FIX: Guard webhook secret at startup
+    if (!this.webhookSecret) {
+      this.logger.warn('⚠️  REZ_WEBHOOK_SECRET is not configured. Webhook signatures will be invalid.');
+    }
+  }
 
   /**
    * Create a new order
@@ -295,10 +301,9 @@ export class OrdersService {
     const validatedItems = [];
 
     for (const item of items) {
-      // In production, validate product exists and is in stock
-      // For now, accept the item as provided
-      if (item.quantity < 1 || item.price < 0) {
-        throw new BadRequestException(`Invalid item: ${item.productName}`);
+      // BUG-009 FIX: Prevent zero or negative prices
+      if (item.quantity < 1 || item.price <= 0) {
+        throw new BadRequestException(`Invalid item: ${item.productName} (price must be > 0)`);
       }
 
       const itemSubtotal = item.price * item.quantity;
@@ -324,14 +329,14 @@ export class OrdersService {
 
   /**
    * Generate unique order number for restaurant
+   * BUG-010 FIX: Use UUID-based approach instead of Math.random() for collision safety
    */
   private async generateOrderNumber(restaurantId: string): Promise<string> {
+    // BUG-011 FIX: Use top-level import instead of require()
     const today = new Date();
     const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(5, '0');
-    return `ORD-${dateStr}-${random}`;
+    const uniqueSuffix = uuidv4().split('-')[0].toUpperCase();
+    return `ORD-${dateStr}-${uniqueSuffix}`;
   }
 
   /**
@@ -339,6 +344,12 @@ export class OrdersService {
    */
   private async sendOrderToRezBackend(order: any, createOrderDto: CreateOrderDto): Promise<boolean> {
     try {
+      // BUG-002 FIX: Guard webhook secret before signing
+      if (!this.webhookSecret) {
+        this.logger.warn(`Cannot send order to REZ Backend: webhook secret not configured`);
+        return false;
+      }
+
       const payload = {
         orderId: order.id,
         orderNumber: order.orderNumber,
@@ -352,9 +363,8 @@ export class OrdersService {
       };
 
       // Generate HMAC signature for webhook
-      const crypto = require('crypto');
-      const signature = crypto
-        .createHmac('sha256', this.webhookSecret)
+      // BUG-011 FIX: Use top-level import instead of require()
+      const signature = createHmac('sha256', this.webhookSecret)
         .update(JSON.stringify(payload))
         .digest('hex');
 
@@ -405,9 +415,8 @@ export class OrdersService {
         timestamp: new Date().toISOString(),
       };
 
-      const crypto = require('crypto');
-      const signature = crypto
-        .createHmac('sha256', this.webhookSecret)
+      // BUG-011 FIX: Use top-level import instead of require()
+      const signature = createHmac('sha256', this.webhookSecret)
         .update(JSON.stringify(payload))
         .digest('hex');
 

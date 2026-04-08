@@ -12,7 +12,9 @@ import {
   HttpStatus,
   Logger,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, OrderQueryDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order.dto';
@@ -25,8 +27,11 @@ import { UpdateOrderStatusDto } from './dto/update-order.dto';
  * - GET /orders - List orders
  * - GET /orders/:id - Get single order
  * - PUT /orders/:id/status - Update order status
+ *
+ * BUG-001 FIX: All endpoints require JWT authentication
  */
 @Controller('api/orders')
+@UseGuards(JwtAuthGuard)
 export class OrdersController {
   private readonly logger = new Logger(OrdersController.name);
 
@@ -107,19 +112,18 @@ export class OrdersController {
   @Get()
   async getOrders(
     @Query() query: OrderQueryDto,
-    @Query('restaurantId') restaurantId?: string,
     @Query('customerId') customerId?: string,
     @Request() req?: any
   ) {
-    // In production, get restaurantId from JWT claim
-    const effectiveRestaurantId = restaurantId || req?.user?.restaurantId;
+    // BUG-021 FIX: Use restaurantId from JWT, NOT from query string
+    const restaurantId = req?.user?.restaurantId;
 
-    if (!effectiveRestaurantId) {
-      throw new BadRequestException('restaurantId is required');
+    if (!restaurantId) {
+      throw new ForbiddenException('User does not have an associated restaurant');
     }
 
-    this.logger.log(`Fetching orders for restaurant ${effectiveRestaurantId}`);
-    return this.ordersService.getOrders(effectiveRestaurantId, query, customerId);
+    this.logger.log(`Fetching orders for restaurant ${restaurantId}`);
+    return this.ordersService.getOrders(restaurantId, query, customerId);
   }
 
   /**
