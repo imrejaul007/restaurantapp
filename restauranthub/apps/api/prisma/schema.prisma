@@ -2753,3 +2753,23 @@ model CreditApplication {
   @@index([rezMerchantId])
   @@index([status])
 }
+
+// ─── QR Templates: Restaurant Menu QR Customization ─────────────────────────
+model QRSettings {
+  id              String   @id @default(cuid())
+  restaurantId    String   @unique
+  templateId      String   @default("classic") // classic, modern, food, vibrant, custom
+  templateName    String   @default("Classic")
+  primaryColor    String   @default("#000000") // Hex color for QR code
+  accentColor     String   @default("#1a1a1a") // Secondary color
+  backgroundColor String   @default("#ffffff") // QR background
+  restaurantName  String   @default("") // Optional restaurant name display
+  logoUrl         String? // Optional restaurant logo
+  borderRadius    Int      @default(8) // QR corner radius (0-32)
+  size            Int      @default(256) // QR code size in pixels (128-512)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([restaurantId])
+  @@index([templateId])
+}

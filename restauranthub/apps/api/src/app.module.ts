@@ -14,6 +14,7 @@ import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { TrainingModule } from './modules/training/training.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { FintechModule } from './modules/fintech/fintech.module';
+import { QrTemplatesModule } from './modules/qr-templates/qr-templates.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { FintechModule } from './modules/fintech/fintech.module';
     TrainingModule,
     AnalyticsModule,
     FintechModule,
+    QrTemplatesModule,
   ],
   controllers: [AppController],
   providers: [],
