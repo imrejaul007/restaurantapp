@@ -299,7 +299,7 @@ async function bootstrap() {
   });
 
   // CSRF Protection (configurable via environment)
-  const enableCsrf = appConfigService.get('ENABLE_CSRF', 'false') === 'true' || process.env.NODE_ENV === 'production';
+  const enableCsrf = appConfigService.get('ENABLE_CSRF', 'false') === 'true';
   if (enableCsrf) {
     app.use(csurf({
       cookie: {
