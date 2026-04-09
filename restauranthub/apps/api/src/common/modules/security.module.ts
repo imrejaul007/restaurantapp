@@ -49,7 +49,8 @@ import { IsSecureStringConstraint, IsStrongPasswordConstraint, IsSafeFilenameCon
     SessionService,
     SecurityCleanupTask,
 
-    // Security Guards
+    // Security Guards — registered both as injectable class AND as global APP_GUARD
+    BruteForceGuard,
     {
       provide: APP_GUARD,
       useClass: BruteForceGuard,
