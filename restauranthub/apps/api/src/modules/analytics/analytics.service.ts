@@ -6,7 +6,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { RezAnalyticsClient } from '../../../../../packages/rez-client/dist/clients/analytics.client';
+import { RezAnalyticsClient } from '@restauranthub/rez-client';
 import type {
   AnalyticsDashboard,
   BenchmarkData,
