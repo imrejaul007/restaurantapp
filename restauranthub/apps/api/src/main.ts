@@ -270,13 +270,8 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Security enhancement: whitelist specific no-origin requests only for known mobile apps
       if (!origin) {
-        const allowNoOrigin = process.env.ALLOW_NO_ORIGIN_REQUESTS === 'true' || process.env.NODE_ENV === 'development';
-        if (allowNoOrigin) {
-          return callback(null, true);
-        } else {
-          logger.warn('CORS blocked: No origin header present and not whitelisted');
-          return callback(new Error('Origin header required'));
-        }
+        // Allow requests with no origin (Render health checks, mobile apps, server-to-server)
+        return callback(null, true);
       }
 
       if (process.env.NODE_ENV === 'production') {
@@ -490,7 +485,7 @@ async function bootstrap() {
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
   const port = appConfigService.get('API_PORT', 3000);
-  const host = appConfigService.get('API_HOST', '127.0.0.1');
+  const host = appConfigService.get('API_HOST', '0.0.0.0');
   
   await app.listen(port, host);
 
