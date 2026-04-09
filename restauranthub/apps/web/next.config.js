@@ -195,9 +195,6 @@ const nextConfig = {
     ];
   },
 
-  // Output configuration for deployment
-  output: 'standalone',
-
   // Compiler options
   compiler: {
     // Remove console statements in production
