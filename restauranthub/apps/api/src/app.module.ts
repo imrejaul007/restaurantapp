@@ -14,6 +14,7 @@ import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { TrainingModule } from './modules/training/training.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { FintechModule } from './modules/fintech/fintech.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { FintechModule } from './modules/fintech/fintech.module';
     TrainingModule,
     AnalyticsModule,
     FintechModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [],
