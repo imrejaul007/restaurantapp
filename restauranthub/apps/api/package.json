@@ -4,8 +4,8 @@
   "description": "RestaurantHub Backend API",
   "private": true,
   "scripts": {
-    "prebuild": "npm --prefix ../../packages/rez-client run build && rimraf dist",
-    "build": "tsc -p tsconfig.build.json --noCheck",
+    "prebuild": "rimraf dist",
+    "build": "prisma generate && tsc -p tsconfig.build.json --noCheck",
     "dev": "nest start --watch",
     "start": "node dist/src/main",
     "start:prod": "node dist/main",
