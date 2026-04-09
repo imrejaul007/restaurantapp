@@ -198,16 +198,6 @@ const nextConfig = {
   // Output configuration for deployment
   output: 'standalone',
 
-  // TypeScript configuration (ignoreBuildErrors set above)
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
-  // ESLint configuration
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-
   // Compiler options
   compiler: {
     // Remove console statements in production
