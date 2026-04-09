@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as LRU from 'lru-cache';
+import { LRUCache } from 'lru-cache';
 import { CacheConfigService } from './cache-config.service';
 
 interface CacheItem<T> {
@@ -11,11 +11,11 @@ interface CacheItem<T> {
 @Injectable()
 export class MemoryCacheService {
   private readonly logger = new Logger(MemoryCacheService.name);
-  private cache: LRU<string, CacheItem<any>>;
+  private cache: LRUCache<string, CacheItem<any>>;
   private tagMap: Map<string, Set<string>> = new Map(); // tag -> keys mapping
 
   constructor(private config: CacheConfigService) {
-    this.cache = new LRU({
+    this.cache = new LRUCache({
       max: this.config.getMaxItems(),
       ttl: this.config.getDefaultTtl() * 1000, // Convert to milliseconds
       updateAgeOnGet: true,

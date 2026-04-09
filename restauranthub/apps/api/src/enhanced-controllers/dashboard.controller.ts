@@ -273,7 +273,12 @@ export class DashboardController {
   }
 
   private getRecentActivity() {
-    const activities = [];
+    const activities: Array<{
+      type: string;
+      title: string;
+      timestamp: Date;
+      data: Record<string, unknown>;
+    }> = [];
 
     // Recent jobs
     this.jobs

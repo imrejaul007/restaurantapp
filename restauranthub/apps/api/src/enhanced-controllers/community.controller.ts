@@ -382,7 +382,7 @@ export class EnhancedCommunityController {
   }
 
   private getUserAchievements(user: any) {
-    const achievements = [];
+    const achievements: string[] = [];
 
     if (user.stats.postsCreated > 10) achievements.push('Prolific Poster');
     if (user.stats.likesReceived > 50) achievements.push('Community Favorite');

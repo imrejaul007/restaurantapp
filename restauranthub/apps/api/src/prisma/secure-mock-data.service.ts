@@ -64,7 +64,7 @@ export class SecureMockDataService {
       }
     ];
 
-    const users = [];
+    const users: any[] = [];
 
     for (const config of demoConfigs) {
       const email = this.configService.get(config.emailKey);
@@ -120,7 +120,7 @@ export class SecureMockDataService {
    * Initialize corresponding profiles for demo users
    */
   async initializeDemoProfiles(users: any[]): Promise<any[]> {
-    const profiles = [];
+    const profiles: any[] = [];
 
     for (const user of users) {
       const nameMap: Partial<Record<UserRole, { firstName: string; lastName: string }>> = {

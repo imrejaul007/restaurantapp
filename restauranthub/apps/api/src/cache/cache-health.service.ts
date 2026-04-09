@@ -300,7 +300,7 @@ export class CacheHealthService {
   }
 
   private async runBasicCacheTests(): Promise<any[]> {
-    const tests = [];
+    const tests: Array<{ name: string; status: string; duration: number; details: string }> = [];
     const testKey = `health_test_${Date.now()}`;
     const testValue = { test: 'data', timestamp: Date.now() };
 
@@ -358,7 +358,7 @@ export class CacheHealthService {
         name: 'basic_cache_operations',
         status: 'failed',
         duration: 0,
-        details: `Basic cache operations failed: ${error.message}`,
+        details: `Basic cache operations failed: ${this.getErrorMessage(error)}`,
       });
     }
 
@@ -366,7 +366,7 @@ export class CacheHealthService {
   }
 
   private async runRedisSpecificTests(): Promise<any[]> {
-    const tests = [];
+    const tests: Array<{ name: string; status: string; duration: number; details: string }> = [];
 
     try {
       if (!this.redisService.isConnectionHealthy()) {
@@ -418,7 +418,7 @@ export class CacheHealthService {
         name: 'redis_operations',
         status: 'failed',
         duration: 0,
-        details: `Redis operations failed: ${error.message}`,
+        details: `Redis operations failed: ${this.getErrorMessage(error)}`,
       });
     }
 
@@ -426,7 +426,7 @@ export class CacheHealthService {
   }
 
   private async runMemoryCacheTests(): Promise<any[]> {
-    const tests = [];
+    const tests: Array<{ name: string; status: string; duration: number; details: string }> = [];
 
     try {
       const healthCheck = await this.memoryCacheService.healthCheck();
@@ -452,7 +452,7 @@ export class CacheHealthService {
         name: 'memory_cache_operations',
         status: 'failed',
         duration: 0,
-        details: `Memory cache operations failed: ${error.message}`,
+        details: `Memory cache operations failed: ${this.getErrorMessage(error)}`,
       });
     }
 
@@ -460,13 +460,13 @@ export class CacheHealthService {
   }
 
   private async runPerformanceTests(): Promise<any[]> {
-    const tests = [];
+    const tests: Array<{ name: string; status: string; duration: number; details: string }> = [];
 
     try {
       // Test cache performance under load
       const operations = 100;
       const startTime = Date.now();
-      const promises = [];
+      const promises: Array<Promise<void>> = [];
 
       for (let i = 0; i < operations; i++) {
         promises.push(
@@ -486,7 +486,7 @@ export class CacheHealthService {
 
       // Test bulk get performance
       const getStartTime = Date.now();
-      const getPromises = [];
+      const getPromises: Array<Promise<unknown>> = [];
 
       for (let i = 0; i < operations; i++) {
         getPromises.push(this.cacheService.get(`perf_test_${i}`));
@@ -510,7 +510,7 @@ export class CacheHealthService {
         name: 'performance_tests',
         status: 'failed',
         duration: 0,
-        details: `Performance tests failed: ${error.message}`,
+        details: `Performance tests failed: ${this.getErrorMessage(error)}`,
       });
     }
 
@@ -582,5 +582,10 @@ export class CacheHealthService {
 
     const [, amount, unit] = match;
     return parseFloat(amount) * (units[unit as keyof typeof units] || 1);
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return String(error);
   }
 }

@@ -178,15 +178,15 @@ export class CacheEvictionService {
       // Get key metadata
       const pipeline = client.pipeline();
       keys.forEach(key => {
-        pipeline.object('idletime', key);
-        pipeline.memory('usage', key);
+        pipeline.object('IDLETIME', key);
+        pipeline.memory('USAGE', key);
       });
 
       const results = await pipeline.exec();
 
       for (let i = 0; i < keys.length; i++) {
-        const idleTime = results?.[i * 2]?.[1] || 0;
-        const memoryUsage = results?.[i * 2 + 1]?.[1] || 0;
+        const idleTime = Number(results?.[i * 2]?.[1] ?? 0);
+        const memoryUsage = Number(results?.[i * 2 + 1]?.[1] ?? 0);
 
         keyData.push({
           key: keys[i],

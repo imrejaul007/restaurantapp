@@ -25,7 +25,7 @@ export class CacheConfigModule {
 
             if (cacheConfig.isRedisEnabled()) {
               return {
-                store: redisStore,
+                store: redisStore as any,
                 host: cacheConfig.getRedisHost(),
                 port: cacheConfig.getRedisPort(),
                 password: cacheConfig.getRedisPassword(),
@@ -48,10 +48,8 @@ export class CacheConfigModule {
                 keyPrefix: cacheConfig.getKeyPrefix(),
                 // Error handling
                 retryDelayOnClusterDown: 300,
-                retryDelayOnFailover: 100,
-                maxRetriesPerRequest: 3,
                 enableReadyCheck: true,
-              };
+              } as any;
             } else {
               // Fallback to in-memory cache
               return {
@@ -60,7 +58,7 @@ export class CacheConfigModule {
                 // Memory cache specific optimizations
                 updateAgeOnGet: true,
                 useClones: false,
-              };
+              } as any;
             }
           },
           inject: [ConfigService],

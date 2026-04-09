@@ -310,7 +310,7 @@ export class EnhancedRestaurantsController {
   }
 
   private getAvailableCuisines() {
-    const cuisines = new Set();
+    const cuisines = new Set<string>();
     this.restaurants.forEach(restaurant => {
       restaurant.cuisineType.forEach(cuisine => cuisines.add(cuisine));
     });
@@ -318,7 +318,7 @@ export class EnhancedRestaurantsController {
   }
 
   private getAvailableLocations() {
-    const locations = new Set();
+    const locations = new Set<string>();
     this.restaurants.forEach(restaurant => {
       locations.add(`${restaurant.address.city}, ${restaurant.address.state}`);
     });

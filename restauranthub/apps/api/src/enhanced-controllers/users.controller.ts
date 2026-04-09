@@ -528,7 +528,7 @@ export class EnhancedUsersController {
   }
 
   private getUserAchievements(user: any) {
-    const achievements = [];
+    const achievements: Array<{ name: string; description: string; icon: string; earned: string }> = [];
 
     if (user.stats.postsCreated >= 20) achievements.push({ name: 'Prolific Poster', description: 'Created 20+ posts', icon: '📝', earned: this.getTimeAgo(user.joinedDate) });
     if (user.stats.likesReceived >= 100) achievements.push({ name: 'Community Favorite', description: 'Received 100+ likes', icon: '❤️', earned: this.getTimeAgo(user.joinedDate) });
@@ -541,7 +541,14 @@ export class EnhancedUsersController {
   }
 
   private generateActivityTimeline(user: any, userPosts: any[]) {
-    const activities = [];
+    const activities: Array<{
+      type: string;
+      title: string;
+      description: string;
+      timestamp: Date;
+      timeAgo: string;
+      data: Record<string, unknown>;
+    }> = [];
 
     // Add posts
     userPosts.forEach(post => {

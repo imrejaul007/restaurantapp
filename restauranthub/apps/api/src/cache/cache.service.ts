@@ -54,7 +54,7 @@ export class CacheService {
     const fullKey = this.buildKey(key, options?.namespace);
 
     try {
-      let value: string | null;
+      let value: string | null | undefined;
 
       if (this.config.isRedisEnabled()) {
         value = await this.redisService.get(fullKey);
@@ -63,9 +63,9 @@ export class CacheService {
       }
 
       const responseTime = Date.now() - startTime;
-      this.updateMetrics(responseTime, value !== null);
+      this.updateMetrics(responseTime, value != null);
 
-      if (value === null) {
+      if (value == null) {
         return null;
       }
 

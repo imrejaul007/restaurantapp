@@ -372,7 +372,7 @@ export class EnhancedVendorsController {
   }
 
   private getAvailableServiceAreas(): string[] {
-    const areas = new Set();
+    const areas = new Set<string>();
     this.vendors.forEach(vendor => {
       vendor.serviceAreas.forEach(area => areas.add(area));
     });
@@ -440,7 +440,21 @@ export class EnhancedVendorsController {
   }
 
   private generateProductCatalog() {
-    const products = [];
+    type VendorProduct = {
+      id: string;
+      vendorId: string;
+      name: string;
+      description: string;
+      price: number;
+      unit: string;
+      category: string;
+      inStock: boolean;
+      minimumOrder: number;
+      orderCount: number;
+      image: string;
+    };
+
+    const products: VendorProduct[] = [];
     const productNames = [
       'Premium Olive Oil', 'Organic Flour', 'Fresh Basil', 'Tomato Sauce', 'Mozzarella Cheese',
       'Stainless Steel Pan', 'Commercial Oven', 'Food Processor', 'Mixing Bowls',
