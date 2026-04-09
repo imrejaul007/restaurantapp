@@ -4,6 +4,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "strict": false,
+    "noImplicitOverride": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

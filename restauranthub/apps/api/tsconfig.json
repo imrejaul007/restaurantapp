@@ -40,6 +40,8 @@
       "@/*": ["src/*"],
       "@common/*": ["../../packages/common/src/*"],
       "@db/*": ["../../packages/db/src/*"],
+      "@restauranthub/rez-client": ["../../packages/rez-client/src"],
+      "@restauranthub/rez-client/*": ["../../packages/rez-client/src/*"],
       "@cache/*": ["src/cache/*"],
       "@monitoring/*": ["src/monitoring/*"]
     },
