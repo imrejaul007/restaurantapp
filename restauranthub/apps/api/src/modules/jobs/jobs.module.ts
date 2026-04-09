@@ -5,7 +5,7 @@ import { extname } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
-import { RezClientModule } from '@restauranthub/rez-client';
+import { RezClientModule } from '../../../../../packages/rez-client/dist/rez-client.module';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 import { FileStorageService } from './file-storage.service';

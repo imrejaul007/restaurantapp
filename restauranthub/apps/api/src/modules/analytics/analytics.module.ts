@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RezClientModule } from '../../../../../packages/rez-client/src/rez-client.module';
+import { RezClientModule } from '../../../../../packages/rez-client/dist/rez-client.module';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 

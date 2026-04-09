@@ -6,7 +6,7 @@
  */
 
 import { IsIn, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import type { CreditFactor, CreditTier } from '../../../../../packages/rez-client/src/types/rez.types';
+import type { CreditFactor, CreditTier } from '../../../../../packages/rez-client/dist/types/rez.types';
 
 // Re-export tier type for convenience
 export type { CreditTier, CreditFactor };

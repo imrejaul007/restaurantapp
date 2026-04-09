@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RezCatalogClient } from '@restauranthub/rez-client/clients/catalog.client';
-import { RezMerchantClient } from '@restauranthub/rez-client/clients/merchant.client';
+import { RezCatalogClient } from '../../../../../packages/rez-client/dist/clients/catalog.client';
+import { RezMerchantClient } from '../../../../../packages/rez-client/dist/clients/merchant.client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   MarketplaceCategory,

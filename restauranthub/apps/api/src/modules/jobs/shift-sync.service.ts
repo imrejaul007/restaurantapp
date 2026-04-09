@@ -8,8 +8,8 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { RezMerchantClient } from '@restauranthub/rez-client';
-import type { RezShiftGap } from '@restauranthub/rez-client';
+import { RezMerchantClient } from '../../../../../packages/rez-client/dist/clients/merchant.client';
+import type { RezShiftGap } from '../../../../../packages/rez-client/dist/types/rez.types';
 
 export interface DraftJob {
   id: string;
