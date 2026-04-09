@@ -253,18 +253,21 @@ async function bootstrap() {
   }));
 
   // CORS with environment-specific configuration
-  const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? (appConfigService.get('ALLOWED_ORIGINS', '').split(',').filter(Boolean))
-    : [
-        appConfigService.get('FRONTEND_URL'),
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://localhost:3003',
-        'http://localhost:3004',
-        'https://restauranthub.com',
-        'https://www.restauranthub.com',
-      ].filter(Boolean);
+  const corsOrigin = appConfigService.get('CORS_ORIGIN', '');
+  const allowedOriginsEnv = appConfigService.get('ALLOWED_ORIGINS', '');
+  const frontendUrl = appConfigService.get('FRONTEND_URL', '');
+  const allowedOrigins = [
+    ...corsOrigin.split(',').filter(Boolean),
+    ...allowedOriginsEnv.split(',').filter(Boolean),
+    ...(frontendUrl ? [frontendUrl] : []),
+    ...(process.env.NODE_ENV !== 'production' ? [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
+    ] : []),
+  ].filter((v, i, a) => v && a.indexOf(v) === i);
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -274,21 +277,11 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      if (process.env.NODE_ENV === 'production') {
-        // Strict CORS in production
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          logger.warn(`CORS blocked origin: ${origin}`);
-          callback(new Error('Not allowed by CORS'));
-        }
+      if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin?.includes('localhost'))) {
+        callback(null, true);
       } else {
-        // Development - allow all localhost origins
-        if (allowedOrigins.includes(origin) || origin?.includes('localhost')) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
+        logger.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
