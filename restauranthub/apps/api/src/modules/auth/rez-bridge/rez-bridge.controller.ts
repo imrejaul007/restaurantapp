@@ -194,13 +194,21 @@ export class RezBridgeController {
     payload: RezJwtPayload,
     profile: RezMerchantProfile,
   ): Promise<{ user: any; isNewProfile: boolean }> {
-    // Try to find an existing user linked to this REZ merchant
+    // Try 1: find user via Profile.rezMerchantId (set by SSO bridge)
     let existingUser = await this.prisma.user.findFirst({
       where: { profile: { rezMerchantId: profile._id } },
       include: { profile: true },
     });
 
-    // Fallback: match by email if no rezMerchantId link yet
+    // Try 2: find user via User.rezMerchantId (webhook-created accounts store it here)
+    if (!existingUser) {
+      existingUser = await this.prisma.user.findFirst({
+        where: { rezMerchantId: profile._id },
+        include: { profile: true },
+      });
+    }
+
+    // Try 3: match by email as last resort
     if (!existingUser) {
       existingUser = await this.prisma.user.findUnique({
         where: { email: profile.email },

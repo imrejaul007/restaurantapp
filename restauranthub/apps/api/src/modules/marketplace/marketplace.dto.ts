@@ -1,3 +1,5 @@
+import { IsString, IsNumber, IsOptional, IsArray, IsEmail, Min } from 'class-validator';
+
 export interface MarketplaceCategory {
   id: string;
   name: string;
@@ -46,13 +48,30 @@ export interface PastOrder {
   deliveryDate?: string;
 }
 
-export interface SubmitRfqDto {
-  supplierId: string;
-  category: string;
-  quantity: number;
+export class SubmitRfqDto {
+  @IsString()
+  supplierId!: string;
+
+  @IsString()
+  category!: string;
+
+  @IsNumber()
+  @Min(1)
+  quantity!: number;
+
+  @IsOptional()
+  @IsString()
   unit?: string;
+
+  @IsOptional()
+  @IsString()
   deliveryFrequency?: string;
-  city: string;
+
+  @IsString()
+  city!: string;
+
+  @IsOptional()
+  @IsString()
   notes?: string;
 }
 
@@ -70,12 +89,26 @@ export interface Rfq {
   createdAt: string;
 }
 
-export interface RegisterVendorDto {
-  businessName: string;
-  category: string;
-  citiesServed: string[];
-  contactEmail: string;
+export class RegisterVendorDto {
+  @IsString()
+  businessName!: string;
+
+  @IsString()
+  category!: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  citiesServed!: string[];
+
+  @IsEmail()
+  contactEmail!: string;
+
+  @IsOptional()
+  @IsString()
   contactPhone?: string;
+
+  @IsOptional()
+  @IsString()
   description?: string;
 }
 

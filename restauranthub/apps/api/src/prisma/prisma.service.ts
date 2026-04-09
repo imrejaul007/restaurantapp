@@ -75,13 +75,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       await this.$executeRaw`SET log_min_duration_statement = 1000`; // Log slow queries > 1s
 
       // Connection pool specific optimizations
-      await this.$executeRaw`SET max_connections = ${parseInt(process.env.DATABASE_MAX_CONNECTIONS || '100')}`;
-      await this.$executeRaw`SET shared_buffers = '256MB'`;
-      await this.$executeRaw`SET effective_cache_size = '1GB'`;
-      await this.$executeRaw`SET maintenance_work_mem = '64MB'`;
-      await this.$executeRaw`SET checkpoint_completion_target = 0.9`;
-      await this.$executeRaw`SET wal_buffers = '16MB'`;
-      await this.$executeRaw`SET default_statistics_target = 100`;
 
       this.logger.log('Database connection pool optimizations applied');
 

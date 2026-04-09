@@ -16,12 +16,18 @@ import { SecureTokenService } from './secure-token.service';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET') || 'your-secret-key',
-        signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN') || '15m',
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET environment variable is required. Set it in your .env file.');
+        }
+        return {
+          secret,
+          signOptions: {
+            expiresIn: configService.get('JWT_EXPIRES_IN') || '15m',
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

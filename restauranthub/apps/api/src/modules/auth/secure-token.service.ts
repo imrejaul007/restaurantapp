@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class SecureTokenService {
@@ -9,16 +10,16 @@ export class SecureTokenService {
 
   async storePasswordResetToken(userId: string, token: string): Promise<void> {
     try {
-      // For development, we'll just update the user record
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
       await this.prisma.user.update({
         where: { id: userId },
         data: {
-          resetTokenHash: token,
+          resetTokenHash: tokenHash,
           resetTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to store reset token: ${error.message}`);
+      this.logger.error(`Failed to store reset token: ${(error as any).message}`);
     }
   }
 
@@ -34,11 +35,15 @@ export class SecureTokenService {
       }
 
       const isExpired = user.resetTokenExpiresAt < new Date();
-      const isValid = user.resetTokenHash === token;
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const isValid = crypto.timingSafeEqual(
+        Buffer.from(user.resetTokenHash, 'hex'),
+        Buffer.from(tokenHash, 'hex'),
+      );
 
       return isValid && !isExpired;
     } catch (error) {
-      this.logger.error(`Failed to validate reset token: ${error.message}`);
+      this.logger.error(`Failed to validate reset token: ${(error as any).message}`);
       return false;
     }
   }
@@ -47,13 +52,10 @@ export class SecureTokenService {
     try {
       await this.prisma.user.update({
         where: { id: userId },
-        data: {
-          resetTokenHash: null,
-          resetTokenExpiresAt: null,
-        },
+        data: { resetTokenHash: null, resetTokenExpiresAt: null },
       });
     } catch (error) {
-      this.logger.error(`Failed to delete reset token: ${error.message}`);
+      this.logger.error(`Failed to delete reset token: ${(error as any).message}`);
     }
   }
 }

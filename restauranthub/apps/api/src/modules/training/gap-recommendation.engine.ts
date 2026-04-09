@@ -34,9 +34,11 @@ export class GapRecommendationEngine {
     let gaps: OperationalGap[] = [];
 
     try {
-      const analyticsBase =
-        this.configService.get<string>('ANALYTICS_API_URL') ||
-        'http://localhost:3000/api';
+      const analyticsBase = this.configService.get<string>('ANALYTICS_API_URL');
+      if (!analyticsBase) {
+        this.logger.warn('ANALYTICS_API_URL not set — skipping gap-driven recommendations');
+        return this.buildGeneralRecommendations();
+      }
 
       const { data } = await firstValueFrom(
         this.httpService.get<OperationalGap[]>(`${analyticsBase}/analytics/gaps`, {

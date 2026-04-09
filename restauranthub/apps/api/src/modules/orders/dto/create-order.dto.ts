@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsArray, IsOptional, IsEnum, ValidateNested, Min, Max } from 'class-validator';
+import { IsString, IsNumber, IsArray, IsOptional, IsEnum, ValidateNested, Min, Max, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -6,18 +6,18 @@ import { Type } from 'class-transformer';
  */
 export class OrderItemDto {
   @IsString()
-  productId: string;
+  productId!: string;
 
   @IsString()
-  productName: string;
+  productName!: string;
 
   @IsNumber()
   @Min(1)
-  quantity: number;
+  quantity!: number;
 
   @IsNumber()
   @Min(0)
-  price: number;
+  price!: number;
 
   @IsOptional()
   @IsArray()
@@ -33,26 +33,26 @@ export class OrderItemDto {
  */
 export class AddressDto {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsString()
-  phone: string;
+  phone!: string;
 
   @IsString()
-  addressLine1: string;
+  addressLine1!: string;
 
   @IsOptional()
   @IsString()
   addressLine2?: string;
 
   @IsString()
-  city: string;
+  city!: string;
 
   @IsString()
-  state: string;
+  state!: string;
 
   @IsString()
-  pincode: string;
+  pincode!: string;
 
   @IsOptional()
   @IsString()
@@ -64,26 +64,26 @@ export class AddressDto {
  */
 export class CreateOrderDto {
   @IsString()
-  customerId: string;
+  customerId!: string;
 
   @IsString()
-  restaurantId: string;
+  restaurantId!: string;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
-  items: OrderItemDto[];
+  items!: OrderItemDto[];
 
   @IsEnum(['delivery', 'pickup', 'dine_in'])
-  fulfillmentType: 'delivery' | 'pickup' | 'dine_in';
+  fulfillmentType!: 'delivery' | 'pickup' | 'dine_in';
 
   @ValidateNested()
   @Type(() => AddressDto)
-  deliveryAddress: AddressDto;
+  deliveryAddress!: AddressDto;
 
   @IsOptional()
   @IsString()
-  @Max(500)
+  @MaxLength(500)
   specialInstructions?: string;
 
   @IsOptional()
@@ -97,7 +97,7 @@ export class CreateOrderDto {
   creditUsed?: number;
 
   @IsEnum(['card', 'wallet', 'cod', 'upi'])
-  paymentMethod: 'card' | 'wallet' | 'cod' | 'upi';
+  paymentMethod!: 'card' | 'wallet' | 'cod' | 'upi';
 
   @IsOptional()
   @IsString()
@@ -105,7 +105,7 @@ export class CreateOrderDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(-1)
+  @Min(0)
   @Max(100)
   rezCoinsUsed?: number;
 

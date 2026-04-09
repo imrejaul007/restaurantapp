@@ -120,11 +120,16 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string) {
+  async logout(userId: string, accessToken?: string) {
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshToken: null },
     });
+
+    // Blacklist the access token so it cannot be reused before it expires
+    if (accessToken) {
+      await this.tokenBlacklistService.blacklistToken(accessToken, userId, 'logout');
+    }
 
     // Invalidate current session
     const currentSession = await this.prisma.session.findFirst({

@@ -10,10 +10,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private prisma: PrismaService,
   ) {
+    const secret = configService.get<string>('JWT_SECRET');
+    if (!secret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET') || 'your-secret-key',
+      secretOrKey: secret,
     });
   }
 
@@ -26,6 +30,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         role: true,
         isActive: true,
         isVerified: true,
+        restaurant: { select: { id: true } },
+        employee: { select: { id: true } },
       },
     });
 
@@ -39,6 +45,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       role: user.role,
       isActive: user.isActive,
       isVerified: user.isVerified,
+      restaurantId: user.restaurant?.id ?? null,
+      employeeId: user.employee?.id ?? null,
     };
   }
 }

@@ -33,7 +33,7 @@ export class JobsController {
       throw new BadRequestException('Only restaurants can create job postings');
     }
 
-    return this.jobsService.createJob(req.user.restaurant.id, data);
+    return this.jobsService.createJob(req.user.restaurantId, data);
   }
 
   @Get()
@@ -73,7 +73,7 @@ export class JobsController {
       throw new BadRequestException('Only restaurants can view their job postings');
     }
 
-    return this.jobsService.getRestaurantJobs(req.user.restaurant.id, page, limit);
+    return this.jobsService.getRestaurantJobs(req.user.restaurantId, page, limit);
   }
 
   @Get('my-applications')
@@ -86,7 +86,7 @@ export class JobsController {
       throw new BadRequestException('Only employees can view their applications');
     }
 
-    return this.jobsService.getMyApplications(req.user.employee.id, page, limit);
+    return this.jobsService.getMyApplications(req.user.employeeId, page, limit);
   }
 
   @Get(':id')
@@ -104,7 +104,7 @@ export class JobsController {
       throw new BadRequestException('Only restaurants can update job postings');
     }
 
-    return this.jobsService.updateJob(id, req.user.restaurant.id, data);
+    return this.jobsService.updateJob(id, req.user.restaurantId, data);
   }
 
   @Delete(':id')
@@ -113,7 +113,7 @@ export class JobsController {
       throw new BadRequestException('Only restaurants can delete job postings');
     }
 
-    return this.jobsService.deleteJob(id, req.user.restaurant.id);
+    return this.jobsService.deleteJob(id, req.user.restaurantId);
   }
 
   // Job Application endpoints
@@ -136,7 +136,7 @@ export class JobsController {
 
     return this.jobsService.applyToJob(
       jobId,
-      req.user.employee.id,
+      req.user.employeeId,
       coverLetter,
       resumePath
     );
@@ -155,7 +155,7 @@ export class JobsController {
 
     return this.jobsService.getJobApplications(
       jobId,
-      req.user.restaurant.id,
+      req.user.restaurantId,
       page,
       limit
     );
@@ -174,7 +174,7 @@ export class JobsController {
 
     return this.jobsService.updateApplicationStatus(
       applicationId,
-      req.user.restaurant.id,
+      req.user.restaurantId,
       status,
       reviewNotes
     );
@@ -220,14 +220,15 @@ export class JobsController {
     const job = await this.jobsService.getJob(jobId);
 
     // Verify job belongs to restaurant
-    if (job.restaurant.id !== req.user.restaurant.id) {
+    if (job.restaurant.id !== req.user.restaurantId) {
       throw new BadRequestException('Job not found');
     }
 
     // Calculate application statistics
-    const applicationStats = job.applications.reduce((stats, app) => {
-      stats.total++;
-      stats[app.status.toLowerCase()]++;
+    const applicationStats = job.applications.reduce((stats: Record<string, number>, app) => {
+      stats['total']++;
+      const key = app.status.toLowerCase();
+      stats[key] = (stats[key] ?? 0) + 1;
       return stats;
     }, {
       total: 0,
@@ -262,7 +263,7 @@ export class JobsController {
 
     return this.jobsService.updateJob(
       jobId,
-      req.user.restaurant.id,
+      req.user.restaurantId,
       { status }
     );
   }

@@ -9,15 +9,18 @@ import {
   Post,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { IsIn, IsInt } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty } from 'class-validator';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 class ConsentDto {
   @IsInt()
+  @IsNotEmpty()
   @IsIn([0, 1, 2])
-  consentTier: 0 | 1 | 2;
+  consentTier!: 0 | 1 | 2;
 }
 
 @Controller('users')
@@ -27,6 +30,7 @@ export class ConsentController {
   @Post('consent')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async updateConsent(
     @Request() req: { user: { id: string } },
     @Body() body: ConsentDto,

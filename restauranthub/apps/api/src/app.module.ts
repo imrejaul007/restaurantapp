@@ -14,7 +14,6 @@ import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { TrainingModule } from './modules/training/training.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { FintechModule } from './modules/fintech/fintech.module';
-import { QrTemplatesModule } from './modules/qr-templates/qr-templates.module';
 
 @Module({
   imports: [
@@ -22,21 +21,17 @@ import { QrTemplatesModule } from './modules/qr-templates/qr-templates.module';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
       validate: (config) => {
-        // Validate security-critical environment variables
         SecurityModule.validateEnvironmentVariables();
         return config;
       },
     }),
-
-    // Rate limiting with Throttler
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ([{
-        ttl: configService.get('RATE_LIMIT_WINDOW_MS', 60000), // 1 minute
+        ttl: configService.get('RATE_LIMIT_WINDOW_MS', 60000),
         limit: configService.get('RATE_LIMIT_MAX_REQUESTS', 100),
       }]),
       inject: [ConfigService],
     }),
-
     ScheduleModule.forRoot(),
     PrismaModule,
     CacheConfigModule.forRoot(),
@@ -49,7 +44,6 @@ import { QrTemplatesModule } from './modules/qr-templates/qr-templates.module';
     TrainingModule,
     AnalyticsModule,
     FintechModule,
-    QrTemplatesModule,
   ],
   controllers: [AppController],
   providers: [],
@@ -61,29 +55,12 @@ export class AppModule implements OnModuleInit {
 
   onModuleInit() {
     const environment = this.configService.get('NODE_ENV', 'development');
-
     this.logger.log('🔐 Security Module Initialized');
     this.logger.log(`🌍 Environment: ${environment}`);
-
     if (environment === 'production') {
       this.logger.log('🔒 Production security features enabled');
-      this.logger.log('✓ HTTPS enforcement');
-      this.logger.log('✓ Strict CORS policy');
-      this.logger.log('✓ Enhanced rate limiting');
-      this.logger.log('✓ CSRF protection');
     } else {
       this.logger.warn('⚠️  Development mode - some security features relaxed');
     }
-
-    // Log security configuration
-    this.logger.log('🛡️  Security features active:');
-    this.logger.log('✓ JWT token blacklisting');
-    this.logger.log('✓ Session management');
-    this.logger.log('✓ Brute force protection');
-    this.logger.log('✓ Input validation & sanitization');
-    this.logger.log('✓ Security headers (HSTS, CSP, etc.)');
-    this.logger.log('✓ Request/response logging');
-    this.logger.log('✓ API key authentication');
-    this.logger.log('✓ Automated security cleanup tasks');
   }
 }

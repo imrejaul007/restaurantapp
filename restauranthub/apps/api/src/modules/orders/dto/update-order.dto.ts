@@ -5,7 +5,7 @@ import { IsString, IsEnum, IsOptional, IsNumber, Min } from 'class-validator';
  */
 export class UpdateOrderStatusDto {
   @IsEnum(['pending', 'confirmed', 'preparing', 'ready', 'dispatched', 'delivered', 'cancelled', 'returned'])
-  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'dispatched' | 'delivered' | 'cancelled' | 'returned';
+  status!: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'dispatched' | 'delivered' | 'cancelled' | 'returned';
 
   @IsOptional()
   @IsString()
@@ -17,7 +17,7 @@ export class UpdateOrderStatusDto {
  */
 export class CancelOrderDto {
   @IsString()
-  reason: string;
+  reason!: string;
 
   @IsOptional()
   @IsNumber()

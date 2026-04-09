@@ -12,7 +12,7 @@ export class RezBridgeRequestDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(4096)
-  rezToken: string;
+  rezToken!: string;
 }
 
 /**
@@ -20,14 +20,14 @@ export class RezBridgeRequestDto {
  */
 export class RezBridgeResponseDto {
   /** RestaurantHub-issued JWT. Use this for all subsequent API calls. */
-  accessToken: string;
+  accessToken!: string;
 
   /** The resolved merchant identity record. */
-  user: RezMerchantIdentity;
+  user!: RezMerchantIdentity;
 
   /**
    * True if a new RestaurantHub profile was created for this merchant.
    * False if an existing profile was matched and updated.
    */
-  isNewProfile: boolean;
+  isNewProfile!: boolean;
 }
