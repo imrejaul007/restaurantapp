@@ -142,8 +142,10 @@ export class RezBridgeController {
    */
   private async fetchRezMerchantProfile(token: string, userId: string): Promise<RezMerchantProfile> {
     try {
+      // NOTE: Uses /internal/restopapa/merchant-profile (not /merchant/profile) so the request
+      // bypasses nginx's /api/merchant/* → merchant-service routing and hits the monolith directly.
       const response = await axios.get<{ success: boolean; data: RezMerchantProfile }>(
-        `${this.rezBackendUrl}/merchant/profile`,
+        `${this.rezBackendUrl}/internal/restopapa/merchant-profile`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
