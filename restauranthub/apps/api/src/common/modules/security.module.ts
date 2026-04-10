@@ -2,7 +2,6 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ScheduleModule } from '@nestjs/schedule';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 // Security Services
@@ -41,7 +40,6 @@ import { IsSecureStringConstraint, IsStrongPasswordConstraint, IsSafeFilenameCon
       }),
       inject: [ConfigService],
     }),
-    ScheduleModule.forRoot(),
   ],
   providers: [
     // Core Security Services

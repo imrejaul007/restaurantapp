@@ -19,7 +19,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order.dto';
 
-@Controller('api/orders')
+@Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
   private readonly logger = new Logger(OrdersController.name);
