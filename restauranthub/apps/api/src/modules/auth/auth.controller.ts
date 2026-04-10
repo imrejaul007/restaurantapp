@@ -28,6 +28,10 @@ class SignUpDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @IsOptional()
+  @IsString()
+  appSource?: string;
 }
 
 class SignInDto {
@@ -37,6 +41,15 @@ class SignInDto {
   @IsString()
   @MinLength(1)
   password!: string;
+
+  @IsOptional()
+  @IsString()
+  appSource?: string;
+}
+
+class RefreshDto {
+  @IsString()
+  refreshToken!: string;
 }
 
 @Controller('auth')
@@ -52,6 +65,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() dto: RefreshDto) {
+    return this.authService.refreshTokens(dto.refreshToken);
   }
 
   @Post('logout')

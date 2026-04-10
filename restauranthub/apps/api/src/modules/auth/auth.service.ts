@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException, ConflictExcepti
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { UserRole } from '@prisma/client';
@@ -63,8 +64,9 @@ export class AuthService {
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
-    // Save refresh token
+    // Save refresh token and create session
     await this.updateRefreshToken(user.id, tokens.refreshToken);
+    await this.createSession(user.id, tokens.accessToken);
 
     return {
       user: this.sanitizeUser(user),
@@ -148,6 +150,44 @@ export class AuthService {
 
     this.logger.log(`User ${userId} logged out`);
     return { message: 'Logged out successfully' };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    // Verify the refresh token signature
+    let payload: any;
+    try {
+      payload = jwt.verify(
+        refreshToken,
+        this.configService.get('JWT_REFRESH_SECRET') || this.configService.get('JWT_SECRET'),
+      ) as any;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    if (payload.type !== 'refresh') {
+      throw new UnauthorizedException('Invalid token type');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!user || !user.isActive || !user.refreshToken) {
+      throw new UnauthorizedException('User not found or logged out');
+    }
+
+    // Verify stored refresh token matches
+    const tokenValid = await argon2.verify(user.refreshToken, refreshToken);
+    if (!tokenValid) {
+      throw new UnauthorizedException('Refresh token mismatch — please log in again');
+    }
+
+    // Issue new token pair (token rotation)
+    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    await this.createSession(user.id, tokens.accessToken);
+
+    return tokens;
   }
 
   async validateUser(email: string, password: string) {

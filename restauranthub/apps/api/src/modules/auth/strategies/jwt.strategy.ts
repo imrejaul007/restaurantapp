@@ -3,12 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { TokenBlacklistService } from '../services/token-blacklist.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
+    private tokenBlacklist: TokenBlacklistService,
   ) {
     const secret = configService.get<string>('JWT_SECRET');
     if (!secret) {
@@ -18,10 +20,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: secret,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
+  async validate(req: any, payload: any) {
+    // Check token blacklist — rejects tokens invalidated by logout
+    const authHeader: string = req.headers?.authorization ?? '';
+    const rawToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (rawToken && await this.tokenBlacklist.isTokenBlacklisted(rawToken)) {
+      throw new UnauthorizedException('Token has been invalidated');
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       select: {
