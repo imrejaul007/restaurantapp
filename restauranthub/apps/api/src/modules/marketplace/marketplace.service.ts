@@ -157,6 +157,30 @@ export class MarketplaceService {
     }));
   }
 
+  async getVendorApplications(filters: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: any[]; total: number; page: number; limit: number }> {
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const where = filters.status ? { status: filters.status.toUpperCase() } : {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.vendorApplication.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.vendorApplication.count({ where }),
+    ]);
+
+    return { data, total, page, limit };
+  }
+
   async registerVendor(dto: RegisterVendorDto): Promise<{ id: string; status: 'pending_review' }> {
     const record = await this.prisma.vendorApplication.create({
       data: {

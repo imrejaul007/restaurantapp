@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
   Optional,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MarketplaceService } from './marketplace.service';
@@ -98,5 +99,24 @@ export class MarketplaceController {
   @Post('vendors/register')
   async registerVendor(@Body() body: RegisterVendorDto) {
     return this.marketplaceService.registerVendor(body);
+  }
+
+  /**
+   * GET /marketplace/vendor-applications
+   * Admin-only endpoint — list all vendor applications.
+   */
+  @Get('vendor-applications')
+  @UseGuards(AuthGuard('jwt'))
+  async getVendorApplications(
+    @Request() req: any,
+    @Query('status') status?: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
+  ) {
+    const role = req.user?.role;
+    if (role !== 'admin' && role !== 'ADMIN') {
+      throw new ForbiddenException('Admin access required');
+    }
+    return this.marketplaceService.getVendorApplications({ status, page, limit });
   }
 }

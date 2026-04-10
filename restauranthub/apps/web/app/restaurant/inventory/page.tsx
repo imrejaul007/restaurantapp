@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Plus, Search, Filter, AlertTriangle, TrendingDown, Edit, Trash2, Download } from 'lucide-react';
+import { Package, Plus, Search, AlertTriangle, TrendingDown, Edit, Trash2, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,98 +13,55 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { useAuth } from '@/lib/auth/auth-provider';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init.headers ?? {}),
+    },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message || `Request failed: ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+interface InventoryItem {
+  id: number | string;
+  name: string;
+  category: string;
+  currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  costPerUnit: number;
+  supplier: string;
+  lastOrdered: string;
+  expiryDate: string;
+  status: string;
+}
+
+const categories = ['Vegetables', 'Meat', 'Dairy', 'Pantry', 'Beverages', 'Spices', 'Frozen'];
 
 export default function InventoryManagement() {
+  const { user } = useAuth();
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const [inventory, setInventory] = useState([
-    {
-      id: 1,
-      name: 'Tomatoes',
-      category: 'Vegetables',
-      currentStock: 15,
-      minStock: 20,
-      maxStock: 100,
-      unit: 'lbs',
-      costPerUnit: 2.50,
-      supplier: 'Fresh Farms Co',
-      lastOrdered: '2024-01-08',
-      expiryDate: '2024-01-15',
-      status: 'low'
-    },
-    {
-      id: 2,
-      name: 'Mozzarella Cheese',
-      category: 'Dairy',
-      currentStock: 45,
-      minStock: 25,
-      maxStock: 80,
-      unit: 'lbs',
-      costPerUnit: 4.25,
-      supplier: 'Dairy Fresh Inc',
-      lastOrdered: '2024-01-09',
-      expiryDate: '2024-01-20',
-      status: 'good'
-    },
-    {
-      id: 3,
-      name: 'Chicken Breast',
-      category: 'Meat',
-      currentStock: 8,
-      minStock: 15,
-      maxStock: 50,
-      unit: 'lbs',
-      costPerUnit: 6.99,
-      supplier: 'Premium Meats',
-      lastOrdered: '2024-01-07',
-      expiryDate: '2024-01-14',
-      status: 'critical'
-    },
-    {
-      id: 4,
-      name: 'Olive Oil',
-      category: 'Pantry',
-      currentStock: 12,
-      minStock: 8,
-      maxStock: 30,
-      unit: 'bottles',
-      costPerUnit: 8.50,
-      supplier: 'Mediterranean Imports',
-      lastOrdered: '2024-01-05',
-      expiryDate: '2024-12-31',
-      status: 'good'
-    },
-    {
-      id: 5,
-      name: 'Lettuce',
-      category: 'Vegetables',
-      currentStock: 2,
-      minStock: 10,
-      maxStock: 40,
-      unit: 'heads',
-      costPerUnit: 1.25,
-      supplier: 'Fresh Farms Co',
-      lastOrdered: '2024-01-06',
-      expiryDate: '2024-01-13',
-      status: 'critical'
-    },
-    {
-      id: 6,
-      name: 'Flour',
-      category: 'Pantry',
-      currentStock: 25,
-      minStock: 20,
-      maxStock: 100,
-      unit: 'lbs',
-      costPerUnit: 0.85,
-      supplier: 'Bakery Supply Co',
-      lastOrdered: '2024-01-04',
-      expiryDate: '2024-06-30',
-      status: 'good'
-    }
-  ]);
+  const restaurantId = user?.restaurant?.id;
 
   const [newItem, setNewItem] = useState({
     name: '',
@@ -115,10 +72,102 @@ export default function InventoryManagement() {
     unit: '',
     costPerUnit: '',
     supplier: '',
-    expiryDate: ''
+    expiryDate: '',
   });
 
-  const categories = ['Vegetables', 'Meat', 'Dairy', 'Pantry', 'Beverages', 'Spices', 'Frozen'];
+  const getStockStatus = (item: { currentStock: number; minStock: number }) => {
+    if (item.currentStock === 0) return 'out';
+    if (item.currentStock <= item.minStock * 0.5) return 'critical';
+    if (item.currentStock <= item.minStock) return 'low';
+    return 'good';
+  };
+
+  const fetchInventory = useCallback(async () => {
+    if (!restaurantId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const batches = await apiFetch<any[]>(
+        `/inventory/batches?restaurantId=${encodeURIComponent(restaurantId)}`,
+      );
+      const items: InventoryItem[] = (batches ?? []).map((batch: any) => {
+        const currentStock = batch.quantity ?? 0;
+        const minStock = batch.product?.minStock ?? 0;
+        const maxStock = batch.product?.maxStock ?? currentStock * 2 || 100;
+        const itemForStatus = { currentStock, minStock };
+        return {
+          id: batch.id,
+          name: batch.product?.name ?? 'Unknown',
+          category: batch.product?.category?.name ?? 'Uncategorised',
+          currentStock,
+          minStock,
+          maxStock,
+          unit: batch.product?.unit ?? 'units',
+          costPerUnit: batch.costPrice ?? batch.product?.costPrice ?? 0,
+          supplier: batch.supplier?.companyName ?? 'Unknown',
+          lastOrdered: batch.receivedDate
+            ? new Date(batch.receivedDate).toISOString().split('T')[0]
+            : '',
+          expiryDate: batch.expiryDate
+            ? new Date(batch.expiryDate).toISOString().split('T')[0]
+            : '',
+          status: getStockStatus(itemForStatus),
+        };
+      });
+      setInventory(items);
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to load inventory');
+    } finally {
+      setLoading(false);
+    }
+  }, [restaurantId]);
+
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
+
+  const updateItemStock = (itemId: number | string, newStock: number) => {
+    setInventory((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              currentStock: newStock,
+              status: getStockStatus({ currentStock: newStock, minStock: item.minStock }),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const addItem = () => {
+    if (newItem.name && newItem.category && newItem.currentStock) {
+      const currentStock = parseInt(newItem.currentStock);
+      const minStock = parseInt(newItem.minStock) || 10;
+      const item: InventoryItem = {
+        id: `local-${Date.now()}`,
+        name: newItem.name,
+        category: newItem.category,
+        currentStock,
+        minStock,
+        maxStock: parseInt(newItem.maxStock) || 100,
+        unit: newItem.unit || 'units',
+        costPerUnit: parseFloat(newItem.costPerUnit) || 0,
+        supplier: newItem.supplier || 'TBD',
+        lastOrdered: new Date().toISOString().split('T')[0],
+        expiryDate: newItem.expiryDate || '',
+        status: getStockStatus({ currentStock, minStock }),
+      };
+      setInventory((prev) => [...prev, item]);
+      setNewItem({
+        name: '', category: '', currentStock: '', minStock: '', maxStock: '',
+        unit: '', costPerUnit: '', supplier: '', expiryDate: '',
+      });
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -130,47 +179,7 @@ export default function InventoryManagement() {
     }
   };
 
-  const getStockStatus = (item: any) => {
-    if (item.currentStock === 0) return 'out';
-    if (item.currentStock <= item.minStock * 0.5) return 'critical';
-    if (item.currentStock <= item.minStock) return 'low';
-    return 'good';
-  };
-
-  const updateItemStock = (itemId: number, newStock: number) => {
-    setInventory(prev => prev.map(item => 
-      item.id === itemId 
-        ? { ...item, currentStock: newStock, status: getStockStatus({ ...item, currentStock: newStock }) }
-        : item
-    ));
-  };
-
-  const addItem = () => {
-    if (newItem.name && newItem.category && newItem.currentStock) {
-      const item = {
-        id: Math.max(...inventory.map(i => i.id)) + 1,
-        name: newItem.name,
-        category: newItem.category,
-        currentStock: parseInt(newItem.currentStock),
-        minStock: parseInt(newItem.minStock) || 10,
-        maxStock: parseInt(newItem.maxStock) || 100,
-        unit: newItem.unit || 'units',
-        costPerUnit: parseFloat(newItem.costPerUnit) || 0,
-        supplier: newItem.supplier || 'TBD',
-        lastOrdered: new Date().toISOString().split('T')[0],
-        expiryDate: newItem.expiryDate || '',
-        status: 'good'
-      };
-      item.status = getStockStatus(item);
-      setInventory(prev => [...prev, item]);
-      setNewItem({
-        name: '', category: '', currentStock: '', minStock: '', maxStock: '',
-        unit: '', costPerUnit: '', supplier: '', expiryDate: ''
-      });
-    }
-  };
-
-  const filteredInventory = inventory.filter(item => {
+  const filteredInventory = inventory.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
@@ -179,10 +188,54 @@ export default function InventoryManagement() {
 
   const stats = {
     totalItems: inventory.length,
-    lowStock: inventory.filter(i => i.status === 'low' || i.status === 'critical').length,
-    totalValue: inventory.reduce((sum, item) => sum + (item.currentStock * item.costPerUnit), 0),
-    outOfStock: inventory.filter(i => i.status === 'out').length
+    lowStock: inventory.filter((i) => i.status === 'low' || i.status === 'critical').length,
+    totalValue: inventory.reduce((sum, item) => sum + item.currentStock * item.costPerUnit, 0),
+    outOfStock: inventory.filter((i) => i.status === 'out').length,
   };
+
+  if (!restaurantId && !loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-64 text-center space-y-3">
+          <p className="text-lg font-semibold">No restaurant linked</p>
+          <p className="text-sm text-muted-foreground">
+            Your account is not associated with a restaurant.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {error}{' '}
+              <button
+                onClick={fetchInventory}
+                className="underline ml-1 text-sm font-medium"
+              >
+                Retry
+              </button>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -214,19 +267,22 @@ export default function InventoryManagement() {
                     <Input
                       id="itemName"
                       value={newItem.name}
-                      onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) => setNewItem((prev) => ({ ...prev, name: e.target.value }))}
                       placeholder="e.g., Fresh Basil"
                     />
                   </div>
                   <div>
                     <Label htmlFor="category">Category</Label>
-                    <Select value={newItem.category} onValueChange={(value) => setNewItem(prev => ({ ...prev, category: value }))}>
+                    <Select
+                      value={newItem.category}
+                      onValueChange={(value) => setNewItem((prev) => ({ ...prev, category: value }))}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -238,7 +294,7 @@ export default function InventoryManagement() {
                         id="currentStock"
                         type="number"
                         value={newItem.currentStock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, currentStock: e.target.value }))}
+                        onChange={(e) => setNewItem((prev) => ({ ...prev, currentStock: e.target.value }))}
                         placeholder="0"
                       />
                     </div>
@@ -247,7 +303,7 @@ export default function InventoryManagement() {
                       <Input
                         id="unit"
                         value={newItem.unit}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, unit: e.target.value }))}
+                        onChange={(e) => setNewItem((prev) => ({ ...prev, unit: e.target.value }))}
                         placeholder="lbs, bottles, etc."
                       />
                     </div>
@@ -259,7 +315,7 @@ export default function InventoryManagement() {
                         id="minStock"
                         type="number"
                         value={newItem.minStock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, minStock: e.target.value }))}
+                        onChange={(e) => setNewItem((prev) => ({ ...prev, minStock: e.target.value }))}
                         placeholder="10"
                       />
                     </div>
@@ -269,19 +325,19 @@ export default function InventoryManagement() {
                         id="maxStock"
                         type="number"
                         value={newItem.maxStock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, maxStock: e.target.value }))}
+                        onChange={(e) => setNewItem((prev) => ({ ...prev, maxStock: e.target.value }))}
                         placeholder="100"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="costPerUnit">Cost per Unit ($)</Label>
+                    <Label htmlFor="costPerUnit">Cost per Unit</Label>
                     <Input
                       id="costPerUnit"
                       type="number"
                       step="0.01"
                       value={newItem.costPerUnit}
-                      onChange={(e) => setNewItem(prev => ({ ...prev, costPerUnit: e.target.value }))}
+                      onChange={(e) => setNewItem((prev) => ({ ...prev, costPerUnit: e.target.value }))}
                       placeholder="0.00"
                     />
                   </div>
@@ -290,7 +346,7 @@ export default function InventoryManagement() {
                     <Input
                       id="supplier"
                       value={newItem.supplier}
-                      onChange={(e) => setNewItem(prev => ({ ...prev, supplier: e.target.value }))}
+                      onChange={(e) => setNewItem((prev) => ({ ...prev, supplier: e.target.value }))}
                       placeholder="Supplier name"
                     />
                   </div>
@@ -303,86 +359,47 @@ export default function InventoryManagement() {
           </div>
         </div>
 
-        {/* Alerts */}
         {stats.lowStock > 0 && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              You have {stats.lowStock} items with low stock levels that need attention.
+              {stats.lowStock} item{stats.lowStock !== 1 ? 's' : ''} with low stock levels need attention.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Items</p>
-                    <h3 className="text-2xl font-bold mt-2">{stats.totalItems}</h3>
+          {[
+            { label: 'Total Items', value: stats.totalItems, icon: <Package className="h-8 w-8 text-blue-500" /> },
+            { label: 'Low Stock', value: stats.lowStock, icon: <TrendingDown className="h-8 w-8 text-yellow-500" />, color: 'text-yellow-600' },
+            { label: 'Total Value', value: `₹${stats.totalValue.toLocaleString()}`, icon: <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center"><span className="text-green-600 font-bold">₹</span></div> },
+            { label: 'Out of Stock', value: stats.outOfStock, icon: <AlertTriangle className="h-8 w-8 text-red-500" />, color: 'text-red-600' },
+          ].map((stat, i) => (
+            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                      <h3 className={`text-2xl font-bold mt-2 ${stat.color ?? ''}`}>{stat.value}</h3>
+                    </div>
+                    {stat.icon}
                   </div>
-                  <Package className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                    <h3 className="text-2xl font-bold mt-2 text-yellow-600">{stats.lowStock}</h3>
-                  </div>
-                  <TrendingDown className="h-8 w-8 text-yellow-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Value</p>
-                    <h3 className="text-2xl font-bold mt-2">${stats.totalValue.toLocaleString()}</h3>
-                  </div>
-                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold">$</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-                    <h3 className="text-2xl font-bold mt-2 text-red-600">{stats.outOfStock}</h3>
-                  </div>
-                  <AlertTriangle className="h-8 w-8 text-red-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-64">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search inventory..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+          <div className="flex-1 min-w-64 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search inventory..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-48">
@@ -390,8 +407,8 @@ export default function InventoryManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(category => (
-                <SelectItem key={category} value={category}>{category}</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -409,87 +426,84 @@ export default function InventoryManagement() {
           </Select>
         </div>
 
-        {/* Inventory Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <Card>
             <CardHeader>
               <CardTitle>Inventory Items</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredInventory.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="p-4 border rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="font-semibold">{item.name}</h3>
-                          <Badge variant="outline">{item.category}</Badge>
-                          <Badge className={getStatusColor(item.status)}>
-                            {item.status}
-                          </Badge>
+              {filteredInventory.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+                  <Package className="h-12 w-12 text-muted-foreground" />
+                  <p className="text-lg font-semibold text-foreground">No inventory items found</p>
+                  <p className="text-sm text-muted-foreground">
+                    {inventory.length === 0
+                      ? 'No inventory batches have been recorded yet. Add your first item to get started.'
+                      : 'No items match your current filters. Try adjusting the search or category.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredInventory.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="p-4 border rounded-lg hover:bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="font-semibold">{item.name}</h3>
+                            <Badge variant="outline">{item.category}</Badge>
+                            <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
+                            <div><span className="font-medium">Stock: </span>{item.currentStock} {item.unit}</div>
+                            <div><span className="font-medium">Min: </span>{item.minStock} {item.unit}</div>
+                            <div><span className="font-medium">Cost: </span>₹{item.costPerUnit}/{item.unit}</div>
+                            <div><span className="font-medium">Supplier: </span>{item.supplier}</div>
+                            <div>
+                              <span className="font-medium">Received: </span>
+                              {item.lastOrdered ? new Date(item.lastOrdered).toLocaleDateString() : '—'}
+                            </div>
+                            <div>
+                              <span className="font-medium">Expires: </span>
+                              {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}
+                            </div>
+                          </div>
+                          <div className="mt-3">
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>Stock Level</span>
+                              <span>{item.currentStock} / {item.maxStock}</span>
+                            </div>
+                            <Progress value={(item.currentStock / Math.max(item.maxStock, 1)) * 100} className="h-2" />
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
-                          <div>
-                            <span className="font-medium">Stock: </span>
-                            {item.currentStock} {item.unit}
-                          </div>
-                          <div>
-                            <span className="font-medium">Min: </span>
-                            {item.minStock} {item.unit}
-                          </div>
-                          <div>
-                            <span className="font-medium">Cost: </span>
-                            ${item.costPerUnit}/{item.unit}
-                          </div>
-                          <div>
-                            <span className="font-medium">Supplier: </span>
-                            {item.supplier}
-                          </div>
-                          <div>
-                            <span className="font-medium">Last Ordered: </span>
-                            {new Date(item.lastOrdered).toLocaleDateString()}
-                          </div>
-                          <div>
-                            <span className="font-medium">Expires: </span>
-                            {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}
-                          </div>
-                        </div>
-                        <div className="mt-3">
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>Stock Level</span>
-                            <span>{item.currentStock} / {item.maxStock}</span>
-                          </div>
-                          <Progress value={(item.currentStock / item.maxStock) * 100} className="h-2" />
+                        <div className="flex items-center space-x-2 ml-4">
+                          <Input
+                            type="number"
+                            value={item.currentStock}
+                            onChange={(e) => updateItemStock(item.id, parseInt(e.target.value) || 0)}
+                            className="w-20"
+                          />
+                          <Button variant="outline">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="text-red-600"
+                            onClick={() => setInventory((prev) => prev.filter((i) => i.id !== item.id))}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Input
-                          type="number"
-                          value={item.currentStock}
-                          onChange={(e) => updateItemStock(item.id, parseInt(e.target.value) || 0)}
-                          className="w-20"
-                        />
-                        <Button  variant="outline">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button  variant="outline" className="text-red-600">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
