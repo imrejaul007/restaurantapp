@@ -1,4 +1,4 @@
-// Comprehensive Mock Data for Restaurant Hub Application
+// Comprehensive Mock Data for RestoPapa Application
 // This file contains extensive mock data for all features
 
 export const mockData = {
@@ -206,7 +206,7 @@ export const mockData = {
       userId: 'mock-admin-1',
       firstName: 'System',
       lastName: 'Administrator',
-      bio: 'Platform Administrator managing the Restaurant Hub ecosystem',
+      bio: 'Platform Administrator managing the RestoPapa ecosystem',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
       city: 'Mumbai',
       state: 'Maharashtra',
@@ -1425,7 +1425,7 @@ export const mockData = {
     {
       id: 'post-001',
       userId: 'mock-admin-1',
-      title: 'Welcome to Restaurant Hub Community!',
+      title: 'Welcome to RestoPapa Community!',
       content: 'We are excited to launch this platform where restaurant owners, vendors, employees, and food enthusiasts can connect, share experiences, and grow together. Feel free to ask questions, share tips, and help each other succeed in the food industry.',
       tags: ['welcome', 'community', 'announcement'],
       category: 'ANNOUNCEMENT',

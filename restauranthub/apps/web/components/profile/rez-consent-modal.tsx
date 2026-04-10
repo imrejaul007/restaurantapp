@@ -28,7 +28,7 @@ const TIERS = [
     label: 'Identity Only',
     tag: 'Always On',
     description:
-      'Your name, store type, and city are visible on RestaurantHub. This cannot be disabled as it is required for your profile to be listed.',
+      'Your name, store type, and city are visible on RestoPapa. This cannot be disabled as it is required for your profile to be listed.',
     alwaysOn: true,
   },
   {
@@ -85,7 +85,7 @@ export function RezConsentModal({
         <DialogHeader>
           <DialogTitle>REZ Data Settings</DialogTitle>
           <DialogDescription>
-            Control how your REZ merchant data is shared on RestaurantHub. Tier 0 is
+            Control how your REZ merchant data is shared on RestoPapa. Tier 0 is
             required; higher tiers are optional and can be changed at any time.
           </DialogDescription>
         </DialogHeader>

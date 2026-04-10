@@ -174,7 +174,7 @@ export default function OfflinePage() {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <Smartphone className="mr-2 h-5 w-5" />
-                  Install RestaurantHub
+                  Install RestoPapa
                 </CardTitle>
                 <CardDescription>
                   Get the best experience with our mobile app
@@ -230,7 +230,7 @@ export default function OfflinePage() {
               <CardContent className="text-center py-6">
                 <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">
-                  RestaurantHub is installed and ready to use offline!
+                  RestoPapa is installed and ready to use offline!
                 </p>
               </CardContent>
             </Card>
@@ -239,7 +239,7 @@ export default function OfflinePage() {
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
-          <p>RestaurantHub works even when you're offline</p>
+          <p>RestoPapa works even when you're offline</p>
         </div>
       </div>
     </div>

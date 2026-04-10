@@ -143,7 +143,7 @@ export default function VendorOnboardingPage() {
             <h2 className="text-xl font-bold">Sell to Thousands of Restaurants</h2>
           </div>
           <p className="text-blue-100">
-            RestaurantHub is powered by REZ — India's largest restaurant network.
+            RestoPapa is powered by REZ — India's largest restaurant network.
             List your products and reach verified restaurant buyers instantly.
           </p>
         </div>

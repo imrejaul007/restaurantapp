@@ -207,7 +207,7 @@ export default function ContactPage() {
               </h1>
 
               <p className="text-xl text-slate-300 mb-6 leading-relaxed">
-                Have questions? Need support? We're here to help you succeed with RestaurantHub.
+                Have questions? Need support? We're here to help you succeed with RestoPapa.
               </p>
 
               <div className="flex items-center text-slate-400 space-x-6">

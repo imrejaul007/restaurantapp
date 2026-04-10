@@ -109,7 +109,7 @@ export default function AboutPage() {
               </h1>
 
               <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                RestaurantHub is more than a platform - we're your partner in building a successful, sustainable restaurant business in the digital age.
+                RestoPapa is more than a platform - we're your partner in building a successful, sustainable restaurant business in the digital age.
               </p>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function AboutPage() {
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold text-slate-800 mb-4">Our Solution</h3>
                   <p className="text-slate-600 leading-relaxed text-lg">
-                    RestaurantHub was born from the vision of creating a unified ecosystem where restaurants can manage every aspect of their business through one comprehensive platform. We've integrated hiring, marketplace, community features, and business management tools into a seamless experience that scales with your growth.
+                    RestoPapa was born from the vision of creating a unified ecosystem where restaurants can manage every aspect of their business through one comprehensive platform. We've integrated hiring, marketplace, community features, and business management tools into a seamless experience that scales with your growth.
                   </p>
                 </CardContent>
               </Card>
@@ -231,7 +231,7 @@ export default function AboutPage() {
                 </span>
               </h2>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                Discover how RestaurantHub can transform your business operations and drive growth.
+                Discover how RestoPapa can transform your business operations and drive growth.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

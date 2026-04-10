@@ -42,7 +42,7 @@ const systemSettings: Setting[] = [
     name: 'Site Name',
     description: 'The name of your platform displayed across the site',
     type: 'text',
-    value: 'RestaurantHub',
+    value: 'RestoPapa',
     required: true,
   },
   {
@@ -127,7 +127,7 @@ const systemSettings: Setting[] = [
     name: 'From Name',
     description: 'Name shown in outgoing emails',
     type: 'text',
-    value: 'RestaurantHub',
+    value: 'RestoPapa',
     required: true,
   },
   

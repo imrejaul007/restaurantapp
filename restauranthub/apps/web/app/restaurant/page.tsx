@@ -227,7 +227,7 @@ export default function RestaurantHomePage() {
                 Quick Start Guide
               </CardTitle>
               <CardDescription>
-                New to RestaurantHub? Get started with these essential steps.
+                New to RestoPapa? Get started with these essential steps.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

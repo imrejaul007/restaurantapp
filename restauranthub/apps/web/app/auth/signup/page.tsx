@@ -496,7 +496,7 @@ export default function SignupPage() {
               <ChefHat className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Create your RestaurantHub account</CardTitle>
+          <CardTitle className="text-2xl">Create your RestoPapa account</CardTitle>
           <CardDescription>
             {step === 1 ? 'Choose your role and set up your account' : 'Complete your profile information'}
           </CardDescription>

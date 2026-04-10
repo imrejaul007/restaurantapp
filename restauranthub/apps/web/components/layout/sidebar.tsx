@@ -255,7 +255,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">R</span>
               </div>
-              <span className="text-lg font-bold text-foreground">RestaurantHub</span>
+              <span className="text-lg font-bold text-foreground">RestoPapa</span>
             </Link>
           ) : (
             <Link href={user ? getRoleDashboard(user.role) : '/'} className="flex items-center justify-center w-full">
@@ -332,7 +332,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">R</span>
             </div>
-            <span className="text-lg font-bold text-foreground">RestaurantHub</span>
+            <span className="text-lg font-bold text-foreground">RestoPapa</span>
           </Link>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />

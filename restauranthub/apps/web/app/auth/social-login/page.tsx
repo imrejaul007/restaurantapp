@@ -337,7 +337,7 @@ export default function SocialLoginPage() {
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome to{' '}
             <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              RestaurantHub
+              RestoPapa
             </span>
           </h1>
           <p className="text-muted-foreground">

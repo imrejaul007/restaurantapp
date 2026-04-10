@@ -177,7 +177,7 @@ export default function WalletSystem({
         <div>
           <h2 className="text-2xl font-bold text-foreground">Wallet & Credits</h2>
           <p className="text-muted-foreground mt-1">
-            Manage your RestaurantHub wallet and credit line
+            Manage your RestoPapa wallet and credit line
           </p>
         </div>
         

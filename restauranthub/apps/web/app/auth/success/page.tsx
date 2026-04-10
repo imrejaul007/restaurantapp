@@ -15,14 +15,14 @@ export default function AuthSuccess() {
 
   const messages = {
     registration: {
-      title: 'Welcome to RestaurantHub!',
+      title: 'Welcome to RestoPapa!',
       description: 'Your account has been created successfully.',
       nextStep: 'Please check your email to verify your account.'
     },
     verification: {
       title: 'Email Verified!',
       description: 'Your email has been successfully verified.',
-      nextStep: 'You can now access all features of RestaurantHub.'
+      nextStep: 'You can now access all features of RestoPapa.'
     },
     password_reset: {
       title: 'Password Updated!',

@@ -214,7 +214,7 @@ const mockTickets = [
 const mockArticles = [
   {
     id: 'art-1',
-    title: 'Getting Started with RestaurantHub',
+    title: 'Getting Started with RestoPapa',
     content: 'Complete guide to setting up your restaurant account and getting started with our platform...',
     summary: 'Learn how to set up your restaurant account, create your profile, and start taking orders through our platform.',
     category: 'getting_started' as const,
@@ -226,7 +226,7 @@ const mockArticles = [
     ratingCount: 234,
     createdAt: '2024-01-01T08:00:00Z',
     updatedAt: '2024-01-15T10:30:00Z',
-    author: 'RestaurantHub Team',
+    author: 'RestoPapa Team',
     tags: ['onboarding', 'setup', 'restaurant account'],
     relatedArticles: ['art-2', 'art-3'],
     isPublished: true

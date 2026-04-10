@@ -24,13 +24,13 @@ export default function TermsPage() {
       id: 'acceptance',
       title: 'Acceptance of Terms',
       icon: CheckCircle2,
-      content: `By accessing and using RestaurantHub's platform and services, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree to these terms, please do not use our services.`
+      content: `By accessing and using RestoPapa's platform and services, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree to these terms, please do not use our services.`
     },
     {
       id: 'services',
       title: 'Description of Services',
       icon: FileText,
-      content: `RestaurantHub provides a comprehensive platform for restaurant management, including but not limited to: marketplace services for vendor connections, job portal for hiring, community features, analytics tools, payment processing, and business management solutions.`
+      content: `RestoPapa provides a comprehensive platform for restaurant management, including but not limited to: marketplace services for vendor connections, job portal for hiring, community features, analytics tools, payment processing, and business management solutions.`
     },
     {
       id: 'accounts',
@@ -118,7 +118,7 @@ export default function TermsPage() {
               </h1>
 
               <p className="text-xl text-slate-300 mb-6 leading-relaxed">
-                These terms govern your use of RestaurantHub's platform and services. Please read them carefully.
+                These terms govern your use of RestoPapa's platform and services. Please read them carefully.
               </p>
 
               <div className="flex items-center text-slate-400 space-x-6">

@@ -122,7 +122,7 @@ export default function RestaurantMarketplace() {
       `3. Schedule demo/consultation\n` +
       `4. Negotiate terms & pricing\n` +
       `5. Finalize partnership agreement\n\n` +
-      `💡 TIP: Mention 'RestaurantHub' for 10% first-order discount!`;
+      `💡 TIP: Mention 'RestoPapa' for 10% first-order discount!`;
     
     alert(contactFlow);
   };
@@ -257,7 +257,7 @@ export default function RestaurantMarketplace() {
       `💡 Join 500+ restaurants saving 20% monthly!`;
     
     if (confirm(subscriptionFlow + '\n\nStart your FREE trial now?')) {
-      alert(`🎉 Welcome to ${plan.name}!\n\nYour 14-day free trial is starting...\n\n📧 Check your email for setup instructions\n🚚 First delivery will be scheduled within 24 hours\n💬 Our team will contact you for onboarding\n\nThank you for choosing RestaurantHub!`);
+      alert(`🎉 Welcome to ${plan.name}!\n\nYour 14-day free trial is starting...\n\n📧 Check your email for setup instructions\n🚚 First delivery will be scheduled within 24 hours\n💬 Our team will contact you for onboarding\n\nThank you for choosing RestoPapa!`);
     }
   };
 
@@ -315,7 +315,7 @@ export default function RestaurantMarketplace() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-3">
-                RestaurantHub Marketplace
+                RestoPapa Marketplace
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
                 Your one-stop destination for restaurant supplies, equipment, real estate, and business services. 

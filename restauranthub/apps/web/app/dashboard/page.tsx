@@ -157,7 +157,7 @@ export default function GeneralDashboard() {
   ];
 
   const recentActivities = [
-    { icon: Bell, text: 'Welcome to RestaurantHub!', time: 'Just now' },
+    { icon: Bell, text: 'Welcome to RestoPapa!', time: 'Just now' },
     { icon: MessageCircle, text: 'Complete your profile setup', time: '5 minutes ago' },
     { icon: Calendar, text: 'Explore available features', time: '10 minutes ago' }
   ];
@@ -181,7 +181,7 @@ export default function GeneralDashboard() {
               </div>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-                  ✨ Welcome to RestaurantHub ✨
+                  ✨ Welcome to RestoPapa ✨
                 </h1>
                 <p className="text-orange-600 font-bold">Your culinary business journey starts here - UPDATED!</p>
               </div>
@@ -239,7 +239,7 @@ export default function GeneralDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
-                  {user ? `Welcome back, ${user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'User'}!` : 'Get Started with RestaurantHub'}
+                  {user ? `Welcome back, ${user.profile ? `${user.profile.firstName} ${user.profile.lastName}` : 'User'}!` : 'Get Started with RestoPapa'}
                 </CardTitle>
               </CardHeader>
               <CardContent>

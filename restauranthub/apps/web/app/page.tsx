@@ -277,7 +277,7 @@ const mockFeedPosts: FeedPost[] = [
     id: '5',
     type: 'training',
     author: {
-      name: 'RestaurantHub Academy',
+      name: 'RestoPapa Academy',
       role: 'Training Provider',
       avatar: '/api/placeholder/40/40',
       verified: true
@@ -411,17 +411,21 @@ export default function HomePage() {
                 <div className="text-center mb-8">
                   <Badge className="mb-4 px-4 py-2 bg-white/10 backdrop-blur-sm border-white/20 text-white">
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Welcome to RestaurantHub
+                    Welcome to RestoPapa
                   </Badge>
 
                   <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
                     <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                      Your Restaurant Ecosystem
+                      Run Your Restaurant,
+                    </span>
+                    <br />
+                    <span className="bg-gradient-to-r from-orange-300 to-amber-200 bg-clip-text text-transparent">
+                      Your Way.
                     </span>
                   </h1>
 
                   <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
-                    Discover suppliers, find talent, connect with peers, and grow your business - all in one unified platform.
+                    Hire smarter, source better, grow faster — the all-in-one platform built for restaurant operators.
                   </p>
                 </div>
 
@@ -700,10 +704,10 @@ export default function HomePage() {
                   <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl">
                     <ChefHat className="h-6 w-6 text-white" />
                   </div>
-                  <span className="text-2xl font-bold">RestaurantHub</span>
+                  <span className="text-2xl font-bold">RestoPapa</span>
                 </div>
                 <p className="text-slate-400 leading-relaxed">
-                  Your unified restaurant ecosystem. Connect, discover, and grow with the hospitality industry's most comprehensive platform.
+                  Run your restaurant, your way. Hire smarter, source better, and grow faster with the all-in-one platform for hospitality operators.
                 </p>
                 <div className="flex space-x-4">
                   <div className="flex space-x-4 mt-4">
@@ -753,7 +757,7 @@ export default function HomePage() {
             </div>
 
             <div className="pt-8 border-t border-slate-800 text-center text-slate-400">
-              <p>© 2024 RestaurantHub. All rights reserved. Built with ❤️ for the hospitality industry.</p>
+              <p>© 2025 RestoPapa. All rights reserved. Built with ❤️ for the hospitality industry.</p>
             </div>
           </div>
         </footer>

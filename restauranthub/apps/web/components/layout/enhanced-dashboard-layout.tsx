@@ -184,7 +184,7 @@ function Sidebar({ isOpen, onClose, currentPath }: {
                 <Home className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-foreground">RestaurantHub</h1>
+                <h1 className="text-lg font-bold text-foreground">RestoPapa</h1>
                 <p className="text-xs text-muted-foreground">Professional</p>
               </div>
             </Link>

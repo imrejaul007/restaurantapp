@@ -12,7 +12,7 @@ export default function Loading() {
           <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
         </div>
         <p className="mt-4 text-lg font-medium text-muted-foreground animate-pulse">
-          Loading RestaurantHub...
+          Loading RestoPapa...
         </p>
         <div className="mt-4 flex justify-center space-x-1">
           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />

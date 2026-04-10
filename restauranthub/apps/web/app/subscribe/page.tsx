@@ -217,7 +217,7 @@ export default function SubscriptionPage() {
     if (currentStep === 'confirmation') {
       // Handle final subscription
       toast.success(
-        `Welcome to RestaurantHub!`,
+        `Welcome to RestoPapa!`,
         `Your ${selectedPlanData?.name} plan subscription has been activated! ${selectedPlanData?.trialDays} day free trial started. Redirecting to your dashboard...`
       );
       setTimeout(() => {
@@ -379,7 +379,7 @@ export default function SubscriptionPage() {
                 Transform Your Restaurant Business
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Join thousands of successful restaurants using RestaurantHub to streamline operations, 
+                Join thousands of successful restaurants using RestoPapa to streamline operations, 
                 increase revenue, and delight customers.
               </p>
               <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
@@ -771,7 +771,7 @@ export default function SubscriptionPage() {
               </div>
               
               <div>
-                <h1 className="text-3xl font-bold mb-4">Welcome to RestaurantHub!</h1>
+                <h1 className="text-3xl font-bold mb-4">Welcome to RestoPapa!</h1>
                 <p className="text-lg text-muted-foreground mb-6">
                   Your subscription has been successfully set up. You're ready to transform your restaurant business.
                 </p>

@@ -1,7 +1,7 @@
 {
-  "name": "RestoPapa - Complete Restaurant Management Platform",
+  "name": "RestoPapa — Run Your Restaurant, Your Way",
   "short_name": "RestoPapa",
-  "description": "The all-in-one platform connecting restaurants, employees, and suppliers in the food industry with advanced features, AI integration, and real-time collaboration.",
+  "description": "Hire smarter, source better, grow faster. The all-in-one platform for restaurant operators — marketplace, jobs, training, and community in one place.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

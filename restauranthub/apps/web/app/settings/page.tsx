@@ -269,7 +269,7 @@ export default function SettingsPage() {
               <CardHeader>
                 <CardTitle>Appearance</CardTitle>
                 <CardDescription>
-                  Customize how RestaurantHub looks on your device
+                  Customize how RestoPapa looks on your device
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

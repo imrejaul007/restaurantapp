@@ -143,7 +143,7 @@ const paymentMethods: PaymentMethod[] = [
     type: 'credit',
     name: 'Restaurant Credit',
     icon: Wallet,
-    description: 'Use your RestaurantHub credit balance',
+    description: 'Use your RestoPapa credit balance',
     enabled: true,
     processingTime: 'Instant',
     fees: {

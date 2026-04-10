@@ -8,8 +8,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'RestaurantHub - Complete Restaurant Management Platform',
-    template: '%s | RestaurantHub',
+    default: 'RestoPapa — Run Your Restaurant, Your Way',
+    template: '%s | RestoPapa',
   },
   description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
   keywords: [
@@ -21,30 +21,30 @@ export const metadata: Metadata = {
     'employee verification',
     'vendor management',
   ],
-  authors: [{ name: 'RestaurantHub Team' }],
-  creator: 'RestaurantHub',
+  authors: [{ name: 'RestoPapa Team' }],
+  creator: 'RestoPapa',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'RestaurantHub - Complete Restaurant Management Platform',
+    title: 'RestoPapa — Run Your Restaurant, Your Way',
     description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
-    siteName: 'RestaurantHub',
+    siteName: 'RestoPapa',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'RestaurantHub Platform',
+        alt: 'RestoPapa Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RestaurantHub - Complete Restaurant Management Platform',
+    title: 'RestoPapa — Run Your Restaurant, Your Way',
     description: 'Comprehensive B2B/B2C SaaS platform for restaurants with hiring, marketplace, job portal, and community features.',
     images: ['/og-image.jpg'],
-    creator: '@restauranthub',
+    creator: '@restopapa',
   },
   robots: {
     index: true,

@@ -185,7 +185,7 @@ export default function LoginPage() {
             <h1 id="branding-title" className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
               Welcome to
               <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent block">
-                RestaurantHub
+                RestoPapa
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg" role="doc-subtitle">

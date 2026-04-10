@@ -39,7 +39,7 @@ export default function EditProfile() {
     country: 'United States',
     bio: 'Experienced restaurant professional with a passion for great food and customer service.',
     website: 'https://johndoe.com',
-    company: 'RestaurantHub',
+    company: 'RestoPapa',
     position: 'Manager'
   });
 

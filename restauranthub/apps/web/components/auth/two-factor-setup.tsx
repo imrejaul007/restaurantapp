@@ -113,7 +113,7 @@ export function TwoFactorSetup({ onClose, onSuccess }: TwoFactorSetupProps) {
   };
 
   const downloadBackupCodes = () => {
-    const content = `RestaurantHub Two-Factor Authentication Backup Codes\n\nGenerated: ${new Date().toISOString()}\n\nIMPORTANT: Save these backup codes in a secure location.\nEach code can only be used once.\n\n${backupCodes.map((code, index) => `${index + 1}. ${code}`).join('\n')}\n\nIf you lose access to your authenticator app, you can use these codes to log in.\nAfter using a backup code, generate new ones from your security settings.`;
+    const content = `RestoPapa Two-Factor Authentication Backup Codes\n\nGenerated: ${new Date().toISOString()}\n\nIMPORTANT: Save these backup codes in a secure location.\nEach code can only be used once.\n\n${backupCodes.map((code, index) => `${index + 1}. ${code}`).join('\n')}\n\nIf you lose access to your authenticator app, you can use these codes to log in.\nAfter using a backup code, generate new ones from your security settings.`;
     
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);

@@ -242,7 +242,7 @@ export default function TrainingPage() {
                   You have {completedSlugs.size} certificate{completedSlugs.size > 1 ? 's' : ''}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Visible on your RestaurantHub profile
+                  Visible on your RestoPapa profile
                 </p>
               </div>
             </div>
