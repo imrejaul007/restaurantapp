@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-This document provides comprehensive documentation of the RestaurantHub database schema, including entity relationships, constraints, and usage patterns.
+This document provides comprehensive documentation of the RestoPapa database schema, including entity relationships, constraints, and usage patterns.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ This document provides comprehensive documentation of the RestaurantHub database
 
 ## Overview
 
-The RestaurantHub database is designed using PostgreSQL with Prisma ORM. The schema follows a multi-tenant architecture supporting different user roles and business operations in the restaurant industry.
+The RestoPapa database is designed using PostgreSQL with Prisma ORM. The schema follows a multi-tenant architecture supporting different user roles and business operations in the restaurant industry.
 
 ### Key Features
 - **Multi-role system**: Admin, Restaurant, Employee, Vendor roles
@@ -1109,4 +1109,4 @@ sequenceDiagram
 3. **Horizontal sharding** for very large datasets
 4. **Archive old data** to separate tables/databases
 
-This schema documentation provides a comprehensive overview of the RestaurantHub database structure, relationships, and implementation considerations. Regular updates should be made as the schema evolves to maintain accuracy and usefulness for developers and stakeholders.
+This schema documentation provides a comprehensive overview of the RestoPapa database structure, relationships, and implementation considerations. Regular updates should be made as the schema evolves to maintain accuracy and usefulness for developers and stakeholders.

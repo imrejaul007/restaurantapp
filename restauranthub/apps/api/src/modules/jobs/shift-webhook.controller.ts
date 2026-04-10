@@ -4,12 +4,12 @@
  * Two endpoints:
  *
  * 1. POST /jobs/sync-shifts
- *    Authenticated RestaurantHub merchants that are REZ-verified can trigger
+ *    Authenticated RestoPapa merchants that are REZ-verified can trigger
  *    an on-demand shift gap sync. Creates DRAFT jobs for review.
  *
  * 2. POST /webhooks/rez/hire-confirmed
  *    Internal webhook called by REZ when a hire is confirmed.
- *    Marks the matching RestaurantHub job as FILLED.
+ *    Marks the matching RestoPapa job as FILLED.
  */
 
 import {
@@ -54,7 +54,7 @@ export class ShiftWebhookController {
    * POST /jobs/sync-shifts
    *
    * The calling merchant must:
-   * - Be authenticated via RestaurantHub JWT
+   * - Be authenticated via RestoPapa JWT
    * - Have `rezVerified: true` (set during the rez-bridge SSO flow)
    * - Have a restaurant profile with a linked rezMerchantId
    */
@@ -84,7 +84,7 @@ export class ShiftWebhookController {
   /**
    * POST /webhooks/rez/hire-confirmed
    *
-   * Called by REZ when a hire sourced from RestaurantHub is confirmed.
+   * Called by REZ when a hire sourced from RestoPapa is confirmed.
    * Validates X-Internal-Token before processing.
    */
   @Post('webhooks/rez/hire-confirmed')

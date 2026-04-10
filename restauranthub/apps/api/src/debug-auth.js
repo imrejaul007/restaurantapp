@@ -9,7 +9,7 @@ async function debugAuth() {
     console.log('Total users:', mockData.users ? mockData.users.length : 0);
     
     // Find admin user
-    const adminUser = mockData.users ? mockData.users.find(u => u.email === 'admin@restauranthub.com') : null;
+    const adminUser = mockData.users ? mockData.users.find(u => u.email === 'admin@restopapa.com') : null;
     console.log('Admin user found:', !!adminUser);
     
     if (adminUser) {

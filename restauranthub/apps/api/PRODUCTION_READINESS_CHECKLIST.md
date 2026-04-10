@@ -1,4 +1,4 @@
-# RestaurantHub API - Production Readiness Checklist
+# RestoPapa API - Production Readiness Checklist
 
 **Version**: 1.0.0
 **Date**: September 21, 2025
@@ -328,7 +328,7 @@ npm audit
 ### 2. Infrastructure Setup
 ```bash
 # 1. Database setup
-psql -c "CREATE DATABASE restauranthub_production;"
+psql -c "CREATE DATABASE restopapa_production;"
 npm run prisma:deploy
 
 # 2. Redis setup

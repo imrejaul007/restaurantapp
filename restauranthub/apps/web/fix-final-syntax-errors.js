@@ -5,13 +5,13 @@ const path = require('path');
 
 function fixSyntaxErrors() {
   const filesToFix = [
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/login/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/components/jobs/job-application-form.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/admin/verification/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/forgot-password/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/setup-2fa/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/community/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/employee/jobs/[id]/page.tsx'
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/login/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/components/jobs/job-application-form.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/admin/verification/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/forgot-password/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/setup-2fa/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/community/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/employee/jobs/[id]/page.tsx'
   ];
 
   filesToFix.forEach(filePath => {

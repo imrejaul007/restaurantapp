@@ -350,7 +350,7 @@ export class AdvancedCacheService implements OnModuleInit {
   }
 
   private buildKey(key: string, namespace: string): string {
-    return `restauranthub:${namespace}:${key}`;
+    return `restopapa:${namespace}:${key}`;
   }
 
   private startCleanupInterval(): void {

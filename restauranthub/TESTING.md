@@ -1,6 +1,6 @@
-# RestaurantHub Testing Guide
+# RestoPapa Testing Guide
 
-This document provides comprehensive guidelines for testing in the RestaurantHub application, covering both backend (NestJS) and frontend (Next.js/React) testing strategies.
+This document provides comprehensive guidelines for testing in the RestoPapa application, covering both backend (NestJS) and frontend (Next.js/React) testing strategies.
 
 ## Table of Contents
 

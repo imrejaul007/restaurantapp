@@ -46,7 +46,7 @@ export interface PaginatedResponse<T = any> extends ApiResponse<T[]> {
   };
 }
 
-export class RestaurantHubApiClient extends EventEmitter {
+export class RestoPapaApiClient extends EventEmitter {
   private client: AxiosInstance;
   private tokens: AuthTokens | null = null;
   private refreshPromise: Promise<AuthTokens> | null = null;
@@ -393,14 +393,14 @@ export class RestaurantHubApiClient extends EventEmitter {
 }
 
 // Default client instance
-export let apiClient: RestaurantHubApiClient;
+export let apiClient: RestoPapaApiClient;
 
-export function createApiClient(config: ApiClientConfig): RestaurantHubApiClient {
-  apiClient = new RestaurantHubApiClient(config);
+export function createApiClient(config: ApiClientConfig): RestoPapaApiClient {
+  apiClient = new RestoPapaApiClient(config);
   return apiClient;
 }
 
-export function getApiClient(): RestaurantHubApiClient {
+export function getApiClient(): RestoPapaApiClient {
   if (!apiClient) {
     throw new Error('API client not initialized. Call createApiClient() first.');
   }

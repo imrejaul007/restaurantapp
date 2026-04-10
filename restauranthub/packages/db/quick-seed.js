@@ -15,7 +15,7 @@ async function quickSeed() {
     // Create admin user
     const adminUser = await prisma.user.create({
       data: {
-        email: 'admin@restauranthub.com',
+        email: 'admin@restopapa.com',
         phone: '+919876543210',
         passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$hash', // demo hash
         role: 'ADMIN',
@@ -155,7 +155,7 @@ async function quickSeed() {
       data: [
         {
           userId: adminUser.id,
-          title: 'Welcome to RestaurantHub Community!',
+          title: 'Welcome to RestoPapa Community!',
           content: 'This is the place to connect with fellow restaurant owners, share experiences, and grow your business together.',
           tags: ['welcome', 'community'],
           isPublished: true

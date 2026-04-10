@@ -1,4 +1,4 @@
-// Simplified Mock Data Generator for RestaurantHub
+// Simplified Mock Data Generator for RestoPapa
 // Provides realistic data without external dependencies
 
 // Utility functions for generating random data

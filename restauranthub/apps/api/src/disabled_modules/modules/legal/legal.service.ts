@@ -11,15 +11,15 @@ export class LegalService {
 
 **Effective Date: September 5, 2024**
 
-Welcome to RestaurantHub ("we," "our," or "us"). These Terms of Service ("Terms") govern your use of our platform and services.
+Welcome to RestoPapa ("we," "our," or "us"). These Terms of Service ("Terms") govern your use of our platform and services.
 
 ## 1. Acceptance of Terms
 
-By accessing or using RestaurantHub, you agree to be bound by these Terms and our Privacy Policy. If you disagree with any part of these Terms, then you may not access our service.
+By accessing or using RestoPapa, you agree to be bound by these Terms and our Privacy Policy. If you disagree with any part of these Terms, then you may not access our service.
 
 ## 2. Description of Service
 
-RestaurantHub is a comprehensive B2B/B2C SaaS platform that provides:
+RestoPapa is a comprehensive B2B/B2C SaaS platform that provides:
 - Restaurant management solutions
 - B2B marketplace for food suppliers and vendors
 - Job portal and HR management
@@ -70,7 +70,7 @@ RestaurantHub is a comprehensive B2B/B2C SaaS platform that provides:
 ## 6. Intellectual Property
 
 ### 6.1 Platform Rights
-- RestaurantHub owns all rights to the platform, including software, design, and content
+- RestoPapa owns all rights to the platform, including software, design, and content
 - You receive a limited, non-exclusive license to use our services
 
 ### 6.2 User Content
@@ -141,8 +141,8 @@ These Terms are governed by the laws of India. Any disputes will be resolved in 
 ## 14. Contact Information
 
 For questions about these Terms, contact us at:
-- **Email**: legal@restauranthub.com
-- **Address**: RestaurantHub Legal Team, [Your Address]
+- **Email**: legal@restopapa.com
+- **Address**: RestoPapa Legal Team, [Your Address]
 - **Phone**: [Your Phone Number]
 
 ## 15. Severability
@@ -166,7 +166,7 @@ If any provision of these Terms is found unenforceable, the remaining provisions
 
 **Effective Date: September 5, 2024**
 
-RestaurantHub ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information.
+RestoPapa ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information.
 
 ## 1. Information We Collect
 
@@ -357,12 +357,12 @@ RestaurantHub ("we," "our," or "us") is committed to protecting your privacy. Th
 ## 12. Contact Information
 
 ### 12.1 Privacy Inquiries
-- **Email**: privacy@restauranthub.com
-- **Address**: RestaurantHub Privacy Team, [Your Address]
+- **Email**: privacy@restopapa.com
+- **Address**: RestoPapa Privacy Team, [Your Address]
 - **Response Time**: Within 30 days of receipt
 
 ### 12.2 Data Protection Officer
-- **Email**: dpo@restauranthub.com
+- **Email**: dpo@restopapa.com
 - **Role**: Independent oversight of privacy practices
 
 ### 12.3 Supervisory Authority
@@ -387,7 +387,7 @@ For EU residents:
 
 **Effective Date: September 5, 2024**
 
-This Cookie Policy explains how RestaurantHub uses cookies and similar tracking technologies on our platform.
+This Cookie Policy explains how RestoPapa uses cookies and similar tracking technologies on our platform.
 
 ## 1. What Are Cookies
 
@@ -562,16 +562,16 @@ We currently do not respond to Do Not Track (DNT) signals, as there is no indust
 ## 10. Contact Information
 
 ### 10.1 Cookie Questions
-- **Email**: cookies@restauranthub.com
+- **Email**: cookies@restopapa.com
 - **Response Time**: Within 5 business days
 
 ### 10.2 Technical Support
-- **Email**: support@restauranthub.com  
-- **Help Center**: [help.restauranthub.com](https://help.restauranthub.com)
+- **Email**: support@restopapa.com  
+- **Help Center**: [help.restopapa.com](https://help.restopapa.com)
 
 ### 10.3 Privacy Officer
-- **Email**: privacy@restauranthub.com
-- **Address**: RestaurantHub Privacy Team, [Your Address]
+- **Email**: privacy@restopapa.com
+- **Address**: RestoPapa Privacy Team, [Your Address]
 
 ---
 
@@ -592,7 +592,7 @@ We currently do not respond to Do Not Track (DNT) signals, as there is no indust
 
 **Effective Date: September 5, 2024**
 
-This Data Processing Agreement ("DPA") forms part of the Terms of Service between RestaurantHub and you ("Data Controller") regarding the processing of Personal Data in connection with the Services.
+This Data Processing Agreement ("DPA") forms part of the Terms of Service between RestoPapa and you ("Data Controller") regarding the processing of Personal Data in connection with the Services.
 
 ## 1. Definitions
 
@@ -600,7 +600,7 @@ This Data Processing Agreement ("DPA") forms part of the Terms of Service betwee
 - **"Processor"**: The entity that processes Personal Data on behalf of the Controller  
 - **"Personal Data"**: Any information relating to an identified or identifiable natural person
 - **"Processing"**: Any operation performed on Personal Data
-- **"Sub-processor"**: Any third party engaged by RestaurantHub to process Personal Data
+- **"Sub-processor"**: Any third party engaged by RestoPapa to process Personal Data
 
 ## 2. Data Processing Details
 
@@ -628,8 +628,8 @@ This Data Processing Agreement ("DPA") forms part of the Terms of Service betwee
 
 ## 3. Controller and Processor Obligations
 
-### 3.1 RestaurantHub as Processor
-RestaurantHub will:
+### 3.1 RestoPapa as Processor
+RestoPapa will:
 - Process Personal Data only on documented instructions from Controller
 - Ensure confidentiality of Personal Data
 - Implement appropriate technical and organizational measures
@@ -641,8 +641,8 @@ RestaurantHub will:
 Controller warrants that:
 - It has lawful basis for processing Personal Data
 - It has obtained necessary consents where required
-- Instructions to RestaurantHub comply with applicable law
-- It will cooperate with RestaurantHub on compliance matters
+- Instructions to RestoPapa comply with applicable law
+- It will cooperate with RestoPapa on compliance matters
 
 ## 4. Security Measures
 
@@ -663,7 +663,7 @@ Controller warrants that:
 ## 5. Sub-processing
 
 ### 5.1 Authorized Sub-processors
-RestaurantHub may engage sub-processors including:
+RestoPapa may engage sub-processors including:
 - Cloud infrastructure providers (AWS, Google Cloud)
 - Payment processors (Stripe, Razorpay)
 - Email service providers (SendGrid, AWS SES)
@@ -683,7 +683,7 @@ All sub-processors must:
 ## 6. Data Subject Rights
 
 ### 6.1 Assistance with Rights Requests
-RestaurantHub will assist Controller with:
+RestoPapa will assist Controller with:
 - Access requests and data portability
 - Rectification of inaccurate data
 - Erasure of personal data
@@ -711,7 +711,7 @@ Data may be processed in:
 ## 8. Data Breach Notification
 
 ### 8.1 Notification Process
-RestaurantHub will:
+RestoPapa will:
 - Notify Controller within 24 hours of becoming aware of breach
 - Provide available information about the breach
 - Assist with breach investigation and response
@@ -727,7 +727,7 @@ RestaurantHub will:
 
 ### 9.1 Audit Rights
 Controller has the right to:
-- Conduct audits of RestaurantHub's data processing
+- Conduct audits of RestoPapa's data processing
 - Review security certifications and assessment reports
 - Inspect relevant data processing facilities
 - Engage third-party auditors (with reasonable notice)
@@ -757,18 +757,18 @@ Upon termination:
 
 ### 11.1 Data Protection Violations
 - Each party liable for its own violations
-- RestaurantHub liable for sub-processor violations
+- RestoPapa liable for sub-processor violations
 - Liability caps as specified in main agreement
 
 ### 11.2 Regulatory Fines
 - Controller responsible for fines due to its instructions
-- RestaurantHub responsible for fines due to its violations
+- RestoPapa responsible for fines due to its violations
 - Cooperation required for regulatory proceedings
 
 ## 12. Term and Termination
 
 ### 12.1 Term
-This DPA remains in effect while RestaurantHub processes Personal Data on Controller's behalf.
+This DPA remains in effect while RestoPapa processes Personal Data on Controller's behalf.
 
 ### 12.2 Survival
 The following provisions survive termination:
@@ -780,7 +780,7 @@ The following provisions survive termination:
 ## 13. Updates and Amendments
 
 ### 13.1 DPA Updates
-RestaurantHub may update this DPA to:
+RestoPapa may update this DPA to:
 - Reflect changes in applicable law
 - Address new data protection requirements
 - Incorporate industry best practices
@@ -795,8 +795,8 @@ RestaurantHub may update this DPA to:
 **Contact Information**
 
 For DPA-related inquiries:
-- **Email**: dpa@restauranthub.com
-- **Address**: RestaurantHub Legal Team, [Your Address]
+- **Email**: dpa@restopapa.com
+- **Address**: RestoPapa Legal Team, [Your Address]
 
 *Last Updated: September 5, 2024*
 *Version: 1.0*
@@ -810,7 +810,7 @@ For DPA-related inquiries:
         {
           id: 'terms-of-service',
           title: 'Terms of Service',
-          description: 'Our terms and conditions for using RestaurantHub platform',
+          description: 'Our terms and conditions for using RestoPapa platform',
           lastUpdated: '2024-09-05',
         },
         {

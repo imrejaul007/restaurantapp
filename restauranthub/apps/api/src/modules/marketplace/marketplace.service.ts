@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RezCatalogClient, RezMerchantClient } from '@restauranthub/rez-client';
+import { RezCatalogClient, RezMerchantClient } from '@restopapa/rez-client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   MarketplaceCategory,
@@ -103,12 +103,12 @@ export class MarketplaceService {
     }
   }
 
-  async submitRfq(dto: SubmitRfqDto, merchantId: string, restauranthubUserId = 'anonymous'): Promise<Rfq> {
+  async submitRfq(dto: SubmitRfqDto, merchantId: string, restopapaUserId = 'anonymous'): Promise<Rfq> {
     const record = await this.prisma.rfq.create({
       data: {
         supplierId: dto.supplierId,
         merchantId,
-        restauranthubUserId,
+        restopapaUserId,
         category: dto.category,
         quantity: dto.quantity,
         unit: dto.unit ?? 'kg',

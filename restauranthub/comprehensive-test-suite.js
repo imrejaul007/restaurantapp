@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Comprehensive RestaurantHub Application Testing Suite
+ * Comprehensive RestoPapa Application Testing Suite
  * Tests all features, screens, user journeys, backend APIs, and database connectivity
  */
 
@@ -128,7 +128,7 @@ async function makeHttpRequest(url, options = {}) {
 async function testFrontendStructure() {
   log('🔍 Testing Frontend File Structure...');
 
-  const webAppPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web';
+  const webAppPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web';
 
   const expectedStructure = [
     'app',
@@ -180,7 +180,7 @@ async function testFrontendStructure() {
 async function testBackendStructure() {
   log('🔍 Testing Backend API Structure...');
 
-  const apiPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api';
+  const apiPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/api';
 
   const expectedModules = [
     'auth',
@@ -271,9 +271,9 @@ async function testAuthenticationFlow() {
 
   // Check auth components exist
   const authComponents = [
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/login/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/register/page.tsx',
-    '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/verify-2fa/page.tsx'
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/login/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/register/page.tsx',
+    '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/verify-2fa/page.tsx'
   ];
 
   for (const component of authComponents) {
@@ -296,7 +296,7 @@ async function testAuthenticationFlow() {
   }
 
   // Check auth services
-  const authApiPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/lib/api';
+  const authApiPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/lib/api';
   if (fs.existsSync(authApiPath)) {
     const authFiles = fs.readdirSync(authApiPath).filter(file =>
       file.includes('auth') && file.endsWith('.ts'));
@@ -340,7 +340,7 @@ async function testUserJourneys() {
     }
   ];
 
-  const webAppPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app';
+  const webAppPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app';
 
   for (const journey of journeys) {
     let completedPages = 0;
@@ -370,7 +370,7 @@ async function testDatabaseIntegration() {
   log('🗄️  Testing Database Integration...');
 
   // Check Prisma schema
-  const schemaPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/packages/db/prisma/schema.prisma';
+  const schemaPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/packages/db/prisma/schema.prisma';
   if (fs.existsSync(schemaPath)) {
     const schemaContent = fs.readFileSync(schemaPath, 'utf8');
 
@@ -391,7 +391,7 @@ async function testDatabaseIntegration() {
   }
 
   // Check for database services
-  const prismaServicePath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/src/prisma/prisma.service.ts';
+  const prismaServicePath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/api/src/prisma/prisma.service.ts';
   if (fs.existsSync(prismaServicePath)) {
     addTestResult('Database Operations', 'Prisma Service', 'PASSED');
   } else {
@@ -406,7 +406,7 @@ async function testRealtimeFeatures() {
   log('⚡ Testing Real-time Features...');
 
   // Check for WebSocket implementation
-  const wsGatewayPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/src/websocket';
+  const wsGatewayPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/api/src/websocket';
   if (fs.existsSync(wsGatewayPath)) {
     const wsFiles = fs.readdirSync(wsGatewayPath);
     const hasGateway = wsFiles.some(file => file.includes('gateway'));
@@ -424,7 +424,7 @@ async function testRealtimeFeatures() {
   }
 
   // Check for notification system
-  const notificationPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/src/modules/notifications';
+  const notificationPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/api/src/modules/notifications';
   if (fs.existsSync(notificationPath)) {
     addTestResult('Real-time Features', 'Notification System', 'PASSED');
   } else {
@@ -482,7 +482,7 @@ function generateTestReport() {
  * Main Test Execution
  */
 async function runComprehensiveTests() {
-  log('🚀 Starting Comprehensive RestaurantHub Testing Suite...');
+  log('🚀 Starting Comprehensive RestoPapa Testing Suite...');
   log('================================================');
 
   try {
@@ -499,7 +499,7 @@ async function runComprehensiveTests() {
     const report = generateTestReport();
 
     // Save report to file
-    const reportPath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/test-reports';
+    const reportPath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/test-reports';
     if (!fs.existsSync(reportPath)) {
       fs.mkdirSync(reportPath, { recursive: true });
     }

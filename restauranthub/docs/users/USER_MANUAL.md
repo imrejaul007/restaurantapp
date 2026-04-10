@@ -1,6 +1,6 @@
-# RestaurantHub User Manual
+# RestoPapa User Manual
 
-Welcome to RestaurantHub - your comprehensive platform for restaurant management, job opportunities, and industry networking. This manual will guide you through all the features and functionalities available to different user roles.
+Welcome to RestoPapa - your comprehensive platform for restaurant management, job opportunities, and industry networking. This manual will guide you through all the features and functionalities available to different user roles.
 
 ## 📋 Table of Contents
 
@@ -26,9 +26,9 @@ Welcome to RestaurantHub - your comprehensive platform for restaurant management
 - Minimum: 1024x768
 - Recommended: 1920x1080 or higher
 
-### Accessing RestaurantHub
+### Accessing RestoPapa
 
-1. **Web Application**: Navigate to [https://restauranthub.com](https://restauranthub.com)
+1. **Web Application**: Navigate to [https://restopapa.com](https://restopapa.com)
 2. **Development Environment**: http://localhost:3000
 
 ### Creating Your Account
@@ -434,7 +434,7 @@ Welcome to RestaurantHub - your comprehensive platform for restaurant management
 - **Documentation**: Detailed feature documentation
 
 #### Contact Support
-- **Email Support**: support@restauranthub.com
+- **Email Support**: support@restopapa.com
 - **Live Chat**: Available during business hours
 - **Phone Support**: +1-XXX-XXX-XXXX
 - **Support Tickets**: Submit detailed support requests
@@ -519,9 +519,9 @@ Welcome to RestaurantHub - your comprehensive platform for restaurant management
 
 ---
 
-This manual is regularly updated to reflect new features and improvements. For the latest version, please visit our [documentation center](https://docs.restauranthub.com).
+This manual is regularly updated to reflect new features and improvements. For the latest version, please visit our [documentation center](https://docs.restopapa.com).
 
 **Last Updated**: September 2024
 **Version**: 1.0.0
 
-Need more help? Contact our support team at support@restauranthub.com or visit our help center.
+Need more help? Contact our support team at support@restopapa.com or visit our help center.

@@ -1,4 +1,4 @@
-# 🚀 RestaurantHub Monitoring Stack Deployment Guide
+# 🚀 RestoPapa Monitoring Stack Deployment Guide
 ## AI Sentry - Complete Monitoring & Observability Solution
 
 ---
@@ -38,7 +38,7 @@ GRAFANA_USER=admin
 
 # SMTP for alerts
 SMTP_HOST=smtp.gmail.com
-SMTP_USER=alerts@restauranthub.com
+SMTP_USER=alerts@restopapa.com
 SMTP_PASSWORD=your-app-password
 
 # Webhook notifications
@@ -59,7 +59,7 @@ REDIS_PASSWORD=your-redis-password
 
 ### 1. Clone and Setup
 ```bash
-cd /Users/rejaulkarim/Documents/Resturistan\ App/restauranthub
+cd /Users/rejaulkarim/Documents/Resturistan\ App/restopapa
 
 # Make scripts executable
 chmod +x scripts/self-healing/*.sh
@@ -104,18 +104,18 @@ curl http://localhost:16686  # Jaeger
 
 #### Create Required Directories
 ```bash
-sudo mkdir -p /var/log/restauranthub/{api,web,security,audit,performance,errors,business,self-healing}
+sudo mkdir -p /var/log/restopapa/{api,web,security,audit,performance,errors,business,self-healing}
 sudo mkdir -p /var/lib/prometheus
 sudo mkdir -p /var/lib/grafana
 sudo mkdir -p /var/lib/loki
-sudo chown -R $(id -u):$(id -g) /var/log/restauranthub /var/lib/prometheus /var/lib/grafana /var/lib/loki
+sudo chown -R $(id -u):$(id -g) /var/log/restopapa /var/lib/prometheus /var/lib/grafana /var/lib/loki
 ```
 
 #### Network Setup
 ```bash
 # Create monitoring network
 docker network create monitoring-network --subnet=172.21.0.0/16
-docker network create restauranthub-network --subnet=172.20.0.0/16
+docker network create restopapa-network --subnet=172.20.0.0/16
 ```
 
 ### Step 2: Service Deployment
@@ -156,8 +156,8 @@ docker-compose -f docker-compose.monitoring.yml up -d webhook-notifications
 
 #### Prometheus Configuration
 The Prometheus configuration is automatically loaded from:
-- `/Users/rejaulkarim/Documents/Resturistan App/restauranthub/monitoring/prometheus/prometheus.yml`
-- Alert rules from: `/Users/rejaulkarim/Documents/Resturistan App/restauranthub/monitoring/prometheus/alerts/`
+- `/Users/rejaulkarim/Documents/Resturistan App/restopapa/monitoring/prometheus/prometheus.yml`
+- Alert rules from: `/Users/rejaulkarim/Documents/Resturistan App/restopapa/monitoring/prometheus/alerts/`
 
 #### Grafana Setup
 1. **Access Grafana:** http://localhost:3000
@@ -168,7 +168,7 @@ The Prometheus configuration is automatically loaded from:
 
 #### AlertManager Configuration
 AlertManager is pre-configured with multiple notification channels. Update webhook URLs in:
-- `/Users/rejaulkarim/Documents/Resturistan App/restauranthub/monitoring/alertmanager/alertmanager.yml`
+- `/Users/rejaulkarim/Documents/Resturistan App/restopapa/monitoring/alertmanager/alertmanager.yml`
 
 ---
 
@@ -216,7 +216,7 @@ Edit `scripts/self-healing/auto-recovery.sh` to customize:
 crontab -e
 
 # Run every 5 minutes
-*/5 * * * * /path/to/restauranthub/scripts/self-healing/auto-recovery.sh
+*/5 * * * * /path/to/restopapa/scripts/self-healing/auto-recovery.sh
 ```
 
 ### Health Reporting Setup
@@ -227,10 +227,10 @@ crontab -e
 crontab -e
 
 # Daily executive report at 8 AM
-0 8 * * * cd /path/to/restauranthub && python3 scripts/health-reporting/health-reporter.py --report-type executive --send-email
+0 8 * * * cd /path/to/restopapa && python3 scripts/health-reporting/health-reporter.py --report-type executive --send-email
 
 # Weekly technical report on Mondays at 9 AM
-0 9 * * 1 cd /path/to/restauranthub && python3 scripts/health-reporting/health-reporter.py --report-type technical --send-email
+0 9 * * 1 cd /path/to/restopapa && python3 scripts/health-reporting/health-reporter.py --report-type technical --send-email
 ```
 
 ---
@@ -260,7 +260,7 @@ curl -X POST http://localhost:9999/webhook \
 curl -s http://localhost:9090/api/v1/query?query=up | jq '.data.result[] | select(.value[1] != "1")'
 
 # Check log ingestion
-curl -s "http://localhost:3100/loki/api/v1/query?query={job=\"restauranthub-api\"}&limit=10" | jq .
+curl -s "http://localhost:3100/loki/api/v1/query?query={job=\"restopapa-api\"}&limit=10" | jq .
 
 # Verify tracing
 curl -s http://localhost:16686/api/services | jq .
@@ -320,7 +320,7 @@ docker-compose -f docker-compose.monitoring.yml logs webhook-notifications
 #### Grafana Dashboard Issues
 ```bash
 # Reset Grafana admin password
-docker exec -it restauranthub-grafana grafana-cli admin reset-admin-password newpassword
+docker exec -it restopapa-grafana grafana-cli admin reset-admin-password newpassword
 
 # Check datasource connection
 curl -u admin:password http://localhost:3000/api/datasources
@@ -361,13 +361,13 @@ docker-compose -f docker-compose.monitoring.yml up -d --force-recreate grafana
 curl -s http://localhost:9093/api/v1/alerts | jq '.data[] | select(.state == "firing")'
 
 # Check disk usage
-df -h /var/lib/prometheus /var/lib/grafana /var/log/restauranthub
+df -h /var/lib/prometheus /var/lib/grafana /var/log/restopapa
 ```
 
 ### Weekly Tasks
 ```bash
 # Cleanup old metrics
-docker exec restauranthub-prometheus promtool tsdb cleanup /prometheus
+docker exec restopapa-prometheus promtool tsdb cleanup /prometheus
 
 # Update dashboards
 # Import latest dashboard configs from monitoring/grafana/dashboards/
@@ -398,7 +398,7 @@ docker scout cves --only-fixed
 docker-compose -f docker-compose.monitoring.yml build --pull
 
 # Review access logs
-grep -i "failed\|error\|unauthorized" /var/log/restauranthub/security/*.log
+grep -i "failed\|error\|unauthorized" /var/log/restopapa/security/*.log
 ```
 
 ---
@@ -406,14 +406,14 @@ grep -i "failed\|error\|unauthorized" /var/log/restauranthub/security/*.log
 ## 📞 Support
 
 ### Documentation
-- **Runbooks:** `/Users/rejaulkarim/Documents/Resturistan App/restauranthub/docs/runbooks/`
+- **Runbooks:** `/Users/rejaulkarim/Documents/Resturistan App/restopapa/docs/runbooks/`
 - **API Documentation:** http://localhost:3000/api/docs
-- **Monitoring Guides:** `/Users/rejaulkarim/Documents/Resturistan App/restauranthub/docs/monitoring/`
+- **Monitoring Guides:** `/Users/rejaulkarim/Documents/Resturistan App/restopapa/docs/monitoring/`
 
 ### Contact Information
-- **Technical Support:** tech-support@restauranthub.com
-- **Emergency Escalation:** critical@restauranthub.com
-- **Documentation Issues:** docs@restauranthub.com
+- **Technical Support:** tech-support@restopapa.com
+- **Emergency Escalation:** critical@restopapa.com
+- **Documentation Issues:** docs@restopapa.com
 
 ### Monitoring Slack Channels
 - **#monitoring-alerts** - Real-time alert notifications
@@ -438,8 +438,8 @@ After successful deployment, you should see:
 
 ---
 
-**🎉 Congratulations! Your RestaurantHub monitoring stack is now fully operational with enterprise-grade observability, security monitoring, and self-healing capabilities.**
+**🎉 Congratulations! Your RestoPapa monitoring stack is now fully operational with enterprise-grade observability, security monitoring, and self-healing capabilities.**
 
 ---
 
-*This deployment guide is part of the RestaurantHub AI Sentry monitoring solution. For updates and additional documentation, visit the project repository.*
+*This deployment guide is part of the RestoPapa AI Sentry monitoring solution. For updates and additional documentation, visit the project repository.*

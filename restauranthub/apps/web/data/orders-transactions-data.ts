@@ -1,4 +1,4 @@
-// Orders and Transactions Data for RestaurantHub
+// Orders and Transactions Data for RestoPapa
 // 200+ sample orders with varied statuses and realistic payment data
 
 import { allDummyCustomers, allDummyVendors } from './comprehensive-dummy-data';

@@ -1,6 +1,6 @@
 # Performance Testing Suite
 
-This directory contains comprehensive performance testing tools and configurations for RestaurantHub.
+This directory contains comprehensive performance testing tools and configurations for RestoPapa.
 
 ## Overview
 
@@ -101,7 +101,7 @@ Set these in your `.env` file or environment:
 BASE_URL=http://localhost:3000
 
 # Test credentials
-ADMIN_EMAIL=admin@restauranthub.com
+ADMIN_EMAIL=admin@restopapa.com
 ADMIN_PASSWORD=Password123
 
 # Optional: Datadog integration
@@ -299,13 +299,13 @@ export default function () {
 
 #### Staging Environment
 ```bash
-BASE_URL=https://api-staging.restauranthub.com npm run perf:k6:load
+BASE_URL=https://api-staging.restopapa.com npm run perf:k6:load
 ```
 
 #### Production Environment
 ```bash
 # Only run with approval and monitoring
-BASE_URL=https://api.restauranthub.com npm run perf:k6:load
+BASE_URL=https://api.restopapa.com npm run perf:k6:load
 ```
 
 ## Resources
@@ -313,4 +313,4 @@ BASE_URL=https://api.restauranthub.com npm run perf:k6:load
 - [k6 Documentation](https://k6.io/docs/)
 - [Artillery.js Documentation](https://artillery.io/docs/)
 - [Performance Testing Best Practices](https://k6.io/docs/testing-guides/performance-testing/)
-- [RestaurantHub API Documentation](../docs/api.md)
+- [RestoPapa API Documentation](../docs/api.md)

@@ -771,7 +771,7 @@ export class MonitoringService {
       payload: {
         summary: alert.message,
         severity: alert.severity,
-        source: 'RestaurantHub API',
+        source: 'RestoPapa API',
         custom_details: {
           value: alert.value,
           threshold: alert.threshold,

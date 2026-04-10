@@ -1,6 +1,6 @@
 {
-  "name": "RestaurantHub - Complete Restaurant Management Platform",
-  "short_name": "RestaurantHub",
+  "name": "RestoPapa - Complete Restaurant Management Platform",
+  "short_name": "RestoPapa",
   "description": "The all-in-one platform connecting restaurants, employees, and suppliers in the food industry with advanced features, AI integration, and real-time collaboration.",
   "start_url": "/",
   "display": "standalone",

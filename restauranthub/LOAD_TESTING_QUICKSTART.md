@@ -1,8 +1,8 @@
-# RestaurantHub Load Testing Quick Start Guide
+# RestoPapa Load Testing Quick Start Guide
 
 ## Overview
 
-This guide provides step-by-step instructions for running comprehensive scalability and load tests on RestaurantHub to simulate 10,000+ concurrent users and identify performance bottlenecks.
+This guide provides step-by-step instructions for running comprehensive scalability and load tests on RestoPapa to simulate 10,000+ concurrent users and identify performance bottlenecks.
 
 ## Prerequisites
 
@@ -30,9 +30,9 @@ pip install pandas matplotlib seaborn numpy
 
 ## Quick Start (5 Minutes)
 
-### 1. Start RestaurantHub API
+### 1. Start RestoPapa API
 ```bash
-cd /Users/rejaulkarim/Documents/Resturistan\ App/restauranthub
+cd /Users/rejaulkarim/Documents/Resturistan\ App/restopapa
 
 # Start the API server
 npm run dev
@@ -80,7 +80,7 @@ open http://localhost:9091  # Prometheus
 # Execute comprehensive scalability tests
 ./scripts/run-scalability-tests.sh \
   --base-url http://localhost:3000 \
-  --email admin@restauranthub.com \
+  --email admin@restopapa.com \
   --password Password123 \
   --duration 3h \
   --max-vus 2000

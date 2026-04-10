@@ -29,7 +29,7 @@ export interface SpanData {
 export class TracingService {
   private readonly logger = new Logger(TracingService.name);
   private sdk: NodeSDK;
-  private readonly tracer = trace.getTracer('restauranthub-api');
+  private readonly tracer = trace.getTracer('restopapa-api');
   private isInitialized = false;
 
   constructor(private configService: ConfigService) {}
@@ -45,7 +45,7 @@ export class TracingService {
 
     try {
       const jaegerEndpoint = this.configService.get<string>('JAEGER_ENDPOINT', 'http://localhost:14268/api/traces');
-      const serviceName = this.configService.get<string>('SERVICE_NAME', 'restauranthub-api');
+      const serviceName = this.configService.get<string>('SERVICE_NAME', 'restopapa-api');
       const serviceVersion = this.configService.get<string>('SERVICE_VERSION', '1.0.0');
       const environment = this.configService.get<string>('NODE_ENV', 'development');
 
@@ -205,7 +205,7 @@ export class TracingService {
         attributes: {
           'db.system': 'postgresql',
           'db.operation': operation.toUpperCase(),
-          'db.name': this.configService.get<string>('POSTGRES_DB', 'restauranthub'),
+          'db.name': this.configService.get<string>('POSTGRES_DB', 'restopapa'),
           'db.sql.table': table,
           'db.statement': query ? this.sanitizeQuery(query) : '',
         },

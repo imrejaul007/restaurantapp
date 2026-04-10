@@ -2,14 +2,14 @@
  * ShiftSyncService
  *
  * Pulls shift gaps from REZ via RezMerchantClient and upserts them as DRAFT
- * job postings on RestaurantHub. The merchant must review and publish them
+ * job postings on RestoPapa. The merchant must review and publish them
  * manually — nothing goes live automatically.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { RezMerchantClient } from '@restauranthub/rez-client';
-import type { RezShiftGap } from '@restauranthub/rez-client';
+import { RezMerchantClient } from '@restopapa/rez-client';
+import type { RezShiftGap } from '@restopapa/rez-client';
 
 export interface DraftJob {
   id: string;
@@ -37,7 +37,7 @@ export class ShiftSyncService {
    * rezShiftDate it is updated rather than duplicated.
    *
    * @param rezMerchantId  REZ merchant UUID
-   * @param restaurantId   RestaurantHub restaurant ID (looked up via rezMerchantId)
+   * @param restaurantId   RestoPapa restaurant ID (looked up via rezMerchantId)
    * @returns Array of created/updated draft jobs
    */
   async syncShiftGapsToJobs(

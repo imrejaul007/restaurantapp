@@ -1,6 +1,6 @@
-# RestaurantHub System Architecture
+# RestoPapa System Architecture
 
-This document provides a comprehensive overview of the RestaurantHub platform architecture, design patterns, and technical decisions.
+This document provides a comprehensive overview of the RestoPapa platform architecture, design patterns, and technical decisions.
 
 ## 🏗️ High-Level Architecture
 
@@ -8,7 +8,7 @@ This document provides a comprehensive overview of the RestaurantHub platform ar
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                            RestaurantHub Platform                    │
+│                            RestoPapa Platform                    │
 ├─────────────────────────────────────────────────────────────────────┤
 │                          Presentation Layer                         │
 ├───────────────────┬─────────────────────┬───────────────────────────┤
@@ -1187,20 +1187,20 @@ CMD ["node", "dist/main.js"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restauranthub-api
+  name: restopapa-api
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: restauranthub-api
+      app: restopapa-api
   template:
     metadata:
       labels:
-        app: restauranthub-api
+        app: restopapa-api
     spec:
       containers:
       - name: api
-        image: restauranthub/api:latest
+        image: restopapa/api:latest
         ports:
         - containerPort: 3001
         env:
@@ -1239,7 +1239,7 @@ spec:
 
 ```yaml
 # Nginx load balancer configuration
-upstream restauranthub_api {
+upstream restopapa_api {
     least_conn;
     server api-1:3001 max_fails=3 fail_timeout=30s;
     server api-2:3001 max_fails=3 fail_timeout=30s;
@@ -1248,10 +1248,10 @@ upstream restauranthub_api {
 
 server {
     listen 80;
-    server_name api.restauranthub.com;
+    server_name api.restopapa.com;
 
     location / {
-        proxy_pass http://restauranthub_api;
+        proxy_pass http://restopapa_api;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -1272,7 +1272,7 @@ server {
     # Health check endpoint
     location /health {
         access_log off;
-        proxy_pass http://restauranthub_api;
+        proxy_pass http://restopapa_api;
     }
 }
 ```
@@ -1522,4 +1522,4 @@ export abstract class EventSourcedAggregate {
 }
 ```
 
-This architecture document provides a comprehensive overview of the RestaurantHub system design, covering all major architectural decisions, patterns, and best practices. The modular, scalable design ensures the platform can grow and adapt to changing requirements while maintaining high performance and security standards.
+This architecture document provides a comprehensive overview of the RestoPapa system design, covering all major architectural decisions, patterns, and best practices. The modular, scalable design ensures the platform can grow and adapt to changing requirements while maintaining high performance and security standards.

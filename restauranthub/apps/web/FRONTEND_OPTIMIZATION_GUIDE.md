@@ -1,7 +1,7 @@
 # Frontend Optimization Implementation Guide
 
 ## Overview
-This guide documents the comprehensive frontend optimizations implemented for the RestaurantHub Next.js application, focusing on proper API connectivity, enhanced user experience, and robust error handling.
+This guide documents the comprehensive frontend optimizations implemented for the RestoPapa Next.js application, focusing on proper API connectivity, enhanced user experience, and robust error handling.
 
 ## 🎯 Objectives Completed
 

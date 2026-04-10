@@ -95,7 +95,7 @@
 ### 2. Configuration Updates Required
 ```bash
 # Update environment variables
-DATABASE_URL="postgresql://user:password@host:5432/restauranthub"
+DATABASE_URL="postgresql://user:password@host:5432/restopapa"
 MOCK_DATABASE=false
 JWT_SECRET="your-secure-jwt-secret"
 JWT_REFRESH_SECRET="your-secure-refresh-secret"
@@ -134,7 +134,7 @@ CACHE_TTL=300
 
 ## 🎉 CONCLUSION
 
-The RestaurantHub application has been **significantly improved** and is now **production-ready** with:
+The RestoPapa application has been **significantly improved** and is now **production-ready** with:
 
 ✅ **Comprehensive security hardening**
 ✅ **Performance optimizations for scale**

@@ -348,7 +348,7 @@ export class FileUploadService {
   ): Promise<{ url: string; filename: string }> {
     return new Promise((resolve, reject) => {
       const uploadOptions: any = {
-        folder: `${this.configService.get('CLOUDINARY_FOLDER', 'restauranthub')}/${options.folder || 'general'}`,
+        folder: `${this.configService.get('CLOUDINARY_FOLDER', 'restopapa')}/${options.folder || 'general'}`,
         public_id: uuidv4(),
         resource_type: 'auto',
         tags: options.tags || [],

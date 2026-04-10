@@ -26,8 +26,8 @@ describe('CORS Security Tests', () => {
       const validOrigins = [
         'http://localhost:3000',
         'http://localhost:3001',
-        'https://restauranthub.com',
-        'https://app.restauranthub.com',
+        'https://restopapa.com',
+        'https://app.restopapa.com',
       ];
 
       for (const origin of validOrigins) {
@@ -196,9 +196,9 @@ describe('CORS Security Tests', () => {
   describe('Subdomain and Port Variations', () => {
     it('should handle subdomain CORS correctly', async () => {
       const subdomains = [
-        'https://api.restauranthub.com',
-        'https://admin.restauranthub.com',
-        'https://dashboard.restauranthub.com',
+        'https://api.restopapa.com',
+        'https://admin.restopapa.com',
+        'https://dashboard.restopapa.com',
       ];
 
       for (const subdomain of subdomains) {
@@ -214,10 +214,10 @@ describe('CORS Security Tests', () => {
 
     it('should reject wildcard subdomain attacks', async () => {
       const wildcardAttempts = [
-        'https://evil.restauranthub.com.attacker.com',
-        'https://restauranthub.com.evil.com',
-        'https://restauranthubcom.evil.com',
-        'https://xrestauranthub.com',
+        'https://evil.restopapa.com.attacker.com',
+        'https://restopapa.com.evil.com',
+        'https://restopapacom.evil.com',
+        'https://xrestopapa.com',
       ];
 
       for (const attempt of wildcardAttempts) {

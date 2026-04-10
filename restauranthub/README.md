@@ -1,4 +1,4 @@
-# RestaurantHub SaaS Platform
+# RestoPapa SaaS Platform
 
 A comprehensive B2B/B2C SaaS platform for restaurants with multi-role support (Admin, Restaurant, Employee, Vendor) including hiring/verification, marketplace, job portal, community forum, messaging, analytics, and payment systems.
 
@@ -37,7 +37,7 @@ A comprehensive B2B/B2C SaaS platform for restaurants with multi-role support (A
 
 1. **Clone and install dependencies**
 ```bash
-cd restauranthub
+cd restopapa
 npm install
 ```
 
@@ -94,11 +94,11 @@ cd apps/api && MOCK_DATABASE=true API_PORT=3001 npm run dev
 ### Demo Credentials
 
 **Admin Access:**
-- Email: `admin@restauranthub.com`
+- Email: `admin@restopapa.com`
 - Password: `admin123`
 
 **Restaurant Owner:**
-- Email: `restaurant@restauranthub.com`
+- Email: `restaurant@restopapa.com`
 - Password: `restaurant123`
 
 ### Supported Roles
@@ -159,7 +159,7 @@ cd apps/api && MOCK_DATABASE=true API_PORT=3001 npm run dev
 ## 🗂️ Project Structure
 
 ```
-restauranthub/
+restopapa/
 ├── apps/
 │   ├── web/                 # Next.js Frontend
 │   │   ├── app/            # App Router pages
@@ -354,7 +354,7 @@ For detailed PostgreSQL setup, see `DATABASE_SETUP.md`.
 
 **✅ PRODUCTION READY**
 
-The RestaurantHub platform is fully operational with:
+The RestoPapa platform is fully operational with:
 - Zero compilation errors
 - Complete feature implementation
 - Comprehensive security measures

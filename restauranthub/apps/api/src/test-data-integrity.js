@@ -5,14 +5,14 @@ const fs = require('fs');
 
 // Configuration
 const API_BASE = 'http://127.0.0.1:3016/api/v1';
-const TEST_RESULTS_FILE = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/api/src/test-results.json';
+const TEST_RESULTS_FILE = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/api/src/test-results.json';
 
 // Test credentials
 const DEMO_USERS = {
-  admin: { email: 'admin@restauranthub.com', password: 'demo123' },
-  restaurant: { email: 'restaurant@restauranthub.com', password: 'demo123' },
-  employee: { email: 'employee@restauranthub.com', password: 'demo123' },
-  vendor: { email: 'vendor@restauranthub.com', password: 'demo123' }
+  admin: { email: 'admin@restopapa.com', password: 'demo123' },
+  restaurant: { email: 'restaurant@restopapa.com', password: 'demo123' },
+  employee: { email: 'employee@restopapa.com', password: 'demo123' },
+  vendor: { email: 'vendor@restopapa.com', password: 'demo123' }
 };
 
 // Test results storage
@@ -330,7 +330,7 @@ async function saveResults() {
 
 // Main test execution
 async function runDataIntegrityTests() {
-  console.log('🚀 Starting RestaurantHub Data Integrity Tests');
+  console.log('🚀 Starting RestoPapa Data Integrity Tests');
   console.log('='.repeat(50));
 
   try {

@@ -10,7 +10,7 @@ const CONFIG = {
   testDurationMs: 30000, // 30 seconds per test
   endpoints: [
     { path: '/api/v1/auth/health', method: 'GET' },
-    { path: '/api/v1/auth/signin', method: 'POST', body: JSON.stringify({email: 'admin@restauranthub.com', password: 'admin123'}) },
+    { path: '/api/v1/auth/signin', method: 'POST', body: JSON.stringify({email: 'admin@restopapa.com', password: 'admin123'}) },
     { path: '/api/v1/jobs', method: 'GET' },
     { path: '/api/v1/restaurants', method: 'GET' }
   ]
@@ -28,7 +28,7 @@ class PerformanceTester {
       const response = await this.makeRequest({
         path: '/api/v1/auth/signin',
         method: 'POST',
-        body: JSON.stringify({email: 'admin@restauranthub.com', password: 'admin123'})
+        body: JSON.stringify({email: 'admin@restopapa.com', password: 'admin123'})
       });
 
       if (response.data && response.data.accessToken) {
@@ -52,7 +52,7 @@ class PerformanceTester {
         method: endpoint.method,
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'RestaurantHub-PerformanceTest/1.0'
+          'User-Agent': 'RestoPapa-PerformanceTest/1.0'
         }
       };
 
@@ -175,7 +175,7 @@ class PerformanceTester {
   }
 
   async runFullPerformanceTest() {
-    console.log('🎯 Starting RestaurantHub Performance Test Suite');
+    console.log('🎯 Starting RestoPapa Performance Test Suite');
     console.log(`📊 Testing ${CONFIG.concurrentUsers.length} load levels for ${CONFIG.endpoints.length} endpoints`);
     console.log(`⏱️  Each test runs for ${CONFIG.testDurationMs / 1000} seconds\n`);
 

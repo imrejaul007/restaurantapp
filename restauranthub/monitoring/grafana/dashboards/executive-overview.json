@@ -12,7 +12,7 @@
       }
     ]
   },
-  "description": "Executive Overview Dashboard for RestaurantHub Platform - AI Sentry Monitoring",
+  "description": "Executive Overview Dashboard for RestoPapa Platform - AI Sentry Monitoring",
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
@@ -107,7 +107,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "min(up{job=~\"restauranthub-api|restauranthub-web|postgresql|redis\"})",
+          "expr": "min(up{job=~\"restopapa-api|restopapa-web|postgresql|redis\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -197,7 +197,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{job=\"restauranthub-api\"}[5m]))",
+          "expr": "sum(rate(http_requests_total{job=\"restopapa-api\"}[5m]))",
           "interval": "",
           "legendFormat": "Active Users",
           "refId": "A"
@@ -259,7 +259,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"restauranthub-api\"}[5m])) by (le)) * 1000",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"restopapa-api\"}[5m])) by (le)) * 1000",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -323,7 +323,7 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "(sum(rate(http_requests_total{status=~\"5..\",job=\"restauranthub-api\"}[5m])) / sum(rate(http_requests_total{job=\"restauranthub-api\"}[5m]))) * 100",
+          "expr": "(sum(rate(http_requests_total{status=~\"5..\",job=\"restopapa-api\"}[5m])) / sum(rate(http_requests_total{job=\"restopapa-api\"}[5m]))) * 100",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -623,13 +623,13 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(http_requests_total{job=\"restauranthub-api\"}[5m])) by (method)",
+          "expr": "sum(rate(http_requests_total{job=\"restopapa-api\"}[5m])) by (method)",
           "interval": "",
           "legendFormat": "{{ method }} Requests",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(http_requests_total{job=\"restauranthub-web\"}[5m]))",
+          "expr": "sum(rate(http_requests_total{job=\"restopapa-web\"}[5m]))",
           "interval": "",
           "legendFormat": "Web Requests",
           "refId": "B"
@@ -642,7 +642,7 @@
   "schemaVersion": 27,
   "style": "dark",
   "tags": [
-    "restauranthub",
+    "restopapa",
     "executive",
     "overview",
     "ai-sentry"
@@ -656,7 +656,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "RestaurantHub - Executive Overview",
+  "title": "RestoPapa - Executive Overview",
   "uid": "executive-overview",
   "version": 1
 }

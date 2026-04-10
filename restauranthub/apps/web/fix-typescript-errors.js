@@ -79,7 +79,7 @@ function findTsxFiles(dir) {
   return files;
 }
 
-const webDir = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web';
+const webDir = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web';
 const tsxFiles = findTsxFiles(webDir);
 
 console.log(`Found ${tsxFiles.length} TypeScript files`);

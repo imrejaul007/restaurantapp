@@ -69,7 +69,7 @@ export class TestFactories {
   static createAdmin(overrides: any = {}) {
     return this.createUser({
       role: 'ADMIN',
-      email: `admin${Math.random().toString(36).substr(2, 5)}@restauranthub.com`,
+      email: `admin${Math.random().toString(36).substr(2, 5)}@restopapa.com`,
       ...overrides,
     });
   }

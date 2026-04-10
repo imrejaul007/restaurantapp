@@ -59,7 +59,7 @@ export class PrometheusService {
 
     // Set default labels for all metrics
     this.register.setDefaultLabels({
-      app: 'restauranthub-api',
+      app: 'restopapa-api',
       version: process.env.npm_package_version || '1.0.0',
       environment: process.env.NODE_ENV || 'development',
       instance: process.env.HOSTNAME || 'localhost',

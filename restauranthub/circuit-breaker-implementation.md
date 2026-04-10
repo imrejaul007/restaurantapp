@@ -1,8 +1,8 @@
-# RestaurantHub Circuit Breaker Implementation
+# RestoPapa Circuit Breaker Implementation
 
 ## Overview
 
-The RestaurantHub application implements comprehensive circuit breaker patterns to ensure system resilience and prevent cascading failures. The circuit breaker implementation provides automatic failure detection, fallback mechanisms, and self-healing capabilities for all external dependencies and critical services.
+The RestoPapa application implements comprehensive circuit breaker patterns to ensure system resilience and prevent cascading failures. The circuit breaker implementation provides automatic failure detection, fallback mechanisms, and self-healing capabilities for all external dependencies and critical services.
 
 ## Architecture
 
@@ -429,13 +429,13 @@ this.circuitBreakerService.resetCircuitBreaker('my-circuit');
 Circuit breaker metrics are exposed for Prometheus collection:
 
 ```
-# HELP restauranthub_circuit_breaker_calls_total Total calls through circuit breaker
-# TYPE restauranthub_circuit_breaker_calls_total counter
-restauranthub_circuit_breaker_calls_total{circuit="database-read",result="success"} 150
+# HELP restopapa_circuit_breaker_calls_total Total calls through circuit breaker
+# TYPE restopapa_circuit_breaker_calls_total counter
+restopapa_circuit_breaker_calls_total{circuit="database-read",result="success"} 150
 
-# HELP restauranthub_circuit_breaker_state Current circuit breaker state
-# TYPE restauranthub_circuit_breaker_state gauge
-restauranthub_circuit_breaker_state{circuit="database-read",state="closed"} 1
+# HELP restopapa_circuit_breaker_state Current circuit breaker state
+# TYPE restopapa_circuit_breaker_state gauge
+restopapa_circuit_breaker_state{circuit="database-read",state="closed"} 1
 ```
 
 ### ELK Stack Integration
@@ -455,4 +455,4 @@ Pre-configured Grafana dashboards include:
 - Service dependency maps
 - Performance impact analysis
 
-This comprehensive circuit breaker implementation ensures RestaurantHub maintains high availability and resilience under various failure conditions while providing excellent observability and operational control.
+This comprehensive circuit breaker implementation ensures RestoPapa maintains high availability and resilience under various failure conditions while providing excellent observability and operational control.

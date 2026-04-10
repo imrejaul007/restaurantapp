@@ -1,4 +1,4 @@
-// Comprehensive Dummy Data for RestaurantHub System
+// Comprehensive Dummy Data for RestoPapa System
 // This file contains realistic sample data for all modules, roles, and screens
 
 export interface User {
@@ -609,11 +609,11 @@ export const allDummyEmployees = [...dummyEmployees, ...additionalEmployees];
 export const dummyAdmins: User[] = [
   {
     id: "admin_001",
-    email: "admin@restauranthub.com",
+    email: "admin@restopapa.com",
     name: "System Administrator",
     mobile: "+1-555-ADMIN",
     location: {
-      address: "RestaurantHub HQ",
+      address: "RestoPapa HQ",
       city: "New York",
       state: "NY",
       zipCode: "10001",
@@ -627,11 +627,11 @@ export const dummyAdmins: User[] = [
   },
   {
     id: "admin_002",
-    email: "support@restauranthub.com",
+    email: "support@restopapa.com",
     name: "Support Manager",
     mobile: "+1-555-SUPP1",
     location: {
-      address: "RestaurantHub HQ",
+      address: "RestoPapa HQ",
       city: "New York",
       state: "NY",
       zipCode: "10001",
@@ -645,11 +645,11 @@ export const dummyAdmins: User[] = [
   },
   {
     id: "admin_003",
-    email: "operations@restauranthub.com",
+    email: "operations@restopapa.com",
     name: "Operations Manager",
     mobile: "+1-555-OPS01",
     location: {
-      address: "RestaurantHub HQ",
+      address: "RestoPapa HQ",
       city: "New York",
       state: "NY",
       zipCode: "10001",
@@ -663,11 +663,11 @@ export const dummyAdmins: User[] = [
   },
   {
     id: "admin_004",
-    email: "marketing@restauranthub.com",
+    email: "marketing@restopapa.com",
     name: "Marketing Manager",
     mobile: "+1-555-MARK1",
     location: {
-      address: "RestaurantHub HQ",
+      address: "RestoPapa HQ",
       city: "New York",
       state: "NY",
       zipCode: "10001",
@@ -681,11 +681,11 @@ export const dummyAdmins: User[] = [
   },
   {
     id: "admin_005",
-    email: "finance@restauranthub.com",
+    email: "finance@restopapa.com",
     name: "Finance Manager",
     mobile: "+1-555-FIN01",
     location: {
-      address: "RestaurantHub HQ",
+      address: "RestoPapa HQ",
       city: "New York",
       state: "NY",
       zipCode: "10001",

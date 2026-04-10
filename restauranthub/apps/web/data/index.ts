@@ -1,4 +1,4 @@
-// Master Index for RestaurantHub Dummy Data
+// Master Index for RestoPapa Dummy Data
 // Consolidates all dummy data for easy import throughout the application
 
 // Re-export all data from individual files
@@ -36,7 +36,7 @@ import {
 } from './additional-system-data';
 
 // Master dataset object
-export const RestaurantHubData = {
+export const RestoPapaData = {
   // Users & Authentication
   users: {
     customers: allDummyCustomers,
@@ -204,7 +204,7 @@ export const getDataByRole = (role: 'customer' | 'vendor' | 'employee' | 'admin'
         )
       };
     case 'admin':
-      return RestaurantHubData; // Full access
+      return RestoPapaData; // Full access
     default:
       return null;
   }
@@ -291,7 +291,7 @@ export const SYSTEM_SUMMARY = {
   lastUpdated: new Date().toISOString()
 };
 
-console.log("🎉 RestaurantHub Complete Dummy Data System Loaded!");
+console.log("🎉 RestoPapa Complete Dummy Data System Loaded!");
 console.log(`📊 Total Records: ${SYSTEM_SUMMARY.totalRecords.toLocaleString()}`);
 console.log("📋 Breakdown:", SYSTEM_SUMMARY.breakdown);
 console.log(SYSTEM_SUMMARY.status);

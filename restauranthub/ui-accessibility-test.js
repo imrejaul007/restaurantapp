@@ -1,6 +1,6 @@
 const http = require('http');
 
-// Accessibility Test Suite for RestaurantHub UI/UX
+// Accessibility Test Suite for RestoPapa UI/UX
 const testPages = [
   { url: 'http://localhost:3001/', name: 'Homepage' },
   { url: 'http://localhost:3001/auth/login', name: 'Login Page' },
@@ -178,7 +178,7 @@ function testPageContent(url, name) {
 }
 
 async function runComprehensiveTests() {
-  console.log('🔍 RestaurantHub UI/UX Comprehensive Testing Report');
+  console.log('🔍 RestoPapa UI/UX Comprehensive Testing Report');
   console.log('='.repeat(60));
   console.log('Testing Frontend: http://localhost:3001');
   console.log('Test Date:', new Date().toLocaleString());

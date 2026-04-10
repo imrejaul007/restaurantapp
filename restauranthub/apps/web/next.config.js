@@ -32,7 +32,7 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     domains: [
       'localhost',
-      'restauranthub-assets.s3.amazonaws.com',
+      'restopapa-assets.s3.amazonaws.com',
       'images.unsplash.com',
     ],
     remotePatterns: [
@@ -99,7 +99,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
     NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000',
-    NEXT_PUBLIC_APP_NAME: 'RestaurantHub',
+    NEXT_PUBLIC_APP_NAME: 'RestoPapa',
   },
 
   // Optimized redirects

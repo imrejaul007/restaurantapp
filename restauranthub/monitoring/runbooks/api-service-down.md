@@ -1,7 +1,7 @@
 # API Service Down
 
 ## Summary
-The RestaurantHub API service is unreachable or not responding to health checks. This is a **CRITICAL** alert that affects all platform functionality.
+The RestoPapa API service is unreachable or not responding to health checks. This is a **CRITICAL** alert that affects all platform functionality.
 
 ## Severity
 🔴 **CRITICAL**
@@ -13,8 +13,8 @@ The RestaurantHub API service is unreachable or not responding to health checks.
 - No API request metrics in monitoring
 
 ## Dashboard Links
-- [System Overview](http://grafana.restauranthub.com/d/system-overview)
-- [API Performance](http://grafana.restauranthub.com/d/api-performance)
+- [System Overview](http://grafana.restopapa.com/d/system-overview)
+- [API Performance](http://grafana.restopapa.com/d/api-performance)
 
 ## Investigation
 
@@ -22,15 +22,15 @@ The RestaurantHub API service is unreachable or not responding to health checks.
 ```bash
 # Test API health endpoint directly
 curl -v http://localhost:3000/api/v1/health
-curl -v https://api.restauranthub.com/api/v1/health
+curl -v https://api.restopapa.com/api/v1/health
 
 # Check if process is running
-ps aux | grep node | grep restauranthub-api
-systemctl status restauranthub-api
+ps aux | grep node | grep restopapa-api
+systemctl status restopapa-api
 
 # Check Docker container status (if containerized)
-docker ps | grep restauranthub-api
-docker logs restauranthub-api --tail 50
+docker ps | grep restopapa-api
+docker logs restopapa-api --tail 50
 ```
 
 ### 2. Check System Resources (2 minutes)
@@ -61,8 +61,8 @@ iptables -L INPUT | grep 3000
 ### 4. Review Recent Logs (3 minutes)
 ```bash
 # Check application logs
-journalctl -u restauranthub-api -n 100 --no-pager
-tail -f /var/log/restauranthub/api/error.log
+journalctl -u restopapa-api -n 100 --no-pager
+tail -f /var/log/restopapa/api/error.log
 
 # Check system logs for crashes
 journalctl -p err -n 50 --no-pager
@@ -75,12 +75,12 @@ journalctl -p err -n 50 --no-pager
 1. **Restart the service**
    ```bash
    # Systemd service
-   sudo systemctl restart restauranthub-api
-   sudo systemctl status restauranthub-api
+   sudo systemctl restart restopapa-api
+   sudo systemctl status restopapa-api
 
    # Docker container
-   docker restart restauranthub-api
-   docker logs restauranthub-api --tail 20
+   docker restart restopapa-api
+   docker logs restopapa-api --tail 20
    ```
 
 2. **Verify restart**
@@ -98,7 +98,7 @@ journalctl -p err -n 50 --no-pager
 1. **Memory exhaustion**
    ```bash
    # Free up memory
-   sudo systemctl restart restauranthub-api
+   sudo systemctl restart restopapa-api
 
    # If severe, restart other non-critical services
    sudo systemctl restart nginx
@@ -129,10 +129,10 @@ journalctl -p err -n 50 --no-pager
 1. **Check database connectivity**
    ```bash
    # Test database connection
-   psql -h localhost -U postgres -d restauranthub -c "SELECT 1;"
+   psql -h localhost -U postgres -d restopapa -c "SELECT 1;"
 
    # Check connection count
-   psql -h localhost -U postgres -d restauranthub -c "SELECT count(*) FROM pg_stat_activity;"
+   psql -h localhost -U postgres -d restopapa -c "SELECT count(*) FROM pg_stat_activity;"
    ```
 
 2. **Restart database if needed**
@@ -146,7 +146,7 @@ journalctl -p err -n 50 --no-pager
 1. **Check configuration files**
    ```bash
    # Verify environment variables
-   sudo systemctl show restauranthub-api --property=Environment
+   sudo systemctl show restopapa-api --property=Environment
 
    # Check config file syntax
    node -c /app/dist/main.js
@@ -155,7 +155,7 @@ journalctl -p err -n 50 --no-pager
 2. **Restore from backup if corrupted**
    ```bash
    sudo cp /backup/config/.env /app/.env
-   sudo systemctl restart restauranthub-api
+   sudo systemctl restart restopapa-api
    ```
 
 ## Verification

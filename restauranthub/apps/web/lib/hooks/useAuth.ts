@@ -18,7 +18,7 @@ export function useAuth() {
     // Mock auth check - in development mode, auto-login as admin
     const mockUser: User = {
       id: 'admin-1',
-      email: 'admin@restauranthub.com',
+      email: 'admin@restopapa.com',
       name: 'Admin User',
       role: 'ADMIN',
       avatar: '/avatars/admin.jpg'

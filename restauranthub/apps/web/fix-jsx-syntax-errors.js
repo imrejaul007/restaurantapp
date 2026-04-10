@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 function fixJobApplicationForm() {
-  const filePath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/components/jobs/job-application-form.tsx';
+  const filePath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/components/jobs/job-application-form.tsx';
 
   try {
     let content = fs.readFileSync(filePath, 'utf8');
@@ -54,7 +54,7 @@ function fixJobApplicationForm() {
 }
 
 function fixLoginPage() {
-  const filePath = '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/login/page.tsx';
+  const filePath = '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/login/page.tsx';
 
   try {
     let content = fs.readFileSync(filePath, 'utf8');

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * RestaurantHub Comprehensive Functionality Testing Suite
+ * RestoPapa Comprehensive Functionality Testing Suite
  *
  * This script performs comprehensive functionality testing for all major
- * functions, methods, and components in the RestaurantHub application.
+ * functions, methods, and components in the RestoPapa application.
  */
 
 const fs = require('fs');

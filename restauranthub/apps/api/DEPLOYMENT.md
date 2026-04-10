@@ -1,6 +1,6 @@
-# RestaurantHub API Deployment Guide
+# RestoPapa API Deployment Guide
 
-This guide covers deploying the RestaurantHub API to various environments including staging and production.
+This guide covers deploying the RestoPapa API to various environments including staging and production.
 
 ## 📋 Table of Contents
 
@@ -52,14 +52,14 @@ brew install docker docker-compose nginx postgresql redis
 1. **Domain Configuration:**
 ```bash
 # Example DNS records
-api.restauranthub.com     A       1.2.3.4
-staging-api.restauranthub.com A   1.2.3.5
+api.restopapa.com     A       1.2.3.4
+staging-api.restopapa.com A   1.2.3.5
 ```
 
 2. **SSL Certificate:**
 ```bash
 # Using Let's Encrypt
-sudo certbot certonly --nginx -d api.restauranthub.com
+sudo certbot certonly --nginx -d api.restopapa.com
 
 # Or use existing certificate
 cp your-cert.pem /etc/nginx/ssl/cert.pem
@@ -79,11 +79,11 @@ NODE_ENV=production
 API_PORT=3000
 API_HOST=0.0.0.0
 API_PREFIX=api/v1
-FRONTEND_URL=https://restauranthub.com
+FRONTEND_URL=https://restopapa.com
 
 # Database
-DATABASE_URL="postgresql://prod_user:secure_pass@db.internal:5432/restauranthub_prod?schema=public"
-DATABASE_URL_PROD="postgresql://prod_user:secure_pass@db.internal:5432/restauranthub_prod?schema=public"
+DATABASE_URL="postgresql://prod_user:secure_pass@db.internal:5432/restopapa_prod?schema=public"
+DATABASE_URL_PROD="postgresql://prod_user:secure_pass@db.internal:5432/restopapa_prod?schema=public"
 
 # Redis
 REDIS_HOST=redis.internal
@@ -105,7 +105,7 @@ ENABLE_CSRF_PROTECTION=true
 
 # Email (Production)
 SENDGRID_API_KEY=SG.your-production-sendgrid-key
-EMAIL_FROM="RestaurantHub <noreply@restauranthub.com>"
+EMAIL_FROM="RestoPapa <noreply@restopapa.com>"
 
 # File Storage (Production)
 CLOUDINARY_CLOUD_NAME=your-prod-cloud-name
@@ -123,8 +123,8 @@ LOG_LEVEL=info
 ENABLE_SWAGGER=false
 
 # Backup
-BACKUP_S3_BUCKET=restauranthub-backups-prod
-NOTIFICATION_EMAIL=ops@restauranthub.com
+BACKUP_S3_BUCKET=restopapa-backups-prod
+NOTIFICATION_EMAIL=ops@restopapa.com
 SLACK_WEBHOOK_URL=https://hooks.slack.com/your-webhook
 ```
 
@@ -132,8 +132,8 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/your-webhook
 ```bash
 # Copy from production and modify:
 NODE_ENV=staging
-FRONTEND_URL=https://staging.restauranthub.com
-DATABASE_URL="postgresql://staging_user:pass@staging-db:5432/restauranthub_staging?schema=public"
+FRONTEND_URL=https://staging.restopapa.com
+DATABASE_URL="postgresql://staging_user:pass@staging-db:5432/restopapa_staging?schema=public"
 # Use test/sandbox keys for payments
 STRIPE_SECRET_KEY=sk_test_your-test-stripe-key
 ENABLE_SWAGGER=true
@@ -165,7 +165,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production-pm2
-    container_name: restauranthub-api-prod
+    container_name: restopapa-api-prod
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -175,7 +175,7 @@ services:
       - postgres
       - redis
     networks:
-      - restauranthub-prod
+      - restopapa-prod
     volumes:
       - ./logs:/app/logs
       - app-uploads:/app/uploads
@@ -197,10 +197,10 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: restauranthub-postgres-prod
+    container_name: restopapa-postgres-prod
     restart: unless-stopped
     environment:
-      POSTGRES_DB: restauranthub_prod
+      POSTGRES_DB: restopapa_prod
       POSTGRES_USER: prod_user
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -210,7 +210,7 @@ services:
       - postgres-data-prod:/var/lib/postgresql/data
       - ./backups:/backups
     networks:
-      - restauranthub-prod
+      - restopapa-prod
     command: >
       postgres
       -c shared_preload_libraries=pg_stat_statements
@@ -226,7 +226,7 @@ services:
       -c random_page_cost=1.1
       -c effective_io_concurrency=200
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prod_user -d restauranthub_prod"]
+      test: ["CMD-SHELL", "pg_isready -U prod_user -d restopapa_prod"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -234,7 +234,7 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: restauranthub-redis-prod
+    container_name: restopapa-redis-prod
     restart: unless-stopped
     command: >
       redis-server
@@ -248,7 +248,7 @@ services:
     volumes:
       - redis-data-prod:/data
     networks:
-      - restauranthub-prod
+      - restopapa-prod
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
@@ -258,7 +258,7 @@ services:
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: restauranthub-nginx-prod
+    container_name: restopapa-nginx-prod
     restart: unless-stopped
     ports:
       - '80:80'
@@ -271,12 +271,12 @@ services:
     depends_on:
       - api
     networks:
-      - restauranthub-prod
+      - restopapa-prod
 
   # Monitoring (optional)
   prometheus:
     image: prom/prometheus:latest
-    container_name: restauranthub-prometheus-prod
+    container_name: restopapa-prometheus-prod
     restart: unless-stopped
     ports:
       - '127.0.0.1:9090:9090'  # Internal only
@@ -289,12 +289,12 @@ services:
       - '--storage.tsdb.retention.time=90d'
       - '--web.enable-lifecycle'
     networks:
-      - restauranthub-prod
+      - restopapa-prod
 
   # Log Management
   loki:
     image: grafana/loki:latest
-    container_name: restauranthub-loki-prod
+    container_name: restopapa-loki-prod
     restart: unless-stopped
     ports:
       - '127.0.0.1:3100:3100'
@@ -302,10 +302,10 @@ services:
       - ./monitoring/loki.yml:/etc/loki/local-config.yaml
       - loki-data-prod:/loki
     networks:
-      - restauranthub-prod
+      - restopapa-prod
 
 networks:
-  restauranthub-prod:
+  restopapa-prod:
     driver: bridge
     ipam:
       config:
@@ -382,12 +382,12 @@ services:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: restauranthub-prod
+  name: restopapa-prod
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: restauranthub-staging
+  name: restopapa-staging
 ```
 
 **2. Secrets:**
@@ -396,11 +396,11 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: restauranthub-secrets
-  namespace: restauranthub-prod
+  name: restopapa-secrets
+  namespace: restopapa-prod
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://user:pass@postgres:5432/restauranthub_prod"
+  DATABASE_URL: "postgresql://user:pass@postgres:5432/restopapa_prod"
   JWT_SECRET: "your-jwt-secret"
   REDIS_PASSWORD: "your-redis-password"
   # Add all sensitive environment variables
@@ -412,8 +412,8 @@ stringData:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: restauranthub-config
-  namespace: restauranthub-prod
+  name: restopapa-config
+  namespace: restopapa-prod
 data:
   NODE_ENV: "production"
   API_PORT: "3000"
@@ -427,36 +427,36 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restauranthub-api
-  namespace: restauranthub-prod
+  name: restopapa-api
+  namespace: restopapa-prod
   labels:
-    app: restauranthub-api
+    app: restopapa-api
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: restauranthub-api
+      app: restopapa-api
   template:
     metadata:
       labels:
-        app: restauranthub-api
+        app: restopapa-api
     spec:
       containers:
       - name: api
-        image: your-registry/restauranthub-api:latest
+        image: your-registry/restopapa-api:latest
         ports:
         - containerPort: 3000
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: restauranthub-secrets
+              name: restopapa-secrets
               key: DATABASE_URL
         envFrom:
         - configMapRef:
-            name: restauranthub-config
+            name: restopapa-config
         - secretRef:
-            name: restauranthub-secrets
+            name: restopapa-secrets
         resources:
           requests:
             memory: "512Mi"
@@ -491,11 +491,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: restauranthub-api-service
-  namespace: restauranthub-prod
+  name: restopapa-api-service
+  namespace: restopapa-prod
 spec:
   selector:
-    app: restauranthub-api
+    app: restopapa-api
   ports:
   - protocol: TCP
     port: 80
@@ -509,8 +509,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: restauranthub-ingress
-  namespace: restauranthub-prod
+  name: restopapa-ingress
+  namespace: restopapa-prod
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rate-limit: "100"
@@ -518,17 +518,17 @@ metadata:
 spec:
   tls:
   - hosts:
-    - api.restauranthub.com
-    secretName: restauranthub-tls
+    - api.restopapa.com
+    secretName: restopapa-tls
   rules:
-  - host: api.restauranthub.com
+  - host: api.restopapa.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: restauranthub-api-service
+            name: restopapa-api-service
             port:
               number: 80
 ```
@@ -540,15 +540,15 @@ spec:
 kubectl apply -f k8s/
 
 # Check deployment status
-kubectl get pods -n restauranthub-prod
-kubectl get services -n restauranthub-prod
-kubectl get ingress -n restauranthub-prod
+kubectl get pods -n restopapa-prod
+kubectl get services -n restopapa-prod
+kubectl get ingress -n restopapa-prod
 
 # Check logs
-kubectl logs -f deployment/restauranthub-api -n restauranthub-prod
+kubectl logs -f deployment/restopapa-api -n restopapa-prod
 
 # Scale deployment
-kubectl scale deployment/restauranthub-api --replicas=5 -n restauranthub-prod
+kubectl scale deployment/restopapa-api --replicas=5 -n restopapa-prod
 ```
 
 ## ☁️ Cloud Deployment
@@ -560,7 +560,7 @@ kubectl scale deployment/restauranthub-api --replicas=5 -n restauranthub-prod
 Create `task-definition.json`:
 ```json
 {
-  "family": "restauranthub-api",
+  "family": "restopapa-api",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
@@ -569,8 +569,8 @@ Create `task-definition.json`:
   "taskRoleArn": "arn:aws:iam::account:role/ecsTaskRole",
   "containerDefinitions": [
     {
-      "name": "restauranthub-api",
-      "image": "your-ecr-repo/restauranthub-api:latest",
+      "name": "restopapa-api",
+      "image": "your-ecr-repo/restopapa-api:latest",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -590,7 +590,7 @@ Create `task-definition.json`:
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/restauranthub-api",
+          "awslogs-group": "/ecs/restopapa-api",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -614,8 +614,8 @@ aws ecs register-task-definition --cli-input-json file://task-definition.json
 # Create service
 aws ecs create-service \
   --cluster production-cluster \
-  --service-name restauranthub-api \
-  --task-definition restauranthub-api:1 \
+  --service-name restopapa-api \
+  --task-definition restopapa-api:1 \
   --desired-count 3 \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={subnets=[subnet-xxx,subnet-yyy],securityGroups=[sg-xxx],assignPublicIp=ENABLED}"
@@ -625,13 +625,13 @@ aws ecs create-service \
 ```bash
 # Create ALB
 aws elbv2 create-load-balancer \
-  --name restauranthub-alb \
+  --name restopapa-alb \
   --subnets subnet-xxx subnet-yyy \
   --security-groups sg-xxx
 
 # Create target group
 aws elbv2 create-target-group \
-  --name restauranthub-targets \
+  --name restopapa-targets \
   --protocol HTTP \
   --port 3000 \
   --vpc-id vpc-xxx \
@@ -644,12 +644,12 @@ aws elbv2 create-target-group \
 **1. Cloud Run Deployment:**
 ```bash
 # Build and push to GCR
-docker build -t gcr.io/PROJECT-ID/restauranthub-api .
-docker push gcr.io/PROJECT-ID/restauranthub-api
+docker build -t gcr.io/PROJECT-ID/restopapa-api .
+docker push gcr.io/PROJECT-ID/restopapa-api
 
 # Deploy to Cloud Run
-gcloud run deploy restauranthub-api \
-  --image gcr.io/PROJECT-ID/restauranthub-api \
+gcloud run deploy restopapa-api \
+  --image gcr.io/PROJECT-ID/restopapa-api \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
@@ -663,7 +663,7 @@ gcloud run deploy restauranthub-api \
 **2. Cloud SQL & Redis:**
 ```bash
 # Create Cloud SQL instance
-gcloud sql instances create restauranthub-db \
+gcloud sql instances create restopapa-db \
   --database-version POSTGRES_13 \
   --tier db-n1-standard-2 \
   --region us-central1 \
@@ -671,7 +671,7 @@ gcloud sql instances create restauranthub-db \
   --storage-type SSD
 
 # Create Redis instance
-gcloud redis instances create restauranthub-cache \
+gcloud redis instances create restopapa-cache \
   --size 4 \
   --region us-central1 \
   --redis-version redis_6_x
@@ -682,13 +682,13 @@ gcloud redis instances create restauranthub-cache \
 **1. Container Instances:**
 ```bash
 # Create resource group
-az group create --name restauranthub-prod --location eastus
+az group create --name restopapa-prod --location eastus
 
 # Create container instance
 az container create \
-  --resource-group restauranthub-prod \
-  --name restauranthub-api \
-  --image your-registry/restauranthub-api:latest \
+  --resource-group restopapa-prod \
+  --name restopapa-api \
+  --image your-registry/restopapa-api:latest \
   --cpu 2 \
   --memory 4 \
   --restart-policy Always \
@@ -701,8 +701,8 @@ az container create \
 ```bash
 # Create PostgreSQL
 az postgres flexible-server create \
-  --resource-group restauranthub-prod \
-  --name restauranthub-db \
+  --resource-group restopapa-prod \
+  --name restopapa-db \
   --admin-user dbadmin \
   --admin-password SecurePassword123! \
   --sku-name Standard_D2s_v3 \
@@ -711,8 +711,8 @@ az postgres flexible-server create \
 
 # Create Redis
 az redis create \
-  --resource-group restauranthub-prod \
-  --name restauranthub-cache \
+  --resource-group restopapa-prod \
+  --name restopapa-cache \
   --location eastus \
   --sku Standard \
   --vm-size C1
@@ -730,7 +730,7 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'restauranthub-api'
+  - job_name: 'restopapa-api'
     static_configs:
       - targets: ['api:3000']
     metrics_path: '/monitoring/metrics'
@@ -832,14 +832,14 @@ if (process.env.SENTRY_DSN) {
 **1. Database Backup Cron:**
 ```bash
 # Add to crontab
-0 2 * * * /path/to/restauranthub/scripts/backup-database.sh
-0 12 * * * /path/to/restauranthub/scripts/backup-database.sh
+0 2 * * * /path/to/restopapa/scripts/backup-database.sh
+0 12 * * * /path/to/restopapa/scripts/backup-database.sh
 ```
 
 **2. S3 Backup Configuration:**
 ```bash
 # Environment variables for backup script
-BACKUP_S3_BUCKET=restauranthub-backups-prod
+BACKUP_S3_BUCKET=restopapa-backups-prod
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
 RETENTION_DAYS=30
@@ -862,7 +862,7 @@ terraform apply -var="environment=disaster-recovery"
 aws route53 change-resource-record-sets --hosted-zone-id Z123 --change-batch file://dns-failover.json
 
 # 4. Verify application health
-curl -f https://api.restauranthub.com/health
+curl -f https://api.restopapa.com/health
 ```
 
 ### Backup Testing
@@ -952,7 +952,7 @@ secrets:
 **2. Using Vault:**
 ```bash
 # Install Vault
-vault kv put secret/restauranthub \
+vault kv put secret/restopapa \
   database_password=secure_password \
   jwt_secret=secure_jwt_secret
 ```
@@ -988,7 +988,7 @@ SELECT pg_reload_conf();
 // ecosystem.config.js
 module.exports = {
   apps: [{
-    name: 'restauranthub-api',
+    name: 'restopapa-api',
     script: './dist/main.js',
     instances: 'max',
     exec_mode: 'cluster',
@@ -1012,7 +1012,7 @@ save 60 10000
 **1. CloudFlare Setup:**
 ```bash
 # DNS records for CDN
-api.restauranthub.com CNAME your-origin-server
+api.restopapa.com CNAME your-origin-server
 ```
 
 **2. Cache Headers:**
@@ -1048,10 +1048,10 @@ docker-compose -f docker-compose.prod.yml exec api npm run db:status
 docker-compose -f docker-compose.prod.yml exec api ps aux
 
 # Monitor resource usage
-docker stats restauranthub-api-prod
+docker stats restopapa-api-prod
 
 # Check slow queries
-docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restauranthub_prod -c "SELECT query, calls, mean_time FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;"
+docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restopapa_prod -c "SELECT query, calls, mean_time FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;"
 ```
 
 **3. Memory Issues:**
@@ -1072,10 +1072,10 @@ NODE_OPTIONS="--max-old-space-size=2048" npm run start:prod
 docker-compose -f docker-compose.prod.yml exec api pg_isready -h postgres -U prod_user
 
 # Check connection pool
-docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restauranthub_prod -c "SELECT count(*) FROM pg_stat_activity;"
+docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restopapa_prod -c "SELECT count(*) FROM pg_stat_activity;"
 
 # Check locks
-docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restauranthub_prod -c "SELECT * FROM pg_locks WHERE granted = false;"
+docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restopapa_prod -c "SELECT * FROM pg_locks WHERE granted = false;"
 ```
 
 ### Performance Monitoring
@@ -1083,10 +1083,10 @@ docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d res
 **1. Application Metrics:**
 ```bash
 # API response times
-curl -w "@curl-format.txt" -s -o /dev/null https://api.restauranthub.com/health
+curl -w "@curl-format.txt" -s -o /dev/null https://api.restopapa.com/health
 
 # Database performance
-docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restauranthub_prod -c "SELECT schemaname,tablename,attname,n_distinct,correlation FROM pg_stats WHERE tablename = 'User';"
+docker-compose -f docker-compose.prod.yml exec postgres psql -U prod_user -d restopapa_prod -c "SELECT schemaname,tablename,attname,n_distinct,correlation FROM pg_stats WHERE tablename = 'User';"
 ```
 
 **2. Log Analysis:**
@@ -1106,7 +1106,7 @@ grep "SECURITY" logs/security.log | tail -20
 **1. Application Rollback:**
 ```bash
 # Rollback to previous version
-docker tag your-registry/restauranthub-api:v1.2.0 your-registry/restauranthub-api:latest
+docker tag your-registry/restopapa-api:v1.2.0 your-registry/restopapa-api:latest
 docker-compose -f docker-compose.prod.yml up -d api
 
 # Database migration rollback
@@ -1139,10 +1139,10 @@ docker-compose -f docker-compose.green.yml up -d
 
 ### Emergency Contacts
 
-- **On-call Engineer**: ops@restauranthub.com
-- **Database Admin**: dba@restauranthub.com
-- **Security Team**: security@restauranthub.com
-- **Slack Channel**: #restauranthub-ops
+- **On-call Engineer**: ops@restopapa.com
+- **Database Admin**: dba@restopapa.com
+- **Security Team**: security@restopapa.com
+- **Slack Channel**: #restopapa-ops
 
 ---
 

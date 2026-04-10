@@ -1,8 +1,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "RestaurantHub - System Overview",
-    "tags": ["restauranthub", "microservices", "overview"],
+    "title": "RestoPapa - System Overview",
+    "tags": ["restopapa", "microservices", "overview"],
     "style": "dark",
     "timezone": "browser",
     "refresh": "30s",
@@ -181,8 +181,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "RestaurantHub - Microservices Detail",
-    "tags": ["restauranthub", "microservices", "detail"],
+    "title": "RestoPapa - Microservices Detail",
+    "tags": ["restopapa", "microservices", "detail"],
     "style": "dark",
     "timezone": "browser",
     "refresh": "30s",
@@ -276,8 +276,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "RestaurantHub - Business Metrics",
-    "tags": ["restauranthub", "business", "kpi"],
+    "title": "RestoPapa - Business Metrics",
+    "tags": ["restopapa", "business", "kpi"],
     "style": "dark",
     "timezone": "browser",
     "refresh": "5m",

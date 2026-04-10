@@ -4,7 +4,7 @@
  * New Relic agent configuration.
  */
 exports.config = {
-  app_name: ['RestaurantHub'],
+  app_name: ['RestoPapa'],
   license_key: process.env.NEW_RELIC_LICENSE_KEY || 'your-license-key-here',
   allow_all_headers: true,
   attributes: {

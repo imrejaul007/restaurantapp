@@ -53,7 +53,7 @@ export class EmailService {
     private prisma: PrismaService,
     // @InjectQueue('email') private emailQueue: Queue, // Temporarily disabled
   ) {
-    this.fromAddress = this.configService.get('EMAIL_FROM', 'RestaurantHub <noreply@restauranthub.com>');
+    this.fromAddress = this.configService.get('EMAIL_FROM', 'RestoPapa <noreply@restopapa.com>');
     this.setupTransporter();
   }
 
@@ -235,13 +235,13 @@ export class EmailService {
     const { userName, userRole, loginUrl } = data;
     
     return {
-      subject: `Welcome to RestaurantHub, ${userName}!`,
+      subject: `Welcome to RestoPapa, ${userName}!`,
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
-          <title>Welcome to RestaurantHub</title>
+          <title>Welcome to RestoPapa</title>
           <style>
             .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
             .header { background: #2563eb; color: white; padding: 20px; text-align: center; }
@@ -253,11 +253,11 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Welcome to RestaurantHub!</h1>
+              <h1>Welcome to RestoPapa!</h1>
             </div>
             <div class="content">
               <h2>Hello ${userName},</h2>
-              <p>Welcome to RestaurantHub - the complete platform for restaurant success!</p>
+              <p>Welcome to RestoPapa - the complete platform for restaurant success!</p>
               <p>Your ${userRole} account has been created successfully. You now have access to:</p>
               <ul>
                 ${this.getRoleFeatures(userRole)}
@@ -265,10 +265,10 @@ export class EmailService {
               <p>Get started by logging into your account:</p>
               <p><a href="${loginUrl}" class="button">Login to Your Account</a></p>
               <p>If you have any questions, our support team is here to help.</p>
-              <p>Best regards,<br>The RestaurantHub Team</p>
+              <p>Best regards,<br>The RestoPapa Team</p>
             </div>
             <div class="footer">
-              <p>© 2024 RestaurantHub. All rights reserved.</p>
+              <p>© 2024 RestoPapa. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -281,7 +281,7 @@ export class EmailService {
     const { userName, verificationUrl } = data;
     
     return {
-      subject: 'Verify Your Email Address - RestaurantHub',
+      subject: 'Verify Your Email Address - RestoPapa',
       html: `
         <!DOCTYPE html>
         <html>
@@ -308,7 +308,7 @@ export class EmailService {
     const { userName, resetUrl } = data;
     
     return {
-      subject: 'Reset Your Password - RestaurantHub',
+      subject: 'Reset Your Password - RestoPapa',
       html: `
         <!DOCTYPE html>
         <html>
@@ -335,7 +335,7 @@ export class EmailService {
     const { userName, orderId, orderTotal, items, deliveryAddress, estimatedTime } = data;
     
     return {
-      subject: `Order Confirmation #${orderId} - RestaurantHub`,
+      subject: `Order Confirmation #${orderId} - RestoPapa`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -414,7 +414,7 @@ export class EmailService {
               <p>Your payment of <strong>₹${amount}</strong> has been processed successfully.</p>
               <p>Payment ID: ${paymentId}</p>
               ${orderId ? `<p>Order ID: ${orderId}</p>` : ''}
-              <p>Thank you for using RestaurantHub!</p>
+              <p>Thank you for using RestoPapa!</p>
             </div>
           </div>
         </body>

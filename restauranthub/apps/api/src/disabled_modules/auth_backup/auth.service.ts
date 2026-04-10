@@ -553,7 +553,7 @@ export class AuthService {
         templateData: {
           firstName,
           verificationUrl,
-          supportEmail: 'support@restauranthub.com',
+          supportEmail: 'support@restopapa.com',
         },
       });
       
@@ -575,7 +575,7 @@ export class AuthService {
           firstName,
           resetUrl,
           expiryTime: '1 hour',
-          supportEmail: 'support@restauranthub.com',
+          supportEmail: 'support@restopapa.com',
         },
       });
 

@@ -9,7 +9,7 @@ import { RezMerchantStrategy } from './rez-merchant.strategy';
 /**
  * RezBridgeModule
  *
- * Registers the REZ-to-RestaurantHub identity bridge.
+ * Registers the REZ-to-RestoPapa identity bridge.
  * Import this module in AppModule alongside the existing AuthModule —
  * it does not modify or replace any existing auth behaviour.
  *

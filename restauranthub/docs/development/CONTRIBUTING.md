@@ -1,6 +1,6 @@
-# Contributing to RestaurantHub
+# Contributing to RestoPapa
 
-Thank you for your interest in contributing to RestaurantHub! This guide will help you get started with contributing to our restaurant management and job marketplace platform.
+Thank you for your interest in contributing to RestoPapa! This guide will help you get started with contributing to our restaurant management and job marketplace platform.
 
 ## 🤝 Code of Conduct
 
@@ -23,8 +23,8 @@ Before contributing, ensure you have:
 1. **Fork the repository**
    ```bash
    # Fork on GitHub, then clone your fork
-   git clone https://github.com/your-username/restauranthub.git
-   cd restauranthub
+   git clone https://github.com/your-username/restopapa.git
+   cd restopapa
    ```
 
 2. **Set up your development environment**
@@ -66,7 +66,7 @@ We welcome various types of contributions:
 ### Contribution Workflow
 
 1. **Check existing issues**
-   - Look through [GitHub Issues](https://github.com/yourusername/restauranthub/issues)
+   - Look through [GitHub Issues](https://github.com/yourusername/restopapa/issues)
    - Check if your bug/feature is already reported
    - Comment on relevant issues to avoid duplicate work
 
@@ -396,10 +396,10 @@ lsof -ti:3001 | xargs kill -9
 **Test Database Setup**
 ```bash
 # Create test database
-createdb restauranthub_test
+createdb restopapa_test
 
 # Run migrations for test DB
-DATABASE_URL="postgresql://localhost:5432/restauranthub_test" npm run db:migrate
+DATABASE_URL="postgresql://localhost:5432/restopapa_test" npm run db:migrate
 ```
 
 ## 📋 Checklist for Contributors
@@ -465,7 +465,7 @@ Contributors are recognized in:
 
 - **GitHub Issues**: For bug reports and feature requests
 - **GitHub Discussions**: For questions and general discussion
-- **Email**: development@restauranthub.com for sensitive issues
+- **Email**: development@restopapa.com for sensitive issues
 
 ### Development Support
 
@@ -489,4 +489,4 @@ Contributors are recognized in:
 
 ---
 
-Thank you for contributing to RestaurantHub! Your efforts help make the restaurant industry more connected and efficient. 🍽️✨
+Thank you for contributing to RestoPapa! Your efforts help make the restaurant industry more connected and efficient. 🍽️✨

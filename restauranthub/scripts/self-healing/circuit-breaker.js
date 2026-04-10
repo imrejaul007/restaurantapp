@@ -1,5 +1,5 @@
 /**
- * RestaurantHub Circuit Breaker Implementation
+ * RestoPapa Circuit Breaker Implementation
  * AI Sentry - Intelligent Failure Detection and Prevention
  */
 

@@ -131,11 +131,11 @@ function fixSyntaxErrors(filePath) {
 
 // Fix the specific files mentioned in the error
 const filesToFix = [
-  '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/components/checkout/delivery-slot-selector.tsx',
-  '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/components/profiles/restaurant-profile.tsx',
-  '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/components/reviews/review-system.tsx',
-  '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/change-password/page.tsx',
-  '/Users/rejaulkarim/Documents/Resturistan App/restauranthub/apps/web/app/auth/forgot-password/page.tsx'
+  '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/components/checkout/delivery-slot-selector.tsx',
+  '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/components/profiles/restaurant-profile.tsx',
+  '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/components/reviews/review-system.tsx',
+  '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/change-password/page.tsx',
+  '/Users/rejaulkarim/Documents/Resturistan App/restopapa/apps/web/app/auth/forgot-password/page.tsx'
 ];
 
 let fixedCount = 0;

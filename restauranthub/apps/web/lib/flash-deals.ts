@@ -45,7 +45,7 @@ export interface TimeRemaining {
   expired: boolean;
 }
 
-const FLASH_DEALS_STORAGE_KEY = 'restauranthub_flash_deals';
+const FLASH_DEALS_STORAGE_KEY = 'restopapa_flash_deals';
 const DEALS_REFRESH_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
 
 export class FlashDealsManager {

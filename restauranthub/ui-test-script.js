@@ -62,7 +62,7 @@ function testUrl(url, name) {
 }
 
 async function runTests() {
-  console.log('🧪 Starting UI/UX Testing for RestaurantHub');
+  console.log('🧪 Starting UI/UX Testing for RestoPapa');
   console.log('=' * 50);
 
   for (const page of testPages) {

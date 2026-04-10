@@ -35,7 +35,7 @@ export interface NotificationData {
   createdAt: string;
 }
 
-export class RestaurantHubSocketClient extends EventEmitter {
+export class RestoPapaSocketClient extends EventEmitter {
   private socket: Socket | null = null;
   private config: Required<SocketClientConfig>;
   private reconnectTimer: NodeJS.Timeout | null = null;
@@ -337,14 +337,14 @@ export class RestaurantHubSocketClient extends EventEmitter {
 }
 
 // Default socket client instance
-export let socketClient: RestaurantHubSocketClient;
+export let socketClient: RestoPapaSocketClient;
 
-export function createSocketClient(config: SocketClientConfig): RestaurantHubSocketClient {
-  socketClient = new RestaurantHubSocketClient(config);
+export function createSocketClient(config: SocketClientConfig): RestoPapaSocketClient {
+  socketClient = new RestoPapaSocketClient(config);
   return socketClient;
 }
 
-export function getSocketClient(): RestaurantHubSocketClient {
+export function getSocketClient(): RestoPapaSocketClient {
   if (!socketClient) {
     throw new Error('Socket client not initialized. Call createSocketClient() first.');
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@restauranthub/auth-service",
+  "name": "@restopapa/auth-service",
   "version": "1.0.0",
   "description": "Authentication and Authorization Microservice",
   "main": "dist/main.js",

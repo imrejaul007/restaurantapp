@@ -24,7 +24,7 @@ module.exports = async function globalSetup() {
 
   // Real database setup (if needed)
   const testDatabaseUrl = process.env.DATABASE_URL_TEST ||
-    'postgresql://test:test@localhost:5432/restauranthub_test?schema=public';
+    'postgresql://test:test@localhost:5432/restopapa_test?schema=public';
 
   process.env.DATABASE_URL = testDatabaseUrl;
 

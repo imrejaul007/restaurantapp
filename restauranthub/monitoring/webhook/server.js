@@ -124,13 +124,13 @@ const sendSlackNotification = async (webhook, payload) => {
                 payload.alerts?.some(a => a.labels?.severity === 'critical') ? 'danger' : 'warning';
 
   const slackPayload = {
-    username: 'RestaurantHub Monitoring',
+    username: 'RestoPapa Monitoring',
     icon_emoji: ':rotating_light:',
     attachments: [{
       color: color,
       title: `${status === 'resolved' ? '✅ Resolved' : '🔔 Alert'}: ${groupLabels.alertname || 'Multiple Alerts'}`,
       fields: fields,
-      footer: 'RestaurantHub AI Sentry',
+      footer: 'RestoPapa AI Sentry',
       ts: Math.floor(Date.now() / 1000)
     }]
   };
@@ -170,12 +170,12 @@ const sendDiscordNotification = async (webhook, payload) => {
         { name: 'Description', value: formatted.description, inline: false }
       ],
       timestamp: new Date().toISOString(),
-      footer: { text: 'RestaurantHub AI Sentry' }
+      footer: { text: 'RestoPapa AI Sentry' }
     };
   });
 
   const discordPayload = {
-    username: 'RestaurantHub Monitoring',
+    username: 'RestoPapa Monitoring',
     avatar_url: 'https://example.com/monitoring-avatar.png',
     embeds: embeds
   };
@@ -216,10 +216,10 @@ const sendTeamsNotification = async (webhook, payload) => {
   const teamsPayload = {
     '@type': 'MessageCard',
     '@context': 'http://schema.org/extensions',
-    summary: `RestaurantHub Alert: ${groupLabels.alertname || 'Multiple Alerts'}`,
+    summary: `RestoPapa Alert: ${groupLabels.alertname || 'Multiple Alerts'}`,
     themeColor: themeColor,
     sections: [{
-      activityTitle: `${status === 'resolved' ? '✅ Resolved' : '🔔 Alert'}: RestaurantHub Monitoring`,
+      activityTitle: `${status === 'resolved' ? '✅ Resolved' : '🔔 Alert'}: RestoPapa Monitoring`,
       activitySubtitle: `${groupLabels.alertname || 'Multiple Alerts'}`,
       facts: facts
     }]
@@ -255,7 +255,7 @@ const sendTelegramNotification = async (chatId, payload) => {
     message += `📊 Severity: ${formatted.severity}\\n\\n`;
   });
 
-  message += `🤖 *RestaurantHub AI Sentry*`;
+  message += `🤖 *RestoPapa AI Sentry*`;
 
   try {
     await telegramBot.sendMessage(chatId, message, { parse_mode: 'Markdown' });

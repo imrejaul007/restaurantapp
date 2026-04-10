@@ -29,7 +29,7 @@ export const options = {
   // Test data
   env: {
     BASE_URL: __ENV.BASE_URL || 'http://localhost:3000',
-    ADMIN_EMAIL: __ENV.ADMIN_EMAIL || 'admin@restauranthub.com',
+    ADMIN_EMAIL: __ENV.ADMIN_EMAIL || 'admin@restopapa.com',
     ADMIN_PASSWORD: __ENV.ADMIN_PASSWORD || 'Password123',
   }
 };
@@ -267,7 +267,7 @@ export default function () {
 
 // Setup function - runs once per VU
 export function setup() {
-  console.log('Starting RestaurantHub performance test...');
+  console.log('Starting RestoPapa performance test...');
   console.log(`Target URL: ${baseUrl}`);
   console.log(`Test duration: ~20 minutes`);
 

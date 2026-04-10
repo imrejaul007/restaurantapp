@@ -7,7 +7,7 @@ export const mockData = {
     // Admins
     {
       id: 'mock-admin-1',
-      email: 'admin@restauranthub.com',
+      email: 'admin@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$znHIcmZ7b20WlnEEnZDKyA$EqSxJWXwFBlH9ZnqfCrEU71gTiG81vX8TJPGruzlMao', // Password: Password123
       phone: '+1234567890',
       role: 'ADMIN',
@@ -18,7 +18,7 @@ export const mockData = {
     },
     {
       id: 'mock-admin-2',
-      email: 'admin2@restauranthub.com',
+      email: 'admin2@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567800',
       role: 'ADMIN',
@@ -30,7 +30,7 @@ export const mockData = {
     // Restaurant Owners
     {
       id: 'mock-restaurant-1',
-      email: 'restaurant@restauranthub.com',
+      email: 'restaurant@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$znHIcmZ7b20WlnEEnZDKyA$EqSxJWXwFBlH9ZnqfCrEU71gTiG81vX8TJPGruzlMao', // Password: Password123
       phone: '+1234567891',
       role: 'RESTAURANT',
@@ -41,7 +41,7 @@ export const mockData = {
     },
     {
       id: 'mock-restaurant-2',
-      email: 'restaurant2@restauranthub.com',
+      email: 'restaurant2@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567801',
       role: 'RESTAURANT',
@@ -52,7 +52,7 @@ export const mockData = {
     },
     {
       id: 'mock-restaurant-3',
-      email: 'restaurant3@restauranthub.com',
+      email: 'restaurant3@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567802',
       role: 'RESTAURANT',
@@ -64,7 +64,7 @@ export const mockData = {
     // Vendors
     {
       id: 'mock-vendor-1',
-      email: 'vendor@restauranthub.com',
+      email: 'vendor@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$znHIcmZ7b20WlnEEnZDKyA$EqSxJWXwFBlH9ZnqfCrEU71gTiG81vX8TJPGruzlMao', // Password: Password123
       phone: '+1234567892',
       role: 'VENDOR',
@@ -75,7 +75,7 @@ export const mockData = {
     },
     {
       id: 'mock-vendor-2',
-      email: 'vendor2@restauranthub.com',
+      email: 'vendor2@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567803',
       role: 'VENDOR',
@@ -86,7 +86,7 @@ export const mockData = {
     },
     {
       id: 'mock-vendor-3',
-      email: 'vendor3@restauranthub.com',
+      email: 'vendor3@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567804',
       role: 'VENDOR',
@@ -98,7 +98,7 @@ export const mockData = {
     // Employees
     {
       id: 'mock-employee-1',
-      email: 'employee@restauranthub.com',
+      email: 'employee@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$znHIcmZ7b20WlnEEnZDKyA$EqSxJWXwFBlH9ZnqfCrEU71gTiG81vX8TJPGruzlMao', // Password: Password123
       phone: '+1234567893',
       role: 'EMPLOYEE',
@@ -109,7 +109,7 @@ export const mockData = {
     },
     {
       id: 'mock-employee-2',
-      email: 'employee2@restauranthub.com',
+      email: 'employee2@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567805',
       role: 'EMPLOYEE',
@@ -120,7 +120,7 @@ export const mockData = {
     },
     {
       id: 'mock-employee-3',
-      email: 'employee3@restauranthub.com',
+      email: 'employee3@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567806',
       role: 'EMPLOYEE',
@@ -131,7 +131,7 @@ export const mockData = {
     },
     {
       id: 'mock-employee-4',
-      email: 'employee4@restauranthub.com',
+      email: 'employee4@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567807',
       role: 'EMPLOYEE',
@@ -143,7 +143,7 @@ export const mockData = {
     // Customers
     {
       id: 'mock-customer-1',
-      email: 'customer@restauranthub.com',
+      email: 'customer@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$znHIcmZ7b20WlnEEnZDKyA$EqSxJWXwFBlH9ZnqfCrEU71gTiG81vX8TJPGruzlMao', // Password: Password123
       phone: '+1234567894',
       role: 'CUSTOMER',
@@ -154,7 +154,7 @@ export const mockData = {
     },
     {
       id: 'mock-customer-2',
-      email: 'customer2@restauranthub.com',
+      email: 'customer2@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567808',
       role: 'CUSTOMER',
@@ -165,7 +165,7 @@ export const mockData = {
     },
     {
       id: 'mock-customer-3',
-      email: 'customer3@restauranthub.com',
+      email: 'customer3@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567809',
       role: 'CUSTOMER',
@@ -176,7 +176,7 @@ export const mockData = {
     },
     {
       id: 'mock-customer-4',
-      email: 'customer4@restauranthub.com',
+      email: 'customer4@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567810',
       role: 'CUSTOMER',
@@ -187,7 +187,7 @@ export const mockData = {
     },
     {
       id: 'mock-customer-5',
-      email: 'customer5@restauranthub.com',
+      email: 'customer5@restopapa.com',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$wbSoSWLB6mCuhAbTBD8pWQ$s6pR2pF0uGKJzbYMksYSV+D4lHMyuHo+PRFwNsHEbv0',
       phone: '+1234567811',
       role: 'CUSTOMER',

@@ -37,7 +37,7 @@ async function bootstrap() {
   const baseUrl = `http://${host}:${port}`;
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
 
-  console.log(`🚀 RestaurantHub API (Minimal) is running!`);
+  console.log(`🚀 RestoPapa API (Minimal) is running!`);
   console.log(`📊 API Endpoint: ${baseUrl}/${apiPrefix}`);
   console.log(`🔧 Health Check: ${baseUrl}/${apiPrefix}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);

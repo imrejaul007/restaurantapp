@@ -363,9 +363,9 @@ async function bootstrap() {
 
   // Enhanced Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('RestaurantHub API')
+    .setTitle('RestoPapa API')
     .setDescription(`
-      The RestaurantHub API - Complete B2B/B2C SaaS platform for the restaurant industry.
+      The RestoPapa API - Complete B2B/B2C SaaS platform for the restaurant industry.
       
       Features:
       - Multi-role authentication (Admin, Restaurant, Vendor, Employee, Customer)
@@ -377,7 +377,7 @@ async function bootstrap() {
       - Analytics and reporting
       - Training and certification system
       
-      For support, contact: support@restauranthub.com
+      For support, contact: support@restopapa.com
     `)
     .setVersion('1.0')
     .addBearerAuth(
@@ -401,7 +401,7 @@ async function bootstrap() {
       'api-key',
     )
     .addServer('http://localhost:3000/api/v1', 'Development server')
-    .addServer('https://api.restauranthub.com/api/v1', 'Production server')
+    .addServer('https://api.restopapa.com/api/v1', 'Production server')
     .addTag('auth', 'Authentication and authorization')
     .addTag('users', 'User profile management')
     .addTag('restaurants', 'Restaurant operations and management')
@@ -436,7 +436,7 @@ async function bootstrap() {
       showExtensions: true,
       showCommonExtensions: true,
     },
-    customSiteTitle: 'RestaurantHub API Documentation',
+    customSiteTitle: 'RestoPapa API Documentation',
     customfavIcon: '/favicon.ico',
   });
 
@@ -485,7 +485,7 @@ async function bootstrap() {
   const baseUrl = `http://${host}:${port}`;
   const apiPrefix = appConfigService.get('API_PREFIX', 'api/v1');
   
-  logger.log(`🚀 RestaurantHub API is running!`);
+  logger.log(`🚀 RestoPapa API is running!`);
   logger.log(`📊 API Endpoint: ${baseUrl}/${apiPrefix}`);
   logger.log(`📚 Documentation: ${baseUrl}/docs`);
   logger.log(`🔧 Health Check: ${baseUrl}/${apiPrefix}/health`);

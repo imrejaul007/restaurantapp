@@ -125,7 +125,7 @@ export const options = {
 // Environment configuration
 const config = {
   baseUrl: __ENV.BASE_URL || 'http://localhost:3000',
-  adminEmail: __ENV.ADMIN_EMAIL || 'admin@restauranthub.com',
+  adminEmail: __ENV.ADMIN_EMAIL || 'admin@restopapa.com',
   adminPassword: __ENV.ADMIN_PASSWORD || 'Password123',
   maxRetries: 3,
   retryDelay: 1000,
@@ -687,7 +687,7 @@ function executeBulkOperations(headers) {
 
 // Setup function
 export function setup() {
-  console.log('🚀 Starting RestaurantHub Scalability & Load Testing Suite');
+  console.log('🚀 Starting RestoPapa Scalability & Load Testing Suite');
   console.log(`📊 Target URL: ${config.baseUrl}`);
   console.log(`🔧 Concurrency Level: ${config.concurrencyLevel}`);
   console.log(`⏱️  Total Test Duration: ~3 hours`);
@@ -742,7 +742,7 @@ export function handleSummary(data) {
 
   // Generate detailed HTML report
   summary['performance-report.html'] = htmlReport(data, {
-    title: 'RestaurantHub Scalability & Load Test Report',
+    title: 'RestoPapa Scalability & Load Test Report',
     description: 'Comprehensive performance analysis for 10,000+ concurrent users',
   });
 

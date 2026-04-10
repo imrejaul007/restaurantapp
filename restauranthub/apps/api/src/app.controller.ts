@@ -8,9 +8,9 @@ export class AppController {
   @Get()
   getHello() {
     return {
-      message: 'RestaurantHub API is running!',
+      message: 'RestoPapa API is running!',
       version: '2.0.0',
-      description: 'Enhanced RestaurantHub API with comprehensive mock data',
+      description: 'Enhanced RestoPapa API with comprehensive mock data',
       documentation: {
         endpoints: {
           dashboard: '/api/dashboard/overview - Comprehensive dashboard overview',
@@ -58,7 +58,7 @@ export class AppController {
     return {
       success: true,
       data: {
-        name: 'RestaurantHub Enhanced API',
+        name: 'RestoPapa Enhanced API',
         version: '2.0.0',
         description: 'Comprehensive restaurant industry platform API with rich mock data',
         endpoints: {

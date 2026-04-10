@@ -1,4 +1,4 @@
-# Testing Standards & Guidelines for RestaurantHub
+# Testing Standards & Guidelines for RestoPapa
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@
 
 ## Overview
 
-This document outlines the comprehensive testing standards and guidelines for the RestaurantHub platform. Our testing strategy ensures high code quality, system reliability, and confident deployments across all modules.
+This document outlines the comprehensive testing standards and guidelines for the RestoPapa platform. Our testing strategy ensures high code quality, system reliability, and confident deployments across all modules.
 
 ### Testing Philosophy
 
@@ -622,4 +622,4 @@ npx serve coverage/lcov-report
 npm run test -- --coverage --passWithNoTests
 ```
 
-This comprehensive testing strategy ensures the RestaurantHub platform maintains high quality, reliability, and security standards throughout the development lifecycle.
+This comprehensive testing strategy ensures the RestoPapa platform maintains high quality, reliability, and security standards throughout the development lifecycle.

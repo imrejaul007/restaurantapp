@@ -143,7 +143,7 @@ export class EmailController {
         timestamp: new Date().toISOString(),
         systemInfo: {
           environment: process.env.NODE_ENV,
-          service: 'RestaurantHub API',
+          service: 'RestoPapa API',
         },
       },
     });

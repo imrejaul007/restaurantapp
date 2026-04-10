@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'restauranthub-api',
+      name: 'restopapa-api',
       script: './dist/main.js',
       instances: process.env.PM2_INSTANCES || 'max',
       exec_mode: 'cluster',
@@ -40,8 +40,8 @@ module.exports = {
       user: 'deploy',
       host: ['production-server.com'],
       ref: 'origin/main',
-      repo: 'git@github.com:username/restauranthub.git',
-      path: '/var/www/restauranthub-api',
+      repo: 'git@github.com:username/restopapa.git',
+      path: '/var/www/restopapa-api',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
       'pre-setup': 'apt update && apt install git -y',
     },
@@ -49,8 +49,8 @@ module.exports = {
       user: 'deploy',
       host: ['staging-server.com'],
       ref: 'origin/develop',
-      repo: 'git@github.com:username/restauranthub.git',
-      path: '/var/www/restauranthub-api-staging',
+      repo: 'git@github.com:username/restopapa.git',
+      path: '/var/www/restopapa-api-staging',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env staging',
     },
   },

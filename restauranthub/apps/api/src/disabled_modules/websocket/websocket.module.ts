@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RestaurantHubWebSocketGateway } from './websocket.gateway';
+import { RestoPapaWebSocketGateway } from './websocket.gateway';
 import { WebSocketService } from './websocket.service';
 
 @Module({
@@ -17,7 +17,7 @@ import { WebSocketService } from './websocket.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [RestaurantHubWebSocketGateway, WebSocketService],
+  providers: [RestoPapaWebSocketGateway, WebSocketService],
   exports: [WebSocketService],
 })
 export class WebSocketModule {}

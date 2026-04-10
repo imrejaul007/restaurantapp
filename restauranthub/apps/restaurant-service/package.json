@@ -1,5 +1,5 @@
 {
-  "name": "@restauranthub/restaurant-service",
+  "name": "@restopapa/restaurant-service",
   "version": "1.0.0",
   "description": "Restaurant Management Microservice",
   "main": "dist/main.js",

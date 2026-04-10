@@ -170,7 +170,7 @@ class PerformanceTester {
     console.log('Testing authentication endpoints...');
 
     const authPayload = {
-      email: 'admin@restauranthub.com',
+      email: 'admin@restopapa.com',
       password: 'Password123'
     };
 

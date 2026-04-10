@@ -16,7 +16,7 @@ module.exports = async function globalTeardown() {
     datasources: {
       db: {
         url: process.env.DATABASE_URL_TEST ||
-          'postgresql://test:test@localhost:5432/restauranthub_test?schema=public',
+          'postgresql://test:test@localhost:5432/restopapa_test?schema=public',
       },
     },
   });

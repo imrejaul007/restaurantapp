@@ -65,9 +65,9 @@ app.use(limiter);
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://restauranthub.com',
-  'https://www.restauranthub.com',
-  'https://app.restauranthub.com',
+  'https://restopapa.com',
+  'https://www.restopapa.com',
+  'https://app.restopapa.com',
   process.env.FRONTEND_URL
 ].filter(Boolean); // Remove undefined values
 
@@ -247,7 +247,7 @@ const mockDashboardStats = {
 
 // API Routes
 app.get('/api/v1/health', (req, res) => {
-  res.json({ status: 'OK', message: 'RestaurantHub API is running', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', message: 'RestoPapa API is running', timestamp: new Date().toISOString() });
 });
 
 app.get('/api/v1/restaurants', (req, res) => {
@@ -379,7 +379,7 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 RestaurantHub API Server running on http://localhost:${PORT}`);
+  console.log(`🚀 RestoPapa API Server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/v1/health`);
   console.log(`🍽️  Restaurants: http://localhost:${PORT}/api/v1/restaurants`);
   console.log(`💼 Jobs: http://localhost:${PORT}/api/v1/jobs`);

@@ -85,7 +85,7 @@ export function generateSelfSignedCert(): HttpsConfig {
     { name: 'countryName', value: 'US' },
     { shortName: 'ST', value: 'Development' },
     { name: 'localityName', value: 'Development' },
-    { name: 'organizationName', value: 'RestaurantHub Dev' },
+    { name: 'organizationName', value: 'RestoPapa Dev' },
     { shortName: 'OU', value: 'Development' }
   ];
 

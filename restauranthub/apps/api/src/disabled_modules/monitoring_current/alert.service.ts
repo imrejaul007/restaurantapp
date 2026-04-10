@@ -379,7 +379,7 @@ export class AlertService {
           { title: 'Rule', value: alert.ruleName, short: true },
           { title: 'Alert ID', value: alert.id, short: true },
         ],
-        footer: 'RestaurantHub Monitoring',
+        footer: 'RestoPapa Monitoring',
         ts: Math.floor(alert.timestamp.getTime() / 1000),
       }],
     };
@@ -405,7 +405,7 @@ export class AlertService {
       payload: {
         summary: alert.message,
         severity: alert.severity,
-        source: 'RestaurantHub API',
+        source: 'RestoPapa API',
         component: 'monitoring',
         group: 'platform',
         class: 'performance',

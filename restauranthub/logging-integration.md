@@ -1,8 +1,8 @@
-# RestaurantHub Centralized Logging with ELK Stack
+# RestoPapa Centralized Logging with ELK Stack
 
 ## Overview
 
-The RestaurantHub application now includes comprehensive centralized logging using the ELK (Elasticsearch, Logstash, Kibana) stack with additional monitoring and APM capabilities.
+The RestoPapa application now includes comprehensive centralized logging using the ELK (Elasticsearch, Logstash, Kibana) stack with additional monitoring and APM capabilities.
 
 ## Architecture
 
@@ -89,7 +89,7 @@ Application → Logger → File/Console → Filebeat → Logstash → Elasticsea
 
 1. **Start ELK Stack**
    ```bash
-   cd /Users/rejaulkarim/Documents/Resturistan\ App/restauranthub
+   cd /Users/rejaulkarim/Documents/Resturistan\ App/restopapa
    ./scripts/elk-setup.sh setup
    ```
 
@@ -114,7 +114,7 @@ Application → Logger → File/Console → Filebeat → Logstash → Elasticsea
 3. **Configure Index Patterns**
    - Open Kibana
    - Go to Stack Management → Data Views
-   - Create pattern: `restauranthub-*`
+   - Create pattern: `restopapa-*`
 
 ## Configuration
 
@@ -156,13 +156,13 @@ this.logger.logPerformanceMetric('db_query', 1200, { table: 'users' });
 
 ### Index Patterns
 
-- `restauranthub-application-*` - Application logs
-- `restauranthub-error-*` - Error logs
-- `restauranthub-access-*` - Access logs
-- `restauranthub-database-*` - Database logs
-- `restauranthub-security-*` - Security logs
-- `restauranthub-performance-*` - Performance logs
-- `restauranthub-business-*` - Business logs
+- `restopapa-application-*` - Application logs
+- `restopapa-error-*` - Error logs
+- `restopapa-access-*` - Access logs
+- `restopapa-database-*` - Database logs
+- `restopapa-security-*` - Security logs
+- `restopapa-performance-*` - Performance logs
+- `restopapa-business-*` - Business logs
 
 ### Retention Policy
 
@@ -211,7 +211,7 @@ this.logger.logPerformanceMetric('db_query', 1200, { table: 'users' });
 
 1. **Open Kibana** → http://localhost:5601
 2. **Go to Visualize** → Create new visualization
-3. **Select index pattern**: `restauranthub-*`
+3. **Select index pattern**: `restopapa-*`
 4. **Choose visualization type**: Bar chart, Line chart, etc.
 5. **Configure metrics and buckets**
 6. **Save and add to dashboard**
@@ -410,4 +410,4 @@ this.logger.logPerformanceMetric('user_search', Date.now() - startTime, {
 });
 ```
 
-This comprehensive logging system provides visibility into all aspects of the RestaurantHub application, enabling proactive monitoring, troubleshooting, and optimization.
+This comprehensive logging system provides visibility into all aspects of the RestoPapa application, enabling proactive monitoring, troubleshooting, and optimization.

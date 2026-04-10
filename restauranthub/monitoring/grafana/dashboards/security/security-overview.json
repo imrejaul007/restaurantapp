@@ -12,7 +12,7 @@
       }
     ]
   },
-  "description": "Security Overview Dashboard for RestaurantHub Platform - AI Sentry Security Monitoring",
+  "description": "Security Overview Dashboard for RestoPapa Platform - AI Sentry Security Monitoring",
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
@@ -801,7 +801,7 @@
   "schemaVersion": 27,
   "style": "dark",
   "tags": [
-    "restauranthub",
+    "restopapa",
     "security",
     "monitoring",
     "ai-sentry"
@@ -815,7 +815,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "RestaurantHub - Security Overview",
+  "title": "RestoPapa - Security Overview",
   "uid": "security-overview",
   "version": 1
 }

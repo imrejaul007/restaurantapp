@@ -1,4 +1,4 @@
-// Products and Services Data for RestaurantHub
+// Products and Services Data for RestoPapa
 // 10-15 products per vendor with realistic details
 
 import { allDummyVendors } from './comprehensive-dummy-data';

@@ -1,11 +1,11 @@
-# RestaurantHub Screen-to-Endpoint Mapping
+# RestoPapa Screen-to-Endpoint Mapping
 
 ## Overview
-This document maps every screen/page in the RestaurantHub platform to its corresponding backend API endpoints, showing data flow and navigation paths to ensure no dead-ends in the application.
+This document maps every screen/page in the RestoPapa platform to its corresponding backend API endpoints, showing data flow and navigation paths to ensure no dead-ends in the application.
 
 ## API Base URL
 - Development: `http://localhost:3000/api/v1`
-- Production: `https://api.restauranthub.com/api/v1`
+- Production: `https://api.restopapa.com/api/v1`
 
 ## Authentication Endpoints (All Roles)
 

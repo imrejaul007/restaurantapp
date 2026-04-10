@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RestaurantHubWebSocketGateway } from './websocket.gateway';
+import { RestoPapaWebSocketGateway } from './websocket.gateway';
 
 @Injectable()
 export class WebSocketService {
   private readonly logger = new Logger(WebSocketService.name);
 
-  constructor(private readonly webSocketGateway: RestaurantHubWebSocketGateway) {}
+  constructor(private readonly webSocketGateway: RestoPapaWebSocketGateway) {}
 
   // Notification methods
   async sendNotificationToUser(userId: string, notification: any) {

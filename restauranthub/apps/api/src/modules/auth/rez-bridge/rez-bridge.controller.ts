@@ -2,7 +2,7 @@
  * RezBridgeController — POST /auth/rez-bridge
  *
  * Allows a REZ merchant to exchange their REZ-issued JWT for a
- * RestaurantHub-issued JWT without creating a separate account.
+ * RestoPapa-issued JWT without creating a separate account.
  *
  * Required ENV vars (configure in .env.local or deployment secrets):
  *   REZ_JWT_SECRET       — same value as rezbackend JWT_SECRET
@@ -68,8 +68,8 @@ export class RezBridgeController {
    * Flow:
    *   1. Verify the REZ JWT locally (no network call needed for signature check).
    *   2. Fetch the merchant profile from REZ backend to get merchantId + email.
-   *   3. Upsert a RestaurantHub user linked to this REZ merchant.
-   *   4. Issue a RestaurantHub JWT.
+   *   3. Upsert a RestoPapa user linked to this REZ merchant.
+   *   4. Issue a RestoPapa JWT.
    *   5. Return token + identity + isNewProfile flag.
    */
   @Post('rez-bridge')
@@ -81,11 +81,11 @@ export class RezBridgeController {
     // Step 2 — Fetch merchant profile from REZ (circuit-breaks if unreachable)
     const merchantProfile = await this.fetchRezMerchantProfile(dto.rezToken, rezPayload.userId);
 
-    // Step 3 — Upsert the RestaurantHub user record
+    // Step 3 — Upsert the RestoPapa user record
     const { user, isNewProfile } = await this.upsertUser(rezPayload, merchantProfile);
 
-    // Step 4 — Issue a RestaurantHub JWT
-    const accessToken = this.issueRestaurantHubToken(user.id, user.email, user.role);
+    // Step 4 — Issue a RestoPapa JWT
+    const accessToken = this.issueRestoPapaToken(user.id, user.email, user.role);
 
     // Step 5 — Build and return the response
     const identity: RezMerchantIdentity = {
@@ -95,12 +95,12 @@ export class RezBridgeController {
       email: merchantProfile.email,
       name: merchantProfile.name,
       role: rezPayload.role as 'merchant' | 'merchant_admin',
-      restauranthubUserId: user.id,
+      restopapaUserId: user.id,
       rezVerified: true,
     };
 
     this.logger.log(
-      `RezBridge: merchant ${merchantProfile._id} authenticated — RestaurantHub userId=${user.id}, isNew=${isNewProfile}`,
+      `RezBridge: merchant ${merchantProfile._id} authenticated — RestoPapa userId=${user.id}, isNew=${isNewProfile}`,
     );
 
     return { accessToken, user: identity, isNewProfile };
@@ -183,7 +183,7 @@ export class RezBridgeController {
   }
 
   /**
-   * Upserts a RestaurantHub user record for the given REZ merchant.
+   * Upserts a RestoPapa user record for the given REZ merchant.
    *
    * Lookup key: profile.rezMerchantId field (added via migration).
    * Falls back to email match for safety, then creates a new record.
@@ -233,7 +233,7 @@ export class RezBridgeController {
       return { user: { ...existingUser, email: profile.email }, isNewProfile: false };
     }
 
-    // Create a new RestaurantHub user for this REZ merchant
+    // Create a new RestoPapa user for this REZ merchant
     const newUser = await this.prisma.user.create({
       data: {
         email: profile.email,
@@ -261,10 +261,10 @@ export class RezBridgeController {
   }
 
   /**
-   * Issues a RestaurantHub-scoped JWT.
+   * Issues a RestoPapa-scoped JWT.
    * Uses the same JWT_SECRET / JWT_EXPIRES_IN config as the main AuthModule.
    */
-  private issueRestaurantHubToken(userId: string, email: string, role: string): string {
+  private issueRestoPapaToken(userId: string, email: string, role: string): string {
     return this.jwtService.sign(
       { sub: userId, email, role, type: 'access' },
       {

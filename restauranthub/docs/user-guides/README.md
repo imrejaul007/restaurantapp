@@ -1,6 +1,6 @@
-# RestaurantHub User Guides
+# RestoPapa User Guides
 
-Welcome to the RestaurantHub platform! This documentation provides comprehensive guides for all user types to help you make the most of our restaurant industry platform.
+Welcome to the RestoPapa platform! This documentation provides comprehensive guides for all user types to help you make the most of our restaurant industry platform.
 
 ## Quick Navigation
 
@@ -30,9 +30,9 @@ Welcome to the RestaurantHub platform! This documentation provides comprehensive
 
 ## Platform Overview
 
-### What is RestaurantHub?
+### What is RestoPapa?
 
-RestaurantHub is a comprehensive B2B/B2C SaaS platform designed specifically for the restaurant industry. It provides:
+RestoPapa is a comprehensive B2B/B2C SaaS platform designed specifically for the restaurant industry. It provides:
 
 - **Job Portal**: Connect restaurants with qualified employees
 - **B2B Marketplace**: Source products from verified vendors
@@ -84,7 +84,7 @@ Oversee platform operations, moderate content, and ensure system health.
 
 ### Account Creation
 
-1. **Visit the Platform**: Go to [restauranthub.com](https://restauranthub.com)
+1. **Visit the Platform**: Go to [restopapa.com](https://restopapa.com)
 2. **Choose User Type**: Select your role (Restaurant, Employee, Vendor)
 3. **Complete Registration**: Fill in required information
 4. **Verify Email**: Check your email and verify your account
@@ -115,7 +115,7 @@ For enhanced security and trust, certain actions require account verification:
 - **Notifications**: System alerts and messages
 
 #### Mobile Apps
-Download our mobile apps for iOS and Android to access RestaurantHub on the go:
+Download our mobile apps for iOS and Android to access RestoPapa on the go:
 - Enhanced job search and application
 - Real-time notifications
 - Offline access to saved content
@@ -241,7 +241,7 @@ Download our mobile apps for iOS and Android to access RestaurantHub on the go:
 We value your feedback! Share your thoughts through:
 - **In-app feedback forms**
 - **Community suggestion threads**
-- **Direct email to feedback@restauranthub.com**
+- **Direct email to feedback@restopapa.com**
 - **Social media channels**
 
 ## Advanced Features
@@ -284,10 +284,10 @@ Submit feature requests through:
 
 ---
 
-**Need immediate help?** Contact our support team at support@restauranthub.com or use the live chat feature in the bottom right corner of any page.
+**Need immediate help?** Contact our support team at support@restopapa.com or use the live chat feature in the bottom right corner of any page.
 
 **Join our community** on social media for tips, updates, and networking opportunities:
-- LinkedIn: @RestaurantHub
-- Twitter: @RestaurantHub
-- Facebook: RestaurantHub Official
-- Instagram: @RestaurantHubApp
+- LinkedIn: @RestoPapa
+- Twitter: @RestoPapa
+- Facebook: RestoPapa Official
+- Instagram: @RestoPapaApp

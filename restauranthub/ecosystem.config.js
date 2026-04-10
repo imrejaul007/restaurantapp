@@ -1,9 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: 'restauranthub-api',
+      name: 'restopapa-api',
       script: 'dist/apps/api/main.js',
-      cwd: './restauranthub',
+      cwd: './restopapa',
       instances: process.env.PM2_INSTANCES || 'max',
       exec_mode: 'cluster',
       env: {
@@ -62,9 +62,9 @@ module.exports = {
       }
     },
     {
-      name: 'restauranthub-notification-service',
+      name: 'restopapa-notification-service',
       script: 'dist/apps/notification-service/main.js',
-      cwd: './restauranthub',
+      cwd: './restopapa',
       instances: 1,
       exec_mode: 'fork',
       env: {
@@ -83,9 +83,9 @@ module.exports = {
       kill_timeout: 5000,
     },
     {
-      name: 'restauranthub-order-service',
+      name: 'restopapa-order-service',
       script: 'dist/apps/order-service/main.js',
-      cwd: './restauranthub',
+      cwd: './restopapa',
       instances: 2,
       exec_mode: 'cluster',
       env: {
@@ -104,9 +104,9 @@ module.exports = {
       kill_timeout: 5000,
     },
     {
-      name: 'restauranthub-restaurant-service',
+      name: 'restopapa-restaurant-service',
       script: 'dist/apps/restaurant-service/main.js',
-      cwd: './restauranthub',
+      cwd: './restopapa',
       instances: 2,
       exec_mode: 'cluster',
       env: {
@@ -132,8 +132,8 @@ module.exports = {
       user: 'deploy',
       host: ['production-server-1', 'production-server-2'],
       ref: 'origin/main',
-      repo: 'git@github.com:restauranthub/restauranthub.git',
-      path: '/var/www/restauranthub',
+      repo: 'git@github.com:restopapa/restopapa.git',
+      path: '/var/www/restopapa',
       'post-deploy': 'npm ci --production && npm run build && pm2 reload ecosystem.config.js --env production && pm2 save',
       'pre-setup': 'apt update && apt install git nodejs npm -y'
     },
@@ -141,8 +141,8 @@ module.exports = {
       user: 'deploy',
       host: 'staging-server',
       ref: 'origin/develop',
-      repo: 'git@github.com:restauranthub/restauranthub.git',
-      path: '/var/www/restauranthub-staging',
+      repo: 'git@github.com:restopapa/restopapa.git',
+      path: '/var/www/restopapa-staging',
       'post-deploy': 'npm ci && npm run build && pm2 reload ecosystem.config.js --env staging && pm2 save'
     }
   }

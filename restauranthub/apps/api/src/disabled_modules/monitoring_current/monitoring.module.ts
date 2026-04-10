@@ -20,7 +20,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ScheduleModule.forRoot(),
     PromModule.forRoot({
       defaultLabels: {
-        app: 'restauranthub-api',
+        app: 'restopapa-api',
         version: process.env.npm_package_version || '1.0.0',
       },
       withDefaultsMetrics: true,

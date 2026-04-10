@@ -1,7 +1,7 @@
 /**
  * Common API Response Types
  *
- * This file contains standardized response types for the RestaurantHub API
+ * This file contains standardized response types for the RestoPapa API
  * to ensure type safety and consistency across all endpoints.
  */
 

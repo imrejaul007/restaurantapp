@@ -39,7 +39,7 @@ export default () => ({
       user: process.env.SMTP_USER,
       password: process.env.SMTP_PASSWORD,
     },
-    from: process.env.SMTP_FROM || 'RestaurantHub <noreply@restauranthub.com>',
+    from: process.env.SMTP_FROM || 'RestoPapa <noreply@restopapa.com>',
   },
   frontend: {
     url: process.env.FRONTEND_URL || 'http://localhost:3001',

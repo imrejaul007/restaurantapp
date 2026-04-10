@@ -1,6 +1,6 @@
 # Authentication & Security Guide
 
-This guide covers authentication, authorization, and security features in the RestaurantHub API.
+This guide covers authentication, authorization, and security features in the RestoPapa API.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ This guide covers authentication, authorization, and security features in the Re
 
 ## Authentication Overview
 
-RestaurantHub uses a JWT-based authentication system with role-based access control (RBAC). The system supports four main user roles with specific permissions and verification requirements.
+RestoPapa uses a JWT-based authentication system with role-based access control (RBAC). The system supports four main user roles with specific permissions and verification requirements.
 
 ### Authentication Flow
 
@@ -254,9 +254,9 @@ The system implements progressive delays for failed login attempts:
 ```javascript
 // Strict whitelist
 [
-  'https://restauranthub.com',
-  'https://www.restauranthub.com',
-  'https://app.restauranthub.com'
+  'https://restopapa.com',
+  'https://www.restopapa.com',
+  'https://app.restopapa.com'
 ]
 ```
 
@@ -277,7 +277,7 @@ The system implements progressive delays for failed login attempts:
 ### Client-Side Authentication (JavaScript)
 
 ```javascript
-class RestaurantHubAuth {
+class RestoPapaAuth {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
     this.accessToken = localStorage.getItem('accessToken');
@@ -382,7 +382,7 @@ class RestaurantHubAuth {
 }
 
 // Usage
-const auth = new RestaurantHubAuth('https://api.restauranthub.com/api/v1');
+const auth = new RestoPapaAuth('https://api.restopapa.com/api/v1');
 
 // Login
 const user = await auth.login('restaurant@example.com', 'password');
@@ -397,7 +397,7 @@ const jobs = await response.json();
 ```javascript
 const axios = require('axios');
 
-class RestaurantHubAPI {
+class RestoPapaAPI {
   constructor(baseUrl, apiKey) {
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
@@ -442,7 +442,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class AuthService {
   constructor() {
-    this.baseUrl = 'https://api.restauranthub.com/api/v1';
+    this.baseUrl = 'https://api.restopapa.com/api/v1';
   }
 
   async login(email, password) {

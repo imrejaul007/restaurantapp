@@ -1,6 +1,6 @@
-# RestaurantHub API Client
+# RestoPapa API Client
 
-A comprehensive TypeScript/JavaScript client library for integrating with the RestaurantHub API. This client provides both REST API and WebSocket connectivity with built-in authentication, error handling, retries, and framework-specific helpers.
+A comprehensive TypeScript/JavaScript client library for integrating with the RestoPapa API. This client provides both REST API and WebSocket connectivity with built-in authentication, error handling, retries, and framework-specific helpers.
 
 ## Features
 
@@ -16,9 +16,9 @@ A comprehensive TypeScript/JavaScript client library for integrating with the Re
 ## Installation
 
 ```bash
-npm install @restauranthub/api-client
+npm install @restopapa/api-client
 # or
-yarn add @restauranthub/api-client
+yarn add @restopapa/api-client
 ```
 
 ## Quick Start
@@ -26,17 +26,17 @@ yarn add @restauranthub/api-client
 ### Basic Setup
 
 ```typescript
-import { createApiClient, createSocketClient } from '@restauranthub/api-client';
+import { createApiClient, createSocketClient } from '@restopapa/api-client';
 
 // Initialize API client
 const apiClient = createApiClient({
-  baseURL: 'https://api.restauranthub.com',
+  baseURL: 'https://api.restopapa.com',
   apiKey: 'your-api-key', // Optional for public endpoints
 });
 
 // Initialize Socket client (optional)
 const socketClient = createSocketClient({
-  baseURL: 'https://api.restauranthub.com',
+  baseURL: 'https://api.restopapa.com',
 });
 ```
 
@@ -137,14 +137,14 @@ socketClient.on('notification', (notification) => {
 ### Setup with React
 
 ```typescript
-import { useApiClient, useAuth, useOrders } from '@restauranthub/api-client';
+import { useApiClient, useAuth, useOrders } from '@restopapa/api-client';
 
 function App() {
   const { initializeClient } = useApiClient();
   
   useEffect(() => {
     initializeClient({
-      baseURL: 'https://api.restauranthub.com',
+      baseURL: 'https://api.restopapa.com',
     });
   }, []);
 
@@ -155,7 +155,7 @@ function App() {
 ### Authentication Hook
 
 ```typescript
-import { useAuth } from '@restauranthub/api-client';
+import { useAuth } from '@restopapa/api-client';
 
 function LoginForm() {
   const { signIn, signUp, user, loading, error } = useAuth();
@@ -184,7 +184,7 @@ function LoginForm() {
 ### Orders Hook
 
 ```typescript
-import { useOrders } from '@restauranthub/api-client';
+import { useOrders } from '@restopapa/api-client';
 
 function OrdersList() {
   const { orders, loading, fetchOrders, updateOrderStatus } = useOrders();
@@ -216,7 +216,7 @@ function OrdersList() {
 ### Real-time Updates Hook
 
 ```typescript
-import { useSocket, useOrderUpdates } from '@restauranthub/api-client';
+import { useSocket, useOrderUpdates } from '@restopapa/api-client';
 
 function OrderTracking({ orderId }) {
   const { socket, connect, isConnected } = useSocket();
@@ -224,7 +224,7 @@ function OrderTracking({ orderId }) {
 
   useEffect(() => {
     const socketClient = initializeSocket({
-      baseURL: 'https://api.restauranthub.com',
+      baseURL: 'https://api.restopapa.com',
       auth: { token: tokens?.accessToken }
     });
     
@@ -253,7 +253,7 @@ function OrderTracking({ orderId }) {
 ### Setup with Vue 3
 
 ```typescript
-import { useApiClient } from '@restauranthub/api-client';
+import { useApiClient } from '@restopapa/api-client';
 
 export default {
   setup() {
@@ -261,7 +261,7 @@ export default {
     
     onMounted(() => {
       initializeClient({
-        baseURL: 'https://api.restauranthub.com',
+        baseURL: 'https://api.restopapa.com',
       });
     });
 
@@ -273,7 +273,7 @@ export default {
 ### Authentication Composable
 
 ```typescript
-import { useAuth } from '@restauranthub/api-client';
+import { useAuth } from '@restopapa/api-client';
 
 export default {
   setup() {
@@ -302,7 +302,7 @@ export default {
 ### Restaurants Composable
 
 ```typescript
-import { useRestaurants, usePagination } from '@restauranthub/api-client';
+import { useRestaurants, usePagination } from '@restopapa/api-client';
 
 export default {
   setup() {
@@ -340,7 +340,7 @@ export default {
 ### Custom Error Handling
 
 ```typescript
-import { isApiError, formatApiError } from '@restauranthub/api-client';
+import { isApiError, formatApiError } from '@restopapa/api-client';
 
 apiClient.on('error', (error) => {
   if (isApiError(error)) {
@@ -369,7 +369,7 @@ apiClient.client.interceptors.request.use((config) => {
 ### File Upload with Progress
 
 ```typescript
-import { useFileUpload } from '@restauranthub/api-client';
+import { useFileUpload } from '@restopapa/api-client';
 
 function FileUploader() {
   const { uploading, progress, uploadFile } = useFileUpload();
@@ -404,7 +404,7 @@ function FileUploader() {
 ### Search with Suggestions
 
 ```typescript
-import { useSearch } from '@restauranthub/api-client';
+import { useSearch } from '@restopapa/api-client';
 
 function SearchComponent() {
   const { results, suggestions, search, getSuggestions } = useSearch();
@@ -454,7 +454,7 @@ function SearchComponent() {
 
 ```typescript
 const apiClient = createApiClient({
-  baseURL: 'https://api.restauranthub.com',
+  baseURL: 'https://api.restopapa.com',
   timeout: 30000,        // Request timeout in milliseconds
   retries: 3,            // Number of retry attempts
   retryDelay: 1000,      // Base delay between retries
@@ -467,7 +467,7 @@ const apiClient = createApiClient({
 
 ```typescript
 const socketClient = createSocketClient({
-  baseURL: 'https://api.restauranthub.com',
+  baseURL: 'https://api.restopapa.com',
   auth: {
     token: 'jwt-token'   // JWT token for authentication
   },
@@ -552,7 +552,7 @@ try {
 The client includes complete TypeScript definitions for all API responses:
 
 ```typescript
-import { Restaurant, Order, User, ApiResponse } from '@restauranthub/api-client';
+import { Restaurant, Order, User, ApiResponse } from '@restopapa/api-client';
 
 const restaurant: Restaurant = await apiClient.getRestaurant('123');
 const orders: ApiResponse<Order[]> = await apiClient.getOrders();
@@ -564,7 +564,7 @@ const user: User = await apiClient.getUserProfile();
 Mock the API client for testing:
 
 ```typescript
-import { RestaurantHubApiClient } from '@restauranthub/api-client';
+import { RestoPapaApiClient } from '@restopapa/api-client';
 
 // Mock implementation
 const mockApiClient = {
@@ -599,6 +599,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- Documentation: [https://docs.restauranthub.com](https://docs.restauranthub.com)
-- Issues: [GitHub Issues](https://github.com/restauranthub/api-client/issues)
-- Email: support@restauranthub.com
+- Documentation: [https://docs.restopapa.com](https://docs.restopapa.com)
+- Issues: [GitHub Issues](https://github.com/restopapa/api-client/issues)
+- Email: support@restopapa.com

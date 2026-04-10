@@ -42,7 +42,7 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('RestaurantHub Restaurant Service')
+    .setTitle('RestoPapa Restaurant Service')
     .setDescription('Restaurant Management microservice API')
     .setVersion('1.0')
     .addBearerAuth()

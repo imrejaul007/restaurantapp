@@ -59,8 +59,8 @@ export class EnhancedMfaService {
 
       // Generate secret
       const secret = speakeasy.generateSecret({
-        name: `RestaurantHub (${user.email})`,
-        issuer: 'RestaurantHub',
+        name: `RestoPapa (${user.email})`,
+        issuer: 'RestoPapa',
         length: 32,
       });
 

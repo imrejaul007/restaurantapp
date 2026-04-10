@@ -1,8 +1,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "RestaurantHub - Business Metrics & KPIs",
-    "tags": ["restauranthub", "business", "kpi"],
+    "title": "RestoPapa - Business Metrics & KPIs",
+    "tags": ["restopapa", "business", "kpi"],
     "style": "dark",
     "timezone": "browser",
     "refresh": "1m",

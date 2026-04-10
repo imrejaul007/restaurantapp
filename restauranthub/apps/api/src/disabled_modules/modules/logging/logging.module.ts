@@ -119,7 +119,7 @@ import { LoggingInterceptor } from './logging.interceptor';
           ),
           transports,
           defaultMeta: {
-            service: 'restauranthub-api',
+            service: 'restopapa-api',
             version: process.env.npm_package_version || '1.0.0',
             environment: nodeEnv,
           },

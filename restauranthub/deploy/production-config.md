@@ -87,10 +87,10 @@ docker-compose -f docker-compose.prod.yml up -d
 - File system permissions check
 
 ### Logging
-- Application logs: `/var/log/restauranthub/app.log`
-- Error logs: `/var/log/restauranthub/error.log`
-- Access logs: `/var/log/restauranthub/access.log`
-- Audit logs: `/var/log/restauranthub/audit.log`
+- Application logs: `/var/log/restopapa/app.log`
+- Error logs: `/var/log/restopapa/error.log`
+- Access logs: `/var/log/restopapa/access.log`
+- Audit logs: `/var/log/restopapa/audit.log`
 
 ### Metrics
 - Response time monitoring
@@ -132,8 +132,8 @@ Expected security headers in production:
 5. Post-incident review
 
 ### Contact Information
-- Security team: security@restauranthub.com
-- DevOps team: devops@restauranthub.com
+- Security team: security@restopapa.com
+- DevOps team: devops@restopapa.com
 - Emergency escalation: +1-xxx-xxx-xxxx
 
 ## Performance Optimization

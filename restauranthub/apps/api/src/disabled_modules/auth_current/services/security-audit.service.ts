@@ -87,7 +87,7 @@ export class SecurityAuditService {
       const fullEvent: SecurityEvent = {
         ...event,
         timestamp: new Date(),
-        source: 'RestaurantHub-API',
+        source: 'RestoPapa-API',
       };
 
       // Add to event queue for batch processing

@@ -20,17 +20,17 @@ interface AuthenticatedSocket extends Socket {
 @WSGateway({
   cors: {
     origin: process.env.NODE_ENV === 'production'
-      ? ['https://restauranthub.com', 'https://www.restauranthub.com']
+      ? ['https://restopapa.com', 'https://www.restopapa.com']
       : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
     credentials: true,
   },
   namespace: '/',
 })
-export class RestaurantHubWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class RestoPapaWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private readonly logger = new Logger(RestaurantHubWebSocketGateway.name);
+  private readonly logger = new Logger(RestoPapaWebSocketGateway.name);
   private connectedUsers = new Map<string, AuthenticatedSocket>();
 
   constructor(

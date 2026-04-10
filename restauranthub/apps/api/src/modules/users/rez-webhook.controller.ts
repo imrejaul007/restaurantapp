@@ -43,7 +43,7 @@ export class RezWebhookController {
   async merchantCreated(
     @Headers('x-internal-token') token: string | undefined,
     @Body() body: IncomingRezMerchant,
-  ): Promise<{ restauranthubUserId: string; isNew: boolean }> {
+  ): Promise<{ restopapaUserId: string; isNew: boolean }> {
     this.validateToken(token);
 
     const { rezMerchantId, email, name, storeName, cuisineType, city, logo } = body;
@@ -54,7 +54,7 @@ export class RezWebhookController {
 
     if (existing) {
       this.logger.log(`REZ merchant ${rezMerchantId} already has account ${existing.id}`);
-      return { restauranthubUserId: existing.id, isNew: false };
+      return { restopapaUserId: existing.id, isNew: false };
     }
 
     const nameParts = name.trim().split(' ');
@@ -89,8 +89,8 @@ export class RezWebhookController {
       },
     });
 
-    this.logger.log(`Created RestaurantHub account ${created.id} for REZ merchant ${rezMerchantId}`);
-    return { restauranthubUserId: created.id, isNew: true };
+    this.logger.log(`Created RestoPapa account ${created.id} for REZ merchant ${rezMerchantId}`);
+    return { restopapaUserId: created.id, isNew: true };
   }
 
   @Post('merchant-updated')
@@ -98,7 +98,7 @@ export class RezWebhookController {
   async merchantUpdated(
     @Headers('x-internal-token') token: string | undefined,
     @Body() body: IncomingRezMerchant,
-  ): Promise<{ restauranthubUserId: string; updated: boolean }> {
+  ): Promise<{ restopapaUserId: string; updated: boolean }> {
     this.validateToken(token);
 
     const { rezMerchantId, name, storeName, cuisineType, city, logo } = body;
@@ -110,7 +110,7 @@ export class RezWebhookController {
 
     if (!user) {
       this.logger.warn(`No account found for REZ merchant ${rezMerchantId} — skipping update`);
-      return { restauranthubUserId: '', updated: false };
+      return { restopapaUserId: '', updated: false };
     }
 
     const nameParts = name.trim().split(' ');
@@ -138,6 +138,6 @@ export class RezWebhookController {
     ]);
 
     this.logger.log(`Synced REZ merchant ${rezMerchantId} → account ${user.id}`);
-    return { restauranthubUserId: user.id, updated: true };
+    return { restopapaUserId: user.id, updated: true };
   }
 }

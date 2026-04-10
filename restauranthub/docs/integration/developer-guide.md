@@ -1,6 +1,6 @@
 # Developer Integration Guide
 
-This comprehensive guide helps developers integrate with the RestaurantHub API across different platforms and programming languages.
+This comprehensive guide helps developers integrate with the RestoPapa API across different platforms and programming languages.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ This comprehensive guide helps developers integrate with the RestaurantHub API a
 
 ### API Endpoints
 - **Development**: `http://localhost:3000/api/v1`
-- **Production**: `https://api.restauranthub.com/api/v1`
+- **Production**: `https://api.restopapa.com/api/v1`
 
 ### Authentication
 All requests require a valid JWT token in the Authorization header:
@@ -35,14 +35,14 @@ Authorization: Bearer <your-jwt-token>
 
 #### JavaScript/TypeScript SDK
 ```bash
-npm install @restauranthub/sdk
+npm install @restopapa/sdk
 ```
 
 ```typescript
-import { RestaurantHubSDK } from '@restauranthub/sdk';
+import { RestoPapaSDK } from '@restopapa/sdk';
 
-const sdk = new RestaurantHubSDK({
-  baseURL: 'https://api.restauranthub.com/api/v1',
+const sdk = new RestoPapaSDK({
+  baseURL: 'https://api.restopapa.com/api/v1',
   apiKey: 'your-api-key',
   environment: 'production'
 });
@@ -56,14 +56,14 @@ const jobs = await sdk.jobs.list({ location: 'Mumbai' });
 
 #### Python SDK
 ```bash
-pip install restauranthub-sdk
+pip install restopapa-sdk
 ```
 
 ```python
-from restauranthub import RestaurantHubSDK
+from restopapa import RestoPapaSDK
 
-sdk = RestaurantHubSDK(
-    base_url='https://api.restauranthub.com/api/v1',
+sdk = RestoPapaSDK(
+    base_url='https://api.restopapa.com/api/v1',
     api_key='your-api-key'
 )
 
@@ -78,17 +78,17 @@ jobs = sdk.jobs.list(location='Mumbai')
 
 #### PHP Client
 ```bash
-composer require restauranthub/php-client
+composer require restopapa/php-client
 ```
 
 #### Ruby Gem
 ```bash
-gem install restauranthub-ruby
+gem install restopapa-ruby
 ```
 
 #### Go Module
 ```bash
-go get github.com/restauranthub/go-client
+go get github.com/restopapa/go-client
 ```
 
 ## Integration Examples
@@ -99,12 +99,12 @@ go get github.com/restauranthub/go-client
 
 ```jsx
 import React, { useState, useEffect } from 'react';
-import { RestaurantHubSDK } from '@restauranthub/sdk';
+import { RestoPapaSDK } from '@restopapa/sdk';
 
 const JobBoard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const sdk = new RestaurantHubSDK({
+  const sdk = new RestoPapaSDK({
     baseURL: process.env.REACT_APP_API_URL
   });
 
@@ -211,7 +211,7 @@ export default JobBoard;
 </template>
 
 <script>
-import { RestaurantHubSDK } from '@restauranthub/sdk';
+import { RestoPapaSDK } from '@restopapa/sdk';
 
 export default {
   name: 'RestaurantDashboard',
@@ -220,7 +220,7 @@ export default {
       jobs: [],
       applications: [],
       showApplications: false,
-      sdk: new RestaurantHubSDK({
+      sdk: new RestoPapaSDK({
         baseURL: process.env.VUE_APP_API_URL
       })
     };
@@ -293,14 +293,14 @@ export default {
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RestaurantHubSDK } from '@restauranthub/react-native-sdk';
+import { RestoPapaSDK } from '@restopapa/react-native-sdk';
 
 const JobListScreen = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const sdk = new RestaurantHubSDK({
-    baseURL: 'https://api.restauranthub.com/api/v1'
+  const sdk = new RestoPapaSDK({
+    baseURL: 'https://api.restopapa.com/api/v1'
   });
 
   useEffect(() => {
@@ -435,8 +435,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RestaurantHubService {
-  static const String baseUrl = 'https://api.restauranthub.com/api/v1';
+class RestoPapaService {
+  static const String baseUrl = 'https://api.restopapa.com/api/v1';
   String? accessToken;
 
   Future<void> initialize() async {
@@ -521,7 +521,7 @@ class JobListScreen extends StatefulWidget {
 }
 
 class _JobListScreenState extends State<JobListScreen> {
-  final RestaurantHubService _service = RestaurantHubService();
+  final RestoPapaService _service = RestoPapaService();
   List<Job> jobs = [];
   bool loading = true;
 
@@ -619,8 +619,8 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 
-// RestaurantHub API client
-class RestaurantHubClient {
+// RestoPapa API client
+class RestoPapaClient {
   constructor(baseURL, apiKey) {
     this.baseURL = baseURL;
     this.apiKey = apiKey;
@@ -673,12 +673,12 @@ class RestaurantHubClient {
 }
 
 // Initialize client
-const rhClient = new RestaurantHubClient(
-  process.env.RESTAURANTHUB_API_URL,
-  process.env.RESTAURANTHUB_API_KEY
+const rhClient = new RestoPapaClient(
+  process.env.RESTOPAPA_API_URL,
+  process.env.RESTOPAPA_API_KEY
 );
 
-// Middleware to authenticate with RestaurantHub
+// Middleware to authenticate with RestoPapa
 async function authenticateWithRH(req, res, next) {
   try {
     if (!rhClient.accessToken) {
@@ -689,7 +689,7 @@ async function authenticateWithRH(req, res, next) {
     }
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Failed to authenticate with RestaurantHub' });
+    res.status(401).json({ error: 'Failed to authenticate with RestoPapa' });
   }
 }
 
@@ -727,7 +727,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-class RestaurantHubClient:
+class RestoPapaClient:
     def __init__(self, base_url, api_key):
         self.base_url = base_url
         self.api_key = api_key
@@ -777,9 +777,9 @@ class RestaurantHubClient:
             raise Exception(f"Failed to get applications: {response.json().get('message')}")
 
 # Initialize client
-rh_client = RestaurantHubClient(
-    settings.RESTAURANTHUB_API_URL,
-    settings.RESTAURANTHUB_API_KEY
+rh_client = RestoPapaClient(
+    settings.RESTOPAPA_API_URL,
+    settings.RESTOPAPA_API_KEY
 )
 
 @csrf_exempt
@@ -827,14 +827,14 @@ urlpatterns = [
 
 ### Setting Up Webhooks
 
-Webhooks allow real-time notifications when events occur in the RestaurantHub system.
+Webhooks allow real-time notifications when events occur in the RestoPapa system.
 
 #### Webhook Configuration
 
 ```javascript
 // Configure webhook endpoints
 const webhookConfig = {
-  url: 'https://your-app.com/webhooks/restauranthub',
+  url: 'https://your-app.com/webhooks/restopapa',
   events: [
     'job.application.created',
     'job.application.updated',
@@ -854,8 +854,8 @@ await sdk.webhooks.create(webhookConfig);
 const express = require('express');
 const crypto = require('crypto');
 
-app.post('/webhooks/restauranthub', express.raw({type: 'application/json'}), (req, res) => {
-  const signature = req.headers['x-restauranthub-signature'];
+app.post('/webhooks/restopapa', express.raw({type: 'application/json'}), (req, res) => {
+  const signature = req.headers['x-restopapa-signature'];
   const payload = req.body;
 
   // Verify webhook signature
@@ -935,7 +935,7 @@ function handlePaymentCompleted(data) {
 
 ```bash
 # Clone starter project
-git clone https://github.com/restauranthub/api-starter.git
+git clone https://github.com/restopapa/api-starter.git
 cd api-starter
 
 # Install dependencies
@@ -953,8 +953,8 @@ npm run dev
 
 ```bash
 # API Configuration
-RESTAURANTHUB_API_URL=http://localhost:3000/api/v1
-RESTAURANTHUB_API_KEY=your-api-key
+RESTOPAPA_API_URL=http://localhost:3000/api/v1
+RESTOPAPA_API_KEY=your-api-key
 
 # Authentication
 RH_EMAIL=your-email@example.com
@@ -973,7 +973,7 @@ REDIS_URL=redis://localhost:6379
 #### Postman Collection
 Import the official Postman collection:
 ```
-https://api.restauranthub.com/postman/collection.json
+https://api.restopapa.com/postman/collection.json
 ```
 
 #### cURL Examples
@@ -993,13 +993,13 @@ curl -X POST http://localhost:3000/api/v1/jobs \
 #### Unit Testing Example
 
 ```javascript
-const { RestaurantHubSDK } = require('@restauranthub/sdk');
+const { RestoPapaSDK } = require('@restopapa/sdk');
 
-describe('RestaurantHub Integration', () => {
+describe('RestoPapa Integration', () => {
   let sdk;
 
   beforeEach(() => {
-    sdk = new RestaurantHubSDK({
+    sdk = new RestoPapaSDK({
       baseURL: 'http://localhost:3000/api/v1',
       apiKey: process.env.TEST_API_KEY
     });
@@ -1066,7 +1066,7 @@ async function getCachedJobs(location) {
 }
 
 // Implement connection pooling
-const sdk = new RestaurantHubSDK({
+const sdk = new RestoPapaSDK({
   baseURL: process.env.API_URL,
   apiKey: process.env.API_KEY,
   timeout: 30000,

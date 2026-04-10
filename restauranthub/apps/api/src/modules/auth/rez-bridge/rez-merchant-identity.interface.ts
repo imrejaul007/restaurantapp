@@ -1,6 +1,6 @@
 /**
  * RezMerchantIdentity — the canonical shape for a REZ merchant
- * that has authenticated into RestaurantHub via the auth bridge.
+ * that has authenticated into RestoPapa via the auth bridge.
  *
  * IMPORTANT: Agent A3 imports this interface directly from this file.
  * Do NOT rename or move the export without coordinating with A3.
@@ -24,8 +24,8 @@ export interface RezMerchantIdentity {
   /** Role as declared in the REZ JWT. Only merchant roles are accepted. */
   role: 'merchant' | 'merchant_admin';
 
-  /** The RestaurantHub user UUID created or matched during upsert */
-  restauranthubUserId: string;
+  /** The RestoPapa user UUID created or matched during upsert */
+  restopapaUserId: string;
 
   /**
    * True once the REZ JWT signature has been verified and the profile

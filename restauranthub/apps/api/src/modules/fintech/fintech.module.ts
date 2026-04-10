@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
-import { RezClientModule } from '@restauranthub/rez-client';
+import { RezClientModule } from '@restopapa/rez-client';
 import { FintechController } from './fintech.controller';
 import { FintechService } from './fintech.service';
 

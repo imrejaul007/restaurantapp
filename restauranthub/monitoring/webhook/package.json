@@ -1,7 +1,7 @@
 {
-  "name": "restauranthub-webhook-notifications",
+  "name": "restopapa-webhook-notifications",
   "version": "1.0.0",
-  "description": "Multi-channel webhook notification service for RestaurantHub monitoring",
+  "description": "Multi-channel webhook notification service for RestoPapa monitoring",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -28,6 +28,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "author": "RestaurantHub DevOps Team",
+  "author": "RestoPapa DevOps Team",
   "license": "MIT"
 }

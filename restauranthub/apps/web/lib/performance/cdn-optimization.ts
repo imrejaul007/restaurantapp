@@ -1,4 +1,4 @@
-// CDN optimization utilities for RestaurantHub
+// CDN optimization utilities for RestoPapa
 
 export interface CDNConfig {
   baseUrl: string;
@@ -334,7 +334,7 @@ export class ImageOptimizer {
 
 // Default CDN configuration
 export const defaultCDNConfig: CDNConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_CDN_URL || 'https://cdn.restauranthub.com',
+  baseUrl: process.env.NEXT_PUBLIC_CDN_URL || 'https://cdn.restopapa.com',
   regions: ['us-east-1', 'eu-west-1', 'ap-southeast-1'],
   cacheTTL: 86400, // 24 hours
   compressionEnabled: true,

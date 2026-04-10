@@ -1,4 +1,4 @@
-# RestaurantHub API
+# RestoPapa API
 
 A comprehensive B2B/B2C SaaS platform for the restaurant industry built with NestJS, providing restaurant management, B2B marketplace, job portal, and customer ordering solutions.
 
@@ -49,7 +49,7 @@ A comprehensive B2B/B2C SaaS platform for the restaurant industry built with Nes
 
 ```bash
 git clone <repository-url>
-cd restauranthub/apps/api
+cd restopapa/apps/api
 npm install
 ```
 
@@ -66,7 +66,7 @@ nano .env
 Key environment variables:
 ```bash
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/restauranthub?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5432/restopapa?schema=public"
 
 # Redis
 REDIS_URL="redis://localhost:6379/0"
@@ -141,14 +141,14 @@ docker-compose down
 
 ```bash
 # Build production image
-docker build -t restauranthub-api --target production .
+docker build -t restopapa-api --target production .
 
 # Run with environment
 docker run -d \
-  --name restauranthub-api \
+  --name restopapa-api \
   -p 3000:3000 \
   --env-file .env.production \
-  restauranthub-api
+  restopapa-api
 ```
 
 ## 🧪 Testing
@@ -476,7 +476,7 @@ services:
 npm run db:status
 
 # Test connection
-psql "postgresql://user:pass@localhost:5432/restauranthub"
+psql "postgresql://user:pass@localhost:5432/restopapa"
 ```
 
 **Redis Connection Issues:**
@@ -485,7 +485,7 @@ psql "postgresql://user:pass@localhost:5432/restauranthub"
 redis-cli ping
 
 # Check Redis logs
-docker logs restauranthub-redis
+docker logs restopapa-redis
 ```
 
 **File Upload Issues:**
@@ -524,7 +524,7 @@ DATABASE_LOGGING=true npm run start:dev
 
 - **Documentation**: [Wiki/Docs URL]
 - **Issues**: [GitHub Issues URL]
-- **Email**: support@restauranthub.com
+- **Email**: support@restopapa.com
 - **Slack**: [Team Slack Channel]
 
 ## 🤝 Contributing

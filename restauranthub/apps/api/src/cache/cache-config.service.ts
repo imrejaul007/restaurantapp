@@ -18,7 +18,7 @@ export class CacheConfigService {
   }
 
   getRedisPassword(): string {
-    return this.configService.get('REDIS_PASSWORD', 'restauranthub_redis_secret');
+    return this.configService.get('REDIS_PASSWORD', 'restopapa_redis_secret');
   }
 
   getRedisDb(): number {
@@ -34,7 +34,7 @@ export class CacheConfigService {
   }
 
   getKeyPrefix(): string {
-    return this.configService.get('CACHE_KEY_PREFIX', 'restauranthub:');
+    return this.configService.get('CACHE_KEY_PREFIX', 'restopapa:');
   }
 
   // Performance-specific configuration

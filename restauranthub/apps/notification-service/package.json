@@ -1,5 +1,5 @@
 {
-  "name": "@restauranthub/notification-service",
+  "name": "@restopapa/notification-service",
   "version": "1.0.0",
   "description": "Notification and Communication Microservice",
   "main": "dist/main.js",

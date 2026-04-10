@@ -1,5 +1,5 @@
 /**
- * Comprehensive Test Runner Configuration for RestaurantHub
+ * Comprehensive Test Runner Configuration for RestoPapa
  *
  * This configuration orchestrates all testing types:
  * - Unit Tests (Jest)
@@ -19,7 +19,7 @@ const CONFIG = {
     development: {
       apiUrl: 'http://localhost:3000',
       webUrl: 'http://localhost:3001',
-      database: 'postgresql://localhost:5432/restauranthub_test',
+      database: 'postgresql://localhost:5432/restopapa_test',
     },
     ci: {
       apiUrl: process.env.CI_API_URL || 'http://localhost:3000',

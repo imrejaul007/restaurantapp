@@ -1,6 +1,6 @@
 # Restaurant Owner Getting Started Guide
 
-Welcome to RestaurantHub! This guide will help you set up your restaurant profile, post your first job, and start building your team through our platform.
+Welcome to RestoPapa! This guide will help you set up your restaurant profile, post your first job, and start building your team through our platform.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Welcome to RestaurantHub! This guide will help you set up your restaurant profil
 
 ### Creating Your Account
 
-1. **Visit RestaurantHub**: Go to [restauranthub.com/signup](https://restauranthub.com/signup)
+1. **Visit RestoPapa**: Go to [restopapa.com/signup](https://restopapa.com/signup)
 2. **Select Restaurant Owner**: Choose "Restaurant Owner" as your account type
 3. **Fill Basic Information**:
    - First and Last Name
@@ -36,7 +36,7 @@ Welcome to RestaurantHub! This guide will help you set up your restaurant profil
 
 After creating your account:
 
-1. **Check Your Email**: Look for a verification email from RestaurantHub
+1. **Check Your Email**: Look for a verification email from RestoPapa
 2. **Click Verification Link**: This will confirm your email address
 3. **Login**: Return to the platform and log in with your credentials
 
@@ -400,7 +400,7 @@ Apply with your resume and portfolio of your culinary work.
 
 ### Getting Help
 - **Live Chat**: Available during business hours
-- **Email Support**: support@restauranthub.com
+- **Email Support**: support@restopapa.com
 - **Help Center**: Comprehensive guides and FAQs
 - **Video Tutorials**: Step-by-step visual guides
 

@@ -13,9 +13,9 @@ API response times are elevated above acceptable thresholds. The 95th percentile
 - User complaints about slow performance
 
 ## Dashboard Links
-- [API Performance](http://grafana.restauranthub.com/d/api-performance)
-- [System Overview](http://grafana.restauranthub.com/d/system-overview)
-- [Database Performance](http://grafana.restauranthub.com/d/database-performance)
+- [API Performance](http://grafana.restopapa.com/d/api-performance)
+- [System Overview](http://grafana.restopapa.com/d/system-overview)
+- [Database Performance](http://grafana.restopapa.com/d/database-performance)
 
 ## Investigation
 
@@ -58,20 +58,20 @@ curl http://localhost:3000/api/v1/metrics | grep long_tasks
 ### 4. Database Performance (2 minutes)
 ```bash
 # Check slow queries
-psql -h localhost -U postgres -d restauranthub -c "
+psql -h localhost -U postgres -d restopapa -c "
 SELECT query, mean_time, calls, total_time
 FROM pg_stat_statements
 ORDER BY mean_time DESC
 LIMIT 10;"
 
 # Check active connections
-psql -h localhost -U postgres -d restauranthub -c "
+psql -h localhost -U postgres -d restopapa -c "
 SELECT count(*), state
 FROM pg_stat_activity
 GROUP BY state;"
 
 # Check for locks
-psql -h localhost -U postgres -d restauranthub -c "
+psql -h localhost -U postgres -d restopapa -c "
 SELECT count(*) as lock_count
 FROM pg_locks
 WHERE NOT granted;"
@@ -96,7 +96,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    ps aux --sort=-%cpu | head -10
 
    # Check if API process is consuming high CPU
-   ps -p $(pgrep -f restauranthub-api) -o pid,ppid,cmd,%mem,%cpu
+   ps -p $(pgrep -f restopapa-api) -o pid,ppid,cmd,%mem,%cpu
    ```
 
 2. **Check for infinite loops or blocking operations**
@@ -114,7 +114,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    docker-compose up --scale api=3
 
    # Or restart service to clear any stuck processes
-   sudo systemctl restart restauranthub-api
+   sudo systemctl restart restopapa-api
    ```
 
 ### Scenario 2: Database Bottleneck
@@ -122,12 +122,12 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
 1. **Identify slow queries**
    ```bash
    # Enable slow query logging
-   psql -h localhost -U postgres -d restauranthub -c "
+   psql -h localhost -U postgres -d restopapa -c "
    ALTER SYSTEM SET log_min_duration_statement = 1000;
    SELECT pg_reload_conf();"
 
    # Check for missing indexes
-   psql -h localhost -U postgres -d restauranthub -c "
+   psql -h localhost -U postgres -d restopapa -c "
    SELECT schemaname, tablename, attname, n_distinct, correlation
    FROM pg_stats
    WHERE schemaname = 'public'
@@ -140,13 +140,13 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    curl http://localhost:3000/api/v1/metrics | grep db_connections
 
    # Restart API to reset connection pool
-   sudo systemctl restart restauranthub-api
+   sudo systemctl restart restopapa-api
    ```
 
 3. **Emergency query optimization**
    ```bash
    # Kill long-running queries (use with caution)
-   psql -h localhost -U postgres -d restauranthub -c "
+   psql -h localhost -U postgres -d restopapa -c "
    SELECT pg_terminate_backend(pid)
    FROM pg_stat_activity
    WHERE state = 'active'
@@ -162,7 +162,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    curl http://localhost:3000/api/v1/metrics/system
 
    # Check for memory leaks
-   ps -p $(pgrep -f restauranthub-api) -o pid,ppid,cmd,%mem,rss
+   ps -p $(pgrep -f restopapa-api) -o pid,ppid,cmd,%mem,rss
    ```
 
 2. **Free up memory**
@@ -171,7 +171,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    sync && echo 3 > /proc/sys/vm/drop_caches
 
    # Restart API service
-   sudo systemctl restart restauranthub-api
+   sudo systemctl restart restopapa-api
    ```
 
 ### Scenario 4: External Dependencies
@@ -216,7 +216,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
 1. **Enable request queuing**
    ```bash
    # Configure nginx rate limiting
-   sudo nano /etc/nginx/sites-available/restauranthub
+   sudo nano /etc/nginx/sites-available/restopapa
    # Add: limit_req zone=api burst=20 nodelay;
    sudo nginx -s reload
    ```
@@ -227,7 +227,7 @@ curl http://localhost:3000/api/v1/metrics | grep cache_hit_ratio
    docker-compose up --scale api=2
 
    # If using Kubernetes
-   kubectl scale deployment restauranthub-api --replicas=3
+   kubectl scale deployment restopapa-api --replicas=3
    ```
 
 3. **Enable response caching**

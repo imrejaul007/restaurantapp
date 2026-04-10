@@ -28,7 +28,7 @@ export interface WishlistState {
   lastUpdated: string;
 }
 
-const WISHLIST_STORAGE_KEY = 'restauranthub_wishlist';
+const WISHLIST_STORAGE_KEY = 'restopapa_wishlist';
 
 export class WishlistManager {
   private wishlist: WishlistState;

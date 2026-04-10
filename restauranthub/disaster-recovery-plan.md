@@ -1,8 +1,8 @@
-# RestaurantHub Disaster Recovery Plan
+# RestoPapa Disaster Recovery Plan
 
 ## Executive Summary
 
-This Disaster Recovery Plan outlines the strategies, procedures, and protocols for RestaurantHub to recover from various disaster scenarios while maintaining business continuity. The plan covers system failures, data loss, security breaches, and other catastrophic events that could impact service availability.
+This Disaster Recovery Plan outlines the strategies, procedures, and protocols for RestoPapa to recover from various disaster scenarios while maintaining business continuity. The plan covers system failures, data loss, security breaches, and other catastrophic events that could impact service availability.
 
 ## Table of Contents
 
@@ -21,10 +21,10 @@ This Disaster Recovery Plan outlines the strategies, procedures, and protocols f
 ## Plan Overview
 
 ### Purpose
-To ensure RestaurantHub can rapidly recover from disasters with minimal data loss and service disruption, maintaining critical business operations and customer trust.
+To ensure RestoPapa can rapidly recover from disasters with minimal data loss and service disruption, maintaining critical business operations and customer trust.
 
 ### Scope
-This plan covers all RestaurantHub systems, data, applications, and infrastructure components including:
+This plan covers all RestoPapa systems, data, applications, and infrastructure components including:
 - Production applications (API, Web, Mobile)
 - Databases (PostgreSQL)
 - Cache layers (Redis)
@@ -440,7 +440,7 @@ This plan covers all RestaurantHub systems, data, applications, and infrastructu
 **Incident Response Team:**
 - Slack channel: #incident-response
 - Conference bridge: Always available
-- Email list: incident-team@restauranthub.com
+- Email list: incident-team@restopapa.com
 - SMS alerts for critical incidents
 
 **Management Updates:**
@@ -452,8 +452,8 @@ This plan covers all RestaurantHub systems, data, applications, and infrastructu
 ### External Communication
 
 **Customer Communication:**
-- Status page: status.restauranthub.com
-- Social media: @RestaurantHub
+- Status page: status.restopapa.com
+- Social media: @RestoPapa
 - Email notifications: Auto-generated
 - In-app notifications: Real-time updates
 
@@ -478,7 +478,7 @@ Time: [Timestamp]
 Impact: [Affected Services]
 ETA: [Estimated Resolution Time]
 Updates: Every 30 minutes
-Status Page: status.restauranthub.com
+Status Page: status.restopapa.com
 ```
 
 **Resolution Notification:**

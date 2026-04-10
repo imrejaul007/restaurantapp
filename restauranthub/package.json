@@ -1,5 +1,5 @@
 {
-  "name": "restauranthub",
+  "name": "restopapa",
   "version": "1.0.0",
   "description": "B2B/B2C SaaS platform for restaurants",
   "private": true,
@@ -13,8 +13,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "db:migrate": "npm run db:migrate --workspace=@restauranthub/db",
-    "db:seed": "npm run db:seed --workspace=@restauranthub/db",
+    "db:migrate": "npm run db:migrate --workspace=@restopapa/db",
+    "db:seed": "npm run db:seed --workspace=@restopapa/db",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "redis:up": "docker-compose -f docker-compose.redis.yml up -d",

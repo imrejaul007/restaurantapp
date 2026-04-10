@@ -69,12 +69,12 @@ export class PerformanceService {
     // Collect default metrics (CPU, memory, etc.)
     collectDefaultMetrics({
       register,
-      prefix: 'restauranthub_',
+      prefix: 'restopapa_',
     });
 
     // HTTP request counter
     this.httpRequests = new Counter({
-      name: 'restauranthub_http_requests_total',
+      name: 'restopapa_http_requests_total',
       help: 'Total number of HTTP requests',
       labelNames: ['method', 'route', 'status_code'],
       registers: [register],
@@ -82,7 +82,7 @@ export class PerformanceService {
 
     // HTTP request duration
     this.httpDuration = new Histogram({
-      name: 'restauranthub_http_request_duration_seconds',
+      name: 'restopapa_http_request_duration_seconds',
       help: 'Duration of HTTP requests in seconds',
       labelNames: ['method', 'route', 'status_code'],
       buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
@@ -91,14 +91,14 @@ export class PerformanceService {
 
     // Active connections
     this.activeConnections = new Gauge({
-      name: 'restauranthub_active_connections',
+      name: 'restopapa_active_connections',
       help: 'Number of active connections',
       registers: [register],
     });
 
     // Memory usage
     this.memoryUsage = new Gauge({
-      name: 'restauranthub_memory_usage_bytes',
+      name: 'restopapa_memory_usage_bytes',
       help: 'Memory usage in bytes',
       labelNames: ['type'],
       registers: [register],
@@ -106,7 +106,7 @@ export class PerformanceService {
 
     // CPU usage
     this.cpuUsage = new Gauge({
-      name: 'restauranthub_cpu_usage_percent',
+      name: 'restopapa_cpu_usage_percent',
       help: 'CPU usage percentage',
       registers: [register],
     });

@@ -13,7 +13,7 @@ export interface LogContext {
 @Injectable()
 export class LoggerService implements NestLoggerService {
   private readonly winston: winston.Logger;
-  private readonly serviceName = 'restauranthub-api';
+  private readonly serviceName = 'restopapa-api';
 
   constructor() {
     const transports: winston.transport[] = [
@@ -55,7 +55,7 @@ export class LoggerService implements NestLoggerService {
           clientOpts: {
             node: process.env.ELASTICSEARCH_URL,
           },
-          index: `restauranthub-application-${new Date().toISOString().slice(0, 10)}`,
+          index: `restopapa-application-${new Date().toISOString().slice(0, 10)}`,
           level: 'info',
           transformer: (logData) => {
             return {

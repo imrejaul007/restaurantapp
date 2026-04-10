@@ -17,7 +17,7 @@ export class HealthController {
     const health = {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      message: 'RestaurantHub API is running',
+      message: 'RestoPapa API is running',
       environment: this.configService.get('NODE_ENV'),
       uptime: process.uptime(),
       version: process.env.npm_package_version || '1.0.0',

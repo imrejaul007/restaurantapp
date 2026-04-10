@@ -1,5 +1,5 @@
 {
-  "name": "@restauranthub/rez-client",
+  "name": "@restopapa/rez-client",
   "version": "0.1.0",
   "description": "Typed HTTP client for all REZ microservices",
   "private": true,

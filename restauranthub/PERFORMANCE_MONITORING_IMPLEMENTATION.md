@@ -1,8 +1,8 @@
-# RestaurantHub Performance Monitoring Implementation
+# RestoPapa Performance Monitoring Implementation
 
 ## 🎯 Overview
 
-This document outlines the comprehensive performance monitoring, observability, and optimization system implemented for the RestaurantHub platform. The solution provides end-to-end visibility into system performance, user experience, and business metrics with intelligent alerting and automated response capabilities.
+This document outlines the comprehensive performance monitoring, observability, and optimization system implemented for the RestoPapa platform. The solution provides end-to-end visibility into system performance, user experience, and business metrics with intelligent alerting and automated response capabilities.
 
 ## 🏗️ Architecture
 
@@ -255,7 +255,7 @@ This document outlines the comprehensive performance monitoring, observability, 
 ### 1. Start Monitoring Stack
 
 ```bash
-cd /Users/rejaulkarim/Documents/Resturistan\ App/restauranthub
+cd /Users/rejaulkarim/Documents/Resturistan\ App/restopapa
 
 # Start monitoring services
 docker-compose -f docker-compose.monitoring.yml up -d
@@ -361,7 +361,7 @@ PROMETHEUS_ENDPOINT=http://localhost:9090
 # Alerting Configuration
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 GRAFANA_PASSWORD=your_secure_password
-ALERT_EMAIL=alerts@restauranthub.com
+ALERT_EMAIL=alerts@restopapa.com
 ```
 
 ### Docker Compose Override
@@ -421,7 +421,7 @@ services:
 
 ## 🎉 Implementation Complete!
 
-The RestaurantHub platform now has comprehensive performance monitoring, observability, and optimization systems in place. This implementation provides:
+The RestoPapa platform now has comprehensive performance monitoring, observability, and optimization systems in place. This implementation provides:
 
 ✅ **Real-time Performance Monitoring** with automated alerts
 ✅ **Business Intelligence** with key metrics and KPIs

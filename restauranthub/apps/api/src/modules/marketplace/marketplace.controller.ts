@@ -17,7 +17,7 @@ import type { SubmitRfqDto, RegisterVendorDto } from './marketplace.dto';
 
 /**
  * All /marketplace/* endpoints.
- * Auth-protected routes require a valid JWT (existing RestaurantHub auth).
+ * Auth-protected routes require a valid JWT (existing RestoPapa auth).
  */
 @Controller('marketplace')
 export class MarketplaceController {

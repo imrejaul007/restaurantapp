@@ -6,7 +6,7 @@
  */
 
 import { IsIn, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import type { CreditFactor, CreditTier } from '@restauranthub/rez-client';
+import type { CreditFactor, CreditTier } from '@restopapa/rez-client';
 
 // Re-export tier type for convenience
 export type { CreditTier, CreditFactor };

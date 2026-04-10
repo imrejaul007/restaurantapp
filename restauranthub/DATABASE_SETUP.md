@@ -1,7 +1,7 @@
 # Database Setup Guide
 
 ## Current Status
-RestaurantHub is currently running with a comprehensive mock database system that provides full functionality for development and testing purposes.
+RestoPapa is currently running with a comprehensive mock database system that provides full functionality for development and testing purposes.
 
 ## Mock Database Features
 - ✅ Complete user management (17 users with different roles)
@@ -32,7 +32,7 @@ sudo apt-get update
 sudo apt-get install postgresql postgresql-contrib
 
 # Create database
-createdb restauranthub
+createdb restopapa
 ```
 
 ### Database Configuration
@@ -41,9 +41,9 @@ createdb restauranthub
 psql postgres
 
 # Create user and database
-CREATE USER restauranthub WITH PASSWORD 'your_secure_password';
-CREATE DATABASE restauranthub OWNER restauranthub;
-GRANT ALL PRIVILEGES ON DATABASE restauranthub TO restauranthub;
+CREATE USER restopapa WITH PASSWORD 'your_secure_password';
+CREATE DATABASE restopapa OWNER restopapa;
+GRANT ALL PRIVILEGES ON DATABASE restopapa TO restopapa;
 \q
 ```
 
@@ -54,12 +54,12 @@ Update your `.env` file:
 # MOCK_DATABASE=true
 
 # Add PostgreSQL connection
-DATABASE_URL="postgresql://restauranthub:your_secure_password@localhost:5432/restauranthub"
+DATABASE_URL="postgresql://restopapa:your_secure_password@localhost:5432/restopapa"
 ```
 
 ### Database Migration
 ```bash
-cd /Users/rejaulkarim/Documents/Resturistan App/restauranthub
+cd /Users/rejaulkarim/Documents/Resturistan App/restopapa
 
 # Generate Prisma client
 npx prisma generate

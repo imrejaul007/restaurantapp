@@ -1,6 +1,6 @@
-# RestaurantHub - Development Changelog
+# RestoPapa - Development Changelog
 
-This file tracks all changes, updates, and fixes made to the RestaurantHub application for monitoring and progress tracking.
+This file tracks all changes, updates, and fixes made to the RestoPapa application for monitoring and progress tracking.
 
 ---
 
@@ -29,7 +29,7 @@ This file tracks all changes, updates, and fixes made to the RestaurantHub appli
   export function useAuth() {
     const mockUser: User = {
       id: 'admin-1',
-      email: 'admin@restauranthub.com', 
+      email: 'admin@restopapa.com', 
       name: 'Admin User',
       role: 'ADMIN'
     };

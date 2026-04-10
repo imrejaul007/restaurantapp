@@ -463,4 +463,4 @@ Rules Configuration:
 3. **Data Breaches**: Implement breach response protocol
 4. **Critical Bugs**: Coordinate emergency fixes
 
-**Need help with admin operations?** Contact the development team at dev-support@restauranthub.com or escalate through the emergency contact procedures.
+**Need help with admin operations?** Contact the development team at dev-support@restopapa.com or escalate through the emergency contact procedures.

@@ -1,4 +1,4 @@
-# RestaurantHub Incident Response Runbooks
+# RestoPapa Incident Response Runbooks
 
 ## Table of Contents
 
@@ -54,7 +54,7 @@
 2. **Initial Assessment**
    ```bash
    # Quick health check
-   curl -f https://api.restauranthub.com/api/v1/health
+   curl -f https://api.restopapa.com/api/v1/health
 
    # Check system status
    kubectl get pods --all-namespaces
@@ -116,10 +116,10 @@
    kubectl get pods -n database
 
    # Test database connectivity
-   pg_isready -h postgres-primary -p 5432 -U restauranthub
+   pg_isready -h postgres-primary -p 5432 -U restopapa
 
    # Check database logs
-   docker logs restauranthub-postgres-prod
+   docker logs restopapa-postgres-prod
    kubectl logs postgres-primary-0 -n database
    ```
 
@@ -141,20 +141,20 @@
 1. **Attempt Service Restart**
    ```bash
    # For Docker deployment
-   docker restart restauranthub-postgres-prod
+   docker restart restopapa-postgres-prod
 
    # For Kubernetes deployment
    kubectl rollout restart statefulset/postgres-primary -n database
 
    # Wait for restart and verify
    sleep 30
-   pg_isready -h postgres-primary -p 5432 -U restauranthub
+   pg_isready -h postgres-primary -p 5432 -U restopapa
    ```
 
 2. **Failover to Standby (if restart fails)**
    ```bash
    # Check standby status
-   pg_isready -h postgres-standby -p 5432 -U restauranthub
+   pg_isready -h postgres-standby -p 5432 -U restopapa
 
    # Promote standby to primary
    kubectl exec postgres-standby-0 -n database -- pg_promote
@@ -170,10 +170,10 @@
 3. **Verify Recovery**
    ```bash
    # Test database operations
-   psql -h postgres-standby -U restauranthub -c "SELECT NOW();"
+   psql -h postgres-standby -U restopapa -c "SELECT NOW();"
 
    # Check application health
-   curl -f https://api.restauranthub.com/api/v1/health
+   curl -f https://api.restopapa.com/api/v1/health
 
    # Monitor connection count
    SELECT count(*) FROM pg_stat_activity WHERE state = 'active';
@@ -268,13 +268,13 @@
 2. **Check Dependencies**
    ```bash
    # Database connectivity
-   curl -f https://api.restauranthub.com/api/v1/health/database
+   curl -f https://api.restopapa.com/api/v1/health/database
 
    # Redis connectivity
-   curl -f https://api.restauranthub.com/api/v1/health/redis
+   curl -f https://api.restopapa.com/api/v1/health/redis
 
    # External services
-   curl -f https://api.restauranthub.com/api/v1/health/external
+   curl -f https://api.restopapa.com/api/v1/health/external
    ```
 
 #### Recovery Actions (5-30 minutes)
@@ -301,7 +301,7 @@
 
    # Verify health after restart
    sleep 60
-   curl -f https://api.restauranthub.com/api/v1/health
+   curl -f https://api.restopapa.com/api/v1/health
    ```
 
 3. **Rollback if Necessary**
@@ -430,8 +430,8 @@
    curl -I https://google.com
 
    # Check DNS resolution
-   nslookup api.restauranthub.com
-   dig @8.8.8.8 api.restauranthub.com
+   nslookup api.restopapa.com
+   dig @8.8.8.8 api.restopapa.com
    ```
 
 2. **Network Interface Checks**
@@ -730,7 +730,7 @@
    ```bash
    # Create database snapshot immediately
    kubectl exec -it postgres-primary-0 -n database -- \
-     pg_dump restauranthub > /tmp/emergency-backup-$(date +%Y%m%d-%H%M).sql
+     pg_dump restopapa > /tmp/emergency-backup-$(date +%Y%m%d-%H%M).sql
 
    # Enable read-only mode
    kubectl patch configmap app-config -n app \
@@ -754,25 +754,25 @@
 3. **Point-in-Time Recovery**
    ```bash
    # Find appropriate backup
-   aws s3 ls s3://restauranthub-backups/daily/ | grep $(date +%Y-%m-%d)
+   aws s3 ls s3://restopapa-backups/daily/ | grep $(date +%Y-%m-%d)
 
    # Download backup
-   aws s3 cp s3://restauranthub-backups/daily/backup-$(date +%Y%m%d).tar.gz /tmp/
+   aws s3 cp s3://restopapa-backups/daily/backup-$(date +%Y%m%d).tar.gz /tmp/
 
    # Restore to recovery database
    kubectl exec -it postgres-recovery-0 -n database -- \
-     pg_restore -d restauranthub_recovery /tmp/backup-$(date +%Y%m%d).tar.gz
+     pg_restore -d restopapa_recovery /tmp/backup-$(date +%Y%m%d).tar.gz
    ```
 
 4. **Selective Data Recovery**
    ```bash
    # Extract specific data from backup
    kubectl exec -it postgres-recovery-0 -n database -- \
-     psql -d restauranthub_recovery -c "SELECT * FROM users WHERE deleted_at IS NULL;" > /tmp/users-recovery.sql
+     psql -d restopapa_recovery -c "SELECT * FROM users WHERE deleted_at IS NULL;" > /tmp/users-recovery.sql
 
    # Import recovered data
    kubectl exec -it postgres-primary-0 -n database -- \
-     psql -d restauranthub -f /tmp/users-recovery.sql
+     psql -d restopapa -f /tmp/users-recovery.sql
    ```
 
 ---
@@ -800,7 +800,7 @@
 - **Incident Response**: #incident-response
 - **Status Updates**: #status-updates
 - **Management**: #incident-management
-- **External**: status.restauranthub.com
+- **External**: status.restopapa.com
 
 ---
 

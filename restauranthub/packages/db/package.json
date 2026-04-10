@@ -1,7 +1,7 @@
 {
-  "name": "@restauranthub/db",
+  "name": "@restopapa/db",
   "version": "1.0.0",
-  "description": "Database schema and migrations for RestaurantHub",
+  "description": "Database schema and migrations for RestoPapa",
   "private": true,
   "scripts": {
     "db:generate": "prisma generate",

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { RestaurantHubApiClient } from './api-client';
-import { RestaurantHubSocketClient } from './socket-client';
+import { RestoPapaApiClient } from './api-client';
+import { RestoPapaSocketClient } from './socket-client';
 import {
   User,
   Restaurant,
@@ -18,11 +18,11 @@ import {
 
 // API Client Hook
 export function useApiClient() {
-  const [client, setClient] = useState<RestaurantHubApiClient | null>(null);
+  const [client, setClient] = useState<RestoPapaApiClient | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const initializeClient = useCallback((config: any) => {
-    const apiClient = new RestaurantHubApiClient(config);
+    const apiClient = new RestoPapaApiClient(config);
     setClient(apiClient);
     setIsInitialized(true);
     return apiClient;
@@ -43,7 +43,7 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   const signUp = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     userData: {
       email: string;
       password: string;
@@ -69,7 +69,7 @@ export function useAuth() {
   }, []);
 
   const signIn = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     credentials: { email: string; password: string }
   ) => {
     try {
@@ -87,7 +87,7 @@ export function useAuth() {
     }
   }, []);
 
-  const signOut = useCallback(async (client: RestaurantHubApiClient) => {
+  const signOut = useCallback(async (client: RestoPapaApiClient) => {
     try {
       setLoading(true);
       await client.signOut();
@@ -101,7 +101,7 @@ export function useAuth() {
   }, []);
 
   const updateProfile = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     userData: Partial<User>
   ) => {
     try {
@@ -140,7 +140,7 @@ export function useRestaurants() {
   const [pagination, setPagination] = useState<any>(null);
 
   const fetchRestaurants = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     params?: SearchParams
   ) => {
     try {
@@ -159,7 +159,7 @@ export function useRestaurants() {
   }, []);
 
   const createRestaurant = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     restaurantData: Partial<Restaurant>
   ) => {
     try {
@@ -177,7 +177,7 @@ export function useRestaurants() {
   }, []);
 
   const updateRestaurant = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     id: string,
     restaurantData: Partial<Restaurant>
   ) => {
@@ -200,7 +200,7 @@ export function useRestaurants() {
   }, []);
 
   const deleteRestaurant = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     id: string
   ) => {
     try {
@@ -237,7 +237,7 @@ export function useOrders() {
   const [pagination, setPagination] = useState<any>(null);
 
   const fetchOrders = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     params?: SearchParams
   ) => {
     try {
@@ -256,7 +256,7 @@ export function useOrders() {
   }, []);
 
   const createOrder = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     orderData: Partial<Order>
   ) => {
     try {
@@ -274,7 +274,7 @@ export function useOrders() {
   }, []);
 
   const updateOrderStatus = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     id: string,
     status: string
   ) => {
@@ -310,12 +310,12 @@ export function useOrders() {
 
 // Socket Hook
 export function useSocket() {
-  const [socket, setSocket] = useState<RestaurantHubSocketClient | null>(null);
+  const [socket, setSocket] = useState<RestoPapaSocketClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const initializeSocket = useCallback((config: any) => {
-    const socketClient = new RestaurantHubSocketClient(config);
+    const socketClient = new RestoPapaSocketClient(config);
     
     socketClient.on('connected', () => {
       setIsConnected(true);
@@ -363,9 +363,9 @@ export function useSocket() {
 // Real-time Order Updates Hook
 export function useOrderUpdates(_orderId?: string) {
   const [orderUpdate, setOrderUpdate] = useState<OrderUpdate | null>(null);
-  const [socket, setSocket] = useState<RestaurantHubSocketClient | null>(null);
+  const [socket, setSocket] = useState<RestoPapaSocketClient | null>(null);
 
-  const subscribeToUpdates = useCallback((socketClient: RestaurantHubSocketClient, orderIdParam?: string) => {
+  const subscribeToUpdates = useCallback((socketClient: RestoPapaSocketClient, orderIdParam?: string) => {
     setSocket(socketClient);
     
     const handleOrderUpdate = (update: OrderUpdate) => {
@@ -394,7 +394,7 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const subscribeToNotifications = useCallback((socketClient: RestaurantHubSocketClient) => {
+  const subscribeToNotifications = useCallback((socketClient: RestoPapaSocketClient) => {
     const handleNotification = (notification: NotificationData) => {
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
@@ -408,7 +408,7 @@ export function useNotifications() {
     };
   }, []);
 
-  const markAsRead = useCallback((socketClient: RestaurantHubSocketClient, notificationId: string) => {
+  const markAsRead = useCallback((socketClient: RestoPapaSocketClient, notificationId: string) => {
     socketClient.markNotificationAsRead(notificationId);
     setNotifications(prev => 
       prev.map(notification => 
@@ -420,7 +420,7 @@ export function useNotifications() {
     setUnreadCount(prev => Math.max(0, prev - 1));
   }, []);
 
-  const markAllAsRead = useCallback((socketClient: RestaurantHubSocketClient) => {
+  const markAllAsRead = useCallback((socketClient: RestoPapaSocketClient) => {
     notifications.forEach(notification => {
       if (!notification.read) {
         socketClient.markNotificationAsRead(notification.id);
@@ -449,7 +449,7 @@ export function useFileUpload() {
   const [error, setError] = useState<string | null>(null);
 
   const uploadFile = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     file: File,
     options?: any
   ) => {
@@ -487,7 +487,7 @@ export function useSearch<T = any>() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const search = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     query: string,
     type?: string
   ) => {
@@ -506,7 +506,7 @@ export function useSearch<T = any>() {
   }, []);
 
   const getSuggestions = useCallback(async (
-    client: RestaurantHubApiClient,
+    client: RestoPapaApiClient,
     query: string,
     type?: string
   ) => {
@@ -580,7 +580,7 @@ export function usePagination(initialPage = 1, initialLimit = 10) {
 export function useTokenStorage() {
   const [tokens, setTokens] = useState<AuthTokens | null>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('restauranthub_tokens');
+      const stored = localStorage.getItem('restopapa_tokens');
       return stored ? JSON.parse(stored) : null;
     }
     return null;
@@ -589,14 +589,14 @@ export function useTokenStorage() {
   const saveTokens = useCallback((newTokens: AuthTokens) => {
     setTokens(newTokens);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('restauranthub_tokens', JSON.stringify(newTokens));
+      localStorage.setItem('restopapa_tokens', JSON.stringify(newTokens));
     }
   }, []);
 
   const clearTokens = useCallback(() => {
     setTokens(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('restauranthub_tokens');
+      localStorage.removeItem('restopapa_tokens');
     }
   }, []);
 

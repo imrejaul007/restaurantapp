@@ -43,7 +43,7 @@ async function bootstrap() {
 
   // Swagger for API Gateway
   const config = new DocumentBuilder()
-    .setTitle('RestaurantHub API Gateway')
+    .setTitle('RestoPapa API Gateway')
     .setDescription('Unified API Gateway for all microservices')
     .setVersion('1.0')
     .addBearerAuth()

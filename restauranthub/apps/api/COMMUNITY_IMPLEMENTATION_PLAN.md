@@ -1,4 +1,4 @@
-# 🏛️ RestaurantHub Community Module - Complete Implementation Plan
+# 🏛️ RestoPapa Community Module - Complete Implementation Plan
 
 ## Overview
 Complete implementation plan for the Community Module with all 10 feature sets, focusing on vendor/product suggestions and community engagement.

@@ -1,9 +1,9 @@
-// RestaurantHub Service Worker - Advanced PWA
-const CACHE_NAME = 'restauranthub-v1.2.0';
-const STATIC_CACHE = 'restauranthub-static-v1.2.0';
-const DYNAMIC_CACHE = 'restauranthub-dynamic-v1.2.0';
-const API_CACHE = 'restauranthub-api-v1.2.0';
-const OFFLINE_CACHE = 'restauranthub-offline-v1.2.0';
+// RestoPapa Service Worker - Advanced PWA
+const CACHE_NAME = 'restopapa-v1.2.0';
+const STATIC_CACHE = 'restopapa-static-v1.2.0';
+const DYNAMIC_CACHE = 'restopapa-dynamic-v1.2.0';
+const API_CACHE = 'restopapa-api-v1.2.0';
+const OFFLINE_CACHE = 'restopapa-offline-v1.2.0';
 
 // Resources to cache immediately
 const STATIC_ASSETS = [
@@ -191,7 +191,7 @@ async function navigationStrategy(request) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Offline - RestaurantHub</title>
+          <title>Offline - RestoPapa</title>
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; }
@@ -222,15 +222,15 @@ async function navigationStrategy(request) {
 }
 
 // Offline data storage and management
-const OFFLINE_DATA_STORE = 'restauranthub-offline-data';
-const SYNC_QUEUE_STORE = 'restauranthub-sync-queue';
+const OFFLINE_DATA_STORE = 'restopapa-offline-data';
+const SYNC_QUEUE_STORE = 'restopapa-sync-queue';
 
 // IndexedDB setup for offline data storage
 let db;
 
 async function initializeOfflineDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('RestaurantHubOfflineDB', 1);
+    const request = indexedDB.open('RestoPapaOfflineDB', 1);
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => {
@@ -463,7 +463,7 @@ self.addEventListener('push', (event) => {
   const data = event.data.json();
 
   const options = {
-    body: data.body || 'New notification from RestaurantHub',
+    body: data.body || 'New notification from RestoPapa',
     icon: '/icon?size=192',
     badge: '/icon?size=72',
     image: data.image,
@@ -475,7 +475,7 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(
     self.registration.showNotification(
-      data.title || 'RestaurantHub',
+      data.title || 'RestoPapa',
       options
     )
   );
@@ -710,7 +710,7 @@ async function initializeServiceWorker() {
       });
     }
 
-    console.log('RestaurantHub Service Worker v1.2.0 loaded with advanced PWA features');
+    console.log('RestoPapa Service Worker v1.2.0 loaded with advanced PWA features');
   } catch (error) {
     console.error('Service Worker initialization failed:', error);
   }

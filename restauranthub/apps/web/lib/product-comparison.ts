@@ -39,7 +39,7 @@ export interface ComparisonState {
   lastUpdated: string;
 }
 
-const COMPARISON_STORAGE_KEY = 'restauranthub_product_comparison';
+const COMPARISON_STORAGE_KEY = 'restopapa_product_comparison';
 const MAX_COMPARISON_ITEMS = 4; // Maximum products to compare at once
 
 export class ProductComparisonManager {

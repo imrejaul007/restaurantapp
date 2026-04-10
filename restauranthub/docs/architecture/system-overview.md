@@ -1,6 +1,6 @@
-# RestaurantHub System Architecture
+# RestoPapa System Architecture
 
-This document provides a comprehensive overview of the RestaurantHub platform architecture, including system design, technology stack, data flow, and deployment strategies.
+This document provides a comprehensive overview of the RestoPapa platform architecture, including system design, technology stack, data flow, and deployment strategies.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ This document provides a comprehensive overview of the RestaurantHub platform ar
 
 ## System Overview
 
-RestaurantHub is a comprehensive B2B/B2C SaaS platform designed for the restaurant industry. The platform follows a microservices-inspired architecture with a unified API gateway, supporting multiple user roles and complex business workflows.
+RestoPapa is a comprehensive B2B/B2C SaaS platform designed for the restaurant industry. The platform follows a microservices-inspired architecture with a unified API gateway, supporting multiple user roles and complex business workflows.
 
 ### Core Objectives
 
@@ -602,8 +602,8 @@ export class SecurityService {
 
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: '1h',
-      issuer: 'restauranthub-api',
-      audience: 'restauranthub-clients',
+      issuer: 'restopapa-api',
+      audience: 'restopapa-clients',
     });
 
     const refreshToken = this.jwtService.sign(
@@ -837,17 +837,17 @@ export class PerformanceService {
 ```nginx
 upstream api_servers {
     least_conn;
-    server api1.restauranthub.com:3000 weight=3;
-    server api2.restauranthub.com:3000 weight=3;
-    server api3.restauranthub.com:3000 weight=2;
+    server api1.restopapa.com:3000 weight=3;
+    server api2.restopapa.com:3000 weight=3;
+    server api3.restopapa.com:3000 weight=2;
 }
 
 server {
     listen 443 ssl http2;
-    server_name api.restauranthub.com;
+    server_name api.restopapa.com;
 
-    ssl_certificate /etc/ssl/restauranthub.crt;
-    ssl_certificate_key /etc/ssl/restauranthub.key;
+    ssl_certificate /etc/ssl/restopapa.crt;
+    ssl_certificate_key /etc/ssl/restopapa.key;
 
     location / {
         proxy_pass http://api_servers;
@@ -1041,7 +1041,7 @@ services:
   postgres:
     image: postgres:14
     environment:
-      - POSTGRES_DB=restauranthub
+      - POSTGRES_DB=restopapa
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
@@ -1075,20 +1075,20 @@ volumes:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restauranthub-api
+  name: restopapa-api
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: restauranthub-api
+      app: restopapa-api
   template:
     metadata:
       labels:
-        app: restauranthub-api
+        app: restopapa-api
     spec:
       containers:
       - name: api
-        image: restauranthub/api:latest
+        image: restopapa/api:latest
         ports:
         - containerPort: 3000
         env:
@@ -1118,10 +1118,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: restauranthub-api-service
+  name: restopapa-api-service
 spec:
   selector:
-    app: restauranthub-api
+    app: restopapa-api
   ports:
   - port: 80
     targetPort: 3000
@@ -1167,14 +1167,14 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t restauranthub/api:${{ github.sha }} .
-          docker tag restauranthub/api:${{ github.sha }} restauranthub/api:latest
+          docker build -t restopapa/api:${{ github.sha }} .
+          docker tag restopapa/api:${{ github.sha }} restopapa/api:latest
 
       - name: Push to Registry
         run: |
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push restauranthub/api:${{ github.sha }}
-          docker push restauranthub/api:latest
+          docker push restopapa/api:${{ github.sha }}
+          docker push restopapa/api:latest
 
   deploy:
     needs: build
@@ -1184,8 +1184,8 @@ jobs:
     steps:
       - name: Deploy to Production
         run: |
-          kubectl set image deployment/restauranthub-api api=restauranthub/api:${{ github.sha }}
-          kubectl rollout status deployment/restauranthub-api
+          kubectl set image deployment/restopapa-api api=restopapa/api:${{ github.sha }}
+          kubectl rollout status deployment/restopapa-api
 ```
 
 ## Monitoring & Observability
@@ -1315,4 +1315,4 @@ export class LoggerService {
 }
 ```
 
-This comprehensive architecture documentation provides a complete overview of the RestaurantHub system design, including detailed implementation patterns, security considerations, scalability strategies, and operational practices. The architecture is designed to be robust, scalable, and maintainable while supporting the complex business requirements of the restaurant industry platform.
+This comprehensive architecture documentation provides a complete overview of the RestoPapa system design, including detailed implementation patterns, security considerations, scalability strategies, and operational practices. The architecture is designed to be robust, scalable, and maintainable while supporting the complex business requirements of the restaurant industry platform.

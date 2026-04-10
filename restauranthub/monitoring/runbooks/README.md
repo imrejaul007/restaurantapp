@@ -1,6 +1,6 @@
-# RestaurantHub Monitoring Runbooks
+# RestoPapa Monitoring Runbooks
 
-This directory contains operational runbooks for responding to monitoring alerts and managing the RestaurantHub platform. These runbooks provide step-by-step instructions for diagnosing and resolving common issues.
+This directory contains operational runbooks for responding to monitoring alerts and managing the RestoPapa platform. These runbooks provide step-by-step instructions for diagnosing and resolving common issues.
 
 ## 🚨 Emergency Response
 
@@ -16,10 +16,10 @@ For **CRITICAL** alerts, follow this immediate response protocol:
 ## 📊 Monitoring Overview
 
 ### Key Dashboards
-- **System Overview**: http://grafana.restauranthub.com/d/system-overview
-- **Business Metrics**: http://grafana.restauranthub.com/d/business-metrics
-- **Database Performance**: http://grafana.restauranthub.com/d/database-performance
-- **API Performance**: http://grafana.restauranthub.com/d/api-performance
+- **System Overview**: http://grafana.restopapa.com/d/system-overview
+- **Business Metrics**: http://grafana.restopapa.com/d/business-metrics
+- **Database Performance**: http://grafana.restopapa.com/d/database-performance
+- **API Performance**: http://grafana.restopapa.com/d/api-performance
 
 ### Alert Channels
 - **Critical Alerts**: #alerts-critical
@@ -30,7 +30,7 @@ For **CRITICAL** alerts, follow this immediate response protocol:
 ## 📚 Runbook Index
 
 ### System Health
-- [API Service Down](./api-service-down.md) - RestaurantHub API is unreachable
+- [API Service Down](./api-service-down.md) - RestoPapa API is unreachable
 - [Database Down](./postgres-down.md) - PostgreSQL database is unavailable
 - [Redis Down](./redis-down.md) - Redis cache service is unavailable
 - [High Memory Usage](./high-memory-usage.md) - System memory usage is critical
@@ -114,22 +114,22 @@ For **CRITICAL** alerts, follow this immediate response protocol:
 ## 🛠 Tools and Resources
 
 ### Monitoring Tools
-- **Prometheus**: http://prometheus.restauranthub.com:9090
-- **Grafana**: http://grafana.restauranthub.com:3000
-- **AlertManager**: http://alertmanager.restauranthub.com:9093
-- **Jaeger**: http://jaeger.restauranthub.com:16686
+- **Prometheus**: http://prometheus.restopapa.com:9090
+- **Grafana**: http://grafana.restopapa.com:3000
+- **AlertManager**: http://alertmanager.restopapa.com:9093
+- **Jaeger**: http://jaeger.restopapa.com:16686
 
 ### Logging Tools
-- **Loki**: http://loki.restauranthub.com:3100
-- **Kibana**: http://kibana.restauranthub.com:5601
+- **Loki**: http://loki.restopapa.com:3100
+- **Kibana**: http://kibana.restopapa.com:5601
 
 ### Infrastructure Tools
 - **AWS Console**: https://console.aws.amazon.com
-- **Kubernetes Dashboard**: http://k8s.restauranthub.com
-- **Docker Swarm**: http://swarm.restauranthub.com
+- **Kubernetes Dashboard**: http://k8s.restopapa.com
+- **Docker Swarm**: http://swarm.restopapa.com
 
 ### Communication Channels
-- **Slack Workspace**: restauranthub.slack.com
+- **Slack Workspace**: restopapa.slack.com
 - **Incident Channel**: #incidents
 - **Operations Channel**: #operations
 - **Engineering Channel**: #engineering
@@ -139,13 +139,13 @@ For **CRITICAL** alerts, follow this immediate response protocol:
 ### System Health Checks
 ```bash
 # Check service status
-systemctl status restauranthub-api
+systemctl status restopapa-api
 systemctl status postgresql
 systemctl status redis
 
 # Check container health
 docker ps
-docker logs restauranthub-api
+docker logs restopapa-api
 docker stats
 
 # Check resource usage
@@ -157,7 +157,7 @@ free -m
 ### Database Commands
 ```bash
 # Connect to PostgreSQL
-psql -h localhost -U postgres -d restauranthub
+psql -h localhost -U postgres -d restopapa
 
 # Check connections
 SELECT count(*) FROM pg_stat_activity;
@@ -166,7 +166,7 @@ SELECT count(*) FROM pg_stat_activity;
 SELECT query, mean_time, calls FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;
 
 # Check database size
-SELECT pg_size_pretty(pg_database_size('restauranthub'));
+SELECT pg_size_pretty(pg_database_size('restopapa'));
 ```
 
 ### Application Commands
@@ -178,10 +178,10 @@ curl http://localhost:3000/api/v1/health
 curl http://localhost:3000/api/v1/metrics
 
 # Restart API service
-sudo systemctl restart restauranthub-api
+sudo systemctl restart restopapa-api
 
 # View application logs
-journalctl -u restauranthub-api -f
+journalctl -u restopapa-api -f
 ```
 
 ### Monitoring Commands

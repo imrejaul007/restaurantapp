@@ -1,10 +1,10 @@
-# RestaurantHub Documentation
+# RestoPapa Documentation
 
-Welcome to the comprehensive documentation for the RestaurantHub platform - a complete B2B/B2C SaaS solution for the restaurant industry.
+Welcome to the comprehensive documentation for the RestoPapa platform - a complete B2B/B2C SaaS solution for the restaurant industry.
 
 ## 📋 Documentation Overview
 
-This documentation covers all aspects of the RestaurantHub platform, from API integration to user guides and system architecture. Whether you're a developer, restaurant owner, employee, vendor, or administrator, you'll find the resources you need here.
+This documentation covers all aspects of the RestoPapa platform, from API integration to user guides and system architecture. Whether you're a developer, restaurant owner, employee, vendor, or administrator, you'll find the resources you need here.
 
 ## 🚀 Quick Start
 
@@ -215,7 +215,7 @@ graph TB
 ### Development Setup
 ```bash
 # Clone the repository
-git clone https://github.com/restauranthub/platform.git
+git clone https://github.com/restopapa/platform.git
 cd platform
 
 # Install dependencies
@@ -264,10 +264,10 @@ npm run test:perf
 - **Support Tickets**: Direct support for complex issues
 
 ### Contact Information
-- **General Support**: support@restauranthub.com
-- **Developer Support**: dev-support@restauranthub.com
-- **Business Inquiries**: business@restauranthub.com
-- **Security Issues**: security@restauranthub.com
+- **General Support**: support@restopapa.com
+- **Developer Support**: dev-support@restopapa.com
+- **Business Inquiries**: business@restopapa.com
+- **Security Issues**: security@restopapa.com
 
 ### Response Times
 - **Critical Issues**: 2-4 hours
@@ -276,10 +276,10 @@ npm run test:perf
 - **Documentation Updates**: 1 week
 
 ### Community
-- **GitHub**: [github.com/restauranthub](https://github.com/restauranthub)
-- **LinkedIn**: [@RestaurantHub](https://linkedin.com/company/restauranthub)
-- **Twitter**: [@RestaurantHub](https://twitter.com/restauranthub)
-- **Discord**: [RestaurantHub Community](https://discord.gg/restauranthub)
+- **GitHub**: [github.com/restopapa](https://github.com/restopapa)
+- **LinkedIn**: [@RestoPapa](https://linkedin.com/company/restopapa)
+- **Twitter**: [@RestoPapa](https://twitter.com/restopapa)
+- **Discord**: [RestoPapa Community](https://discord.gg/restopapa)
 
 ## 📅 Roadmap & Updates
 
@@ -306,7 +306,7 @@ npm run test:perf
 ## 📄 License & Legal
 
 ### Platform License
-The RestaurantHub platform is proprietary software. This documentation is provided for integration and usage purposes.
+The RestoPapa platform is proprietary software. This documentation is provided for integration and usage purposes.
 
 ### API Usage Terms
 - **Rate Limits**: Enforced per API key
@@ -326,4 +326,4 @@ The RestaurantHub platform is proprietary software. This documentation is provid
 **Documentation Version**: v1.4.0
 **Platform Version**: v1.4.0
 
-For the most up-to-date information, visit our [documentation website](https://docs.restauranthub.com) or check our [GitHub repository](https://github.com/restauranthub/platform).
+For the most up-to-date information, visit our [documentation website](https://docs.restopapa.com) or check our [GitHub repository](https://github.com/restopapa/platform).

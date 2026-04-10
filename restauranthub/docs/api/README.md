@@ -1,25 +1,25 @@
-# RestaurantHub API Documentation
+# RestoPapa API Documentation
 
-The RestaurantHub API is a comprehensive B2B/B2C SaaS platform designed specifically for the restaurant industry. It provides a complete ecosystem for restaurant management, vendor relations, job management, community features, and more.
+The RestoPapa API is a comprehensive B2B/B2C SaaS platform designed specifically for the restaurant industry. It provides a complete ecosystem for restaurant management, vendor relations, job management, community features, and more.
 
 ## 🚀 Quick Start
 
 ### Base URL
 - Development: `http://localhost:3000/api/v1`
-- Production: `https://api.restauranthub.com/api/v1`
+- Production: `https://api.restopapa.com/api/v1`
 
 ### Authentication
 All API requests (except public endpoints) require authentication using JWT Bearer tokens:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-     https://api.restauranthub.com/api/v1/auth/me
+     https://api.restopapa.com/api/v1/auth/me
 ```
 
 ### Interactive Documentation
 Visit the interactive API documentation at:
 - Development: `http://localhost:3000/docs`
-- Production: `https://api.restauranthub.com/docs`
+- Production: `https://api.restopapa.com/docs`
 
 ## 📁 Table of Contents
 
@@ -442,9 +442,9 @@ curl -X POST http://localhost:3000/api/v1/jobs/JOB_ID/apply \
 ## 📞 Support
 
 For API support and questions:
-- Email: support@restauranthub.com
-- Documentation: https://docs.restauranthub.com
-- Status Page: https://status.restauranthub.com
+- Email: support@restopapa.com
+- Documentation: https://docs.restopapa.com
+- Status Page: https://status.restopapa.com
 
 ## 📄 License
 

@@ -1,8 +1,8 @@
-# RestaurantHub Scalability & Load Testing Assessment Report
+# RestoPapa Scalability & Load Testing Assessment Report
 
 ## Executive Summary
 
-This comprehensive assessment provides detailed analysis and recommendations for scaling RestaurantHub to support **10,000+ concurrent users**. Through systematic performance testing, bottleneck analysis, and infrastructure evaluation, this report outlines a strategic roadmap for achieving enterprise-scale performance.
+This comprehensive assessment provides detailed analysis and recommendations for scaling RestoPapa to support **10,000+ concurrent users**. Through systematic performance testing, bottleneck analysis, and infrastructure evaluation, this report outlines a strategic roadmap for achieving enterprise-scale performance.
 
 ### Key Findings
 
@@ -262,7 +262,7 @@ Based on current architecture analysis, projected results:
 #### Load Balancer Implementation
 1. **NGINX Advanced Configuration**
    ```nginx
-   upstream restauranthub_api {
+   upstream restopapa_api {
        least_conn;
        server api-1:3000 weight=1 max_fails=3 fail_timeout=30s;
        server api-2:3000 weight=1 max_fails=3 fail_timeout=30s;
@@ -271,7 +271,7 @@ Based on current architecture analysis, projected results:
    }
 
    location /api/ {
-       proxy_pass http://restauranthub_api;
+       proxy_pass http://restopapa_api;
        proxy_http_version 1.1;
        proxy_set_header Connection "";
        proxy_connect_timeout 5s;
@@ -312,7 +312,7 @@ Based on current architecture analysis, projected results:
 2. **Connection Pooling with PgBouncer**
    ```ini
    [databases]
-   restauranthub = host=postgres-master port=5432 dbname=restauranthub
+   restopapa = host=postgres-master port=5432 dbname=restopapa
 
    [pgbouncer]
    pool_mode = transaction
@@ -456,7 +456,7 @@ Based on current architecture analysis, projected results:
      scaleTargetRef:
        apiVersion: apps/v1
        kind: Deployment
-       name: restauranthub-api
+       name: restopapa-api
      minReplicas: 3
      maxReplicas: 50
      metrics:
@@ -477,7 +477,7 @@ Based on current architecture analysis, projected results:
          name: request_queue_depth
          selector:
            matchLabels:
-             service: restauranthub-api
+             service: restopapa-api
        target:
          type: AverageValue
          averageValue: "100"
@@ -900,7 +900,7 @@ class PerformanceRegression:
 
 ### Summary of Recommendations
 
-This comprehensive scalability assessment provides a clear roadmap for scaling RestaurantHub to support **10,000+ concurrent users**. The multi-phase approach ensures:
+This comprehensive scalability assessment provides a clear roadmap for scaling RestoPapa to support **10,000+ concurrent users**. The multi-phase approach ensures:
 
 1. **Immediate Impact**: Quick wins in Phases 1-2 will provide 5x capacity increase
 2. **Long-term Foundation**: Phases 3-4 establish enterprise-grade architecture
@@ -913,7 +913,7 @@ This comprehensive scalability assessment provides a clear roadmap for scaling R
 1. **Start Performance Testing Infrastructure Setup**
    ```bash
    # Execute the comprehensive testing suite
-   cd /Users/rejaulkarim/Documents/Resturistan\ App/restauranthub
+   cd /Users/rejaulkarim/Documents/Resturistan\ App/restopapa
    chmod +x scripts/run-scalability-tests.sh
    ./scripts/run-scalability-tests.sh --duration 30m --max-vus 500
    ```
@@ -959,7 +959,7 @@ The success of this scalability initiative will be measured through:
 - **Business Metrics**: User satisfaction, revenue growth, cost efficiency
 - **Operational Metrics**: Team productivity, incident reduction, deployment frequency
 
-This assessment provides the foundation for transforming RestaurantHub into a highly scalable, enterprise-ready platform capable of supporting rapid growth and delivering exceptional user experiences at scale.
+This assessment provides the foundation for transforming RestoPapa into a highly scalable, enterprise-ready platform capable of supporting rapid growth and delivering exceptional user experiences at scale.
 
 ---
 

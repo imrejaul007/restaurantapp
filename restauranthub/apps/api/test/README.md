@@ -1,6 +1,6 @@
-# RestaurantHub API Testing Suite
+# RestoPapa API Testing Suite
 
-This comprehensive testing suite provides thorough coverage of the RestaurantHub API with a focus on security, performance, and reliability.
+This comprehensive testing suite provides thorough coverage of the RestoPapa API with a focus on security, performance, and reliability.
 
 ## Overview
 
@@ -349,4 +349,4 @@ npm test -- --coverage --verbose
 - Performance benchmarks met
 - Code coverage maintained
 
-This testing suite provides a robust foundation for ensuring the RestaurantHub API is secure, performant, and reliable in production environments.
+This testing suite provides a robust foundation for ensuring the RestoPapa API is secure, performant, and reliable in production environments.

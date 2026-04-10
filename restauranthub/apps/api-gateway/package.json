@@ -1,5 +1,5 @@
 {
-  "name": "@restauranthub/api-gateway",
+  "name": "@restopapa/api-gateway",
   "version": "1.0.0",
   "description": "API Gateway with Load Balancing and Service Discovery",
   "main": "dist/main.js",

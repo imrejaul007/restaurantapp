@@ -1,6 +1,6 @@
 // Main client exports
-export { RestaurantHubApiClient, createApiClient, getApiClient } from './api-client';
-export { RestaurantHubSocketClient, createSocketClient, getSocketClient } from './socket-client';
+export { RestoPapaApiClient, createApiClient, getApiClient } from './api-client';
+export { RestoPapaSocketClient, createSocketClient, getSocketClient } from './socket-client';
 
 // Type exports
 export * from './types';

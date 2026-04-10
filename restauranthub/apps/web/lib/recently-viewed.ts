@@ -27,7 +27,7 @@ export interface RecentlyViewedState {
   lastUpdated: string;
 }
 
-const RECENTLY_VIEWED_STORAGE_KEY = 'restauranthub_recently_viewed';
+const RECENTLY_VIEWED_STORAGE_KEY = 'restopapa_recently_viewed';
 const MAX_RECENTLY_VIEWED_ITEMS = 50; // Keep last 50 items
 
 export class RecentlyViewedManager {

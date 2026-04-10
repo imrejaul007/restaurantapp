@@ -169,7 +169,7 @@ export class FintechService {
         data: {
           id: result.applicationId,
           rezMerchantId,
-          restauranthubUserId: rezMerchantId,
+          restopapaUserId: rezMerchantId,
           requestedAmount: dto.requestedAmount,
           tenor: dto.tenor,
           purpose: dto.purpose,
@@ -210,7 +210,7 @@ export class FintechService {
     const record = await this.prisma.creditApplication.create({
       data: {
         rezMerchantId: merchantId,
-        restauranthubUserId: merchantId,
+        restopapaUserId: merchantId,
         requestedAmount: dto.requestedAmount,
         tenor: dto.tenor,
         purpose: dto.purpose,

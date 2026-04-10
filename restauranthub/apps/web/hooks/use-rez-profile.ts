@@ -9,7 +9,7 @@ export interface RezStats {
 }
 
 export interface RezProfile {
-  restauranthubUserId: string;
+  restopapaUserId: string;
   rezMerchantId: string | null;
   isRezVerified: boolean;
   consentTier: 0 | 1 | 2;
@@ -23,14 +23,14 @@ interface UseRezProfileResult {
   refetch: () => void;
 }
 
-export function useRezProfile(restauranthubUserId: string): UseRezProfileResult {
+export function useRezProfile(restopapaUserId: string): UseRezProfileResult {
   const [profile, setProfile] = useState<RezProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    if (!restauranthubUserId) {
+    if (!restopapaUserId) {
       setIsLoading(false);
       return;
     }
@@ -39,7 +39,7 @@ export function useRezProfile(restauranthubUserId: string): UseRezProfileResult 
     setIsLoading(true);
     setError(null);
 
-    fetch(`/api/users/${restauranthubUserId}/rez-profile`, {
+    fetch(`/api/users/${restopapaUserId}/rez-profile`, {
       credentials: 'include',
     })
       .then(async (res) => {
@@ -62,7 +62,7 @@ export function useRezProfile(restauranthubUserId: string): UseRezProfileResult 
     return () => {
       cancelled = true;
     };
-  }, [restauranthubUserId, tick]);
+  }, [restopapaUserId, tick]);
 
   return {
     profile,

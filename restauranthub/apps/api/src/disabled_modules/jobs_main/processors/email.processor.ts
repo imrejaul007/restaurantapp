@@ -51,7 +51,7 @@ export class EmailJobProcessor implements JobProcessor {
   private async sendWelcomeEmail(payload: any) {
     return this.emailService.sendEmail({
       to: payload.to,
-      subject: 'Welcome to RestaurantHub!',
+      subject: 'Welcome to RestoPapa!',
       template: 'welcome',
       templateData: {
         userName: payload.userName,

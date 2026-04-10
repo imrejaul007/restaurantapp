@@ -1,4 +1,4 @@
-// Public API surface for @restauranthub/rez-client
+// Public API surface for @restopapa/rez-client
 
 export { RezClientModule } from './rez-client.module';
 export { RezHttpClient } from './rez-http.client';

@@ -633,7 +633,7 @@ export class PaymentService {
       methods.push({
         id: 'wallet',
         type: 'wallet',
-        name: 'RestaurantHub Wallet',
+        name: 'RestoPapa Wallet',
         description: `Available balance: ₹${walletBalance}`,
         enabled: walletBalance > 0,
         processingTime: 'Instant',

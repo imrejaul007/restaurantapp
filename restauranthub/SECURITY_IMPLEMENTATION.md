@@ -1,8 +1,8 @@
-# RestaurantHub Security Implementation
+# RestoPapa Security Implementation
 
 ## Overview
 
-This document outlines the comprehensive security hardening implementation for the RestaurantHub application. The implementation follows enterprise-level security standards and best practices to protect against common vulnerabilities and attacks.
+This document outlines the comprehensive security hardening implementation for the RestoPapa application. The implementation follows enterprise-level security standards and best practices to protect against common vulnerabilities and attacks.
 
 ## Security Features Implemented
 
@@ -185,8 +185,8 @@ BRUTE_FORCE_WINDOW_MS=900000
 BRUTE_FORCE_BLOCK_DURATION_MS=3600000  # 1 hour
 
 # CORS Configuration
-ALLOWED_ORIGINS=https://restauranthub.com,https://www.restauranthub.com
-FRONTEND_URL=https://restauranthub.com
+ALLOWED_ORIGINS=https://restopapa.com,https://www.restopapa.com
+FRONTEND_URL=https://restopapa.com
 
 # Security Features
 ENABLE_CSRF=true  # Enable in production

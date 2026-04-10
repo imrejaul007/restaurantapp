@@ -87,7 +87,7 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are an AI assistant for RestaurantHub, a B2B platform for the restaurant industry. Provide helpful recommendations based on user data and context.',
+            content: 'You are an AI assistant for RestoPapa, a B2B platform for the restaurant industry. Provide helpful recommendations based on user data and context.',
           },
           {
             role: 'user',
@@ -123,7 +123,7 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a fraud detection AI for RestaurantHub. Analyze transaction data and provide risk assessment. Respond only with valid JSON.',
+            content: 'You are a fraud detection AI for RestoPapa. Analyze transaction data and provide risk assessment. Respond only with valid JSON.',
           },
           {
             role: 'user',
@@ -161,7 +161,7 @@ export class AIService {
 
     try {
       const prompt = `
-        Analyze user behavior data for user ${userId} in RestaurantHub platform:
+        Analyze user behavior data for user ${userId} in RestoPapa platform:
 
         Activity Data: ${JSON.stringify(activityData, null, 2)}
 
@@ -180,7 +180,7 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a user behavior analyst for RestaurantHub. Provide actionable insights based on user activity data.',
+            content: 'You are a user behavior analyst for RestoPapa. Provide actionable insights based on user activity data.',
           },
           {
             role: 'user',
@@ -220,7 +220,7 @@ export class AIService {
         messages: [
           {
             role: 'system',
-            content: 'You are a content generator for RestaurantHub. Create professional, engaging content for the restaurant industry.',
+            content: 'You are a content generator for RestoPapa. Create professional, engaging content for the restaurant industry.',
           },
           {
             role: 'user',
@@ -244,7 +244,7 @@ export class AIService {
     const { userId, userRole, context, type } = request;
 
     return `
-      Generate ${type} recommendations for a ${userRole} user (ID: ${userId}) in RestaurantHub platform.
+      Generate ${type} recommendations for a ${userRole} user (ID: ${userId}) in RestoPapa platform.
 
       User Context: ${JSON.stringify(context, null, 2)}
 
@@ -307,7 +307,7 @@ export class AIService {
 
     if (lastMessage.content.toLowerCase().includes('hello') ||
         lastMessage.content.toLowerCase().includes('hi')) {
-      return "Hello! I'm the RestaurantHub AI assistant. How can I help you with your restaurant operations today?";
+      return "Hello! I'm the RestoPapa AI assistant. How can I help you with your restaurant operations today?";
     }
 
     if (lastMessage.content.toLowerCase().includes('job')) {
@@ -319,7 +319,7 @@ export class AIService {
       return "I can assist with supplier management and ordering. What specific information do you need about your supply chain or marketplace?";
     }
 
-    return "I'm here to help with your restaurant management needs. You can ask me about jobs, suppliers, operations, or any other RestaurantHub features.";
+    return "I'm here to help with your restaurant management needs. You can ask me about jobs, suppliers, operations, or any other RestoPapa features.";
   }
 
   private getMockRecommendations(request: RecommendationRequest): any[] {
@@ -431,7 +431,7 @@ export class AIService {
         return `High-quality ${context.name || 'product'} designed for professional restaurant use. Features excellent durability and performance to meet demanding kitchen requirements.`;
 
       case 'email_template':
-        return `Subject: ${context.subject || 'Important Update from RestaurantHub'}\n\nDear [Name],\n\nWe hope this message finds you well. [Content will be customized based on your specific needs]\n\nBest regards,\nThe RestaurantHub Team`;
+        return `Subject: ${context.subject || 'Important Update from RestoPapa'}\n\nDear [Name],\n\nWe hope this message finds you well. [Content will be customized based on your specific needs]\n\nBest regards,\nThe RestoPapa Team`;
 
       default:
         return 'AI-generated content based on your requirements.';

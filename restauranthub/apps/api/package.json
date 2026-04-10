@@ -1,7 +1,7 @@
 {
-  "name": "@restauranthub/api",
+  "name": "@restopapa/api",
   "version": "1.0.0",
-  "description": "RestaurantHub Backend API",
+  "description": "RestoPapa Backend API",
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",
@@ -30,8 +30,8 @@
     "prisma:reset": "prisma migrate reset",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:deploy": "prisma migrate deploy",
-    "docker:build": "docker build -t restauranthub-api .",
-    "docker:run": "docker run -p 3001:3001 restauranthub-api"
+    "docker:build": "docker build -t restopapa-api .",
+    "docker:run": "docker run -p 3001:3001 restopapa-api"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -107,7 +107,7 @@
     "@opentelemetry/semantic-conventions": "^1.22.0",
     "web-vitals": "^3.5.2",
     "perf_hooks": "^0.0.1",
-    "@restauranthub/rez-client": "*"
+    "@restopapa/rez-client": "*"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",

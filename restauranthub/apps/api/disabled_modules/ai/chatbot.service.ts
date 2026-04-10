@@ -92,7 +92,7 @@ export class ChatbotService {
 
   private buildSystemPrompt(context: ChatbotContext): string {
     const basePrompt = `
-You are RestaurantHub AI Assistant, a helpful chatbot for a comprehensive B2B/B2C restaurant management platform.
+You are RestoPapa AI Assistant, a helpful chatbot for a comprehensive B2B/B2C restaurant management platform.
 
 Platform Features:
 - Multi-role system (Admin, Restaurant Owner, Employee, Vendor)

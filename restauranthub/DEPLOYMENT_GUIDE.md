@@ -1,4 +1,4 @@
-# RestaurantHub Deployment Guide
+# RestoPapa Deployment Guide
 
 ## 🚀 Quick Deployment Options
 
@@ -7,7 +7,7 @@
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd restauranthub
+cd restopapa
 
 # Install dependencies
 npm install
@@ -30,7 +30,7 @@ npm run dev
 **Access Points:**
 - API: http://localhost:3000/api/v1
 - Swagger Docs: http://localhost:3000/docs
-- Database: localhost:5432 (restauranthub/restauranthub_secret)
+- Database: localhost:5432 (restopapa/restopapa_secret)
 - Redis: localhost:6379
 
 ### 2. Production Deployment
@@ -47,7 +47,7 @@ cp .env.example .env.prod
 
 # Update with production values:
 NODE_ENV=production
-DATABASE_URL=postgresql://user:pass@prod-db:5432/restauranthub
+DATABASE_URL=postgresql://user:pass@prod-db:5432/restopapa
 REDIS_URL=redis://user:pass@prod-redis:6379
 JWT_SECRET=your-super-secure-jwt-secret
 AWS_ACCESS_KEY_ID=your-aws-key
@@ -88,14 +88,14 @@ docker-compose -f docker-compose.prod.yml ps
 
 ```bash
 # Deploy using Helm
-helm install restauranthub ./deploy/helm/restauranthub \
-  --namespace restauranthub \
+helm install restopapa ./deploy/helm/restopapa \
+  --namespace restopapa \
   --create-namespace \
   --values ./deploy/helm/values-prod.yaml
 
 # Check deployment status
-kubectl get pods -n restauranthub
-kubectl get services -n restauranthub
+kubectl get pods -n restopapa
+kubectl get services -n restopapa
 ```
 
 ## 🔧 Configuration Management
@@ -247,10 +247,10 @@ save 60 10000
 ### Database Backup
 ```bash
 # Automated daily backups
-0 2 * * * pg_dump $DATABASE_URL | gzip > /backups/restauranthub-$(date +%Y%m%d).sql.gz
+0 2 * * * pg_dump $DATABASE_URL | gzip > /backups/restopapa-$(date +%Y%m%d).sql.gz
 
 # Retain backups for 30 days
-find /backups -name "restauranthub-*.sql.gz" -mtime +30 -delete
+find /backups -name "restopapa-*.sql.gz" -mtime +30 -delete
 ```
 
 ### File Backup (S3)
@@ -358,7 +358,7 @@ node --prof-process isolate-*.log > profile.txt
 # Quick rollback using Docker tags
 docker-compose -f docker-compose.prod.yml down
 docker-compose -f docker-compose.prod.yml up -d --scale api=0
-docker tag restauranthub/api:previous-version restauranthub/api:latest
+docker tag restopapa/api:previous-version restopapa/api:latest
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
@@ -371,9 +371,9 @@ docker-compose -f docker-compose.prod.yml up -d
 - [ ] Annual architecture review
 
 ### Support Contacts
-- **Development Team**: dev@restauranthub.com
-- **Infrastructure**: ops@restauranthub.com
-- **Security Issues**: security@restauranthub.com
+- **Development Team**: dev@restopapa.com
+- **Infrastructure**: ops@restopapa.com
+- **Security Issues**: security@restopapa.com
 - **Emergency**: +1-XXX-XXX-XXXX
 
 ---

@@ -47,7 +47,7 @@ export class CacheEvictionService {
 
     // API responses - evict frequently
     this.addEvictionRule('api-responses', {
-      pattern: 'restauranthub:api:*',
+      pattern: 'restopapa:api:*',
       maxAge: 300, // 5 minutes
       priority: 'medium',
     });
