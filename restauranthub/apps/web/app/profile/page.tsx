@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import RestaurantProfile from '@/components/profiles/restaurant-profile';
 import { useAuth } from '@/lib/auth/auth-provider';
@@ -10,139 +10,136 @@ import { RezConsentModal } from '@/components/profile/rez-consent-modal';
 import { useRezProfile } from '@/hooks/use-rez-profile';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
+import { usersApi } from '@/lib/api/users';
 
-// Mock restaurant profile data
-const mockRestaurantProfile = {
-  id: 'restaurant-1',
+type RestaurantProfileShape = {
+  id: string;
   basicInfo: {
-    name: 'Spice Garden Restaurant',
-    tagline: 'Authentic Indian Cuisine with Modern Flair',
-    description: 'Spice Garden Restaurant has been serving authentic Indian cuisine for over a decade. We pride ourselves on using traditional recipes passed down through generations, combined with modern cooking techniques to create an unforgettable dining experience. Our chefs source the finest ingredients and spices to ensure every dish is bursting with flavor.',
-    founded: '2012',
-    registrationNumber: 'REST-2012-001',
-    gstNumber: '27AABCS1234F1ZR'
-  },
-  contact: {
-    email: 'info@spicegardenrestaurant.com',
-    phone: '+91 98765 43210',
-    whatsapp: '+91 98765 43210',
-    website: 'https://spicegardenrestaurant.com'
-  },
+    name: string;
+    tagline?: string;
+    description: string;
+    founded: string;
+    registrationNumber: string;
+    gstNumber: string;
+  };
+  contact: { email: string; phone: string; whatsapp?: string; website?: string };
   location: {
-    address: '123 Main Street, Sector 15',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    zipCode: '400001',
-    country: 'India',
-    coordinates: {
-      latitude: 19.0760,
-      longitude: 72.8777
-    }
-  },
-  cuisine: {
-    primary: ['North Indian', 'South Indian', 'Punjabi'],
-    secondary: ['Chinese', 'Continental'],
-    specialty: 'Traditional Tandoor Dishes'
-  },
-  capacity: {
-    seatingCapacity: 120,
-    staffCount: 25,
-    kitchenSize: '800 sq ft',
-    privateRooms: 2
-  },
-  operatingHours: [
-    { day: 'Monday', isOpen: true, openTime: '11:00', closeTime: '23:00' },
-    { day: 'Tuesday', isOpen: true, openTime: '11:00', closeTime: '23:00' },
-    { day: 'Wednesday', isOpen: true, openTime: '11:00', closeTime: '23:00' },
-    { day: 'Thursday', isOpen: true, openTime: '11:00', closeTime: '23:00' },
-    { day: 'Friday', isOpen: true, openTime: '11:00', closeTime: '00:00' },
-    { day: 'Saturday', isOpen: true, openTime: '11:00', closeTime: '00:00' },
-    { day: 'Sunday', isOpen: true, openTime: '12:00', closeTime: '23:00' }
-  ],
-  socialMedia: [
-    {
-      platform: 'Instagram',
-      url: 'https://instagram.com/spicegardenrestaurant',
-      followers: 15420
-    },
-    {
-      platform: 'Facebook',
-      url: 'https://facebook.com/spicegardenrestaurant',
-      followers: 8950
-    },
-    {
-      platform: 'YouTube',
-      url: 'https://youtube.com/spicegardenrestaurant',
-      followers: 2340
-    }
-  ],
-  certifications: [
-    {
-      id: '1',
-      name: 'FSSAI License',
-      issuer: 'Food Safety and Standards Authority of India',
-      issuedDate: '2023-01-15',
-      expiryDate: '2026-01-14',
-      status: 'active' as const,
-      documentUrl: '/documents/fssai-cert.pdf'
-    },
-    {
-      id: '2',
-      name: 'Fire Safety Certificate',
-      issuer: 'Mumbai Fire Department',
-      issuedDate: '2023-06-01',
-      expiryDate: '2024-05-31',
-      status: 'active' as const,
-      documentUrl: '/documents/fire-safety-cert.pdf'
-    },
-    {
-      id: '3',
-      name: 'Halal Certification',
-      issuer: 'Halal India Certification Services',
-      issuedDate: '2023-03-10',
-      expiryDate: '2025-03-09',
-      status: 'active' as const,
-      documentUrl: '/documents/halal-cert.pdf'
-    }
-  ],
-  images: {
-    logo: '/images/restaurant-logo.jpg',
-    cover: '/images/restaurant-cover.jpg',
-    gallery: [
-      '/images/restaurant-interior-1.jpg',
-      '/images/restaurant-interior-2.jpg',
-      '/images/restaurant-kitchen.jpg',
-      '/images/restaurant-dining.jpg'
-    ]
-  },
+    address: string; city: string; state: string; zipCode: string;
+    country: string; coordinates?: { latitude: number; longitude: number };
+  };
+  cuisine: { primary: string[]; secondary: string[]; specialty: string };
+  capacity: { seatingCapacity: number; staffCount: number; kitchenSize: string; privateRooms?: number };
+  operatingHours: Array<{ day: string; isOpen: boolean; openTime: string; closeTime: string }>;
+  socialMedia: Array<{ platform: string; url: string; followers: number }>;
+  certifications: Array<{ id: string; name: string; issuer: string; issuedDate: string; expiryDate: string; status: 'active' | 'expired' | 'pending'; documentUrl: string }>;
+  images: { logo?: string; cover?: string; gallery: string[] };
   verification: {
-    isVerified: true,
-    verifiedDate: '2023-02-01T10:00:00Z',
-    documents: {
-      businessLicense: true,
-      foodSafetyCert: true,
-      gstRegistration: true,
-      ownershipProof: true
-    }
-  },
-  stats: {
-    rating: 4.6,
-    reviewCount: 892,
-    orderCount: 12543,
-    joinedDate: '2023-01-15T08:00:00Z'
-  },
-  settings: {
-    visibility: 'public' as const,
-    allowReviews: true,
-    autoAcceptOrders: false,
-    minimumOrderValue: 500
-  }
+    isVerified: boolean;
+    verifiedDate?: string;
+    documents: { businessLicense: boolean; foodSafetyCert: boolean; gstRegistration: boolean; ownershipProof: boolean };
+  };
+  stats: { rating: number; reviewCount: number; orderCount: number; joinedDate: string };
+  settings: { visibility: 'public' | 'private' | 'restricted'; allowReviews: boolean; autoAcceptOrders: boolean; minimumOrderValue: number };
 };
+
+function buildProfileFromApiUser(user: any): RestaurantProfileShape {
+  const r = user?.restaurant ?? {};
+  const p = user?.profile ?? {};
+  return {
+    id: user?.id ?? '',
+    basicInfo: {
+      name: r.businessName ?? (`${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'My Restaurant'),
+      tagline: r.tagline ?? '',
+      description: r.description ?? p.bio ?? '',
+      founded: r.founded ?? '',
+      registrationNumber: r.registrationNumber ?? '',
+      gstNumber: r.gstNumber ?? '',
+    },
+    contact: {
+      email: user?.email ?? '',
+      phone: r.businessPhone ?? user?.phone ?? '',
+      whatsapp: r.whatsapp ?? user?.phone ?? '',
+      website: r.website ?? '',
+    },
+    location: {
+      address: r.businessAddress ?? r.address ?? p.address ?? '',
+      city: r.city ?? p.city ?? '',
+      state: r.state ?? p.state ?? '',
+      zipCode: r.zipCode ?? p.zipCode ?? '',
+      country: r.country ?? 'India',
+      coordinates: { latitude: r.latitude ?? 0, longitude: r.longitude ?? 0 },
+    },
+    cuisine: {
+      primary: r.cuisineTypes ?? r.cuisine ?? [],
+      secondary: r.secondaryCuisine ?? [],
+      specialty: r.specialty ?? '',
+    },
+    capacity: {
+      seatingCapacity: r.seatingCapacity ?? 0,
+      staffCount: r.staffCount ?? 0,
+      kitchenSize: r.kitchenSize ?? '',
+      privateRooms: r.privateRooms ?? 0,
+    },
+    operatingHours: r.operatingHours ?? [
+      { day: 'Monday', isOpen: true, openTime: '09:00', closeTime: '22:00' },
+      { day: 'Tuesday', isOpen: true, openTime: '09:00', closeTime: '22:00' },
+      { day: 'Wednesday', isOpen: true, openTime: '09:00', closeTime: '22:00' },
+      { day: 'Thursday', isOpen: true, openTime: '09:00', closeTime: '22:00' },
+      { day: 'Friday', isOpen: true, openTime: '09:00', closeTime: '23:00' },
+      { day: 'Saturday', isOpen: true, openTime: '09:00', closeTime: '23:00' },
+      { day: 'Sunday', isOpen: true, openTime: '10:00', closeTime: '22:00' },
+    ],
+    socialMedia: r.socialMedia ?? [],
+    certifications: r.certifications ?? [],
+    images: {
+      logo: r.logo ?? r.images?.logo ?? undefined,
+      cover: r.coverImage ?? r.images?.cover ?? undefined,
+      gallery: r.gallery ?? r.images?.gallery ?? [],
+    },
+    verification: {
+      isVerified: user?.isVerified ?? false,
+      verifiedDate: user?.emailVerifiedAt ?? undefined,
+      documents: {
+        businessLicense: r.verificationDocuments?.businessLicense ?? false,
+        foodSafetyCert: r.verificationDocuments?.foodSafetyCert ?? false,
+        gstRegistration: r.verificationDocuments?.gstRegistration ?? false,
+        ownershipProof: r.verificationDocuments?.ownershipProof ?? false,
+      },
+    },
+    stats: {
+      rating: r.averageRating ?? 0,
+      reviewCount: r.reviewCount ?? 0,
+      orderCount: r.orderCount ?? 0,
+      joinedDate: user?.createdAt ?? '',
+    },
+    settings: {
+      visibility: r.visibility ?? 'public',
+      allowReviews: r.allowReviews ?? true,
+      autoAcceptOrders: r.autoAcceptOrders ?? false,
+      minimumOrderValue: r.minimumOrder ?? 0,
+    },
+  };
+}
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState(mockRestaurantProfile);
+  const [profile, setProfile] = useState<RestaurantProfileShape | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [consentOpen, setConsentOpen] = useState(false);
+
+  useEffect(() => {
+    usersApi.getProfile()
+      .then((res) => {
+        const apiUser = (res as any)?.data ?? res;
+        if (apiUser) {
+          setProfile(buildProfileFromApiUser(apiUser));
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load profile:', err);
+      })
+      .finally(() => setProfileLoading(false));
+  }, []);
 
   const { profile: rezProfile, refetch: refetchRez } = useRezProfile(user?.id ?? '');
 
@@ -156,9 +153,9 @@ export default function ProfilePage() {
     refetchRez();
   };
 
-  const handleUpdateProfile = (updatedProfile: typeof mockRestaurantProfile) => {
+  const handleUpdateProfile = (updatedProfile: RestaurantProfileShape) => {
     setProfile(updatedProfile);
-    // Here you would typically make an API call to update the profile
+    // TODO: persist via PATCH /users/profile when that endpoint is available
     console.log('Profile updated:', updatedProfile);
   };
 
@@ -189,6 +186,29 @@ export default function ProfilePage() {
     );
   }
 
+  if (profileLoading) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-4xl mx-auto p-6 space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="animate-pulse h-32 bg-muted rounded-lg" />
+          ))}
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Profile Unavailable</h2>
+          <p className="text-muted-foreground">Unable to load your profile. Please try again later.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       {rezProfile?.isRezVerified && (
@@ -212,9 +232,9 @@ export default function ProfilePage() {
       )}
 
       <RestaurantProfile
-        profile={profile}
+        profile={profile as any}
         isOwner={true}
-        onUpdateProfile={handleUpdateProfile}
+        onUpdateProfile={handleUpdateProfile as any}
         onUploadImage={handleUploadImage}
       />
 

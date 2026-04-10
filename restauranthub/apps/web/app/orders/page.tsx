@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
-import OrderTracking from '@/components/orders/order-tracking';
+import { useRouter } from 'next/navigation';
 import { OrderStatusUpdater } from '@/components/orders/order-status-updater';
 import { NotificationIndicator } from '@/components/notifications/notification-indicator';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
@@ -44,6 +44,7 @@ const getPriorityFromOrder = (order: Order): 'low' | 'medium' | 'high' | 'urgent
 
 export default function OrdersPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderStats, setOrderStats] = useState<OrderStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,6 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -174,7 +174,7 @@ export default function OrdersPage() {
   };
 
   const handleOrderView = (orderId: string) => {
-    setSelectedOrder(orderId);
+    router.push(`/orders/${orderId}`);
   };
 
   const handleStatusUpdate = (orderId: string, newStatus: Order['status']) => {
@@ -198,163 +198,6 @@ export default function OrdersPage() {
       return newSet;
     });
   };
-
-  if (selectedOrder) {
-    // Mock detailed order data - in real app, fetch from API
-    const mockDetailedOrder = {
-      id: selectedOrder,
-      orderNumber: `ORD-2024-${selectedOrder.padStart(3, '0')}`,
-      status: 'dispatched' as const,
-      priority: 'high' as const,
-      customer: {
-        id: 'cust-1',
-        name: 'Raj Patel',
-        email: 'raj@spicegarden.com',
-        phone: '+91 98765 43210',
-        type: 'restaurant' as const,
-        companyName: 'Spice Garden Restaurant'
-      },
-      vendor: {
-        id: 'vendor-1',
-        name: 'Fresh Farms Supplier',
-        phone: '+91 87654 32109',
-        email: 'orders@freshfarms.com',
-        location: 'Mumbai, Maharashtra',
-        rating: 4.8
-      },
-      items: [
-        {
-          id: '1',
-          productId: 'prod-1',
-          name: 'Organic Tomatoes',
-          quantity: 25,
-          unit: 'kg',
-          price: 120,
-          totalPrice: 3000,
-          specifications: 'Grade A, Fresh'
-        },
-        {
-          id: '2',
-          productId: 'prod-2',
-          name: 'Fresh Spinach',
-          quantity: 15,
-          unit: 'kg',
-          price: 80,
-          totalPrice: 1200
-        }
-      ],
-      pricing: {
-        subtotal: 4200,
-        tax: 756,
-        shippingCost: 200,
-        discount: 0,
-        total: 5156
-      },
-      delivery: {
-        method: 'delivery' as const,
-        address: {
-          street: '123 Main Street, Sector 15',
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          zipCode: '400001',
-          landmark: 'Near City Mall'
-        },
-        estimatedDelivery: '2024-01-20T14:00:00Z',
-        trackingNumber: 'TRK123456789',
-        courier: {
-          name: 'Delivery Partner',
-          phone: '+91 99999 88888',
-          vehicleNumber: 'MH 01 AB 1234'
-        },
-        deliveryInstructions: 'Please call before delivery'
-      },
-      payment: {
-        method: 'card' as const,
-        status: 'completed' as const,
-        transactionId: 'TXN789123456',
-        amount: 5156,
-        currency: 'INR',
-        paidAt: '2024-01-18T10:35:00Z'
-      },
-      timeline: [
-        {
-          status: 'Order Placed',
-          timestamp: '2024-01-18T10:30:00Z',
-          description: 'Order has been successfully placed',
-          location: 'Mumbai'
-        },
-        {
-          status: 'Payment Confirmed',
-          timestamp: '2024-01-18T10:35:00Z',
-          description: 'Payment processed successfully',
-          location: 'Mumbai'
-        },
-        {
-          status: 'Order Confirmed',
-          timestamp: '2024-01-18T11:00:00Z',
-          description: 'Vendor confirmed the order',
-          location: 'Mumbai'
-        },
-        {
-          status: 'Preparing',
-          timestamp: '2024-01-19T08:00:00Z',
-          description: 'Items are being prepared for shipment',
-          location: 'Mumbai'
-        },
-        {
-          status: 'Dispatched',
-          timestamp: '2024-01-19T14:30:00Z',
-          description: 'Package dispatched for delivery',
-          location: 'Mumbai'
-        }
-      ],
-      notes: 'Bulk order for restaurant kitchen',
-      createdAt: '2024-01-18T10:30:00Z',
-      updatedAt: '2024-01-19T14:30:00Z',
-      expectedDelivery: '2024-01-20T14:00:00Z'
-    };
-
-    return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedOrder(null)}
-            >
-              ← Back to Orders
-            </Button>
-            <h1 className="text-2xl font-bold text-foreground">
-              Order #{mockDetailedOrder.orderNumber}
-            </h1>
-          </div>
-          
-          <OrderTracking 
-            order={mockDetailedOrder}
-            currentUserRole="customer"
-            onUpdateStatus={(orderId, status, notes) => {
-              console.log('Update status:', { orderId, status, notes });
-            }}
-            onCancelOrder={(orderId, reason) => {
-              console.log('Cancel order:', { orderId, reason });
-            }}
-            onContactVendor={(vendorId) => {
-              console.log('Contact vendor:', vendorId);
-            }}
-            onContactCustomer={(customerId) => {
-              console.log('Contact customer:', customerId);
-            }}
-            onRateOrder={(orderId, rating, review) => {
-              console.log('Rate order:', { orderId, rating, review });
-            }}
-            onReorder={(orderId) => {
-              console.log('Reorder:', orderId);
-            }}
-          />
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>

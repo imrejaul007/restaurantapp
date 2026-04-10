@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search,
@@ -34,45 +34,25 @@ import { RestaurantListingCard } from '@/components/marketplace/restaurant-listi
 import { MarketplaceFilters } from '@/components/marketplace/marketplace-filters';
 import { SubscriptionCard } from '@/components/marketplace/subscription-card';
 import { Vendor, Product, RestaurantListing, MarketplaceFilter } from '@/types/marketplace';
-import { mockVendors, mockProducts, mockRestaurantListings } from '@/data/marketplace-data';
 import ProductCard from '@/components/marketplace/product-card';
 
-// Transform existing product data to match our new interface
-const transformedProducts = mockProducts.map(product => ({
-  id: product.id,
-  name: product.name,
-  description: product.description,
-  category: 'ingredients' as any,
-  subcategory: 'general',
-  price: product.price,
-  originalPrice: product.price * 1.2,
-  unit: product.unit,
-  minOrderQuantity: product.minQuantity,
-  inStock: product.inStock,
-  stockQuantity: 100,
-  images: product.images,
-  vendor: {
-    id: product.vendorId,
-    name: mockVendors.find(v => v.id === product.vendorId)?.name || 'Unknown Vendor',
-    rating: mockVendors.find(v => v.id === product.vendorId)?.rating || 4.0,
-    location: mockVendors.find(v => v.id === product.vendorId)?.location || 'Unknown',
-    verified: true
-  },
-  ratings: {
-    average: mockVendors.find(v => v.id === product.vendorId)?.rating || 4.0,
-    count: Math.floor(Math.random() * 500) + 50
-  },
-  delivery: {
-    available: true,
-    freeShipping: Math.random() > 0.5,
-    estimatedDays: product.deliveryOptions?.[0] || '2-3 days'
-  },
-  tags: product.specifications ? Object.values(product.specifications) : ['premium', 'quality'],
-  discount: Math.random() > 0.7 ? {
-    percentage: Math.floor(Math.random() * 30) + 5,
-    validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-  } : undefined
-}));
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+async function apiFetch<T>(path: string): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message || `Request failed: ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
 
 export default function RestaurantMarketplace() {
   const [activeTab, setActiveTab] = useState<'vendors' | 'products' | 'restaurants'>('vendors');
@@ -80,6 +60,51 @@ export default function RestaurantMarketplace() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [cart, setCart] = useState<Record<string, number>>({});
   const [showFilters, setShowFilters] = useState(true);
+
+  // Real data state — typed as any[] since API shape may differ from local Vendor interface
+  const [apiVendors, setApiVendors] = useState<any[]>([]);
+  const [apiCategories, setApiCategories] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch<any>('/marketplace/suppliers'),
+      apiFetch<any>('/marketplace/categories'),
+    ])
+      .then(([suppliersRes, categoriesRes]) => {
+        const rawSuppliers: any[] = Array.isArray(suppliersRes)
+          ? suppliersRes
+          : suppliersRes?.data ?? suppliersRes?.suppliers ?? [];
+        const rawCategories: any[] = Array.isArray(categoriesRes)
+          ? categoriesRes
+          : categoriesRes?.data ?? categoriesRes?.categories ?? [];
+
+        // Normalize suppliers into the shape expected by VendorCard
+        const normalized: any[] = rawSuppliers.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description ?? '',
+          category: Array.isArray(s.category) ? s.category[0] : (s.category ?? 'general'),
+          location: s.city ?? s.location?.city ?? '',
+          rating: typeof s.rating === 'object' ? (s.rating?.overall ?? 0) : (s.rating ?? 0),
+          reviewCount: s.reviewCount ?? s.rating?.reviewCount ?? 0,
+          services: s.services ?? s.tags ?? [],
+          deliveryTime: s.stats?.responseTime ?? s.deliveryTime ?? '2-5 business days',
+          isVerified: s.isVerified ?? false,
+          subscriptionPlans: s.subscriptionPlans ?? [],
+        }));
+
+        setApiVendors(normalized);
+        setApiCategories(rawCategories);
+      })
+      .catch((err) => {
+        console.error('Failed to load marketplace data:', err);
+      })
+      .finally(() => setDataLoading(false));
+  }, []);
+
+  // Derive transformed products from fetched vendor data (no products endpoint yet)
+  const transformedProducts: any[] = [];
 
   const handleFilterChange = (newFilters: MarketplaceFilter) => {
     setFilters(newFilters);
@@ -299,12 +324,12 @@ export default function RestaurantMarketplace() {
     });
   };
 
-  const filteredVendors = applyFilters(mockVendors, 'vendors');
-  const filteredProducts = applyFilters(transformedProducts, 'products');
-  const filteredRestaurants = applyFilters(mockRestaurantListings, 'restaurants');
+  const filteredVendors: any[] = applyFilters(apiVendors, 'vendors');
+  const filteredProducts: any[] = applyFilters(transformedProducts, 'products');
+  const filteredRestaurants: any[] = [];
 
-  const allSubscriptionPlans = mockVendors.flatMap(vendor => 
-    vendor.subscriptionPlans?.map(plan => ({ ...plan, vendorName: vendor.name })) || []
+  const allSubscriptionPlans = apiVendors.flatMap((vendor: any) =>
+    vendor.subscriptionPlans?.map((plan: any) => ({ ...plan, vendorName: vendor.name })) || []
   );
 
   return (
@@ -436,7 +461,7 @@ export default function RestaurantMarketplace() {
                       </div>
                       <div className="flex items-center space-x-3 mt-4 sm:mt-0">
                         <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                          {filteredVendors.length} vendors found
+                          {dataLoading ? 'Loading...' : `${filteredVendors.length} vendors found`}
                         </span>
                         <Button variant="outline"  className="text-primary border-primary hover:bg-primary hover:text-white">
                           View All Vendors

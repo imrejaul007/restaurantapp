@@ -59,61 +59,6 @@ import { SearchFilters, EnhancedSupplier } from '@/types/api';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 
-// Mock data for better UX until API is fully connected
-const mockFeaturedSuppliers = [
-  {
-    id: '1',
-    name: 'Premium Spice Co.',
-    slug: 'premium-spice-co',
-    description: 'Authentic spices sourced directly from organic farms across India',
-    logo: '/api/placeholder/80/80',
-    category: ['Spices', 'Organic'],
-    location: {
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      country: 'India',
-    },
-    rating: {
-      overall: 4.9,
-      reviewCount: 156,
-    },
-    stats: {
-      totalProducts: 150,
-      totalOrders: 2340,
-      responseTime: 2,
-    },
-    verified: true,
-    featured: true,
-    premium: true,
-    tags: ['organic', 'authentic', 'premium'],
-  },
-  {
-    id: '2',
-    name: 'Fresh Farm Produce',
-    slug: 'fresh-farm-produce',
-    description: 'Farm-to-table fresh vegetables delivered within 24 hours',
-    logo: '/api/placeholder/80/80',
-    category: ['Vegetables', 'Fresh Produce'],
-    location: {
-      city: 'Punjab',
-      state: 'Punjab',
-      country: 'India',
-    },
-    rating: {
-      overall: 4.8,
-      reviewCount: 203,
-    },
-    stats: {
-      totalProducts: 200,
-      totalOrders: 1890,
-      responseTime: 1,
-    },
-    verified: true,
-    featured: true,
-    premium: false,
-    tags: ['fresh', 'farm-to-table', 'fast-delivery'],
-  },
-];
 
 interface SupplierCardProps {
   supplier: any;
@@ -387,8 +332,8 @@ export default function EnhancedMarketplacePage() {
   const isLoading = debouncedSearchTerm ? searchLoading : suppliersLoading;
   const error = debouncedSearchTerm ? searchError : suppliersError;
 
-  const suppliers = displayData?.data || mockFeaturedSuppliers;
-  const totalSuppliers = displayData?.total || mockFeaturedSuppliers.length;
+  const suppliers = displayData?.data || [];
+  const totalSuppliers = displayData?.total || 0;
 
   // Event handlers
   const handleSearch = useCallback((term: string) => {

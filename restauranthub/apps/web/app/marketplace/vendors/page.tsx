@@ -49,216 +49,86 @@ interface Vendor {
   popularDishes: string[];
 }
 
-const mockVendors: Vendor[] = [
-  {
-    id: 'bella-vista',
-    name: 'Bella Vista Italian',
-    description: 'Authentic Italian cuisine with wood-fired pizzas and handmade pasta. Family recipes passed down for generations.',
-    cuisine: ['Italian', 'Pizza', 'Pasta'],
-    rating: 4.8,
-    reviewCount: 1247,
-    location: {
-      address: '123 Main Street, Downtown',
-      city: 'New York',
-      distance: 1.2
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+async function apiFetch<T>(path: string): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    deliveryInfo: {
-      fee: 3.99,
-      minOrder: 25.00,
-      estimatedTime: '25-35 min'
-    },
-    images: {
-      logo: '🍕',
-      cover: '🏪'
-    },
-    isVerified: true,
-    isOpen: true,
-    stats: {
-      totalOrders: 12543,
-      responseTime: '~15 min',
-      acceptanceRate: 98,
-      joinedDate: '2019-03-15'
-    },
-    features: ['Wood-fired oven', 'Gluten-free options', 'Vegan menu'],
-    priceRange: '$$',
-    popularDishes: ['Margherita Pizza', 'Truffle Pasta', 'Tiramisu']
-  },
-  {
-    id: 'tokyo-sushi',
-    name: 'Tokyo Sushi Bar',
-    description: 'Premium sushi and sashimi prepared by certified Japanese sushi chefs using only the freshest fish.',
-    cuisine: ['Japanese', 'Sushi', 'Sashimi'],
-    rating: 4.9,
-    reviewCount: 892,
-    location: {
-      address: '456 Oak Avenue, Midtown',
-      city: 'New York',
-      distance: 2.1
-    },
-    deliveryInfo: {
-      fee: 4.99,
-      minOrder: 30.00,
-      estimatedTime: '20-30 min'
-    },
-    images: {
-      logo: '🍣',
-      cover: '🏮'
-    },
-    isVerified: true,
-    isOpen: false,
-    stats: {
-      totalOrders: 8934,
-      responseTime: '~20 min',
-      acceptanceRate: 95,
-      joinedDate: '2020-06-20'
-    },
-    features: ['Certified sushi chef', 'Sashimi-grade fish', 'Omakase available'],
-    priceRange: '$$$',
-    popularDishes: ['Rainbow Roll', 'Salmon Sashimi', 'Miso Soup']
-  },
-  {
-    id: 'spice-garden',
-    name: 'Spice Garden Indian',
-    description: 'Traditional Indian flavors with modern presentation. Authentic spices and time-honored cooking techniques.',
-    cuisine: ['Indian', 'Curry', 'Biryani'],
-    rating: 4.7,
-    reviewCount: 634,
-    location: {
-      address: '789 Spice Street, Little India',
-      city: 'New York',
-      distance: 3.5
-    },
-    deliveryInfo: {
-      fee: 2.99,
-      minOrder: 20.00,
-      estimatedTime: '30-40 min'
-    },
-    images: {
-      logo: '🍛',
-      cover: '🏛️'
-    },
-    isVerified: true,
-    isOpen: true,
-    stats: {
-      totalOrders: 7621,
-      responseTime: '~25 min',
-      acceptanceRate: 92,
-      joinedDate: '2020-01-10'
-    },
-    features: ['Halal certified', 'Vegan options', 'Authentic spices'],
-    priceRange: '$',
-    popularDishes: ['Butter Chicken', 'Biryani', 'Naan Bread']
-  },
-  {
-    id: 'burger-palace',
-    name: 'Burger Palace',
-    description: 'Gourmet burgers made with premium beef and fresh ingredients. Home of the famous triple stack burger.',
-    cuisine: ['American', 'Burgers', 'Fast Food'],
-    rating: 4.5,
-    reviewCount: 923,
-    location: {
-      address: '321 Burger Lane, Food District',
-      city: 'New York',
-      distance: 1.8
-    },
-    deliveryInfo: {
-      fee: 3.49,
-      minOrder: 15.00,
-      estimatedTime: '15-25 min'
-    },
-    images: {
-      logo: '🍔',
-      cover: '🏪'
-    },
-    isVerified: true,
-    isOpen: true,
-    stats: {
-      totalOrders: 15642,
-      responseTime: '~12 min',
-      acceptanceRate: 96,
-      joinedDate: '2019-08-15'
-    },
-    features: ['Premium beef', 'Custom toppings', '24/7 delivery'],
-    priceRange: '$$',
-    popularDishes: ['Triple Stack', 'Cheese Deluxe', 'Loaded Fries']
-  },
-  {
-    id: 'green-bowl',
-    name: 'Green Bowl Healthy',
-    description: 'Fresh, healthy meals with organic ingredients. Perfect for fitness enthusiasts and health-conscious diners.',
-    cuisine: ['Healthy', 'Salads', 'Bowls'],
-    rating: 4.6,
-    reviewCount: 445,
-    location: {
-      address: '555 Health Ave, Wellness Quarter',
-      city: 'New York',
-      distance: 2.7
-    },
-    deliveryInfo: {
-      fee: 3.99,
-      minOrder: 18.00,
-      estimatedTime: '20-30 min'
-    },
-    images: {
-      logo: '🥗',
-      cover: '🌱'
-    },
-    isVerified: false,
-    isOpen: true,
-    stats: {
-      totalOrders: 4532,
-      responseTime: '~18 min',
-      acceptanceRate: 89,
-      joinedDate: '2021-03-01'
-    },
-    features: ['Organic ingredients', 'Keto-friendly', 'Gluten-free'],
-    priceRange: '$$',
-    popularDishes: ['Power Bowl', 'Quinoa Salad', 'Green Smoothie']
-  },
-  {
-    id: 'dragons-kitchen',
-    name: 'Dragon\'s Kitchen',
-    description: 'Authentic Chinese cuisine with traditional wok cooking and fresh ingredients. Family-owned for 25 years.',
-    cuisine: ['Chinese', 'Stir Fry', 'Dim Sum'],
-    rating: 4.4,
-    reviewCount: 756,
-    location: {
-      address: '888 Dragon Street, Chinatown',
-      city: 'New York',
-      distance: 4.2
-    },
-    deliveryInfo: {
-      fee: 2.99,
-      minOrder: 22.00,
-      estimatedTime: '25-35 min'
-    },
-    images: {
-      logo: '🥡',
-      cover: '🏮'
-    },
-    isVerified: true,
-    isOpen: true,
-    stats: {
-      totalOrders: 9876,
-      responseTime: '~22 min',
-      acceptanceRate: 94,
-      joinedDate: '2019-11-20'
-    },
-    features: ['Traditional wok cooking', 'Fresh ingredients', 'Family recipes'],
-    priceRange: '$',
-    popularDishes: ['Sweet & Sour Chicken', 'Dim Sum', 'Fried Rice']
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message || `Request failed: ${res.status}`);
   }
-];
+  return res.json() as Promise<T>;
+}
 
 const cuisineTypes = ['All', 'Italian', 'Japanese', 'Indian', 'American', 'Chinese', 'Healthy', 'Mexican', 'Thai'];
 const priceRanges = ['All', '$', '$$', '$$$', '$$$$'];
 
+interface ApiSupplier {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string | string[];
+  city?: string;
+  isVerified?: boolean;
+  rating?: number | { overall?: number };
+  reviewCount?: number;
+  [key: string]: any;
+}
+
+function normalizeVendor(s: ApiSupplier): Vendor {
+  const ratingObj = typeof s.rating === 'object' ? (s.rating as { overall?: number; reviewCount?: number }) : null;
+  const rating = ratingObj ? (ratingObj.overall ?? 0) : ((s.rating as number) ?? 0);
+  const reviewCount = ratingObj ? (ratingObj.reviewCount ?? 0) : (s.reviewCount ?? 0);
+  const cuisine = Array.isArray(s.category) ? s.category : s.category ? [s.category] : [];
+  return {
+    id: s.id,
+    name: s.name,
+    description: s.description ?? '',
+    cuisine,
+    rating,
+    reviewCount,
+    location: {
+      address: s.address ?? '',
+      city: s.city ?? s.location?.city ?? '',
+      distance: s.distance ?? 0,
+    },
+    deliveryInfo: {
+      fee: s.deliveryFee ?? 0,
+      minOrder: s.minOrder ?? 0,
+      estimatedTime: s.estimatedTime ?? 'N/A',
+    },
+    images: {
+      logo: s.logo ?? s.images?.logo ?? '🏪',
+      cover: s.cover ?? s.images?.cover ?? '🏬',
+    },
+    isVerified: s.isVerified ?? false,
+    isOpen: s.isOpen ?? true,
+    stats: {
+      totalOrders: s.stats?.totalOrders ?? s.totalOrders ?? 0,
+      responseTime: s.stats?.responseTime ?? 'N/A',
+      acceptanceRate: s.stats?.acceptanceRate ?? 0,
+      joinedDate: s.stats?.joinedDate ?? s.createdAt ?? '',
+    },
+    features: s.features ?? s.tags ?? [],
+    priceRange: (s.priceRange ?? '$$') as Vendor['priceRange'],
+    popularDishes: s.popularDishes ?? [],
+  };
+}
+
 export default function VendorsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  
-  const [vendors, setVendors] = useState<Vendor[]>(mockVendors);
-  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>(mockVendors);
+
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
@@ -268,6 +138,23 @@ export default function VendorsPage() {
   const [showOnlyOpen, setShowOnlyOpen] = useState(false);
   const [showOnlyVerified, setShowOnlyVerified] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    apiFetch<{ data?: ApiSupplier[]; suppliers?: ApiSupplier[] } | ApiSupplier[]>('/marketplace/suppliers')
+      .then((res) => {
+        const raw: ApiSupplier[] = Array.isArray(res)
+          ? res
+          : (res as any).data ?? (res as any).suppliers ?? [];
+        const normalized = raw.map(normalizeVendor);
+        setVendors(normalized);
+        setFilteredVendors(normalized);
+      })
+      .catch((err) => {
+        console.error('Failed to load vendors:', err);
+        toast({ title: 'Error', description: 'Failed to load vendors', variant: 'error' });
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     let filtered = [...vendors];
@@ -297,7 +184,8 @@ export default function VendorsPage() {
     }
 
     // Distance filter
-    filtered = filtered.filter(vendor => vendor.location.distance <= maxDistance[0]);
+    const maxDist = maxDistance[0] ?? 10;
+    filtered = filtered.filter(vendor => vendor.location.distance <= maxDist);
 
     // Open only filter
     if (showOnlyOpen) {
@@ -411,8 +299,12 @@ export default function VendorsPage() {
               Discover amazing restaurants and food vendors in your area
             </p>
             <div className="flex items-center justify-center space-x-4 mt-4">
-              <Badge variant="secondary">{filteredVendors.length} vendors found</Badge>
-              <Badge variant="outline">{vendors.filter(v => v.isOpen).length} currently open</Badge>
+              <Badge variant="secondary">
+                {loading ? 'Loading...' : `${filteredVendors.length} vendors found`}
+              </Badge>
+              <Badge variant="outline">
+                {loading ? '...' : `${vendors.filter(v => v.isOpen).length} currently open`}
+              </Badge>
             </div>
           </div>
         </motion.div>
@@ -584,7 +476,13 @@ export default function VendorsPage() {
 
           {/* Vendors List */}
           <div className="flex-1">
-            {filteredVendors.length === 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse rounded-lg border bg-muted h-64" />
+                ))}
+              </div>
+            ) : filteredVendors.length === 0 ? (
               <Card className="p-12 text-center">
                 <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No vendors found</h3>

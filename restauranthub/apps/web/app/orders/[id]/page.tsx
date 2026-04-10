@@ -51,82 +51,8 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      // For now, create mock order data since API might not have the order yet
-      // In production, this would be: const orderData = await ordersApi.getOrder(orderId);
-      
-      const mockOrder: Order = {
-        id: orderId,
-        orderNumber: `ORD-${Date.now().toString().slice(-8)}`,
-        status: 'CONFIRMED',
-        type: 'DELIVERY',
-        customerId: 'mock-user-1',
-        vendorId: 'vendor_001',
-        subtotal: 120.48,
-        taxAmount: 9.64,
-        deliveryFee: 15.99,
-        discountAmount: 0,
-        total: 146.11,
-        paymentMethod: 'CARD',
-        paymentStatus: 'PAID',
-        items: [
-          {
-            id: '1',
-            name: 'Premium Basmati Rice',
-            quantity: 2,
-            unitPrice: 45.99,
-            totalPrice: 91.98,
-            product: {
-              id: '1',
-              name: 'Premium Basmati Rice',
-              price: 45.99,
-              images: ['/api/placeholder/100/100']
-            }
-          },
-          {
-            id: '2',
-            name: 'Organic Olive Oil',
-            quantity: 1,
-            unitPrice: 28.50,
-            totalPrice: 28.50,
-            product: {
-              id: '2',
-              name: 'Organic Olive Oil',
-              price: 28.50,
-              images: ['/api/placeholder/100/100']
-            }
-          }
-        ],
-        customer: {
-          id: 'mock-user-1',
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@restauranthub.com',
-          phone: '+1234567890'
-        },
-        vendor: {
-          id: 'vendor_001',
-          businessName: 'Fresh Ingredients Co.',
-          businessAddress: '123 Market Street',
-          city: 'San Francisco',
-          state: 'CA',
-          averageRating: 4.8
-        },
-        deliveryAddress: {
-          fullName: 'Admin User',
-          addressLine1: '123 Main St',
-          city: 'San Francisco',
-          state: 'CA',
-          zipCode: '94102',
-          phone: '+1234567890'
-        },
-        customerNotes: 'Please handle with care',
-        estimatedTime: '45-60 minutes',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        expectedDelivery: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 hours from now
-      };
-      
-      setOrder(mockOrder);
+      const orderData = await ordersApi.getOrder(orderId);
+      setOrder(orderData);
     } catch (err: any) {
       console.error('Failed to fetch order:', err);
       setError('Failed to load order details');
