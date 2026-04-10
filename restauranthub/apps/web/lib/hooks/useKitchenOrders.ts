@@ -76,7 +76,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
     }
 
     // Get authentication token (from localStorage or context)
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('restauranthub_token') : null;
 
     if (!token) {
       setError('Authentication token not found');
@@ -264,7 +264,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+              Authorization: `Bearer ${localStorage.getItem('restauranthub_token')}`,
             },
             body: JSON.stringify({ status: newStatus }),
           }
@@ -338,7 +338,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+              Authorization: `Bearer ${localStorage.getItem('restauranthub_token')}`,
             },
             body: JSON.stringify({ status: newStatus }),
           }

@@ -49,12 +49,12 @@ export const WalletManager: React.FC<WalletManagerProps> = ({ className }) => {
       const [balanceResponse, transactionsResponse] = await Promise.all([
         fetch('/api/payments/wallet/balance', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
           },
         }),
         fetch(`/api/payments/wallet/transactions?page=${page}&limit=10`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
           },
         }),
       ]);

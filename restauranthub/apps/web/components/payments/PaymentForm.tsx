@@ -56,7 +56,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
     try {
       const response = await fetch('/api/payments/methods', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
         },
       });
       const data = await response.json();
@@ -126,7 +126,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
       },
       body: JSON.stringify(paymentData),
     });
@@ -166,7 +166,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
       },
       body: JSON.stringify(paymentData),
     });
@@ -190,7 +190,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
       },
       body: JSON.stringify(paymentData),
     });
@@ -209,7 +209,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
       },
       body: JSON.stringify(paymentData),
     });
@@ -232,7 +232,7 @@ const PaymentFormContent: React.FC<PaymentFormProps> = ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
       },
       body: JSON.stringify(paymentData),
     });

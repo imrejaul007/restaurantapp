@@ -51,7 +51,7 @@ interface ApplicationResult {
 
 function authHeaders(): HeadersInit {
   const token =
-    typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    typeof window !== 'undefined' ? localStorage.getItem('restauranthub_token') : null;
   return token
     ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
     : { 'Content-Type': 'application/json' };

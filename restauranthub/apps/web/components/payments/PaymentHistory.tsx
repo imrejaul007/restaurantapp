@@ -68,7 +68,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
 
       const response = await fetch(endpoint, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
         },
       });
 
@@ -121,7 +121,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
         },
         body: JSON.stringify({
           paymentId,

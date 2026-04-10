@@ -86,7 +86,7 @@ export const PaymentDashboard: React.FC = () => {
 
       const response = await fetch(`/api/payments/admin/dashboard?${params}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('restauranthub_token')}`,
         },
       });
 

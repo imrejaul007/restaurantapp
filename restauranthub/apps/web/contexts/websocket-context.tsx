@@ -38,7 +38,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
   useEffect(() => {
     if (user) {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('restauranthub_token');
       // Connect to WebSocket server
       const socketInstance = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3000', {
         auth: {
