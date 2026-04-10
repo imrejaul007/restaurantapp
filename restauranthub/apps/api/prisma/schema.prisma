@@ -87,6 +87,8 @@ model User {
   twoFactorEnabled      Boolean   @default(false)
   twoFactorSecret       String?
   lastLoginAt           DateTime?
+  appSource             String?   // 'restopapa_web' | 'rez_bridge' | 'rez_webhook' | 'admin'
+  lastLoginApp          String?   // which app they last logged in from
   refreshToken          String?
   resetTokenHash        String?
   resetTokenExpiresAt   DateTime?

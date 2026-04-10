@@ -71,6 +71,7 @@ export class RezWebhookController {
         rezMerchantId,
         rezVerified: true,
         consentTier: 0,
+        appSource: 'rez_webhook',
         profile: {
           create: {
             firstName,

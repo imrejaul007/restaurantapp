@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: any) {
-    const { email, password, role = UserRole.CUSTOMER, firstName, lastName, phone } = signUpDto;
+    const { email, password, role = UserRole.CUSTOMER, firstName, lastName, phone, appSource = 'restopapa_web' } = signUpDto;
 
     // Check if user exists
     const existingUser = await this.prisma.user.findFirst({
@@ -46,6 +46,8 @@ export class AuthService {
         phone,
         passwordHash,
         role: role as UserRole,
+        appSource,
+        lastLoginApp: appSource,
       },
     });
 
@@ -71,7 +73,7 @@ export class AuthService {
   }
 
   async signIn(signInDto: any) {
-    const { email, password } = signInDto;
+    const { email, password, appSource = 'restopapa_web' } = signInDto;
     this.logger.debug(`Signin attempt for user`);
 
     const user = await this.prisma.user.findUnique({
@@ -106,6 +108,7 @@ export class AuthService {
       data: {
         refreshToken: await argon2.hash(tokens.refreshToken),
         lastLoginAt: new Date(),
+        lastLoginApp: appSource,
       },
     });
 

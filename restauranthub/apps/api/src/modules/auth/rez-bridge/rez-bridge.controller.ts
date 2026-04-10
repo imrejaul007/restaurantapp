@@ -218,17 +218,23 @@ export class RezBridgeController {
 
     if (existingUser) {
       // Update the REZ fields to keep them in sync
-      await this.prisma.profile.update({
-        where: { userId: existingUser.id },
-        data: {
-          rezMerchantId: profile._id,
-          rezUserId: payload.userId,
-          rezStoreId: profile.storeId ?? null,
-          rezVerified: true,
-          firstName: (profile.name ?? '').split(' ')[0] || existingUser.profile?.firstName,
-          lastName: (profile.name ?? '').split(' ').slice(1).join(' ') || existingUser.profile?.lastName,
-        },
-      });
+      await Promise.all([
+        this.prisma.profile.update({
+          where: { userId: existingUser.id },
+          data: {
+            rezMerchantId: profile._id,
+            rezUserId: payload.userId,
+            rezStoreId: profile.storeId ?? null,
+            rezVerified: true,
+            firstName: (profile.name ?? '').split(' ')[0] || existingUser.profile?.firstName,
+            lastName: (profile.name ?? '').split(' ').slice(1).join(' ') || existingUser.profile?.lastName,
+          },
+        }),
+        this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: { lastLoginApp: 'rez_bridge', lastLoginAt: new Date() },
+        }),
+      ]);
 
       return { user: { ...existingUser, email: profile.email }, isNewProfile: false };
     }
@@ -243,6 +249,8 @@ export class RezBridgeController {
         role: 'RESTAURANT',
         isActive: true,
         isVerified: true,
+        appSource: 'rez_bridge',
+        lastLoginApp: 'rez_bridge',
         profile: {
           create: {
             firstName: (profile.name ?? 'Merchant').split(' ')[0],
