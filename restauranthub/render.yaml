@@ -32,7 +32,7 @@ services:
     name: restauranthub-api
     env: node
     buildCommand: npm install && npm run build --workspace=apps/api
-    startCommand: npm run start:prod --workspace=apps/api
+    startCommand: npm run prisma:deploy --workspace=apps/api && npm run start:prod --workspace=apps/api
     envVars:
       - key: NODE_ENV
         value: production
