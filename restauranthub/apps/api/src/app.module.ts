@@ -15,6 +15,7 @@ import { TrainingModule } from './modules/training/training.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { FintechModule } from './modules/fintech/fintech.module';
 import { HealthModule } from './health/health.module';
+import { KeepAliveService } from './common/keep-alive.service';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { HealthModule } from './health/health.module';
     HealthModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [KeepAliveService],
 })
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);
