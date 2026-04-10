@@ -38,6 +38,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { toast } from '@/lib/toast';
 import { formatDate } from '@/lib/utils';
+import { apiClient } from '@/lib/api/client';
 
 interface Application {
   id: string;

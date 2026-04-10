@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Filter,
@@ -32,6 +32,7 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { UserRole } from '@/types/auth';
 import { cn } from '@/lib/utils';
+import { apiClient } from '@/lib/api/client';
 
 interface JobApplication {
   id: string;
@@ -195,14 +196,76 @@ const statusColors = {
   'withdrawn': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
 };
 
+// Helper to map API response to the page's JobApplication shape
+function mapApiApplication(raw: any): JobApplication {
+  const profile = raw.employee?.user?.profile;
+  const firstName = profile?.firstName ?? '';
+  const lastName = profile?.lastName ?? '';
+  return {
+    id: raw.id,
+    applicant: {
+      id: raw.employee?.id ?? '',
+      name: `${firstName} ${lastName}`.trim() || 'Unknown',
+      email: raw.employee?.user?.email ?? '',
+      phone: raw.employee?.user?.phone ?? '',
+      location: {
+        city: profile?.city ?? '',
+        state: profile?.state ?? '',
+      },
+      profile: {
+        title: raw.employee?.designation ?? '',
+        experience: 0,
+        verified: false,
+      },
+    },
+    job: {
+      id: raw.job?.id ?? '',
+      title: raw.job?.title ?? '',
+      department: '',
+    },
+    appliedAt: raw.createdAt ?? new Date().toISOString(),
+    status: (raw.status?.toLowerCase().replace('_', '-') ?? 'pending') as JobApplication['status'],
+    coverLetter: raw.coverLetter ?? '',
+    resume: raw.resume ? { url: raw.resume, filename: 'Resume' } : undefined,
+    experience: { totalYears: 0, relevantYears: 0, previousRoles: [] },
+    skills: [],
+    expectedSalary: { amount: 0, negotiable: false },
+    availability: { startDate: '', noticePeriod: '' },
+    notes: raw.reviewNotes,
+  };
+}
+
 export default function ApplicationsPage() {
   const { user } = useAuth();
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'score' | 'name'>('date');
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const fetchApplications = useCallback(async () => {
+    setLoadingApplications(true);
+    setLoadError(null);
+    try {
+      const res = await apiClient.get<any>('/jobs/restaurant-applications?limit=100');
+      const rawList: any[] = res?.data?.data ?? res?.data ?? [];
+      setApplications(rawList.map(mapApiApplication));
+    } catch (err: any) {
+      setLoadError(err?.message ?? 'Failed to load applications');
+    } finally {
+      setLoadingApplications(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === UserRole.RESTAURANT) {
+      fetchApplications();
+    }
+  }, [user, fetchApplications]);
 
   // Verify user is restaurant owner
   if (user?.role !== UserRole.RESTAURANT) {
@@ -220,7 +283,7 @@ export default function ApplicationsPage() {
     );
   }
 
-  const filteredApplications = mockApplications.filter(app => {
+  const filteredApplications = applications.filter(app => {
     const matchesSearch = app.applicant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          app.job.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || app.status === filterStatus;
@@ -239,9 +302,26 @@ export default function ApplicationsPage() {
     }
   });
 
-  const updateApplicationStatus = (applicationId: string, newStatus: JobApplication['status']) => {
-    // This would typically make an API call
-    console.log(`Updating application ${applicationId} to ${newStatus}`);
+  const updateApplicationStatus = async (applicationId: string, newStatus: JobApplication['status']) => {
+    try {
+      // Map frontend status strings to API's ApplicationStatus enum
+      const statusMap: Record<string, string> = {
+        'pending': 'PENDING',
+        'reviewed': 'REVIEWED',
+        'shortlisted': 'SHORTLISTED',
+        'interview-scheduled': 'SHORTLISTED',
+        'offered': 'ACCEPTED',
+        'rejected': 'REJECTED',
+        'withdrawn': 'REJECTED',
+      };
+      const apiStatus = statusMap[newStatus] ?? newStatus.toUpperCase();
+      await apiClient.put(`/jobs/applications/${applicationId}/status`, { status: apiStatus });
+      setApplications(prev =>
+        prev.map(app => app.id === applicationId ? { ...app, status: newStatus } : app)
+      );
+    } catch (err) {
+      console.error('Failed to update application status:', err);
+    }
   };
 
   const toggleSelection = (id: string) => {
@@ -285,12 +365,18 @@ export default function ApplicationsPage() {
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <Button variant="outline">
+            <Button variant="outline" onClick={fetchApplications} disabled={loadingApplications}>
               <Download className="h-4 w-4 mr-2" />
-              Export
+              {loadingApplications ? 'Loading...' : 'Refresh'}
             </Button>
           </div>
         </div>
+
+        {loadError && (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+            {loadError}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -299,48 +385,48 @@ export default function ApplicationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total</p>
-                  <p className="text-2xl font-bold text-foreground">{mockApplications.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{applications.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Pending</p>
                   <p className="text-2xl font-bold text-foreground">
-                    {mockApplications.filter(app => app.status === 'pending').length}
+                    {applications.filter(app => app.status === 'pending').length}
                   </p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Shortlisted</p>
                   <p className="text-2xl font-bold text-foreground">
-                    {mockApplications.filter(app => app.status === 'shortlisted').length}
+                    {applications.filter(app => app.status === 'shortlisted').length}
                   </p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Interviews</p>
                   <p className="text-2xl font-bold text-foreground">
-                    {mockApplications.filter(app => app.status === 'interview-scheduled').length}
+                    {applications.filter(app => app.status === 'interview-scheduled').length}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-600" />
@@ -416,7 +502,16 @@ export default function ApplicationsPage() {
           </motion.div>
         )}
 
+        {/* Loading state */}
+        {loadingApplications && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span className="ml-3 text-muted-foreground">Loading applications...</span>
+          </div>
+        )}
+
         {/* Applications List */}
+        {!loadingApplications && (
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
@@ -603,6 +698,8 @@ export default function ApplicationsPage() {
               </p>
             </CardContent>
           </Card>
+        )}
+        </div>
         )}
       </div>
     </DashboardLayout>

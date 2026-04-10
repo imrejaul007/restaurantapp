@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Upload, Plus, Minus, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Plus, Minus, AlertTriangle, Info, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,84 +14,47 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { menuApi, MenuCategory } from '@/lib/api/menu';
+
+const AVAILABLE_ALLERGENS = [
+  'Gluten', 'Dairy', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts',
+  'Peanuts', 'Soy', 'Sesame', 'Mustard',
+];
+
+const AVAILABLE_TAGS = [
+  'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto',
+  'Low-Carb', 'High-Protein', 'Organic', 'Local', 'Spicy',
+];
 
 export default function CreateMenuItem() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
   const [item, setItem] = useState({
     name: '',
     description: '',
-    price: '',
-    category: '',
-    image: '',
-    ingredients: [''],
-    allergens: [] as string[],
-    nutritionInfo: {
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: ''
-    },
+    basePrice: '',
+    categoryId: '',
+    isAvailable: true,
     preparationTime: '',
-    servingSize: '',
-    available: true,
-    popular: false,
-    spicyLevel: 0,
-    dietaryTags: [] as string[]
+    calories: '',
+    allergens: [] as string[],
+    tags: [] as string[],
+    displayOrder: '',
   });
 
-  const categories = [
-    'Appetizers', 'Soups', 'Salads', 'Pizza', 'Pasta', 'Burgers', 
-    'Sandwiches', 'Seafood', 'Chicken', 'Beef', 'Vegetarian', 
-    'Desserts', 'Beverages', 'Specials'
-  ];
-
-  const availableAllergens = [
-    'Gluten', 'Dairy', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts', 
-    'Peanuts', 'Soy', 'Sesame', 'Mustard'
-  ];
-
-  const availableDietaryTags = [
-    'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 
-    'Low-Carb', 'High-Protein', 'Organic', 'Local', 'Spicy'
-  ];
+  useEffect(() => {
+    menuApi.getCategories()
+      .then(cats => setCategories(cats.filter(c => c.isActive)))
+      .catch(() => {})
+      .finally(() => setCategoriesLoading(false));
+  }, []);
 
   const handleInputChange = (field: string, value: any) => {
-    setItem(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleNutritionChange = (field: string, value: string) => {
-    setItem(prev => ({
-      ...prev,
-      nutritionInfo: {
-        ...prev.nutritionInfo,
-        [field]: value
-      }
-    }));
-  };
-
-  const addIngredient = () => {
-    setItem(prev => ({
-      ...prev,
-      ingredients: [...prev.ingredients, '']
-    }));
-  };
-
-  const removeIngredient = (index: number) => {
-    setItem(prev => ({
-      ...prev,
-      ingredients: prev.ingredients.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateIngredient = (index: number, value: string) => {
-    setItem(prev => ({
-      ...prev,
-      ingredients: prev.ingredients.map((ing, i) => i === index ? value : ing)
-    }));
+    setItem(prev => ({ ...prev, [field]: value }));
   };
 
   const toggleAllergen = (allergen: string) => {
@@ -99,39 +62,55 @@ export default function CreateMenuItem() {
       ...prev,
       allergens: prev.allergens.includes(allergen)
         ? prev.allergens.filter(a => a !== allergen)
-        : [...prev.allergens, allergen]
+        : [...prev.allergens, allergen],
     }));
   };
 
-  const toggleDietaryTag = (tag: string) => {
+  const toggleTag = (tag: string) => {
     setItem(prev => ({
       ...prev,
-      dietaryTags: prev.dietaryTags.includes(tag)
-        ? prev.dietaryTags.filter(t => t !== tag)
-        : [...prev.dietaryTags, tag]
+      tags: prev.tags.includes(tag)
+        ? prev.tags.filter(t => t !== tag)
+        : [...prev.tags, tag],
     }));
   };
 
   const handleSave = async () => {
+    setSubmitError(null);
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await menuApi.createMenuItem({
+        name: item.name,
+        categoryId: item.categoryId,
+        description: item.description || undefined,
+        basePrice: parseFloat(item.basePrice),
+        isAvailable: item.isAvailable,
+        preparationTime: item.preparationTime ? parseInt(item.preparationTime) : undefined,
+        calories: item.calories ? parseInt(item.calories) : undefined,
+        allergens: item.allergens,
+        tags: item.tags,
+        displayOrder: item.displayOrder ? parseInt(item.displayOrder) : undefined,
+      });
       router.push('/restaurant/menu');
     } catch (error) {
-      console.error('Error creating menu item:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to create menu item');
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = item.name && item.description && item.price && item.category && item.preparationTime;
+  const isFormValid =
+    item.name.trim() !== '' &&
+    item.basePrice !== '' &&
+    item.categoryId !== '' &&
+    item.preparationTime !== '';
 
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost"  onClick={() => router.back()}>
+            <Button variant="ghost" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Menu
             </Button>
@@ -141,27 +120,30 @@ export default function CreateMenuItem() {
             </div>
           </div>
           <Button onClick={handleSave} disabled={!isFormValid || loading}>
-            <Save className="h-4 w-4 mr-2" />
+            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             {loading ? 'Creating...' : 'Create Item'}
           </Button>
         </div>
+
+        {submitError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{submitError}</AlertDescription>
+          </Alert>
+        )}
 
         {!isFormValid && (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Please fill in all required fields: Name, Description, Price, Category, and Preparation Time.
+              Please fill in all required fields: Name, Price, Category, and Preparation Time.
             </AlertDescription>
           </Alert>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <Card>
                 <CardHeader>
                   <CardTitle>Basic Information</CardTitle>
@@ -172,16 +154,16 @@ export default function CreateMenuItem() {
                     <Input
                       id="name"
                       value={item.name}
-                      onChange={(e) => e.target.value}
+                      onChange={e => handleInputChange('name', e.target.value)}
                       placeholder="e.g., Margherita Pizza"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Description *</Label>
+                    <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
                       value={item.description}
-                      onChange={(e) => e.target.value}
+                      onChange={e => handleInputChange('description', e.target.value)}
                       placeholder="Describe your dish..."
                       rows={3}
                     />
@@ -189,27 +171,37 @@ export default function CreateMenuItem() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="category">Category *</Label>
-                      <Select value={item.category} onValueChange={(value) => handleInputChange('category', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map(category => (
-                            <SelectItem key={category} value={category.toLowerCase()}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {categoriesLoading ? (
+                        <div className="flex items-center h-10 text-muted-foreground text-sm">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...
+                        </div>
+                      ) : (
+                        <Select
+                          value={item.categoryId}
+                          onValueChange={value => handleInputChange('categoryId', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map(cat => (
+                              <SelectItem key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                     <div>
-                      <Label htmlFor="price">Price ($) *</Label>
+                      <Label htmlFor="price">Price (Rs.) *</Label>
                       <Input
                         id="price"
                         type="number"
                         step="0.01"
-                        value={item.price}
-                        onChange={(e) => e.target.value}
+                        min="0"
+                        value={item.basePrice}
+                        onChange={e => handleInputChange('basePrice', e.target.value)}
                         placeholder="0.00"
                       />
                     </div>
@@ -220,121 +212,45 @@ export default function CreateMenuItem() {
                       <Input
                         id="prepTime"
                         type="number"
+                        min="1"
                         value={item.preparationTime}
-                        onChange={(e) => e.target.value}
+                        onChange={e => handleInputChange('preparationTime', e.target.value)}
                         placeholder="15"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="servingSize">Serving Size</Label>
-                      <Input
-                        id="servingSize"
-                        value={item.servingSize}
-                        onChange={(e) => e.target.value}
-                        placeholder="1 pizza (8 slices)"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Ingredients */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ingredients</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {item.ingredients.map((ingredient, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <Input
-                        value={ingredient}
-                        onChange={(e) => e.target.value}
-                        placeholder="Enter ingredient"
-                        className="flex-1"
-                      />
-                      {item.ingredients.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          
-                          onClick={() => removeIngredient(index)}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    
-                    onClick={addIngredient}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Ingredient
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Nutrition Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Nutrition Information</CardTitle>
-                  <p className="text-sm text-muted-foreground">Per serving (optional)</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                       <Label htmlFor="calories">Calories</Label>
                       <Input
                         id="calories"
                         type="number"
-                        value={item.nutritionInfo.calories}
-                        onChange={(e) => e.target.value}
+                        min="0"
+                        value={item.calories}
+                        onChange={e => handleInputChange('calories', e.target.value)}
                         placeholder="320"
                       />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="protein">Protein (g)</Label>
+                      <Label htmlFor="displayOrder">Display Order</Label>
                       <Input
-                        id="protein"
+                        id="displayOrder"
                         type="number"
-                        value={item.nutritionInfo.protein}
-                        onChange={(e) => e.target.value}
-                        placeholder="14"
+                        min="0"
+                        value={item.displayOrder}
+                        onChange={e => handleInputChange('displayOrder', e.target.value)}
+                        placeholder="0"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="carbs">Carbs (g)</Label>
-                      <Input
-                        id="carbs"
-                        type="number"
-                        value={item.nutritionInfo.carbs}
-                        onChange={(e) => e.target.value}
-                        placeholder="35"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="fat">Fat (g)</Label>
-                      <Input
-                        id="fat"
-                        type="number"
-                        value={item.nutritionInfo.fat}
-                        onChange={(e) => e.target.value}
-                        placeholder="12"
-                      />
+                    <div className="flex items-end pb-1">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="available"
+                          checked={item.isAvailable}
+                          onCheckedChange={checked => handleInputChange('isAvailable', !!checked)}
+                        />
+                        <Label htmlFor="available">Available immediately</Label>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -342,84 +258,8 @@ export default function CreateMenuItem() {
             </motion.div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Item Photo */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Item Photo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">🍽️</div>
-                      <p className="text-sm text-gray-500">Upload item photo</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Photo
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Item Settings */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Item Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="available">Available</Label>
-                    <Checkbox
-                      id="available"
-                      checked={item.available}
-                      onChange={(e) => handleInputChange('available', (e.target as HTMLInputElement).checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="popular">Popular Item</Label>
-                    <Checkbox
-                      id="popular"
-                      checked={item.popular}
-                      onChange={(e) => handleInputChange('popular', (e.target as HTMLInputElement).checked)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="spicy">Spicy Level</Label>
-                    <Select value={item.spicyLevel.toString()} onValueChange={(value) => handleInputChange('spicyLevel', parseInt(value))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">Not Spicy</SelectItem>
-                        <SelectItem value="1">🌶️ Mild</SelectItem>
-                        <SelectItem value="2">🌶️🌶️ Medium</SelectItem>
-                        <SelectItem value="3">🌶️🌶️🌶️ Hot</SelectItem>
-                        <SelectItem value="4">🌶️🌶️🌶️🌶️ Very Hot</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Allergens */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -429,7 +269,7 @@ export default function CreateMenuItem() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {availableAllergens.map(allergen => (
+                    {AVAILABLE_ALLERGENS.map(allergen => (
                       <div key={allergen} className="flex items-center space-x-2">
                         <Checkbox
                           id={`allergen-${allergen}`}
@@ -443,56 +283,45 @@ export default function CreateMenuItem() {
                     ))}
                   </div>
                   {item.allergens.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs text-gray-500 mb-2">Selected:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.allergens.map(allergen => (
-                          <Badge key={allergen} className="bg-red-500 text-xs">
-                            {allergen}
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {item.allergens.map(a => (
+                        <Badge key={a} className="bg-red-500 text-xs">
+                          {a}
+                        </Badge>
+                      ))}
                     </div>
                   )}
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Dietary Tags */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
               <Card>
                 <CardHeader>
-                  <CardTitle>Dietary Tags</CardTitle>
+                  <CardTitle>Tags</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {availableDietaryTags.map(tag => (
+                    {AVAILABLE_TAGS.map(tag => (
                       <div key={tag} className="flex items-center space-x-2">
                         <Checkbox
-                          id={`diet-${tag}`}
-                          checked={item.dietaryTags.includes(tag)}
-                          onCheckedChange={() => toggleDietaryTag(tag)}
+                          id={`tag-${tag}`}
+                          checked={item.tags.includes(tag)}
+                          onCheckedChange={() => toggleTag(tag)}
                         />
-                        <Label htmlFor={`diet-${tag}`} className="text-sm">
+                        <Label htmlFor={`tag-${tag}`} className="text-sm">
                           {tag}
                         </Label>
                       </div>
                     ))}
                   </div>
-                  {item.dietaryTags.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs text-gray-500 mb-2">Selected:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.dietaryTags.map(tag => (
-                          <Badge key={tag} className="bg-green-500 text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
+                  {item.tags.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {item.tags.map(t => (
+                        <Badge key={t} className="bg-green-500 text-xs">
+                          {t}
+                        </Badge>
+                      ))}
                     </div>
                   )}
                 </CardContent>

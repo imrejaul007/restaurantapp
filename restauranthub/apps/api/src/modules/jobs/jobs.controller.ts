@@ -76,6 +76,32 @@ export class JobsController {
     return this.jobsService.getRestaurantJobs(req.user.restaurantId, page, limit);
   }
 
+  @Get('restaurant-applications')
+  async getRestaurantApplications(
+    @Request() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('status') status?: string
+  ) {
+    if (req.user.role !== 'RESTAURANT') {
+      throw new BadRequestException('Only restaurants can view job applications');
+    }
+
+    return this.jobsService.getRestaurantApplications(req.user.restaurantId, page, limit, status);
+  }
+
+  @Get('restaurant-applications/:applicationId')
+  async getRestaurantApplication(
+    @Param('applicationId') applicationId: string,
+    @Request() req: any
+  ) {
+    if (req.user.role !== 'RESTAURANT') {
+      throw new BadRequestException('Only restaurants can view job applications');
+    }
+
+    return this.jobsService.getRestaurantApplication(applicationId, req.user.restaurantId);
+  }
+
   @Get('my-applications')
   async getMyApplications(
     @Request() req: any,

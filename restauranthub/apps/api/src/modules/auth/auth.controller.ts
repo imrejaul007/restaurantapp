@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -98,6 +98,13 @@ export class AuthController {
       authenticated: true,
       user: req.user,
     };
+  }
+
+  @Delete('2fa')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async disable2FA(@Request() req: any) {
+    return this.authService.disable2FA(req.user.id);
   }
 
   @Get('test')

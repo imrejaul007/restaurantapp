@@ -1,21 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FolderOpen, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  FolderOpen,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
   EyeOff,
-  ArrowUp, 
+  ArrowUp,
   ArrowDown,
-  Settings,
   Save,
   X,
   Check,
-  GripVertical
+  GripVertical,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,178 +25,139 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-
-interface MenuCategory {
-  id: number;
-  name: string;
-  description: string;
-  isVisible: boolean;
-  sortOrder: number;
-  itemCount: number;
-  color: string;
-  icon: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { menuApi, MenuCategory } from '@/lib/api/menu';
 
 export default function MenuCategoryManagement() {
-  const [categories, setCategories] = useState<MenuCategory[]>([
-    {
-      id: 1,
-      name: 'Appetizers',
-      description: 'Start your meal with our delicious appetizers',
-      isVisible: true,
-      sortOrder: 1,
-      itemCount: 8,
-      color: '#FF6B6B',
-      icon: '🥗',
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-02-01T14:30:00Z'
-    },
-    {
-      id: 2,
-      name: 'Main Courses',
-      description: 'Hearty and satisfying main dishes',
-      isVisible: true,
-      sortOrder: 2,
-      itemCount: 15,
-      color: '#4ECDC4',
-      icon: '🍽️',
-      createdAt: '2024-01-15T10:05:00Z',
-      updatedAt: '2024-02-01T15:00:00Z'
-    },
-    {
-      id: 3,
-      name: 'Desserts',
-      description: 'Sweet endings to your perfect meal',
-      isVisible: true,
-      sortOrder: 3,
-      itemCount: 6,
-      color: '#FFE66D',
-      icon: '🍰',
-      createdAt: '2024-01-15T10:10:00Z',
-      updatedAt: '2024-02-01T16:00:00Z'
-    },
-    {
-      id: 4,
-      name: 'Beverages',
-      description: 'Refreshing drinks and specialty beverages',
-      isVisible: false,
-      sortOrder: 4,
-      itemCount: 12,
-      color: '#A8E6CF',
-      icon: '🥤',
-      createdAt: '2024-01-15T10:15:00Z',
-      updatedAt: '2024-02-01T17:00:00Z'
-    },
-    {
-      id: 5,
-      name: 'Seasonal Specials',
-      description: 'Limited time seasonal offerings',
-      isVisible: true,
-      sortOrder: 5,
-      itemCount: 4,
-      color: '#FF8B94',
-      icon: '⭐',
-      createdAt: '2024-02-01T09:00:00Z',
-      updatedAt: '2024-02-01T18:00:00Z'
-    }
-  ]);
-
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newCategory, setNewCategory] = useState<Partial<MenuCategory>>({
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null); // id being saved
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+
+  const [newCategory, setNewCategory] = useState({
     name: '',
     description: '',
-    isVisible: true,
-    color: '#4ECDC4',
-    icon: '📁'
+    isActive: true,
+    displayOrder: 0,
   });
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
-  const colorOptions = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-    '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'
-  ];
+  const fetchCategories = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const cats = await menuApi.getCategories();
+      setCategories(cats);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const iconOptions = [
-    '🥗', '🍽️', '🍰', '🥤', '🍕', '🍔', '🍜', '🍣', '🥘', '🍖',
-    '🥙', '🍳', '🥞', '🧆', '🍲', '⭐', '🔥', '💎', '🎯', '📁'
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
-  const handleCreateCategory = () => {
-    const category: MenuCategory = {
-      id: Math.max(...categories.map(c => c.id)) + 1,
-      name: newCategory.name || '',
-      description: newCategory.description || '',
-      isVisible: newCategory.isVisible ?? true,
-      sortOrder: categories.length + 1,
-      itemCount: 0,
-      color: newCategory.color || '#4ECDC4',
-      icon: newCategory.icon || '📁',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    setCategories(prev => [...prev, category]);
-    setNewCategory({ name: '', description: '', isVisible: true, color: '#4ECDC4', icon: '📁' });
-    setShowCreateDialog(false);
-  };
-
-  const handleUpdateCategory = (id: number, updates: Partial<MenuCategory>) => {
-    setCategories(prev => prev.map(cat => 
-      cat.id === id 
-        ? { ...cat, ...updates, updatedAt: new Date().toISOString() }
-        : cat
-    ));
-  };
-
-  const handleDeleteCategory = (id: number) => {
-    setCategories(prev => prev.filter(cat => cat.id !== id));
-  };
-
-  const handleReorder = (fromIndex: number, toIndex: number) => {
-    const newCategories = [...categories];
-    const [removed] = newCategories.splice(fromIndex, 1);
-    newCategories.splice(toIndex, 0, removed);
-    
-    // Update sort order
-    const reorderedCategories = newCategories.map((cat, index) => ({
-      ...cat,
-      sortOrder: index + 1,
-      updatedAt: new Date().toISOString()
-    }));
-    
-    setCategories(reorderedCategories);
-  };
-
-  const moveCategory = (id: number, direction: 'up' | 'down') => {
-    const currentIndex = categories.findIndex(cat => cat.id === id);
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    
-    if (newIndex >= 0 && newIndex < categories.length) {
-      handleReorder(currentIndex, newIndex);
+  const handleCreateCategory = async () => {
+    if (!newCategory.name.trim()) return;
+    setCreateError(null);
+    setCreating(true);
+    try {
+      const created = await menuApi.createCategory({
+        name: newCategory.name,
+        description: newCategory.description || undefined,
+        isActive: newCategory.isActive,
+        displayOrder: newCategory.displayOrder,
+      });
+      setCategories(prev => [...prev, created]);
+      setNewCategory({ name: '', description: '', isActive: true, displayOrder: 0 });
+      setShowCreateDialog(false);
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create category');
+    } finally {
+      setCreating(false);
     }
   };
 
-  const toggleVisibility = (id: number) => {
-    handleUpdateCategory(id, { isVisible: !categories.find(cat => cat.id === id)?.isVisible });
+  const handleSaveEdit = async () => {
+    if (!editingCategory) return;
+    setSaving(editingCategory.id);
+    try {
+      const updated = await menuApi.updateCategory(editingCategory.id, {
+        name: editingCategory.name,
+        description: editingCategory.description,
+      });
+      setCategories(prev => prev.map(c => (c.id === updated.id ? updated : c)));
+      setEditingCategory(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleToggleActive = async (cat: MenuCategory) => {
+    setSaving(cat.id);
+    try {
+      const updated = await menuApi.updateCategory(cat.id, { isActive: !cat.isActive });
+      setCategories(prev => prev.map(c => (c.id === updated.id ? updated : c)));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this category? Items in it will not be deleted.')) return;
+    try {
+      await menuApi.deleteCategory(id);
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete');
+    }
+  };
+
+  const moveCategory = async (id: string, direction: 'up' | 'down') => {
+    const idx = categories.findIndex(c => c.id === id);
+    const newIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= categories.length) return;
+
+    const reordered = [...categories];
+    [reordered[idx], reordered[newIdx]] = [reordered[newIdx], reordered[idx]];
+
+    // Optimistic update
+    setCategories(reordered);
+
+    // Persist the new display orders
+    try {
+      await Promise.all([
+        menuApi.updateCategory(reordered[idx].id, { displayOrder: idx }),
+        menuApi.updateCategory(reordered[newIdx].id, { displayOrder: newIdx }),
+      ]);
+    } catch {
+      // Revert on failure
+      fetchCategories();
+    }
   };
 
   const stats = {
     total: categories.length,
-    visible: categories.filter(cat => cat.isVisible).length,
-    hidden: categories.filter(cat => !cat.isVisible).length,
-    totalItems: categories.reduce((sum, cat) => sum + cat.itemCount, 0)
+    visible: categories.filter(c => c.isActive).length,
+    hidden: categories.filter(c => !c.isActive).length,
+    totalItems: categories.reduce((sum, c) => sum + (c._count?.menuItems ?? 0), 0),
   };
 
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Menu Categories</h1>
@@ -213,70 +175,60 @@ export default function MenuCategoryManagement() {
                 <DialogTitle>Create New Category</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                {createError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{createError}</AlertDescription>
+                  </Alert>
+                )}
                 <div>
-                  <Label htmlFor="name">Category Name</Label>
+                  <Label htmlFor="new-name">Category Name *</Label>
                   <Input
-                    id="name"
+                    id="new-name"
                     value={newCategory.name}
-                    onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={e => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="e.g., Appetizers, Main Courses"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="new-desc">Description</Label>
                   <Textarea
-                    id="description"
+                    id="new-desc"
                     value={newCategory.description}
-                    onChange={(e) => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={e => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Brief description of this category"
                     rows={3}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Category Color</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {colorOptions.map(color => (
-                        <button
-                          key={color}
-                          className={`w-8 h-8 rounded-full border-2 ${
-                            newCategory.color === color ? 'border-gray-800' : 'border-gray-300'
-                          }`}
-                          style={{ backgroundColor: color }}
-                          onClick={() => setNewCategory(prev => ({ ...prev, color }))}
-                        />
-                      ))}
+                    <Label htmlFor="new-order">Display Order</Label>
+                    <Input
+                      id="new-order"
+                      type="number"
+                      min="0"
+                      value={newCategory.displayOrder}
+                      onChange={e =>
+                        setNewCategory(prev => ({ ...prev, displayOrder: parseInt(e.target.value) || 0 }))
+                      }
+                    />
+                  </div>
+                  <div className="flex items-end pb-1">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={newCategory.isActive}
+                        onCheckedChange={v => setNewCategory(prev => ({ ...prev, isActive: v }))}
+                      />
+                      <Label>Active</Label>
                     </div>
                   </div>
-                  <div>
-                    <Label>Category Icon</Label>
-                    <div className="grid grid-cols-5 gap-2 mt-2">
-                      {iconOptions.map(icon => (
-                        <button
-                          key={icon}
-                          className={`w-8 h-8 rounded border text-lg ${
-                            newCategory.icon === icon ? 'border-gray-800 bg-gray-100' : 'border-gray-300'
-                          }`}
-                          onClick={() => setNewCategory(prev => ({ ...prev, icon }))}
-                        >
-                          {icon}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={newCategory.isVisible}
-                    onChange={(e) => setNewCategory(prev => ({ ...prev, isVisible: (e.target as HTMLInputElement).checked }))}
-                  />
-                  <Label>Visible to customers</Label>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateCategory} disabled={!newCategory.name}>
+                  <Button onClick={handleCreateCategory} disabled={!newCategory.name.trim() || creating}>
+                    {creating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                     Create Category
                   </Button>
                 </div>
@@ -285,209 +237,204 @@ export default function MenuCategoryManagement() {
           </Dialog>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Categories</p>
-                    <h3 className="text-2xl font-bold mt-2">{stats.total}</h3>
-                  </div>
-                  <FolderOpen className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Visible</p>
-                    <h3 className="text-2xl font-bold mt-2 text-green-600">{stats.visible}</h3>
-                  </div>
-                  <Eye className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Hidden</p>
-                    <h3 className="text-2xl font-bold mt-2 text-gray-600">{stats.hidden}</h3>
-                  </div>
-                  <EyeOff className="h-8 w-8 text-gray-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Items</p>
-                    <h3 className="text-2xl font-bold mt-2 text-purple-600">{stats.totalItems}</h3>
-                  </div>
-                  <Settings className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}{' '}
+              <Button variant="link" className="p-0 h-auto" onClick={fetchCategories}>
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
-        {/* Categories List */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Category Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {categories.map((category, index) => (
-                  <motion.div
-                    key={category.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={`p-4 border rounded-lg transition-all ${
-                      editingCategory?.id === category.id ? 'border-blue-300 bg-blue-50' : 'hover:bg-gray-50'
-                    }`}
-                    draggable
-                    onDragStart={() => setDraggedItem(category.id)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => {
-                      if (draggedItem && draggedItem !== category.id) {
-                        const fromIndex = categories.findIndex(c => c.id === draggedItem);
-                        const toIndex = categories.findIndex(c => c.id === category.id);
-                        handleReorder(fromIndex, toIndex);
-                        setDraggedItem(null);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center space-x-4">
-                      {/* Drag Handle */}
-                      <GripVertical className="h-5 w-5 text-gray-400 cursor-grab" />
-                      
-                      {/* Category Icon */}
-                      <div 
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-xl text-white"
-                        style={{ backgroundColor: category.color }}
-                      >
-                        {category.icon}
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Total Categories', value: stats.total, icon: FolderOpen, color: 'text-blue-500' },
+                { label: 'Active', value: stats.visible, icon: Eye, color: 'text-green-500' },
+                { label: 'Inactive', value: stats.hidden, icon: EyeOff, color: 'text-gray-500' },
+                { label: 'Total Items', value: stats.totalItems, icon: FolderOpen, color: 'text-purple-500' },
+              ].map((stat, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                          <h3 className="text-2xl font-bold mt-2">{stat.value}</h3>
+                        </div>
+                        <stat.icon className={`h-8 w-8 ${stat.color}`} />
                       </div>
-                      
-                      {/* Category Info */}
-                      <div className="flex-1">
-                        {editingCategory?.id === category.id ? (
-                          <div className="space-y-2">
-                            <Input
-                              value={editingCategory.name}
-                              onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
-                              className="font-semibold"
-                            />
-                            <Textarea
-                              value={editingCategory.description}
-                              onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
-                              rows={2}
-                            />
-                          </div>
-                        ) : (
-                          <div>
-                            <h3 className="font-semibold text-lg">{category.name}</h3>
-                            <p className="text-gray-600 text-sm">{category.description}</p>
-                            <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                              <span>Order: {category.sortOrder}</span>
-                              <span>Items: {category.itemCount}</span>
-                              <span>Updated: {new Date(category.updatedAt).toLocaleDateString()}</span>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Category Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {categories.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-30" />
+                      <p>No categories yet. Create your first category above.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {categories.map((category, index) => (
+                        <motion.div
+                          key={category.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`p-4 border rounded-lg transition-all ${
+                            editingCategory?.id === category.id
+                              ? 'border-blue-300 bg-blue-50'
+                              : 'hover:bg-gray-50'
+                          }`}
+                          draggable
+                          onDragStart={() => setDraggedId(category.id)}
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={() => {
+                            if (draggedId && draggedId !== category.id) {
+                              const from = categories.findIndex(c => c.id === draggedId);
+                              const to = categories.findIndex(c => c.id === category.id);
+                              const reordered = [...categories];
+                              const [removed] = reordered.splice(from, 1);
+                              reordered.splice(to, 0, removed);
+                              setCategories(reordered);
+                              setDraggedId(null);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <GripVertical className="h-5 w-5 text-gray-400 cursor-grab flex-shrink-0" />
+
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <FolderOpen className="h-5 w-5 text-primary" />
+                            </div>
+
+                            <div className="flex-1">
+                              {editingCategory?.id === category.id ? (
+                                <div className="space-y-2">
+                                  <Input
+                                    value={editingCategory.name}
+                                    onChange={e => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                                    className="font-semibold"
+                                  />
+                                  <Textarea
+                                    value={editingCategory.description ?? ''}
+                                    onChange={e =>
+                                      setEditingCategory({ ...editingCategory, description: e.target.value })
+                                    }
+                                    rows={2}
+                                  />
+                                </div>
+                              ) : (
+                                <div>
+                                  <h3 className="font-semibold text-lg">{category.name}</h3>
+                                  <p className="text-gray-600 text-sm">{category.description}</p>
+                                  <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                                    <span>Items: {category._count?.menuItems ?? 0}</span>
+                                    <span>Order: {category.displayOrder}</span>
+                                    <span>Updated: {new Date(category.updatedAt).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center space-x-2 flex-shrink-0">
+                              <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                                {category.isActive ? 'Active' : 'Inactive'}
+                              </Badge>
+
+                              {editingCategory?.id === category.id ? (
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    onClick={handleSaveEdit}
+                                    disabled={saving === category.id}
+                                  >
+                                    {saving === category.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Check className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingCategory(null)}>
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => moveCategory(category.id, 'up')}
+                                    disabled={index === 0}
+                                  >
+                                    <ArrowUp className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => moveCategory(category.id, 'down')}
+                                    disabled={index === categories.length - 1}
+                                  >
+                                    <ArrowDown className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleToggleActive(category)}
+                                    disabled={saving === category.id}
+                                  >
+                                    {saving === category.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : category.isActive ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setEditingCategory({ ...category })}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleDelete(category.id)}
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
-                      </div>
-                      
-                      {/* Status & Actions */}
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={category.isVisible ? 'default' : 'secondary'}>
-                          {category.isVisible ? 'Visible' : 'Hidden'}
-                        </Badge>
-                        
-                        {editingCategory?.id === category.id ? (
-                          <div className="flex items-center space-x-1">
-                            <Button
-                              
-                              onClick={() => {
-                                handleUpdateCategory(category.id, {
-                                  name: editingCategory.name,
-                                  description: editingCategory.description
-                                });
-                                setEditingCategory(null);
-                              }}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEditingCategory(null)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => moveCategory(category.id, 'up')}
-                              disabled={index === 0}
-                            >
-                              <ArrowUp className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => moveCategory(category.id, 'down')}
-                              disabled={index === categories.length - 1}
-                            >
-                              <ArrowDown className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => toggleVisibility(category.id)}
-                            >
-                              {category.isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setEditingCategory(category)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDeleteCategory(category.id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                        </motion.div>
+                      ))}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

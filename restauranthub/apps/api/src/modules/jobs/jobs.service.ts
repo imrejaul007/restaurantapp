@@ -481,6 +481,107 @@ export class JobsService {
     });
   }
 
+  async getRestaurantApplications(restaurantId: string, page = 1, limit = 20, status?: string) {
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      job: { restaurantId },
+      ...(status && status !== 'all' ? { status: status.toUpperCase() } : {}),
+    };
+
+    const [applications, total] = await Promise.all([
+      this.prisma.jobApplication.findMany({
+        where,
+        include: {
+          job: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+          employee: {
+            select: {
+              id: true,
+              designation: true,
+              user: {
+                select: {
+                  email: true,
+                  phone: true,
+                  profile: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                      avatar: true,
+                      city: true,
+                      state: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.jobApplication.count({ where }),
+    ]);
+
+    return {
+      data: applications,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async getRestaurantApplication(applicationId: string, restaurantId: string) {
+    const application = await this.prisma.jobApplication.findFirst({
+      where: {
+        id: applicationId,
+        job: { restaurantId },
+      },
+      include: {
+        job: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        employee: {
+          select: {
+            id: true,
+            designation: true,
+            user: {
+              select: {
+                email: true,
+                phone: true,
+                profile: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    avatar: true,
+                    city: true,
+                    state: true,
+                    address: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!application) {
+      throw new NotFoundException('Application not found');
+    }
+
+    return application;
+  }
+
   async getMyApplications(employeeId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
 

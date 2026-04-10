@@ -16,6 +16,9 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { FintechModule } from './modules/fintech/fintech.module';
 import { HealthModule } from './health/health.module';
 import { KeepAliveService } from './common/keep-alive.service';
+import { MenuModule } from './modules/menu/menu.module';
+import { ReservationsModule } from './modules/reservations/reservations.module';
+import { StaffModule } from './modules/staff/staff.module';
 
 @Module({
   imports: [
@@ -47,6 +50,9 @@ import { KeepAliveService } from './common/keep-alive.service';
     AnalyticsModule,
     FintechModule,
     HealthModule,
+    MenuModule,
+    ReservationsModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [KeepAliveService],

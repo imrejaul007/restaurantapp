@@ -274,6 +274,29 @@ export class AuthService {
     });
   }
 
+  async disable2FA(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.twoFactorEnabled) {
+      return { message: '2FA is not enabled on this account' };
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: false,
+        twoFactorSecret: null,
+      },
+    });
+
+    this.logger.log(`User ${userId} disabled 2FA`);
+    return { message: '2FA has been disabled successfully' };
+  }
+
   private sanitizeUser(user: any) {
     const { passwordHash, refreshToken, twoFactorSecret, ...sanitized } = user;
     return sanitized;

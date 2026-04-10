@@ -42,7 +42,7 @@ import { useTheme } from 'next-themes';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TwoFactorSetup } from '@/components/auth/two-factor-setup';
 import { SessionManager } from '@/components/auth/session-manager';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
@@ -52,6 +52,8 @@ export default function SettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [show2FASetup, setShow2FASetup] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
+  const [show2FADisableConfirm, setShow2FADisableConfirm] = useState(false);
+  const [disabling2FA, setDisabling2FA] = useState(false);
 
   // Profile settings
   const [profileData, setProfileData] = useState({
@@ -118,8 +120,39 @@ export default function SettingsPage() {
       // Enable 2FA - show setup dialog
       setShow2FASetup(true);
     } else {
-      // TODO: Disable 2FA - show confirmation and call API
+      // Show confirmation before disabling
+      setShow2FADisableConfirm(true);
+    }
+  };
+
+  const handleConfirmDisable2FA = async () => {
+    setDisabling2FA(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/auth/2fa`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          credentials: 'include',
+        }
+      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.message || 'Failed to disable 2FA');
+      }
       setSecurity({ ...security, twoFactorAuth: false });
+      setShow2FADisableConfirm(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: any) {
+      // Surface error without crashing
+      console.error('Disable 2FA error:', err);
+    } finally {
+      setDisabling2FA(false);
     }
   };
 
@@ -724,6 +757,34 @@ export default function SettingsPage() {
         <Dialog open={showSessionManager} onOpenChange={setShowSessionManager}>
           <DialogContent className="max-w-4xl">
             <SessionManager />
+          </DialogContent>
+        </Dialog>
+
+        {/* 2FA Disable Confirmation Dialog */}
+        <Dialog open={show2FADisableConfirm} onOpenChange={setShow2FADisableConfirm}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Disable Two-Factor Authentication</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to disable 2FA? This will make your account less secure.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex space-x-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setShow2FADisableConfirm(false)}
+                disabled={disabling2FA}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirmDisable2FA}
+                disabled={disabling2FA}
+              >
+                {disabling2FA ? 'Disabling...' : 'Disable 2FA'}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   Plus,
   Search,
   Filter,
@@ -11,296 +11,117 @@ import {
   MoreHorizontal,
   Phone,
   Mail,
-  MapPin,
   Calendar,
-  Clock,
   User,
   UserCheck,
-  UserX,
   Award,
   TrendingUp,
-  ChefHat,
-  Utensils,
-  Users
+  Users,
+  Trash2,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { formatDate, cn } from '@/lib/utils';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'react-hot-toast';
+import Link from 'next/link';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Employee {
   id: string;
+  firstName: string;
+  lastName: string;
   name: string;
-  email: string;
-  phone: string;
-  position: string;
-  department: string;
-  employmentType: 'full-time' | 'part-time' | 'contract' | 'internship';
-  status: 'active' | 'inactive' | 'on-leave' | 'terminated';
-  joiningDate: string;
-  salary: number;
-  experience: string;
-  skills: string[];
-  address: string;
-  emergencyContact: {
-    name: string;
-    phone: string;
-    relationship: string;
-  };
-  documents: {
-    aadhaar: boolean;
-    pan: boolean;
-    resume: boolean;
-    photo: boolean;
-  };
-  performance: {
-    rating: number;
-    lastReview: string;
-  };
-  avatar?: string;
+  email: string | null;
+  phone: string | null;
+  role: string;
+  department: string | null;
+  salary: number | null;
+  startDate: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
-const mockEmployees: Employee[] = [
-  {
-    id: '1',
-    name: 'Amit Sharma',
-    email: 'amit@restaurant.com',
-    phone: '+91 9876543210',
-    position: 'Head Chef',
-    department: 'Kitchen',
-    employmentType: 'full-time',
-    status: 'active',
-    joiningDate: '2023-03-15T00:00:00Z',
-    salary: 65000,
-    experience: '8 years',
-    skills: ['Indian Cuisine', 'Team Leadership', 'Menu Planning', 'Food Safety'],
-    address: 'Bandra West, Mumbai, Maharashtra',
-    emergencyContact: {
-      name: 'Priya Sharma',
-      phone: '+91 9876543211',
-      relationship: 'Spouse'
-    },
-    documents: {
-      aadhaar: true,
-      pan: true,
-      resume: true,
-      photo: true
-    },
-    performance: {
-      rating: 4.8,
-      lastReview: '2024-01-01T00:00:00Z'
-    }
-  },
-  {
-    id: '2',
-    name: 'Priya Patel',
-    email: 'priya@restaurant.com',
-    phone: '+91 9876543212',
-    position: 'Sous Chef',
-    department: 'Kitchen',
-    employmentType: 'full-time',
-    status: 'active',
-    joiningDate: '2023-06-20T00:00:00Z',
-    salary: 42000,
-    experience: '5 years',
-    skills: ['Continental', 'Pastry', 'Food Safety', 'Kitchen Management'],
-    address: 'Andheri East, Mumbai, Maharashtra',
-    emergencyContact: {
-      name: 'Raj Patel',
-      phone: '+91 9876543213',
-      relationship: 'Father'
-    },
-    documents: {
-      aadhaar: true,
-      pan: true,
-      resume: true,
-      photo: true
-    },
-    performance: {
-      rating: 4.5,
-      lastReview: '2024-01-01T00:00:00Z'
-    }
-  },
-  {
-    id: '3',
-    name: 'Rajesh Kumar',
-    email: 'rajesh@restaurant.com',
-    phone: '+91 9876543214',
-    position: 'Senior Waiter',
-    department: 'Service',
-    employmentType: 'full-time',
-    status: 'active',
-    joiningDate: '2023-08-10T00:00:00Z',
-    salary: 28000,
-    experience: '3 years',
-    skills: ['Customer Service', 'Hindi', 'English', 'POS Systems'],
-    address: 'Powai, Mumbai, Maharashtra',
-    emergencyContact: {
-      name: 'Sunita Kumar',
-      phone: '+91 9876543215',
-      relationship: 'Mother'
-    },
-    documents: {
-      aadhaar: true,
-      pan: false,
-      resume: true,
-      photo: true
-    },
-    performance: {
-      rating: 4.2,
-      lastReview: '2023-12-15T00:00:00Z'
-    }
-  },
-  {
-    id: '4',
-    name: 'Sneha Reddy',
-    email: 'sneha@restaurant.com',
-    phone: '+91 9876543216',
-    position: 'Bartender',
-    department: 'Bar',
-    employmentType: 'part-time',
-    status: 'on-leave',
-    joiningDate: '2023-09-05T00:00:00Z',
-    salary: 25000,
-    experience: '2 years',
-    skills: ['Mixology', 'Customer Service', 'Inventory Management'],
-    address: 'Juhu, Mumbai, Maharashtra',
-    emergencyContact: {
-      name: 'Arun Reddy',
-      phone: '+91 9876543217',
-      relationship: 'Brother'
-    },
-    documents: {
-      aadhaar: true,
-      pan: true,
-      resume: true,
-      photo: false
-    },
-    performance: {
-      rating: 4.0,
-      lastReview: '2023-12-01T00:00:00Z'
-    }
-  },
-];
-
-const employeeStats = [
-  {
-    title: 'Total Employees',
-    value: '47',
-    change: '+5',
-    changeType: 'increase' as const,
-    icon: Users,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100 dark:bg-blue-900',
-  },
-  {
-    title: 'Active Staff',
-    value: '43',
-    change: '+3',
-    changeType: 'increase' as const,
-    icon: UserCheck,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100 dark:bg-green-900',
-  },
-  {
-    title: 'On Leave',
-    value: '3',
-    change: '+1',
-    changeType: 'increase' as const,
-    icon: Clock,
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-100 dark:bg-yellow-900',
-  },
-  {
-    title: 'Avg. Rating',
-    value: '4.4',
-    change: '+0.2',
-    changeType: 'increase' as const,
-    icon: Award,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100 dark:bg-purple-900',
-  },
-];
+interface EmployeesResponse {
+  data: Employee[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export default function RestaurantEmployees() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
-  const getStatusColor = (status: Employee['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      case 'on-leave':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'terminated':
-        return 'bg-destructive/10 text-destructive dark:bg-destructive/20';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  const fetchEmployees = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (departmentFilter !== 'all') params.set('department', departmentFilter);
+      const res = await apiClient.get<EmployeesResponse>(`/staff/employees?${params.toString()}`);
+      setEmployees(res.data.data ?? []);
+      setTotal(res.data.total ?? 0);
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Failed to load employees');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, departmentFilter]);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  const handleDeleteEmployee = async (id: string, name: string) => {
+    if (!window.confirm(`Deactivate employee "${name}"? They will no longer appear as active staff.`)) return;
+    try {
+      await apiClient.delete(`/staff/employees/${id}`);
+      toast.success(`${name} deactivated`);
+      fetchEmployees();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? 'Failed to deactivate employee');
     }
   };
 
-  const getEmploymentTypeColor = (type: Employee['employmentType']) => {
-    switch (type) {
-      case 'full-time':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'part-time':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'contract':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'internship':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  const getDepartmentIcon = (department: string) => {
-    switch (department.toLowerCase()) {
-      case 'kitchen':
-        return <ChefHat className="h-4 w-4" />;
-      case 'service':
-        return <Utensils className="h-4 w-4" />;
-      case 'bar':
-        return <User className="h-4 w-4" />;
-      default:
-        return <User className="h-4 w-4" />;
-    }
-  };
-
-  const getDocumentCompleteness = (documents: Employee['documents']) => {
-    const total = Object.keys(documents).length;
-    const completed = Object.values(documents).filter(Boolean).length;
-    return Math.round((completed / total) * 100);
-  };
-
-  const filteredEmployees = mockEmployees.filter(employee => {
-    const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employee.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = departmentFilter === 'all' || employee.department.toLowerCase() === departmentFilter;
-    const matchesStatus = statusFilter === 'all' || employee.status === statusFilter;
-    return matchesSearch && matchesDepartment && matchesStatus;
+  const filteredEmployees = employees.filter((emp) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      emp.name.toLowerCase().includes(term) ||
+      emp.role.toLowerCase().includes(term) ||
+      (emp.email ?? '').toLowerCase().includes(term)
+    );
   });
 
-  const handleSelectEmployee = (employeeId: string) => {
-    setSelectedEmployees(prev => 
-      prev.includes(employeeId) 
-        ? prev.filter(id => id !== employeeId)
-        : [...prev, employeeId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedEmployees.length === filteredEmployees.length) {
-      setSelectedEmployees([]);
-    } else {
-      setSelectedEmployees(filteredEmployees.map(employee => employee.id));
-    }
-  };
+  const statsCards = [
+    {
+      title: 'Total Employees',
+      value: total,
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100 dark:bg-blue-900',
+    },
+    {
+      title: 'Active Staff',
+      value: employees.filter((e) => e.isActive).length,
+      icon: UserCheck,
+      color: 'text-green-600',
+      bgColor: 'bg-green-100 dark:bg-green-900',
+    },
+  ];
 
   return (
     <DashboardLayout>
@@ -314,47 +135,32 @@ export default function RestaurantEmployees() {
             </p>
           </div>
           <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <Button variant="outline" >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Performance Report
-            </Button>
-            <Button >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Employee
-            </Button>
+            <Link href="/restaurant/employees/add">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Employee
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {employeeStats.map((stat, index) => {
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {statsCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer">
+                <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </p>
-                        <p className="text-2xl font-bold text-foreground mt-1">
-                          {stat.value}
-                        </p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
-                          <span className="text-sm font-medium text-success-500">
-                            {stat.change}
-                          </span>
-                          <span className="text-sm text-muted-foreground ml-1">
-                            this month
-                          </span>
-                        </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                        <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
                       </div>
                       <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                         <Icon className={`h-6 w-6 ${stat.color}`} />
@@ -367,230 +173,212 @@ export default function RestaurantEmployees() {
           })}
         </div>
 
-        {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search employees by name, position, or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={departmentFilter}
-                    onChange={(e) => setDepartmentFilter(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  >
-                    <option value="all">All Departments</option>
-                    <option value="kitchen">Kitchen</option>
-                    <option value="service">Service</option>
-                    <option value="bar">Bar</option>
-                    <option value="management">Management</option>
-                  </select>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="on-leave">On Leave</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                  <Button variant="outline" >
-                    <Filter className="h-4 w-4 mr-2" />
-                    More Filters
-                  </Button>
-                </div>
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search by name, role, or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
               </div>
-
-              {/* Bulk Actions */}
-              {selectedEmployees.length > 0 && (
-                <div className="mt-4 p-3 bg-primary/10 rounded-lg border-l-4 border-primary">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-primary font-medium">
-                      {selectedEmployees.length} employee{selectedEmployees.length > 1 ? 's' : ''} selected
-                    </p>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" >
-                        Send Message
-                      </Button>
-                      <Button variant="outline" >
-                        Export Data
-                      </Button>
-                      <Button variant="outline" >
-                        Mark Leave
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+              <select
+                value={departmentFilter}
+                onChange={(e) => {
+                  setDepartmentFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">All Departments</option>
+                <option value="Kitchen">Kitchen</option>
+                <option value="Service">Service</option>
+                <option value="Bar">Bar</option>
+                <option value="Management">Management</option>
+                <option value="Front of House">Front of House</option>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Employee List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
+        {loading ? (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardContent className="p-12 text-center text-muted-foreground">
+              Loading employees...
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card>
+            <CardContent className="p-12 text-center text-destructive">{error}</CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg font-semibold">
-                Staff Directory ({filteredEmployees.length})
+                Staff Directory ({filteredEmployees.length} shown)
               </CardTitle>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0}
-                  onChange={handleSelectAll}
-                  className="rounded border-border"
-                />
-                <label className="text-sm text-muted-foreground">Select All</label>
-              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredEmployees.map((employee) => (
-                  <div
-                    key={employee.id}
-                    className={cn(
-                      'p-6 rounded-lg border transition-colors hover:bg-accent/30',
-                      selectedEmployees.includes(employee.id) ? 'bg-primary/5 border-primary/20' : 'bg-background'
-                    )}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedEmployees.includes(employee.id)}
-                          onChange={() => handleSelectEmployee(employee.id)}
-                          className="mt-1 rounded border-border"
-                        />
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <User className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold text-foreground">{employee.name}</h3>
-                            <div className={`text-xs px-2 py-1 rounded-full ${getStatusColor(employee.status)}`}>
-                              {employee.status.replace('-', ' ')}
-                            </div>
-                            <div className={`text-xs px-2 py-1 rounded-full ${getEmploymentTypeColor(employee.employmentType)}`}>
-                              {employee.employmentType.replace('-', ' ')}
-                            </div>
+              {filteredEmployees.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No employees found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchTerm || departmentFilter !== 'all'
+                      ? 'Try adjusting your search or filters'
+                      : 'Get started by adding your first employee'}
+                  </p>
+                  <Link href="/restaurant/employees/add">
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Employee
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredEmployees.map((employee, index) => (
+                    <motion.div
+                      key={employee.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.04 }}
+                      className="p-6 rounded-lg border hover:bg-accent/30 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4 flex-1">
+                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="h-6 w-6 text-primary" />
                           </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center space-x-3 text-sm">
-                                <div className="flex items-center space-x-1">
-                                  {getDepartmentIcon(employee.department)}
-                                  <span className="font-medium">{employee.position}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">{employee.name}</h3>
+                              <span
+                                className={`text-xs px-2 py-0.5 rounded-full ${
+                                  employee.isActive
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                                }`}
+                              >
+                                {employee.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <User className="h-3.5 w-3.5" />
+                                  <span>{employee.role}</span>
+                                  {employee.department && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{employee.department}</span>
+                                    </>
+                                  )}
                                 </div>
-                                <span className="text-muted-foreground">•</span>
-                                <span className="text-muted-foreground">{employee.department}</span>
+                                {employee.email && (
+                                  <div className="flex items-center gap-1 text-muted-foreground">
+                                    <Mail className="h-3.5 w-3.5" />
+                                    <span>{employee.email}</span>
+                                  </div>
+                                )}
+                                {employee.phone && (
+                                  <div className="flex items-center gap-1 text-muted-foreground">
+                                    <Phone className="h-3.5 w-3.5" />
+                                    <span>{employee.phone}</span>
+                                  </div>
+                                )}
                               </div>
-                              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                                <Mail className="h-4 w-4" />
-                                <span>{employee.email}</span>
-                              </div>
-                              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                                <Phone className="h-4 w-4" />
-                                <span>{employee.phone}</span>
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                                <Calendar className="h-4 w-4" />
-                                <span>Joined: {formatDate(employee.joiningDate, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                              </div>
-                              <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                                <Clock className="h-4 w-4" />
-                                <span>Experience: {employee.experience}</span>
-                              </div>
-                              <div className="flex items-center space-x-1 text-sm">
-                                <Award className="h-4 w-4 text-yellow-500" />
-                                <span>Rating: {employee.performance.rating}/5</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="text-sm">
-                                <span className="text-muted-foreground">Documents: </span>
-                                <span className="font-medium">{getDocumentCompleteness(employee.documents)}% complete</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                {employee.skills.slice(0, 3).map((skill, index) => (
-                                  <span
-                                    key={index}
-                                    className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded"
-                                  >
-                                    {skill}
+                              <div className="space-y-1 text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3.5 w-3.5" />
+                                  <span>
+                                    Joined:{' '}
+                                    {new Date(employee.startDate).toLocaleDateString('en-IN', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })}
                                   </span>
-                                ))}
-                                {employee.skills.length > 3 && (
-                                  <span className="text-xs text-muted-foreground">
-                                    +{employee.skills.length - 3} more
-                                  </span>
+                                </div>
+                                {employee.salary && (
+                                  <div className="flex items-center gap-1">
+                                    <Award className="h-3.5 w-3.5" />
+                                    <span>Salary: ₹{employee.salary.toLocaleString()}/mo</span>
+                                  </div>
                                 )}
                               </div>
                             </div>
                           </div>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="ml-2">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/restaurant/employees/${employee.id}`}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/restaurant/employees/${employee.id}/edit`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDeleteEmployee(employee.id, employee.name)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Deactivate
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      
-                      <div className="flex items-center space-x-2 ml-4">
-                        <Button variant="ghost" >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button variant="ghost" >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button variant="ghost" >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
 
-                {filteredEmployees.length === 0 && (
-                  <div className="text-center py-12">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">No employees found</h3>
-                    <p className="text-muted-foreground mb-4">
-                      {searchTerm || departmentFilter !== 'all' || statusFilter !== 'all'
-                        ? 'Try adjusting your search or filters'
-                        : 'Get started by adding your first employee'
-                      }
-                    </p>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Employee
+              {/* Pagination */}
+              {total > limit && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Page {page} of {Math.ceil(total / limit)}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => p + 1)}
+                      disabled={page >= Math.ceil(total / limit)}
+                    >
+                      Next
                     </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
-        </motion.div>
+        )}
       </div>
     </DashboardLayout>
   );

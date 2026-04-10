@@ -4,10 +4,11 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersService } from './users.service';
 import { RezWebhookController } from './rez-webhook.controller';
 import { ConsentController } from './consent.controller';
+import { SupportController } from './support.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule],
-  controllers: [RezWebhookController, ConsentController],
+  controllers: [RezWebhookController, ConsentController, SupportController],
   providers: [UsersService],
   exports: [UsersService],
 })
