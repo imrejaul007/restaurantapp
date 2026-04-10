@@ -19,6 +19,13 @@ import { KeepAliveService } from './common/keep-alive.service';
 import { MenuModule } from './modules/menu/menu.module';
 import { ReservationsModule } from './modules/reservations/reservations.module';
 import { StaffModule } from './modules/staff/staff.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CommunityModule } from './modules/community/community.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { VendorProductsModule } from './modules/vendor-products/vendor-products.module';
+import { MessagesModule } from './modules/messages/messages.module';
 
 @Module({
   imports: [
@@ -53,6 +60,13 @@ import { StaffModule } from './modules/staff/staff.module';
     MenuModule,
     ReservationsModule,
     StaffModule,
+    InventoryModule,
+    AdminModule,
+    NotificationsModule,
+    CommunityModule,
+    ReviewsModule,
+    VendorProductsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [KeepAliveService],
