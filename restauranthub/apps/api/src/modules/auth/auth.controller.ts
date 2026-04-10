@@ -90,6 +90,16 @@ export class AuthController {
     };
   }
 
+  // Alias used by auth-api.ts checkAuthStatus()
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Request() req: any) {
+    return {
+      authenticated: true,
+      user: req.user,
+    };
+  }
+
   @Get('test')
   async test() {
     return {
