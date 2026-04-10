@@ -19,12 +19,16 @@ import {
   Star
 } from 'lucide-react';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
 interface JobDetail {
   id: string;
   title: string;
   company: string;
+  companyEmail?: string;
+  companyPhone?: string;
   location: string;
-  type: 'Full-time' | 'Part-time' | 'Contract' | 'Temporary';
+  type: string;
   salary: string;
   experience: string;
   postedDate: string;
@@ -32,81 +36,46 @@ interface JobDetail {
   description: string;
   requirements: string[];
   benefits: string[];
-  contactEmail: string;
-  contactPhone: string;
   rating: number;
   applicants: number;
   status: 'Open' | 'Closed' | 'Draft';
 }
 
+function normalizeJobDetail(raw: any): JobDetail {
+  const salaryParts: string[] = [];
+  if (raw.salaryMin) salaryParts.push(`₹${raw.salaryMin.toLocaleString()}`);
+  if (raw.salaryMax) salaryParts.push(`₹${raw.salaryMax.toLocaleString()}`);
+  const salary = salaryParts.length > 0 ? salaryParts.join(' - ') + '/month' : 'Not specified';
 
-const mockJobDetails: { [key: string]: JobDetail } = {
-  '1': {
-    id: '1',
-    title: 'Head Chef',
-    company: 'Bella Vista Restaurant',
-    location: 'Downtown, NY',
-    type: 'Full-time',
-    salary: '$55,000 - $65,000',
-    experience: '5+ years',
-    postedDate: '2024-01-15',
-    deadline: '2024-02-15',
-    description: 'We are seeking an experienced Head Chef to lead our kitchen team and maintain our high culinary standards. The ideal candidate will have extensive experience in fine dining and team management.',
-    requirements: [
-      'Culinary degree or equivalent experience',
-      '5+ years of head chef experience',
-      'Strong leadership and communication skills',
-      'Knowledge of food safety regulations',
-      'Ability to work in fast-paced environment'
-    ],
-    benefits: [
-      'Health insurance',
-      'Paid vacation',
-      '401k matching',
-      'Professional development opportunities',
-      'Free meals during shifts'
-    ],
-    contactEmail: 'hr@bellavista.com',
-    contactPhone: '(555) 123-4567',
-    rating: 4.5,
-    applicants: 23,
-    status: 'Open'
-  },
-  '2': {
-    id: '2',
-    title: 'Server',
-    company: 'Ocean Breeze Cafe',
-    location: 'Beachside, CA',
-    type: 'Part-time',
-    salary: '$15/hour + tips',
-    experience: '1-2 years',
-    postedDate: '2024-01-20',
-    deadline: '2024-02-20',
-    description: 'Join our friendly team as a Server in our beautiful beachside location. We offer flexible schedules and a great work environment.',
-    requirements: [
-      'Previous serving experience preferred',
-      'Excellent customer service skills',
-      'Ability to work weekends',
-      'Professional appearance'
-    ],
-    benefits: [
-      'Flexible scheduling',
-      'Employee discounts',
-      'Tips averaging $20-30/hour',
-      'Training provided'
-    ],
-    contactEmail: 'jobs@oceanbreeze.com',
-    contactPhone: '(555) 987-6543',
-    rating: 4.2,
-    applicants: 45,
-    status: 'Open'
-  }
-};
+  return {
+    id: raw.id,
+    title: raw.title,
+    company: raw.restaurant?.name ?? 'Unknown',
+    companyEmail: raw.restaurant?.email,
+    companyPhone: raw.restaurant?.phone,
+    location: raw.location ?? '',
+    type: (raw.jobType ?? raw.employmentType ?? 'FULL_TIME')
+      .replace('_', '-')
+      .toLowerCase()
+      .replace(/\b\w/g, (c: string) => c.toUpperCase()),
+    salary,
+    experience: raw.experience ?? '',
+    postedDate: raw.createdAt ?? '',
+    deadline: raw.validTill ?? raw.applicationDeadline ?? '',
+    description: raw.description ?? '',
+    requirements: raw.requirements ?? [],
+    benefits: raw.benefits ?? [],
+    rating: raw.restaurant?.rating ?? 0,
+    applicants: raw.applicationCount ?? 0,
+    status: raw.status === 'OPEN' ? 'Open' : raw.status === 'FILLED' ? 'Closed' : 'Closed',
+  };
+}
 
 export default function JobDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [job, setJob] = useState<JobDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [applicationData, setApplicationData] = useState({
     fullName: '',
@@ -118,14 +87,25 @@ export default function JobDetailPage() {
   });
 
   useEffect(() => {
-    const jobId = params.id as string;
-    const jobDetail = mockJobDetails[jobId];
-    if (jobDetail) {
-      setJob(jobDetail);
-    }
+    const fetchJob = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/jobs/${params.id as string}`, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        setJob(normalizeJobDetail(raw));
+      } catch {
+        toast.error('Error loading job', 'Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJob();
   }, [params.id]);
 
-  if (!job) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -136,37 +116,43 @@ export default function JobDetailPage() {
     );
   }
 
+  if (!job) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Job not found or has been removed.</p>
+          <button onClick={() => router.back()} className="text-blue-600 hover:underline">Go Back</button>
+        </div>
+      </div>
+    );
+  }
+
   const handleApplicationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const loadingToast = toast.loading('Submitting application...');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const formData = new FormData();
+      formData.append('coverLetter', applicationData.coverLetter);
 
-      // Mock API call to submit application
-      const applicationPayload = {
-        ...applicationData,
-        jobId: params.id,
-        submittedAt: new Date().toISOString()
-      };
+      const res = await fetch(`${API_BASE}/jobs/${job.id}/apply`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
+      }
 
       toast.dismiss(loadingToast);
       toast.success('Application submitted successfully!', 'The employer will review your application and contact you soon.');
       setShowApplicationForm(false);
-
-      // Reset form
-      setApplicationData({
-        fullName: '',
-        email: '',
-        phone: '',
-        experience: '',
-        coverLetter: '',
-        availableStartDate: ''
-      });
-    } catch (error) {
+      setApplicationData({ fullName: '', email: '', phone: '', experience: '', coverLetter: '', availableStartDate: '' });
+    } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error('Failed to submit application', 'Please try again later.');
+      toast.error('Failed to submit application', error?.message ?? 'Please try again later.');
     }
   };
 
@@ -300,18 +286,25 @@ export default function JobDetailPage() {
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center">
-                    <Mail className="h-5 w-5 text-blue-600 mr-3" />
-                    <a href={`mailto:${job.contactEmail}`} className="text-gray-700 hover:text-blue-600 transition-colors">
-                      {job.contactEmail}
-                    </a>
-                  </div>
-                  <div className="flex items-center">
-                    <Phone className="h-5 w-5 text-green-600 mr-3" />
-                    <a href={`tel:${job.contactPhone}`} className="text-gray-700 hover:text-green-600 transition-colors">
-                      {job.contactPhone}
-                    </a>
-                  </div>
+                  {job.companyEmail && (
+                    <div className="flex items-center">
+                      <Mail className="h-5 w-5 text-blue-600 mr-3" />
+                      <a href={`mailto:${job.companyEmail}`} className="text-gray-700 hover:text-blue-600 transition-colors">
+                        {job.companyEmail}
+                      </a>
+                    </div>
+                  )}
+                  {job.companyPhone && (
+                    <div className="flex items-center">
+                      <Phone className="h-5 w-5 text-green-600 mr-3" />
+                      <a href={`tel:${job.companyPhone}`} className="text-gray-700 hover:text-green-600 transition-colors">
+                        {job.companyPhone}
+                      </a>
+                    </div>
+                  )}
+                  {!job.companyEmail && !job.companyPhone && (
+                    <p className="text-gray-500 text-sm">Contact information not available.</p>
+                  )}
                 </div>
               </div>
 

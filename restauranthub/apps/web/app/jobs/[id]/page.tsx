@@ -91,155 +91,66 @@ interface JobDetail {
   updatedAt: string;
 }
 
-// Mock job data - replace with API call
-const mockJobDetails: { [key: string]: JobDetail } = {
-  '1': {
-    id: '1',
-    title: 'Executive Chef - Fine Dining',
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+/** Normalise a raw API job into the local JobDetail shape. */
+function normalizeJobDetail(raw: any): JobDetail {
+  return {
+    id: raw.id,
+    title: raw.title,
     company: {
-      id: 'comp-1',
-      name: 'Taj Hotels',
-      verified: true,
-      rating: 4.8,
-      location: 'Mumbai',
-      website: 'https://tajhotels.com',
-      phone: '+91 22 6601 1825',
-      email: 'careers@tajhotels.com',
-      description: 'Taj Hotels is a chain of luxury hotels and a subsidiary of the Indian Hotels Company Limited, headquartered in Mumbai, India.',
-      size: '10,000+ employees'
+      id: raw.restaurant?.id ?? raw.restaurantId ?? '',
+      name: raw.restaurant?.name ?? 'Unknown',
+      verified: false,
+      rating: raw.restaurant?.rating ?? 0,
+      location: raw.location ?? '',
+      website: raw.restaurant?.website,
+      phone: raw.restaurant?.phone,
+      email: raw.restaurant?.email,
+      description: raw.restaurant?.description,
+      size: raw.restaurant?.size,
     },
-    description: 'We are looking for an experienced Executive Chef to lead our fine dining restaurant kitchen. The ideal candidate will have extensive experience in high-end cuisine, team management, and menu development. You will be responsible for maintaining our Michelin-star standards and creating innovative dishes that delight our guests.',
-    requirements: [
-      '10+ years culinary experience in fine dining',
-      'Previous experience as Head Chef or Executive Chef',
-      'Strong leadership and team management skills',
-      'Expertise in French and Indian cuisine',
-      'Menu development and cost management experience',
-      'Food safety certification (HACCP)',
-      'Culinary degree preferred'
-    ],
-    responsibilities: [
-      'Lead and manage kitchen operations',
-      'Develop seasonal menus and special offerings',
-      'Train and mentor junior kitchen staff',
-      'Ensure food quality and presentation standards',
-      'Manage food costs and inventory',
-      'Collaborate with restaurant management',
-      'Maintain health and safety standards'
-    ],
-    benefits: [
-      'Competitive salary with performance bonuses',
-      'Comprehensive health insurance',
-      'Professional development opportunities',
-      'Staff accommodation (if required)',
-      'Free meals during duty hours',
-      'Annual leave and sick leave',
-      'Career advancement opportunities'
-    ],
+    description: raw.description ?? '',
+    requirements: raw.requirements ?? [],
+    responsibilities: raw.responsibilities ?? [],
+    benefits: raw.benefits ?? [],
     location: {
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      remote: false,
-      hybrid: false
+      city: raw.location ?? '',
+      state: '',
+      remote: raw.isRemote ?? false,
+      hybrid: false,
     },
     employment: {
-      type: 'full-time',
-      experience: '10+ years',
-      department: 'Kitchen'
+      type: (raw.jobType ?? raw.employmentType ?? 'FULL_TIME')
+        .toLowerCase()
+        .replace('_', '-') as JobDetail['employment']['type'],
+      experience: raw.experience ?? '',
+      department: raw.department ?? '',
     },
     salary: {
-      min: 80000,
-      max: 120000,
-      currency: 'INR',
+      min: raw.salaryMin ?? undefined,
+      max: raw.salaryMax ?? undefined,
+      currency: raw.currency ?? 'INR',
       period: 'monthly',
-      negotiable: true
+      negotiable: false,
     },
     application: {
-      deadline: '2024-02-15T23:59:59Z',
+      deadline: raw.validTill ?? raw.applicationDeadline,
       method: 'internal',
-      status: 'open'
+      status: raw.status === 'OPEN' ? 'open' : raw.status === 'FILLED' ? 'filled' : 'closed',
     },
     stats: {
-      views: 245,
-      applications: 23,
-      likes: 15
+      views: raw.viewCount ?? 0,
+      applications: raw.applicationCount ?? 0,
+      likes: 0,
     },
-    tags: ['executive-chef', 'fine-dining', 'leadership', 'mumbai'],
-    featured: true,
-    urgent: false,
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-15T10:00:00Z'
-  },
-  '2': {
-    id: '2',
-    title: 'Sous Chef - Italian Cuisine',
-    company: {
-      id: 'comp-2',
-      name: 'La Piazza Restaurant',
-      verified: true,
-      rating: 4.5,
-      location: 'Delhi',
-      phone: '+91 11 4567 8900',
-      email: 'hr@lapiazza.com',
-      description: 'Authentic Italian restaurant known for traditional recipes and fresh ingredients.',
-      size: '50-100 employees'
-    },
-    description: 'Join our authentic Italian restaurant as a Sous Chef. We are looking for someone passionate about Italian cuisine with strong technical skills and creativity.',
-    requirements: [
-      '5+ years experience in Italian cuisine',
-      'Pasta making and sauce preparation expertise',
-      'Kitchen coordination and team work',
-      'Quality control and food safety knowledge',
-      'Ability to work in fast-paced environment'
-    ],
-    responsibilities: [
-      'Assist Head Chef in daily operations',
-      'Prepare authentic Italian dishes',
-      'Supervise junior kitchen staff',
-      'Maintain food quality standards',
-      'Manage inventory and supplies'
-    ],
-    benefits: [
-      'Competitive salary package',
-      'Health insurance coverage',
-      'Performance bonuses',
-      'Professional training opportunities',
-      'Staff meals included'
-    ],
-    location: {
-      city: 'New Delhi',
-      state: 'Delhi',
-      remote: false,
-      hybrid: false
-    },
-    employment: {
-      type: 'full-time',
-      experience: '5-8 years',
-      department: 'Kitchen'
-    },
-    salary: {
-      min: 45000,
-      max: 65000,
-      currency: 'INR',
-      period: 'monthly',
-      negotiable: false
-    },
-    application: {
-      method: 'internal',
-      status: 'open'
-    },
-    stats: {
-      views: 189,
-      applications: 31,
-      likes: 22
-    },
-    tags: ['sous-chef', 'italian-cuisine', 'pasta', 'delhi'],
+    tags: raw.skills ?? [],
     featured: false,
-    urgent: true,
-    createdAt: '2024-01-12T14:30:00Z',
-    updatedAt: '2024-01-12T14:30:00Z'
-  }
-};
+    urgent: false,
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updatedAt ?? new Date().toISOString(),
+  };
+}
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -255,17 +166,17 @@ export default function JobDetailPage() {
     const fetchJobDetails = async () => {
       try {
         const jobId = params.id as string;
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const jobDetail = mockJobDetails[jobId];
-        if (jobDetail) {
-          setJob(jobDetail);
-          // Simulate incrementing view count
-          jobDetail.stats.views += 1;
-        } else {
+        const res = await fetch(`${API_BASE}/jobs/${jobId}`, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        if (res.status === 404) {
           toast.error('Job not found', 'The job you are looking for does not exist.');
+          return;
         }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        setJob(normalizeJobDetail(raw));
       } catch (error) {
         toast.error('Error loading job', 'Please try again later.');
       } finally {
@@ -380,21 +291,29 @@ export default function JobDetailPage() {
 
   const handleApplicationSubmit = async (applicationData: any) => {
     const loadingToast = toast.loading('Submitting application...');
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      if (job) {
-        job.stats.applications += 1;
+      const formData = new FormData();
+      if (applicationData.coverLetter) formData.append('coverLetter', applicationData.coverLetter);
+      if (applicationData.resume instanceof File) formData.append('resume', applicationData.resume);
+
+      const res = await fetch(`${API_BASE}/jobs/${job!.id}/apply`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
       }
-      
+
       toast.dismiss(loadingToast);
       toast.success('Application submitted successfully!', 'The employer will review your application and contact you soon.');
       setShowApplicationForm(false);
-    } catch (error) {
+    } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error('Failed to submit application', 'Please try again later.');
+      toast.error('Failed to submit application', error?.message ?? 'Please try again later.');
     }
   };
 

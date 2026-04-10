@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -27,6 +27,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
+import toast from '@/lib/toast';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
+function normalizeJob(raw: any): Job {
+  return {
+    id: raw.id,
+    title: raw.title,
+    company: {
+      id: raw.restaurant?.id ?? raw.restaurantId ?? '',
+      name: raw.restaurant?.name ?? 'Unknown',
+      rating: raw.restaurant?.rating ?? 0,
+      verified: false,
+      location: raw.location ?? '',
+    },
+    description: raw.description ?? '',
+    requirements: raw.requirements ?? [],
+    responsibilities: raw.responsibilities ?? [],
+    benefits: raw.benefits ?? [],
+    salary: {
+      min: raw.salaryMin ?? 0,
+      max: raw.salaryMax ?? 0,
+      period: 'monthly',
+      negotiable: false,
+    },
+    location: raw.location ?? '',
+    type: (raw.jobType ?? raw.employmentType ?? 'FULL_TIME')
+      .toLowerCase()
+      .replace('_', '-') as Job['type'],
+    experience: { min: 0, max: 0 },
+    skills: raw.skills ?? [],
+    postedAt: raw.createdAt ?? new Date().toISOString(),
+    expiresAt: raw.validTill ?? raw.applicationDeadline ?? '',
+    applicationsCount: raw.applicationCount ?? 0,
+    viewsCount: raw.viewCount ?? 0,
+    isUrgent: false,
+    isFeatured: false,
+    isApplied: false,
+    isSaved: false,
+  };
+}
 
 interface Job {
   id: string;
@@ -67,225 +108,52 @@ interface Job {
   isSaved: boolean;
 }
 
-const mockJobs: Job[] = [
-  {
-    id: '1',
-    title: 'Senior Chef',
-    company: {
-      id: '1',
-      name: 'Royal Kitchen Restaurant',
-      rating: 4.5,
-      verified: true,
-      location: 'Mumbai, Maharashtra'
-    },
-    description: 'We are looking for an experienced Senior Chef to join our team and lead our kitchen operations. The ideal candidate should have extensive experience in Indian and Continental cuisine.',
-    requirements: [
-      '5+ years of experience in professional kitchen',
-      'Expertise in Indian and Continental cuisine',
-      'Leadership and team management skills',
-      'Food safety certification preferred'
-    ],
-    responsibilities: [
-      'Lead kitchen operations and menu planning',
-      'Supervise junior chefs and kitchen staff',
-      'Maintain food quality and safety standards',
-      'Manage inventory and vendor relationships'
-    ],
-    benefits: [
-      'Competitive salary package',
-      'Health insurance',
-      'Performance bonus',
-      'Professional development opportunities'
-    ],
-    salary: {
-      min: 45000,
-      max: 60000,
-      period: 'monthly',
-      negotiable: true
-    },
-    location: 'Mumbai, Maharashtra',
-    type: 'full-time',
-    experience: { min: 5, max: 10 },
-    skills: ['Indian Cuisine', 'Continental Cuisine', 'Team Management', 'Food Safety'],
-    postedAt: '2024-01-09T08:00:00Z',
-    expiresAt: '2024-01-25T23:59:59Z',
-    applicationsCount: 45,
-    viewsCount: 234,
-    matchPercentage: 95,
-    isUrgent: false,
-    isFeatured: true,
-    isApplied: false,
-    isSaved: true
-  },
-  {
-    id: '2',
-    title: 'Food & Beverage Manager',
-    company: {
-      id: '2',
-      name: 'Luxury Resort & Spa',
-      rating: 4.8,
-      verified: true,
-      location: 'Goa, India'
-    },
-    description: 'Join our luxury resort as F&B Manager and oversee all food and beverage operations. Excellent opportunity for career growth in hospitality industry.',
-    requirements: [
-      'Bachelor\'s degree in Hotel Management',
-      '4+ years in F&B management',
-      'Strong leadership and communication skills',
-      'Knowledge of hotel operations'
-    ],
-    responsibilities: [
-      'Manage all F&B operations',
-      'Ensure guest satisfaction',
-      'Control costs and inventory',
-      'Train and develop team members'
-    ],
-    benefits: [
-      'Attractive salary with incentives',
-      'Accommodation provided',
-      'Medical coverage',
-      'Career advancement opportunities'
-    ],
-    salary: {
-      min: 50000,
-      max: 70000,
-      period: 'monthly',
-      negotiable: true
-    },
-    location: 'Goa, India',
-    type: 'full-time',
-    experience: { min: 4, max: 8 },
-    skills: ['F&B Management', 'Leadership', 'Customer Service', 'Hotel Operations'],
-    postedAt: '2024-01-08T12:30:00Z',
-    expiresAt: '2024-01-22T23:59:59Z',
-    applicationsCount: 28,
-    viewsCount: 156,
-    matchPercentage: 88,
-    isUrgent: true,
-    isFeatured: false,
-    isApplied: false,
-    isSaved: false
-  },
-  {
-    id: '3',
-    title: 'Sous Chef',
-    company: {
-      id: '3',
-      name: 'Grand Hotel Palace',
-      rating: 4.3,
-      verified: true,
-      location: 'Delhi, India'
-    },
-    description: 'Seeking a talented Sous Chef to support our Executive Chef in delivering exceptional culinary experiences to our guests.',
-    requirements: [
-      '3+ years as Sous Chef or Senior Chef',
-      'Culinary degree or equivalent experience',
-      'Knowledge of multi-cuisine cooking',
-      'Ability to work in fast-paced environment'
-    ],
-    responsibilities: [
-      'Assist Executive Chef in menu planning',
-      'Supervise kitchen operations',
-      'Maintain food quality standards',
-      'Train junior kitchen staff'
-    ],
-    benefits: [
-      'Competitive compensation',
-      'Health and life insurance',
-      'Free meals during duty',
-      'Annual bonus'
-    ],
-    salary: {
-      min: 35000,
-      max: 45000,
-      period: 'monthly',
-      negotiable: false
-    },
-    location: 'Delhi, India',
-    type: 'full-time',
-    experience: { min: 3, max: 6 },
-    skills: ['Multi-cuisine', 'Kitchen Management', 'Food Quality', 'Training'],
-    postedAt: '2024-01-07T15:20:00Z',
-    expiresAt: '2024-01-21T23:59:59Z',
-    applicationsCount: 67,
-    viewsCount: 312,
-    matchPercentage: 82,
-    isUrgent: false,
-    isFeatured: false,
-    isApplied: true,
-    isSaved: false
-  }
-];
-
-const searchStats = [
-  {
-    title: 'Available Jobs',
-    value: '1,247',
-    change: '+89',
-    changeType: 'increase' as const,
-    icon: Briefcase,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100 dark:bg-blue-900',
-  },
-  {
-    title: 'Companies Hiring',
-    value: '342',
-    change: '+23',
-    changeType: 'increase' as const,
-    icon: Building2,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100 dark:bg-green-900',
-  },
-  {
-    title: 'Applications Sent',
-    value: '23',
-    change: '+5',
-    changeType: 'increase' as const,
-    icon: Send,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100 dark:bg-purple-900',
-  },
-  {
-    title: 'Profile Views',
-    value: '156',
-    change: '+28%',
-    changeType: 'increase' as const,
-    icon: Eye,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100 dark:bg-orange-900',
-  },
-];
 
 export default function EmployeeJobs() {
   const router = useRouter();
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [jobsError, setJobsError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [experienceFilter, setExperienceFilter] = useState<string>('all');
-  const [salaryFilter, setSalaryFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('relevance');
   const [showFilters, setShowFilters] = useState(false);
-  const [savedJobs, setSavedJobs] = useState<string[]>(['1']);
+  const [savedJobs, setSavedJobs] = useState<string[]>([]);
 
-  const filteredJobs = mockJobs.filter(job => {
+  const fetchJobs = useCallback(async () => {
+    setJobsLoading(true);
+    setJobsError(null);
+    try {
+      const params = new URLSearchParams({ status: 'OPEN', limit: '50' });
+      const res = await fetch(`${API_BASE}/jobs?${params.toString()}`, {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const raw: any[] = json.data ?? json ?? [];
+      setJobs(raw.map(normalizeJob));
+    } catch (err: any) {
+      setJobsError(err?.message ?? 'Could not load jobs.');
+    } finally {
+      setJobsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+
+  const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesLocation = locationFilter === 'all' || job.location.toLowerCase().includes(locationFilter.toLowerCase());
     const matchesType = typeFilter === 'all' || job.type === typeFilter;
-    const matchesExperience = experienceFilter === 'all' || (
-      job.experience.min <= parseInt(experienceFilter) &&
-      job.experience.max >= parseInt(experienceFilter)
-    );
-    const matchesSalary = salaryFilter === 'all' || job.salary.min >= parseInt(salaryFilter) * 1000;
-
-    return matchesSearch && matchesLocation && matchesType && matchesExperience && matchesSalary;
+    return matchesSearch && matchesLocation && matchesType;
   });
 
   const sortedJobs = [...filteredJobs].sort((a, b) => {
     switch (sortBy) {
-      case 'match':
-        return (b.matchPercentage || 0) - (a.matchPercentage || 0);
       case 'salary-high':
         return b.salary.max - a.salary.max;
       case 'salary-low':
@@ -489,46 +357,25 @@ export default function EmployeeJobs() {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Job count summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {searchStats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-lg transition-all duration-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </p>
-                        <p className="text-2xl font-bold text-foreground mt-1">
-                          {stat.value}
-                        </p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
-                          <span className="text-sm font-medium text-success-500">
-                            {stat.change}
-                          </span>
-                          <span className="text-sm text-muted-foreground ml-1">
-                            this month
-                          </span>
-                        </div>
-                      </div>
-                      <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                        <Icon className={`h-6 w-6 ${stat.color}`} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Card className="hover:shadow-lg transition-all duration-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted-foreground">Available Jobs</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">
+                      {jobsLoading ? '...' : jobs.length}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900">
+                    <Briefcase className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Search and Filters */}
@@ -608,30 +455,45 @@ export default function EmployeeJobs() {
         >
           <div className="flex items-center justify-between mb-4">
             <p className="text-muted-foreground">
-              Showing {sortedJobs.length} job{sortedJobs.length !== 1 ? 's' : ''}
+              {jobsLoading ? 'Loading...' : `Showing ${sortedJobs.length} job${sortedJobs.length !== 1 ? 's' : ''}`}
               {searchTerm && ` for "${searchTerm}"`}
             </p>
           </div>
 
-          <div className="space-y-4">
-            {sortedJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+          {/* Error state */}
+          {jobsError && (
+            <div className="text-center py-8 text-destructive">
+              <p>{jobsError}</p>
+              <Button variant="outline" className="mt-4" onClick={fetchJobs}>Retry</Button>
+            </div>
+          )}
 
-            {sortedJobs.length === 0 && (
-              <div className="text-center py-12">
-                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No jobs found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your search criteria or browse our featured jobs
-                </p>
-                <Button size="default" variant="default">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Browse Featured Jobs
-                </Button>
-              </div>
-            )}
-          </div>
+          {/* Loading skeleton */}
+          {jobsLoading && (
+            <div className="space-y-4">
+              {[1, 2, 3].map(n => (
+                <div key={n} className="h-28 rounded-lg bg-muted animate-pulse" />
+              ))}
+            </div>
+          )}
+
+          {!jobsLoading && !jobsError && (
+            <div className="space-y-4">
+              {sortedJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+
+              {sortedJobs.length === 0 && (
+                <div className="text-center py-12">
+                  <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No jobs found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Try adjusting your search criteria
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
       </div>
     </DashboardLayout>

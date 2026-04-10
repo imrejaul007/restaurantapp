@@ -52,72 +52,8 @@ interface Product {
   updatedAt: string;
 }
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Premium Basmati Rice',
-    description: 'High-quality aged basmati rice, perfect for biryanis and pulavs. 1-year aged grain.',
-    price: 180,
-    originalPrice: 220,
-    category: 'Grains & Cereals',
-    images: ['/products/rice.jpg'],
-    inStock: true,
-    stockQuantity: 500,
-    minOrderQty: 10,
-    unit: 'kg',
-    tags: ['Premium', 'Aged', 'Restaurant Grade'],
-    discount: 18,
-    status: 'active',
-    views: 1250,
-    orders: 89,
-    rating: 4.8,
-    reviewCount: 45,
-    createdAt: '2024-01-15',
-    updatedAt: '2024-01-20'
-  },
-  {
-    id: '2',
-    name: 'Fresh Vegetables Bundle',
-    description: 'Daily fresh mixed vegetables including onions, tomatoes, potatoes, carrots, and seasonal greens.',
-    price: 150,
-    category: 'Fresh Produce',
-    images: ['/products/vegetables.jpg'],
-    inStock: true,
-    stockQuantity: 200,
-    minOrderQty: 5,
-    unit: 'kg',
-    tags: ['Fresh', 'Daily Delivery', 'Organic'],
-    status: 'active',
-    views: 890,
-    orders: 134,
-    rating: 4.6,
-    reviewCount: 67,
-    createdAt: '2024-01-10',
-    updatedAt: '2024-01-18'
-  },
-  {
-    id: '3',
-    name: 'Authentic Spice Mix Set',
-    description: 'Complete set of restaurant-grade spice mixes including garam masala, chole masala, and biryani masala.',
-    price: 450,
-    originalPrice: 500,
-    category: 'Spices & Seasonings',
-    images: ['/products/spices.jpg'],
-    inStock: false,
-    stockQuantity: 0,
-    minOrderQty: 1,
-    unit: 'set',
-    tags: ['Authentic', 'Restaurant Grade', 'Bulk Pack'],
-    discount: 10,
-    status: 'inactive',
-    views: 650,
-    orders: 23,
-    rating: 4.9,
-    reviewCount: 12,
-    createdAt: '2024-01-05',
-    updatedAt: '2024-01-15'
-  }
-];
+// No vendor product management endpoint exists yet on the backend.
+// Products state starts empty; the Add Product flow will populate it once the API is ready.
 
 const categories = [
   'All Categories',
@@ -138,7 +74,9 @@ export default function VendorProductsPage() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showAddProduct, setShowAddProduct] = useState(false);
 
-  const filteredProducts = mockProducts.filter(product => {
+  const allProducts: Product[] = [];
+
+  const filteredProducts = allProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All Categories' || product.category === selectedCategory;
@@ -147,13 +85,13 @@ export default function VendorProductsPage() {
   });
 
   const stats = {
-    total: mockProducts.length,
-    active: mockProducts.filter(p => p.status === 'active').length,
-    inactive: mockProducts.filter(p => p.status === 'inactive').length,
-    pending: mockProducts.filter(p => p.status === 'pending').length,
-    totalViews: mockProducts.reduce((sum, p) => sum + p.views, 0),
-    totalOrders: mockProducts.reduce((sum, p) => sum + p.orders, 0),
-    revenue: mockProducts.reduce((sum, p) => sum + (p.price * p.orders), 0)
+    total: allProducts.length,
+    active: allProducts.filter(p => p.status === 'active').length,
+    inactive: allProducts.filter(p => p.status === 'inactive').length,
+    pending: allProducts.filter(p => p.status === 'pending').length,
+    totalViews: allProducts.reduce((sum, p) => sum + p.views, 0),
+    totalOrders: allProducts.reduce((sum, p) => sum + p.orders, 0),
+    revenue: allProducts.reduce((sum, p) => sum + (p.price * p.orders), 0)
   };
 
   const getStatusColor = (status: string) => {

@@ -33,6 +33,8 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { cn, formatDate, formatDistanceToNow } from '@/lib/utils';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
 interface JobApplication {
   id: string;
   job: {
@@ -71,98 +73,40 @@ interface JobApplication {
   };
 }
 
-const mockApplications: JobApplication[] = [
-  {
-    id: 'app-1',
+function normalizeApplication(raw: any): JobApplication {
+  const salaryParts: string[] = [];
+  if (raw.job?.salaryMin) salaryParts.push(`₹${raw.job.salaryMin.toLocaleString()}`);
+  if (raw.job?.salaryMax) salaryParts.push(`₹${raw.job.salaryMax.toLocaleString()}`);
+  const salary = salaryParts.length > 0 ? salaryParts.join(' - ') + '/month' : 'Not specified';
+
+  const rawStatus = (raw.status ?? 'PENDING').toUpperCase();
+  const statusMap: Record<string, JobApplication['status']> = {
+    PENDING: 'submitted',
+    REVIEWED: 'reviewed',
+    SHORTLISTED: 'shortlisted',
+    ACCEPTED: 'offered',
+    REJECTED: 'rejected',
+  };
+
+  return {
+    id: raw.id,
     job: {
-      id: '1',
-      title: 'Executive Chef - Fine Dining',
+      id: raw.job?.id ?? raw.jobId ?? '',
+      title: raw.job?.title ?? 'Unknown Position',
       company: {
-        name: 'Taj Hotels',
-        location: 'Mumbai'
+        name: raw.job?.restaurant?.name ?? 'Unknown',
+        location: raw.job?.location ?? '',
       },
-      location: 'Mumbai, Maharashtra',
-      type: 'Full-time',
-      salary: '₹80K - ₹120K/month'
+      location: raw.job?.location ?? '',
+      type: (raw.job?.jobType ?? raw.job?.employmentType ?? 'Full-time').replace('_', '-'),
+      salary,
     },
-    appliedAt: '2024-01-16T09:00:00Z',
-    status: 'interview-scheduled',
-    timeline: [
-      { status: 'submitted', date: '2024-01-16T09:00:00Z', note: 'Application submitted successfully' },
-      { status: 'reviewed', date: '2024-01-17T14:30:00Z', note: 'Application reviewed by HR' },
-      { status: 'shortlisted', date: '2024-01-18T11:15:00Z', note: 'Selected for next round' },
-      { status: 'interview-scheduled', date: '2024-01-19T10:45:00Z', note: 'Interview scheduled with Head Chef' }
-    ],
-    interview: {
-      date: '2024-01-25',
-      time: '2:00 PM',
-      type: 'in-person',
-      location: 'Taj Hotel, Mumbai - Executive Office',
-      interviewer: 'Chef Rajesh Kumar (Head Chef)',
-      notes: 'Please bring your portfolio and be prepared to discuss menu planning experience'
-    },
-    nextSteps: 'Prepare for technical interview with cooking demonstration',
-    documents: {
-      resume: '/documents/resume.pdf',
-      coverLetter: '/documents/cover-letter.pdf',
-      portfolio: '/documents/portfolio.pdf'
-    }
-  },
-  {
-    id: 'app-2',
-    job: {
-      id: '2',
-      title: 'Sous Chef - Italian Cuisine',
-      company: {
-        name: 'La Piazza Restaurant',
-        location: 'Delhi'
-      },
-      location: 'New Delhi, Delhi',
-      type: 'Full-time',
-      salary: '₹45K - ₹65K/month'
-    },
-    appliedAt: '2024-01-14T11:30:00Z',
-    status: 'offered',
-    timeline: [
-      { status: 'submitted', date: '2024-01-14T11:30:00Z', note: 'Application submitted' },
-      { status: 'reviewed', date: '2024-01-15T09:20:00Z', note: 'Application reviewed' },
-      { status: 'shortlisted', date: '2024-01-16T16:45:00Z', note: 'Shortlisted for interview' },
-      { status: 'interview-scheduled', date: '2024-01-17T13:10:00Z', note: 'Phone interview completed' },
-      { status: 'offered', date: '2024-01-20T10:30:00Z', note: 'Job offer extended' }
-    ],
-    feedback: 'Impressed with your Italian cuisine expertise and pasta-making skills. Perfect fit for our team.',
-    nextSteps: 'Please respond to the offer by January 27, 2024',
-    documents: {
-      resume: '/documents/resume.pdf',
-      coverLetter: '/documents/cover-letter.pdf'
-    }
-  },
-  {
-    id: 'app-3',
-    job: {
-      id: '3',
-      title: 'Restaurant Manager',
-      company: {
-        name: 'Cafe Mocha Chain',
-        location: 'Bangalore'
-      },
-      location: 'Bangalore, Karnataka',
-      type: 'Full-time',
-      salary: '₹35K - ₹50K/month'
-    },
-    appliedAt: '2024-01-10T14:15:00Z',
-    status: 'rejected',
-    timeline: [
-      { status: 'submitted', date: '2024-01-10T14:15:00Z', note: 'Application submitted' },
-      { status: 'reviewed', date: '2024-01-12T10:00:00Z', note: 'Application reviewed' },
-      { status: 'rejected', date: '2024-01-13T15:30:00Z', note: 'Position filled by internal candidate' }
-    ],
-    feedback: 'Thank you for your interest. We decided to promote from within for this position. We encourage you to apply for future openings.',
-    documents: {
-      resume: '/documents/resume.pdf'
-    }
-  }
-];
+    appliedAt: raw.appliedAt ?? raw.createdAt ?? new Date().toISOString(),
+    status: statusMap[rawStatus] ?? 'submitted',
+    timeline: [{ status: 'submitted', date: raw.appliedAt ?? raw.createdAt ?? new Date().toISOString(), note: 'Application submitted' }],
+    documents: { resume: raw.resume ?? '' },
+  };
+}
 
 const statusColors = {
   'submitted': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -187,9 +131,33 @@ const statusIcons = {
 export default function EmployeeApplications() {
   const { user } = useAuth();
   const router = useRouter();
-  const [applications, setApplications] = useState<JobApplication[]>(mockApplications);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [appsLoading, setAppsLoading] = useState(true);
+  const [appsError, setAppsError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      setAppsLoading(true);
+      setAppsError(null);
+      try {
+        const res = await fetch(`${API_BASE}/jobs/my-applications?limit=50`, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const raw: any[] = json.data ?? json ?? [];
+        setApplications(raw.map(normalizeApplication));
+      } catch (err: any) {
+        setAppsError(err?.message ?? 'Could not load applications.');
+      } finally {
+        setAppsLoading(false);
+      }
+    };
+    fetchApplications();
+  }, []);
 
   const filteredApplications = applications.filter(app => {
     const matchesSearch = app.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -349,7 +317,19 @@ export default function EmployeeApplications() {
 
         {/* Applications List */}
         <div className="space-y-4">
-          {filteredApplications.map((application) => (
+          {appsLoading && (
+            <div className="space-y-4">
+              {[1, 2, 3].map(n => (
+                <div key={n} className="h-32 rounded-lg bg-muted animate-pulse" />
+              ))}
+            </div>
+          )}
+          {appsError && (
+            <div className="text-center py-8 text-destructive">
+              <p>{appsError}</p>
+            </div>
+          )}
+          {!appsLoading && !appsError && filteredApplications.map((application) => (
             <motion.div
               key={application.id}
               initial={{ opacity: 0, y: 10 }}
