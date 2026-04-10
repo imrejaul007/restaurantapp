@@ -87,6 +87,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Block local login for REZ bridge accounts — they must use POST /auth/rez-bridge
+    if (user.passwordHash.startsWith('rez_bridge_no_local_password:')) {
+      throw new UnauthorizedException('This account was created via REZ. Please sign in using the REZ app.');
+    }
+
     const passwordValid = await argon2.verify(user.passwordHash, password);
 
     if (!passwordValid) {

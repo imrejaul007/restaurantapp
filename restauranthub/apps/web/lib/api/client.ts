@@ -24,33 +24,26 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // send httpOnly cookies on every request
     });
 
     this.setupInterceptors();
   }
 
   private setupInterceptors() {
-    // Request interceptor to add auth token
+    // Request interceptor
     this.client.interceptors.request.use(
       (config) => {
         if (typeof window !== 'undefined') {
-          // Clear any existing malformed tokens that might cause issues
-          const token = localStorage.getItem('accessToken');
-          if (token === 'mock-jwt-token-for-development') {
+          // Clear legacy mock tokens if present
+          if (localStorage.getItem('accessToken') === 'mock-jwt-token-for-development') {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
-          }
-          // Attach token to requests when available
-          const currentToken = localStorage.getItem('accessToken');
-          if (currentToken && currentToken !== 'mock-jwt-token-for-development') {
-            config.headers.Authorization = `Bearer ${currentToken}`;
           }
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor to handle errors and token refresh
@@ -63,42 +56,10 @@ class ApiClient {
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-
           if (typeof window !== 'undefined') {
-            const refreshToken = localStorage.getItem('refreshToken');
-            
-            if (refreshToken) {
-              try {
-                const response = await this.post('/auth/refresh', {
-                  refreshToken,
-                });
-                
-                const { accessToken, refreshToken: newRefreshToken } = response.data;
-                
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
-                
-                // Retry original request with new token
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                return this.client(originalRequest);
-              } catch (refreshError) {
-                // Refresh failed, redirect to login
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                
-                if (typeof window !== 'undefined') {
-                  window.location.href = '/auth/login';
-                }
-                
-                return Promise.reject(refreshError);
-              }
-            } else {
-              // No refresh token, redirect to login
-              if (typeof window !== 'undefined') {
-                window.location.href = '/auth/login';
-              }
-            }
+            window.location.href = '/auth/login';
           }
+          return Promise.reject(error);
         }
 
         // Handle other errors
