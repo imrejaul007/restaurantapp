@@ -43,6 +43,7 @@ export default function TrainingPage() {
   const router = useRouter();
   const [feed, setFeed] = useState<TrainingFeed | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [activeLevel, setActiveLevel] = useState<string | null>(null);
 
@@ -69,8 +70,8 @@ export default function TrainingPage() {
             });
           }
         }
-      } catch {
-        // silently fail — show empty state
+      } catch (err: any) {
+        setError(err?.message || 'Failed to load training content. Please check your connection and try again.');
       } finally {
         setLoading(false);
       }
@@ -125,6 +126,13 @@ export default function TrainingPage() {
               ))}
             </div>
           </section>
+        )}
+
+        {/* Error state */}
+        {!loading && error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         )}
 
         {/* Loading skeleton */}

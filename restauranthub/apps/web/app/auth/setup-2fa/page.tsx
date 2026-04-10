@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Smartphone, Copy, Check, QrCode } from 'lucide-react';
@@ -8,19 +8,38 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { authApi } from '@/lib/api/auth-api';
 
 export default function Setup2FA() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [verificationCode, setVerificationCode] = useState('');
-  const [backupCodes, setBackupCodes] = useState([
-    '1234-5678', '9012-3456', '7890-1234', '4567-8901',
-    '2345-6789', '8901-2345', '5678-9012', '3456-7890'
-  ]);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [secretKey, setSecretKey] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const secretKey = 'JBSWY3DPEHPK3PXP';
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/RestaurantHub?secret=${secretKey}&issuer=RestaurantHub`;
+  // Fetch real TOTP secret from backend when entering step 2
+  const handleProceedToScan = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await authApi.generate2FASecret();
+      if (res.error || !res.data) {
+        setError(res.error || 'Failed to generate 2FA secret. Please try again.');
+        return;
+      }
+      setSecretKey(res.data.manualEntryKey);
+      setQrCodeUrl(res.data.qrCodeUrl);
+      setStep(2);
+    } catch {
+      setError('Failed to generate 2FA secret. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCopySecret = () => {
     navigator.clipboard.writeText(secretKey);
@@ -29,8 +48,21 @@ export default function Setup2FA() {
   };
 
   const handleVerifyCode = async () => {
-    if (verificationCode.length === 6) {
+    if (verificationCode.length !== 6) return;
+    setLoading(true);
+    setError('');
+    try {
+      const res = await authApi.enable2FA(verificationCode);
+      if (res.error || !res.data?.enabled) {
+        setError('Invalid code. Please check your authenticator app and try again.');
+        return;
+      }
+      setBackupCodes(res.data.backupCodes ?? []);
       setStep(3);
+    } catch {
+      setError('Verification failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,8 +170,9 @@ export default function Setup2FA() {
                       </div>
                     ))}
                   </div>
-                  <Button onClick={() => setStep(2)} className="w-full">
-                    I have installed an app
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  <Button onClick={handleProceedToScan} disabled={loading} className="w-full">
+                    {loading ? 'Generating...' : 'I have installed an app'}
                   </Button>
                 </div>
               )}
@@ -172,6 +205,7 @@ export default function Setup2FA() {
                   
                   <div className="space-y-4">
                     <div>
+                      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Enter the 6-digit code from your app
                       </label>
@@ -183,11 +217,11 @@ export default function Setup2FA() {
                           maxLength={6}
                           className="text-center text-lg"
                         />
-                        <Button 
+                        <Button
                           onClick={handleVerifyCode}
-                          disabled={verificationCode.length !== 6}
+                          disabled={verificationCode.length !== 6 || loading}
                         >
-                          Verify
+                          {loading ? 'Verifying...' : 'Verify'}
                         </Button>
                       </div>
                     </div>

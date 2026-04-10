@@ -70,10 +70,11 @@ export class MarketplaceService {
   async getDemandSignals(city?: string, category?: string): Promise<DemandSignal[]> {
     if (!city && !category) return [];
 
-    const demandUrl = this.config.get<string>(
-      'REZ_MERCHANT_SERVICE_URL',
-      'https://rez-merchant-service-n3q2.onrender.com',
-    );
+    const demandUrl = this.config.get<string>('REZ_MERCHANT_SERVICE_URL');
+    if (!demandUrl) {
+      this.logger.warn('REZ_MERCHANT_SERVICE_URL not configured — demand signals unavailable');
+      return [];
+    }
     const internalToken = this.config.get<string>('INTERNAL_SERVICE_TOKEN', '');
 
     const params = new URLSearchParams();

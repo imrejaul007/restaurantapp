@@ -76,7 +76,8 @@ export class MarketplaceController {
   @UseGuards(AuthGuard('jwt'))
   async submitRfq(@Body() body: SubmitRfqDto, @Request() req: any) {
     const merchantId = req.user?.rezMerchantId ?? req.user?.id;
-    return this.marketplaceService.submitRfq(body, merchantId);
+    const restopapaUserId = req.user?.id;
+    return this.marketplaceService.submitRfq(body, merchantId, restopapaUserId);
   }
 
   /**
