@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Clock,
@@ -36,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { formatDate, formatTime, formatCurrency } from '@/lib/utils';
+import { apiClient } from '@/lib/api/client';
 
 interface OrderItem {
   id: string;
@@ -68,92 +69,53 @@ interface Order {
   paymentStatus: 'pending' | 'paid' | 'refunded';
 }
 
-// Mock data
-const orders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'ORD-2024-001',
-    customerName: 'John Doe',
-    customerPhone: '+91 98765 43210',
-    type: 'dine-in',
-    status: 'preparing',
-    items: [
-      { id: '1', name: 'Butter Chicken', quantity: 2, price: 320, status: 'preparing' },
-      { id: '2', name: 'Garlic Naan', quantity: 4, price: 60, status: 'ready' },
-      { id: '3', name: 'Basmati Rice', quantity: 2, price: 80, status: 'preparing' }
-    ],
-    subtotal: 1000,
-    tax: 180,
-    total: 1180,
-    createdAt: '2024-01-15T12:30:00Z',
-    estimatedTime: '25 minutes',
-    tableNumber: 'T-12',
-    priority: 'normal',
-    assignedTo: 'Chef Maria',
-    paymentStatus: 'paid'
-  },
-  {
-    id: '2',
-    orderNumber: 'ORD-2024-002',
-    customerName: 'Sarah Smith',
-    customerPhone: '+91 87654 32109',
-    type: 'delivery',
-    status: 'out-for-delivery',
-    items: [
-      { id: '4', name: 'Chicken Biryani', quantity: 1, price: 280, status: 'ready' },
-      { id: '5', name: 'Raita', quantity: 1, price: 60, status: 'ready' }
-    ],
-    subtotal: 340,
-    tax: 61,
-    total: 401,
-    createdAt: '2024-01-15T11:45:00Z',
-    deliveryAddress: '123 Main Street, Apartment 4B',
-    priority: 'high',
-    assignedTo: 'Driver Raj',
-    paymentStatus: 'paid'
-  },
-  {
-    id: '3',
-    orderNumber: 'ORD-2024-003',
-    customerName: 'Mike Johnson',
-    customerPhone: '+91 76543 21098',
-    type: 'takeaway',
-    status: 'ready',
-    items: [
-      { id: '6', name: 'Masala Dosa', quantity: 2, price: 120, status: 'ready' },
-      { id: '7', name: 'Coffee', quantity: 2, price: 40, status: 'ready' }
-    ],
-    subtotal: 320,
-    tax: 58,
-    total: 378,
-    createdAt: '2024-01-15T13:15:00Z',
-    estimatedTime: 'Ready for pickup',
-    priority: 'normal',
-    assignedTo: 'Chef David',
-    paymentStatus: 'paid'
-  },
-  {
-    id: '4',
-    orderNumber: 'ORD-2024-004',
-    customerName: 'Lisa Wilson',
-    customerPhone: '+91 65432 10987',
-    type: 'dine-in',
-    status: 'received',
-    items: [
-      { id: '8', name: 'Paneer Tikka', quantity: 1, price: 240, status: 'pending' },
-      { id: '9', name: 'Dal Makhani', quantity: 1, price: 180, status: 'pending' },
-      { id: '10', name: 'Roti', quantity: 3, price: 30, status: 'pending' }
-    ],
-    subtotal: 510,
-    tax: 92,
-    total: 602,
-    createdAt: '2024-01-15T13:45:00Z',
-    estimatedTime: '30 minutes',
-    tableNumber: 'T-08',
-    priority: 'urgent',
-    paymentStatus: 'pending'
-  }
-];
+/** Map API order (Prisma/uppercase) to the page's Order shape */
+function mapApiOrder(raw: any): Order {
+  const statusMap: Record<string, Order['status']> = {
+    PENDING: 'received',
+    CONFIRMED: 'confirmed',
+    PREPARING: 'preparing',
+    PROCESSING: 'ready',
+    SHIPPED: 'out-for-delivery',
+    DELIVERED: 'delivered',
+    CANCELLED: 'cancelled',
+    REFUNDED: 'cancelled',
+  };
+
+  const items: OrderItem[] = (raw.items ?? []).map((item: any) => ({
+    id: item.id ?? String(Math.random()),
+    name: item.productName ?? item.product?.name ?? 'Item',
+    quantity: item.quantity ?? 1,
+    price: item.price ?? 0,
+    notes: item.notes,
+    status: 'pending' as OrderItem['status'],
+  }));
+
+  const shippingAddress = raw.shippingAddress
+    ? typeof raw.shippingAddress === 'string'
+      ? raw.shippingAddress
+      : [raw.shippingAddress.street, raw.shippingAddress.city].filter(Boolean).join(', ')
+    : undefined;
+
+  return {
+    id: raw.id,
+    orderNumber: raw.orderNumber ?? raw.id,
+    customerName: raw.customerName ?? 'Customer',
+    customerPhone: raw.customerPhone ?? '',
+    type: (raw.type ?? 'dine-in') as Order['type'],
+    status: statusMap[raw.status] ?? 'received',
+    items,
+    subtotal: raw.subtotal ?? 0,
+    tax: raw.gstAmount ?? raw.tax ?? 0,
+    total: raw.totalAmount ?? raw.total ?? 0,
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    tableNumber: raw.tableNumber ?? undefined,
+    deliveryAddress: shippingAddress,
+    notes: raw.notes ?? undefined,
+    priority: 'normal' as Order['priority'],
+    paymentStatus: (raw.paymentStatus?.toLowerCase() ?? 'pending') as Order['paymentStatus'],
+  };
+}
 
 const statusColors = {
   'received': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -202,6 +164,9 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function OrderStatusManagement() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -210,6 +175,25 @@ export default function OrderStatusManagement() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const fetchOrders = useCallback(async () => {
+    setLoadingOrders(true);
+    setLoadError(null);
+    try {
+      const params: Record<string, any> = { page: 1, limit: 50 };
+      const res = await apiClient.get<any>('/orders', { params });
+      const rawList: any[] = res?.data?.data ?? res?.data ?? [];
+      setOrders(rawList.map(mapApiOrder));
+    } catch (err: any) {
+      setLoadError(err?.message ?? 'Failed to load orders');
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const filteredOrders = orders
     .filter(order => {
@@ -232,14 +216,30 @@ export default function OrderStatusManagement() {
       }
     });
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    console.log('Updating order status:', orderId, newStatus);
-    // Here you would update the order status in your state/API
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      await apiClient.put(`/orders/${orderId}/status`, { status: newStatus });
+      // Refresh the orders list to reflect the change
+      await fetchOrders();
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+    }
   };
 
   const handleItemStatusChange = (orderId: string, itemId: string, newStatus: string) => {
-    console.log('Updating item status:', orderId, itemId, newStatus);
-    // Here you would update the item status in your state/API
+    // Item-level status is UI-only — no separate API endpoint exists yet
+    setOrders(prev =>
+      prev.map(order =>
+        order.id === orderId
+          ? {
+              ...order,
+              items: order.items.map(item =>
+                item.id === itemId ? { ...item, status: newStatus as OrderItem['status'] } : item
+              ),
+            }
+          : order
+      )
+    );
   };
 
   const getTimeElapsed = (createdAt: string) => {
@@ -276,16 +276,23 @@ export default function OrderStatusManagement() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline"  size="default">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+            <Button variant="outline" size="default" onClick={fetchOrders} disabled={loadingOrders}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loadingOrders ? 'animate-spin' : ''}`} />
+              {loadingOrders ? 'Loading...' : 'Refresh'}
             </Button>
-            <Button variant="outline"  size="default">
+            <Button variant="outline" size="default">
               <Bell className="h-4 w-4 mr-2" />
               Notifications
             </Button>
           </div>
         </div>
+
+        {/* Error state */}
+        {loadError && (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+            {loadError}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -409,6 +416,17 @@ export default function OrderStatusManagement() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {loadingOrders && (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="ml-3 text-muted-foreground">Loading orders...</span>
+              </div>
+            )}
+            {!loadingOrders && filteredOrders.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                No orders found. Orders will appear here when customers place them.
+              </div>
+            )}
             <div className="space-y-4">
               {filteredOrders.map((order, index) => (
                 <motion.div

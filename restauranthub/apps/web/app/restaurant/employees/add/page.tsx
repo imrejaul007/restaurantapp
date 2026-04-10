@@ -1,131 +1,134 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, User, Mail, Phone, MapPin, Calendar, Shield, Clock, Upload } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Shield,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { apiClient } from '@/lib/api/client';
+import { toast } from 'react-hot-toast';
+
+const STATIC_ROLES = [
+  'Manager', 'Assistant Manager', 'Server', 'Chef', 'Sous Chef',
+  'Cook', 'Prep Cook', 'Host', 'Cashier', 'Bartender', 'Busser', 'Dishwasher',
+];
+
+const DEPARTMENTS = [
+  'Management', 'Front of House', 'Kitchen', 'Bar', 'Cleaning',
+];
+
+interface FormState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: string;
+  department: string;
+  salary: string;
+  startDate: string;
+}
+
+const emptyForm: FormState = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  role: '',
+  department: '',
+  salary: '',
+  startDate: '',
+};
 
 export default function AddEmployee() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [employee, setEmployee] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    role: '',
-    department: '',
-    hireDate: '',
-    salary: '',
-    emergencyContact: {
-      name: '',
-      relationship: '',
-      phone: ''
-    },
-    schedule: {
-      monday: { start: '09:00', end: '17:00', off: false },
-      tuesday: { start: '09:00', end: '17:00', off: false },
-      wednesday: { start: '09:00', end: '17:00', off: false },
-      thursday: { start: '09:00', end: '17:00', off: false },
-      friday: { start: '09:00', end: '17:00', off: false },
-      saturday: { start: '09:00', end: '17:00', off: true },
-      sunday: { start: '09:00', end: '17:00', off: true }
-    },
-    permissions: [] as string[],
-    notes: ''
-  });
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [serverRoles, setServerRoles] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const roles = [
-    'Manager', 'Assistant Manager', 'Server', 'Chef', 'Sous Chef', 
-    'Cook', 'Prep Cook', 'Host', 'Cashier', 'Bartender', 'Busser', 'Dishwasher'
-  ];
-
-  const departments = [
-    'Management', 'Front of House', 'Kitchen', 'Bar', 'Cleaning'
-  ];
-
-  const availablePermissions = [
-    { id: 'orders', label: 'Manage Orders' },
-    { id: 'menu', label: 'Edit Menu' },
-    { id: 'customers', label: 'View Customer Data' },
-    { id: 'inventory', label: 'Manage Inventory' },
-    { id: 'reports', label: 'View Reports' },
-    { id: 'employees', label: 'Manage Staff' },
-    { id: 'settings', label: 'System Settings' }
-  ];
-
-  const handleInputChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setEmployee(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof typeof prev] as object),
-          [child]: value
-        }
-      }));
-    } else {
-      setEmployee(prev => ({
-        ...prev,
-        [field]: value
-      }));
+  const fetchRoles = useCallback(async () => {
+    try {
+      const res = await apiClient.get<{ data: string[] }>('/staff/roles');
+      setServerRoles(res.data.data ?? []);
+    } catch {
+      // non-fatal — fallback to static list
     }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
+  const allRoles = Array.from(new Set([...STATIC_ROLES, ...serverRoles])).sort();
+
+  const handleChange = (field: keyof FormState, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setError(null);
   };
 
-  const handleScheduleChange = (day: string, field: string, value: any) => {
-    setEmployee(prev => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [day]: {
-          ...prev.schedule[day as keyof typeof prev.schedule],
-          [field]: value
-        }
-      }
-    }));
-  };
-
-  const togglePermission = (permissionId: string) => {
-    setEmployee(prev => ({
-      ...prev,
-      permissions: prev.permissions.includes(permissionId)
-        ? prev.permissions.filter(p => p !== permissionId)
-        : [...prev.permissions, permissionId]
-    }));
-  };
+  const isFormValid =
+    form.firstName.trim() &&
+    form.lastName.trim() &&
+    form.phone.trim() &&
+    form.role;
 
   const handleSave = async () => {
+    if (!isFormValid) {
+      setError('Please fill in all required fields: First Name, Last Name, Phone, and Role.');
+      return;
+    }
     setLoading(true);
+    setError(null);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await apiClient.post('/staff/employees', {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim() || undefined,
+        phone: form.phone.trim(),
+        role: form.role,
+        department: form.department || undefined,
+        salary: form.salary ? Number(form.salary) : undefined,
+        startDate: form.startDate || undefined,
+      });
+      toast.success('Employee added successfully');
       router.push('/restaurant/employees');
-    } catch (error) {
-      console.error('Error adding employee:', error);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? 'Failed to add employee';
+      setError(Array.isArray(msg) ? msg.join(', ') : msg);
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = employee.firstName && employee.lastName && employee.email && employee.role && employee.hireDate;
-
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost"  onClick={() => router.back()}>
+            <Button variant="ghost" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Team
+              Back
             </Button>
             <div>
               <h1 className="text-2xl font-bold">Add New Employee</h1>
@@ -138,342 +141,167 @@ export default function AddEmployee() {
           </Button>
         </div>
 
-        {!isFormValid && (
-          <Alert>
+        {error && (
+          <Alert variant="destructive">
             <User className="h-4 w-4" />
-            <AlertDescription>
-              Please fill in all required fields: First Name, Last Name, Email, Role, and Hire Date.
-            </AlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName">First Name *</Label>
-                      <Input
-                        id="firstName"
-                        value={employee.firstName}
-                        onChange={(e) => e.target.value}
-                        placeholder="John"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name *</Label>
-                      <Input
-                        id="lastName"
-                        value={employee.lastName}
-                        onChange={(e) => e.target.value}
-                        placeholder="Smith"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="email"
-                          type="email"
-                          value={employee.email}
-                          onChange={(e) => e.target.value}
-                          className="pl-10"
-                          placeholder="john.smith@restaurant.com"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="phone"
-                          value={employee.phone}
-                          onChange={(e) => e.target.value}
-                          className="pl-10"
-                          placeholder="+1 (555) 123-4567"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="address">Address</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="address"
-                        value={employee.address}
-                        onChange={(e) => e.target.value}
-                        className="pl-10"
-                        placeholder="123 Main St, City, State 12345"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Employment Details */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
-                    Employment Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="role">Role *</Label>
-                      <Select value={employee.role} onValueChange={(value) => handleInputChange('role', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map(role => (
-                            <SelectItem key={role} value={role}>
-                              {role}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="department">Department</Label>
-                      <Select value={employee.department} onValueChange={(value) => handleInputChange('department', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {departments.map(dept => (
-                            <SelectItem key={dept} value={dept}>
-                              {dept}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="hireDate">Hire Date *</Label>
-                      <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="hireDate"
-                          type="date"
-                          value={employee.hireDate}
-                          onChange={(e) => e.target.value}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="salary">Salary (Annual)</Label>
-                      <Input
-                        id="salary"
-                        type="number"
-                        value={employee.salary}
-                        onChange={(e) => e.target.value}
-                        placeholder="50000"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Emergency Contact */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Emergency Contact</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="emergencyName">Contact Name</Label>
+        <div className="space-y-6">
+          {/* Personal Information */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-base">
+                  <User className="h-5 w-5 mr-2" />
+                  Personal Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="firstName">First Name *</Label>
                     <Input
-                      id="emergencyName"
-                      value={employee.emergencyContact.name}
-                      onChange={(e) => e.target.value}
-                      placeholder="Jane Smith"
+                      id="firstName"
+                      value={form.firstName}
+                      onChange={(e) => handleChange('firstName', e.target.value)}
+                      placeholder="John"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="relationship">Relationship</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      value={form.lastName}
+                      onChange={(e) => handleChange('lastName', e.target.value)}
+                      placeholder="Smith"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="relationship"
-                        value={employee.emergencyContact.relationship}
-                        onChange={(e) => e.target.value}
-                        placeholder="Spouse, Parent, etc."
+                        id="email"
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => handleChange('email', e.target.value)}
+                        className="pl-9"
+                        placeholder="john@restaurant.com"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="emergencyPhone">Phone Number</Label>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="emergencyPhone"
-                        value={employee.emergencyContact.phone}
-                        onChange={(e) => e.target.value}
-                        placeholder="+1 (555) 987-6543"
+                        id="phone"
+                        value={form.phone}
+                        onChange={(e) => handleChange('phone', e.target.value)}
+                        className="pl-9"
+                        placeholder="+91 9876543210"
                       />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-            {/* Work Schedule */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Clock className="h-5 w-5 mr-2" />
-                    Default Work Schedule
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {Object.entries(employee.schedule).map(([day, hours]) => (
-                    <div key={day} className="flex items-center space-x-4">
-                      <div className="w-24">
-                        <span className="font-medium capitalize">{day}</span>
-                      </div>
-                      <Checkbox
-                        id={`${day}-off`}
-                        checked={hours.off}
-                        onChange={(e) => handleScheduleChange(day, 'off', (e.target as HTMLInputElement).checked)}
+          {/* Employment Details */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-base">
+                  <Shield className="h-5 w-5 mr-2" />
+                  Employment Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="role">Role *</Label>
+                    <Select value={form.role} onValueChange={(value) => handleChange('role', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allRoles.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="department">Department</Label>
+                    <Select
+                      value={form.department}
+                      onValueChange={(value) => handleChange('department', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DEPARTMENTS.map((dept) => (
+                          <SelectItem key={dept} value={dept}>
+                            {dept}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="startDate"
+                        type="date"
+                        value={form.startDate}
+                        onChange={(e) => handleChange('startDate', e.target.value)}
+                        className="pl-9"
                       />
-                      <Label htmlFor={`${day}-off`} className="text-sm">Off</Label>
-                      {!hours.off && (
-                        <>
-                          <Input
-                            type="time"
-                            value={hours.start}
-                            onChange={(e) => e.target.value}
-                            className="w-32"
-                          />
-                          <span>to</span>
-                          <Input
-                            type="time"
-                            value={hours.end}
-                            onChange={(e) => e.target.value}
-                            className="w-32"
-                          />
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Profile Photo */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Photo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-center">
-                      <User className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500">Upload photo</p>
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Photo
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* System Permissions */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>System Permissions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {availablePermissions.map(permission => (
-                      <div key={permission.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={permission.id}
-                          checked={employee.permissions.includes(permission.id)}
-                          onCheckedChange={() => togglePermission(permission.id)}
-                        />
-                        <Label htmlFor={permission.id} className="text-sm">
-                          {permission.label}
-                        </Label>
-                      </div>
-                    ))}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="salary">Monthly Salary (₹)</Label>
+                    <Input
+                      id="salary"
+                      type="number"
+                      min={0}
+                      value={form.salary}
+                      onChange={(e) => handleChange('salary', e.target.value)}
+                      placeholder="e.g. 35000"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-            {/* Notes */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-                    value={employee.notes}
-                    onChange={(e) => e.target.value}
-                    placeholder="Add any notes about this employee..."
-                    rows={4}
-                  />
-                </CardContent>
-              </Card>
-            </motion.div>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pb-6">
+            <Button variant="outline" onClick={() => router.back()} disabled={loading}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={!isFormValid || loading}>
+              <Save className="h-4 w-4 mr-2" />
+              {loading ? 'Adding...' : 'Add Employee'}
+            </Button>
           </div>
         </div>
       </div>

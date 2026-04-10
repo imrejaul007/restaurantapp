@@ -15,11 +15,11 @@ import { Type } from 'class-transformer';
 
 export class CreateTableDto {
   @IsString()
-  name: string; // tableNumber in DB
+  name!: string; // tableNumber in DB
 
   @IsInt()
   @Min(1)
-  capacity: number;
+  capacity!: number;
 
   @IsOptional()
   @IsString()
@@ -72,13 +72,13 @@ export class CreateReservationDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  partySize: number;
+  partySize!: number;
 
   @IsString()
-  customerName: string;
+  customerName!: string;
 
   @IsString()
-  customerPhone: string;
+  customerPhone!: string;
 
   @IsOptional()
   @IsEmail()
@@ -86,11 +86,11 @@ export class CreateReservationDto {
 
   /** ISO date string, e.g. "2025-04-10" */
   @IsDateString()
-  date: string;
+  date!: string;
 
   /** HH:mm, e.g. "19:00" */
   @IsString()
-  time: string;
+  time!: string;
 
   @IsOptional()
   @IsString()

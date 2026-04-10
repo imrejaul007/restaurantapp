@@ -87,88 +87,39 @@ export default function ApplicationReviewPage() {
   const [rating, setRating] = useState(0);
 
   useEffect(() => {
-    // Simulate API call to fetch application details
     const fetchApplication = async () => {
       setLoading(true);
       try {
-        // Mock data
-        const mockApplication: Application = {
-          id: params.id as string,
-          candidateName: 'Rahul Sharma',
-          email: 'rahul.sharma@email.com',
-          phone: '+91 9876543210',
-          location: 'Mumbai, Maharashtra',
-          experience: '8 years',
-          appliedAt: '2024-01-10T14:30:00Z',
-          status: 'pending',
-          resumeUrl: '/documents/rahul-sharma-resume.pdf',
-          coverLetter: 'I am excited to apply for the Head Chef position at your restaurant. With 8 years of experience in leading kitchen operations and developing innovative menu items, I believe I would be a valuable addition to your team. My expertise spans Indian, Continental, and Asian cuisines, and I have successfully managed teams of up to 15 kitchen staff members.',
-          portfolio: 'https://rahulsharmachef.com',
-          expectedSalary: 55000,
-          noticePeriod: '30 days',
-          skills: [
-            'Indian Cuisine',
-            'Continental Cuisine', 
-            'Asian Cuisine',
-            'Team Leadership',
-            'Menu Planning',
-            'Cost Control',
-            'Food Safety',
-            'Inventory Management'
-          ],
-          education: [
-            {
-              degree: 'Diploma in Culinary Arts',
-              institution: 'Institute of Hotel Management, Mumbai',
-              year: '2015'
-            },
-            {
-              degree: 'Bachelor of Hotel Management',
-              institution: 'NCHM, Mumbai',
-              year: '2013'
-            }
-          ],
-          workExperience: [
-            {
-              position: 'Sous Chef',
-              company: 'The Taj Hotel, Mumbai',
-              duration: '2020 - Present',
-              description: 'Leading a team of 12 kitchen staff, managing food preparation for 200+ covers daily, developing seasonal menu items, and maintaining food safety standards.'
-            },
-            {
-              position: 'Chef de Partie',
-              company: 'Oberoi Hotels, Delhi',
-              duration: '2018 - 2020',
-              description: 'Specialized in Indian cuisine preparation, trained junior staff, managed inventory for Indian section, and collaborated with head chef for menu development.'
-            },
-            {
-              position: 'Commis Chef',
-              company: 'Leela Palace, Bangalore',
-              duration: '2016 - 2018',
-              description: 'Assisted in food preparation, learned various cooking techniques, maintained kitchen hygiene, and supported senior chefs during peak hours.'
-            }
-          ],
-          certifications: [
-            {
-              name: 'Food Safety Manager Certification',
-              issuer: 'FSSAI',
-              year: '2023'
-            },
-            {
-              name: 'Advanced Culinary Techniques',
-              issuer: 'Culinary Institute of America',
-              year: '2022'
-            }
-          ],
-          rating: 4.5,
-          notes: '',
-          jobId: 'job123',
-          jobTitle: 'Senior Head Chef'
+        const res = await apiClient.get<any>(`/jobs/restaurant-applications/${params.id}`);
+        const raw = res?.data ?? res;
+        const profile = raw.employee?.user?.profile;
+        const firstName = profile?.firstName ?? '';
+        const lastName = profile?.lastName ?? '';
+        const mapped: Application = {
+          id: raw.id,
+          candidateName: `${firstName} ${lastName}`.trim() || 'Unknown',
+          email: raw.employee?.user?.email ?? '',
+          phone: raw.employee?.user?.phone ?? '',
+          location: [profile?.city, profile?.state].filter(Boolean).join(', ') || '',
+          experience: raw.employee?.designation ?? '',
+          appliedAt: raw.createdAt ?? new Date().toISOString(),
+          status: (raw.status?.toLowerCase() ?? 'pending') as Application['status'],
+          resumeUrl: raw.resume ?? undefined,
+          coverLetter: raw.coverLetter ?? '',
+          portfolio: undefined,
+          expectedSalary: undefined,
+          noticePeriod: undefined,
+          skills: [],
+          education: [],
+          workExperience: [],
+          certifications: [],
+          notes: raw.reviewNotes ?? '',
+          jobId: raw.job?.id ?? '',
+          jobTitle: raw.job?.title ?? '',
         };
-        
-        setApplication(mockApplication);
-        setNotes(mockApplication.notes || '');
-        setRating(mockApplication.rating || 0);
+        setApplication(mapped);
+        setNotes(mapped.notes || '');
+        setRating(mapped.rating || 0);
       } catch (error) {
         toast.error("Failed to load application details.");
       } finally {
@@ -177,16 +128,25 @@ export default function ApplicationReviewPage() {
     };
 
     fetchApplication();
-  }, [params.id, toast]);
+  }, [params.id]);
 
   const handleStatusChange = async (status: Application['status']) => {
     if (!application) return;
-    
+
     setUpdating(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const statusMap: Record<string, string> = {
+        pending: 'PENDING',
+        reviewed: 'REVIEWED',
+        shortlisted: 'SHORTLISTED',
+        rejected: 'REJECTED',
+        hired: 'ACCEPTED',
+      };
+      const apiStatus = statusMap[status] ?? status.toUpperCase();
+      await apiClient.put(`/jobs/applications/${application.id}/status`, {
+        status: apiStatus,
+        reviewNotes: notes,
+      });
       setApplication(prev => prev ? { ...prev, status } : null);
       toast.success(`Application status changed to ${status}.`);
     } catch (error) {
@@ -198,12 +158,13 @@ export default function ApplicationReviewPage() {
 
   const saveNotes = async () => {
     if (!application) return;
-    
+
     setUpdating(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await apiClient.put(`/jobs/applications/${application.id}/status`, {
+        status: (application.status ?? 'pending').toUpperCase(),
+        reviewNotes: notes,
+      });
       setApplication(prev => prev ? { ...prev, notes, rating } : null);
       toast.success("Your notes and rating have been saved.");
     } catch (error) {

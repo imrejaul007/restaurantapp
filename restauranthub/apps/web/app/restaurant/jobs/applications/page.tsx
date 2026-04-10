@@ -512,6 +512,7 @@ export default function ApplicationsPage() {
 
         {/* Applications List */}
         {!loadingApplications && (
+        <>
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
@@ -699,7 +700,7 @@ export default function ApplicationsPage() {
             </CardContent>
           </Card>
         )}
-        </div>
+        </>
         )}
       </div>
     </DashboardLayout>

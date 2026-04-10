@@ -1,23 +1,23 @@
-import { IsString, IsOptional, IsNumber, IsDateString, IsEnum, IsInt, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDateString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateEmployeeDto {
   @IsString()
-  firstName: string;
+  firstName!: string;
 
   @IsString()
-  lastName: string;
+  lastName!: string;
 
   @IsString()
   @IsOptional()
   email?: string;
 
   @IsString()
-  phone: string;
+  phone!: string;
 
   @IsString()
-  role: string;
+  role!: string;
 
   @IsString()
   @IsOptional()
@@ -37,16 +37,16 @@ export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {}
 
 export class CreateShiftDto {
   @IsString()
-  employeeId: string;
+  employeeId!: string;
 
   @IsDateString()
-  date: string;
+  date!: string;
 
   @IsString()
-  startTime: string;
+  startTime!: string;
 
   @IsString()
-  endTime: string;
+  endTime!: string;
 
   @IsString()
   @IsOptional()
