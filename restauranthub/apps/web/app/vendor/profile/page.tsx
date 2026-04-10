@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from '@/lib/toast';
-import { 
+import { useAuth } from '@/lib/auth/auth-provider';
+import {
   Building,
   MapPin,
   Phone,
@@ -15,17 +16,14 @@ import {
   Upload,
   FileText,
   Award,
-  Truck,
-  Clock,
-  Star,
   Edit,
   Save,
   CheckCircle,
   AlertCircle,
-  Camera,
   Download,
   Eye,
-  X
+  X,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -168,40 +166,107 @@ const mockCertifications: Certification[] = [
   }
 ];
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export default function VendorProfile() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('company');
   const [isEditing, setIsEditing] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [hasVendorProfile, setHasVendorProfile] = useState(true);
 
   const form = useForm<VendorProfileForm>({
     resolver: zodResolver(vendorProfileSchema),
     defaultValues: {
-      companyName: 'Fresh Farm Suppliers Ltd.',
+      companyName: '',
       businessType: 'supplier',
-      establishedYear: 2015,
-      description: 'We are a leading supplier of fresh organic vegetables, fruits, and dairy products to restaurants and hotels across Maharashtra. Our commitment to quality and timely delivery has made us a trusted partner for over 500 food establishments.',
-      email: 'contact@freshfarm.com',
-      phone: '+91 9876543210',
-      website: 'https://www.freshfarm.com',
-      address: {
-        street: '123 Agricultural Market Road',
-        city: 'Pune',
-        state: 'Maharashtra',
-        pincode: '411001',
-        country: 'India'
-      },
-      gstNumber: '27AAACF1234A1Z5',
-      panNumber: 'AAACF1234A',
-      serviceAreas: ['Mumbai', 'Pune', 'Nashik', 'Aurangabad'],
-      deliveryRadius: 250,
+      establishedYear: new Date().getFullYear(),
+      description: '',
+      email: '',
+      phone: '',
+      website: '',
+      address: { street: '', city: '', state: '', pincode: '', country: 'India' },
+      gstNumber: '',
+      panNumber: '',
+      serviceAreas: [],
+      deliveryRadius: 50,
       bankDetails: {
-        accountHolderName: 'Fresh Farm Suppliers Ltd.',
-        accountNumber: '123456789012',
-        ifscCode: 'HDFC0001234',
-        bankName: 'HDFC Bank',
-        branchName: 'Pune Main Branch'
-      }
-    }
+        accountHolderName: '',
+        accountNumber: '',
+        ifscCode: '',
+        bankName: '',
+        branchName: '',
+      },
+    },
   });
+
+  useEffect(() => {
+    const vendorId = user?.vendor?.id;
+    if (!vendorId) {
+      setHasVendorProfile(false);
+      setProfileLoading(false);
+      return;
+    }
+
+    setProfileLoading(true);
+    setProfileError(null);
+
+    fetch(`${API_BASE}/marketplace/suppliers/${vendorId}`, {
+      credentials: 'include',
+      headers: getAuthHeaders(),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message || `Failed to load profile: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        // Map API response fields into form values; fall back gracefully if keys differ
+        form.reset({
+          companyName: data.companyName ?? data.name ?? '',
+          businessType: data.businessType ?? 'supplier',
+          establishedYear: data.establishedYear ?? new Date().getFullYear(),
+          description: data.description ?? '',
+          email: data.email ?? user?.email ?? '',
+          phone: data.phone ?? '',
+          website: data.website ?? '',
+          address: {
+            street: data.address?.street ?? data.address ?? '',
+            city: data.address?.city ?? data.city ?? '',
+            state: data.address?.state ?? data.state ?? '',
+            pincode: data.address?.pincode ?? data.zipCode ?? '',
+            country: data.address?.country ?? data.country ?? 'India',
+          },
+          gstNumber: data.gstNumber ?? '',
+          panNumber: data.panNumber ?? '',
+          serviceAreas: data.serviceAreas ?? data.deliveryAreas ?? [],
+          deliveryRadius: data.deliveryRadius ?? 50,
+          bankDetails: {
+            accountHolderName: data.bankDetails?.accountHolderName ?? data.companyName ?? '',
+            accountNumber: data.bankDetails?.accountNumber ?? data.bankAccountNumber ?? '',
+            ifscCode: data.bankDetails?.ifscCode ?? data.ifscCode ?? '',
+            bankName: data.bankDetails?.bankName ?? data.bankName ?? '',
+            branchName: data.bankDetails?.branchName ?? '',
+          },
+        });
+      })
+      .catch((err) => {
+        setProfileError(err instanceof Error ? err.message : 'Failed to load vendor profile');
+      })
+      .finally(() => setProfileLoading(false));
+  }, [user?.vendor?.id]);
 
   const tabs = [
     { id: 'company', label: 'Company Info', icon: Building },
@@ -212,24 +277,34 @@ export default function VendorProfile() {
   ];
 
   const onSubmit = async (data: VendorProfileForm) => {
+    const vendorId = user?.vendor?.id;
     const loadingToast = toast.loading('Saving vendor profile...');
-    
+
     try {
-      // Simulate API call to save vendor profile
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock API call - in real app, this would be an actual API endpoint
-      const vendorProfileUpdateData = {
-        ...data,
-        updatedAt: new Date().toISOString()
-      };
-      
+      const res = await fetch(
+        `${API_BASE}/marketplace/suppliers/${vendorId}`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Save failed: ${res.status}`);
+      }
+
       toast.dismiss(loadingToast);
       toast.success('Vendor profile updated successfully!', 'Your business information has been saved.');
       setIsEditing(false);
     } catch (error) {
       toast.dismiss(loadingToast);
-      toast.error('Failed to update vendor profile', 'Please try again later.');
+      toast.error(
+        'Failed to update vendor profile',
+        error instanceof Error ? error.message : 'Please try again later.'
+      );
     }
   };
 
@@ -267,7 +342,61 @@ export default function VendorProfile() {
     }
   };
 
-  const profileCompletion = 92; // Mock calculation
+  // Profile completion is calculated client-side based on filled fields
+  const profileCompletion = (() => {
+    const values = form.getValues();
+    let filled = 0;
+    const checks = [
+      values.companyName,
+      values.email,
+      values.phone,
+      values.address?.city,
+      values.address?.street,
+      values.gstNumber,
+      values.bankDetails?.accountNumber,
+      values.bankDetails?.ifscCode,
+      values.serviceAreas?.length > 0,
+    ];
+    checks.forEach((v) => { if (v) filled++; });
+    return Math.round((filled / checks.length) * 100);
+  })();
+
+  if (profileLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!hasVendorProfile) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
+          <Building className="h-16 w-16 text-muted-foreground" />
+          <h2 className="text-2xl font-bold">Complete your vendor profile</h2>
+          <p className="text-muted-foreground max-w-md">
+            You don't have a vendor profile yet. Please contact support or complete your
+            onboarding to activate your vendor account.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <h2 className="text-xl font-semibold">Failed to load profile</h2>
+          <p className="text-muted-foreground">{profileError}</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
