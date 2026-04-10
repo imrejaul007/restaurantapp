@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Eye,
@@ -19,7 +19,9 @@ import {
   Briefcase,
   UserCheck,
   Target,
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  WrenchScrewdriver
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,179 +31,87 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
-interface JobAnalytics {
-  overview: {
-    totalJobs: number;
-    activeJobs: number;
-    totalViews: number;
-    totalApplications: number;
-    applicationRate: number;
-    hireRate: number;
-  };
-  jobPerformance: Array<{
-    id: string;
-    title: string;
-    views: number;
-    applications: number;
-    applicationRate: number;
-    status: 'active' | 'paused' | 'closed';
-    postedDate: string;
-    category: string;
-  }>;
-  hiringFunnel: {
-    applications: number;
-    screening: number;
-    interviews: number;
-    offers: number;
-    hired: number;
-  };
-  trafficSources: Array<{
-    source: string;
-    percentage: number;
-    count: number;
-    trend: 'up' | 'down' | 'stable';
-  }>;
-  demographics: {
-    experienceLevel: Array<{
-      level: string;
-      count: number;
-      percentage: number;
-    }>;
-    locations: Array<{
-      city: string;
-      count: number;
-      percentage: number;
-    }>;
-  };
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+// ── Types matching the analytics.dto ──────────────────────────────────────────
+
+interface KpiRecord {
+  metricName: string;
+  value: number;
+  peerAvg?: number;
+  period?: string;
 }
 
-export default function JobAnalyticsPage() {
-  const [timeframe, setTimeframe] = useState('month');
-  const [analytics, setAnalytics] = useState<JobAnalytics | null>(null);
-  const [loading, setLoading] = useState(true);
+interface PeerBenchmark {
+  metricName: string;
+  merchantValue: number;
+  peerAvg: number;
+  delta: number;
+}
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      setLoading(true);
-      try {
-        // Mock job analytics data
-        const mockAnalytics: JobAnalytics = {
-          overview: {
-            totalJobs: 24,
-            activeJobs: 18,
-            totalViews: 3420,
-            totalApplications: 287,
-            applicationRate: 8.4,
-            hireRate: 12.5
-          },
-          jobPerformance: [
-            {
-              id: '1',
-              title: 'Senior Head Chef',
-              views: 456,
-              applications: 34,
-              applicationRate: 7.5,
-              status: 'active',
-              postedDate: '2024-01-10',
-              category: 'Kitchen Staff'
-            },
-            {
-              id: '2',
-              title: 'Restaurant Manager',
-              views: 392,
-              applications: 28,
-              applicationRate: 7.1,
-              status: 'active',
-              postedDate: '2024-01-08',
-              category: 'Management'
-            },
-            {
-              id: '3',
-              title: 'Server - Weekend Shifts',
-              views: 298,
-              applications: 45,
-              applicationRate: 15.1,
-              status: 'active',
-              postedDate: '2024-01-12',
-              category: 'Front of House'
-            },
-            {
-              id: '4',
-              title: 'Bartender',
-              views: 234,
-              applications: 22,
-              applicationRate: 9.4,
-              status: 'paused',
-              postedDate: '2024-01-05',
-              category: 'Front of House'
-            },
-            {
-              id: '5',
-              title: 'Sous Chef',
-              views: 187,
-              applications: 18,
-              applicationRate: 9.6,
-              status: 'closed',
-              postedDate: '2024-01-02',
-              category: 'Kitchen Staff'
-            }
-          ],
-          hiringFunnel: {
-            applications: 287,
-            screening: 156,
-            interviews: 89,
-            offers: 34,
-            hired: 18
-          },
-          trafficSources: [
-            { source: 'Direct Search', percentage: 35, count: 1197, trend: 'up' },
-            { source: 'Job Portals', percentage: 28, count: 958, trend: 'stable' },
-            { source: 'Social Media', percentage: 22, count: 752, trend: 'up' },
-            { source: 'Company Website', percentage: 15, count: 513, trend: 'down' }
-          ],
-          demographics: {
-            experienceLevel: [
-              { level: 'Entry Level', count: 89, percentage: 31 },
-              { level: '1-3 Years', count: 126, percentage: 44 },
-              { level: '3-5 Years', count: 45, percentage: 16 },
-              { level: '5+ Years', count: 27, percentage: 9 }
-            ],
-            locations: [
-              { city: 'Mumbai', count: 98, percentage: 34 },
-              { city: 'Delhi', count: 75, percentage: 26 },
-              { city: 'Bangalore', count: 52, percentage: 18 },
-              { city: 'Chennai', count: 34, percentage: 12 },
-              { city: 'Others', count: 28, percentage: 10 }
-            ]
-          }
-        };
-        
-        setAnalytics(mockAnalytics);
-      } catch (error) {
-        console.error('Failed to fetch job analytics:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+interface AnalyticsDashboard {
+  rezMerchantId: string;
+  kpis?: KpiRecord[];
+  benchmarks?: PeerBenchmark[];
+  // Additional fields that may come from the API
+  totalOrders?: number;
+  totalRevenue?: number;
+  avgOrderValue?: number;
+  repeatCustomerRate?: number;
+  [key: string]: unknown;
+}
 
-    fetchAnalytics();
-  }, [timeframe]);
+interface OperationalGap {
+  metricName: string;
+  merchantValue: number;
+  peerAvg: number;
+  gapPercent: number;
+  trainingModuleSlug: string;
+}
 
-  const MetricCard = ({ 
-    title, 
-    value, 
-    change, 
-    icon: Icon, 
-    format = 'number',
-    subtitle
-  }: {
-    title: string;
-    value: number;
-    change?: number;
-    icon: React.ElementType;
-    format?: 'number' | 'percentage';
-    subtitle?: string;
-  }) => (
+type FetchState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; dashboard: AnalyticsDashboard; gaps: OperationalGap[] }
+  | { status: 'unavailable'; reason: string }
+  | { status: 'error'; message: string };
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function apiFetch<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(body?.message || `Request failed: ${res.status}`) as Error & { status: number };
+    err.status = res.status;
+    throw err;
+  }
+
+  return res.json() as Promise<T>;
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function MetricCard({
+  title,
+  value,
+  change,
+  icon: Icon,
+  format = 'number',
+  subtitle,
+}: {
+  title: string;
+  value: number;
+  change?: number;
+  icon: React.ElementType;
+  format?: 'number' | 'percentage';
+  subtitle?: string;
+}) {
+  return (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
@@ -209,18 +119,23 @@ export default function JobAnalyticsPage() {
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <div className="flex items-center space-x-2">
               <h3 className="text-2xl font-bold">
-                {format === 'percentage' ? `${value.toFixed(1)}%` : value.toLocaleString()}
+                {format === 'percentage'
+                  ? `${Number(value).toFixed(1)}%`
+                  : Number(value).toLocaleString()}
               </h3>
               {change !== undefined && (
-                <Badge variant={change >= 0 ? "default" : "destructive"} className="text-xs">
-                  {change >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
+                <Badge
+                  variant={change >= 0 ? 'default' : 'destructive'}
+                  className="text-xs"
+                >
+                  {change >= 0
+                    ? <ArrowUp className="h-3 w-3 mr-1 inline" />
+                    : <ArrowDown className="h-3 w-3 mr-1 inline" />}
                   {Math.abs(change).toFixed(1)}%
                 </Badge>
               )}
             </div>
-            {subtitle && (
-              <p className="text-xs text-muted-foreground">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
           <div className="p-3 bg-primary/10 rounded-full">
             <Icon className="h-6 w-6 text-primary" />
@@ -229,28 +144,116 @@ export default function JobAnalyticsPage() {
       </CardContent>
     </Card>
   );
+}
 
-  if (loading) {
+function ComingSoonBanner({ reason }: { reason: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-24 space-y-6 text-center"
+    >
+      <div className="p-5 bg-primary/10 rounded-full">
+        <BarChart3 className="h-14 w-14 text-primary" />
+      </div>
+      <div className="space-y-2 max-w-md">
+        <h2 className="text-2xl font-bold">Analytics Coming Soon</h2>
+        <p className="text-muted-foreground">
+          {reason}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Full analytics — KPIs, peer benchmarks, hiring funnels, and operational gaps — will be
+          available once your restaurant is connected to the REZ merchant platform.
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
+export default function JobAnalyticsPage() {
+  const [fetchState, setFetchState] = useState<FetchState>({ status: 'idle' });
+
+  const load = useCallback(async () => {
+    setFetchState({ status: 'loading' });
+    try {
+      const [dashboard, gaps] = await Promise.all([
+        apiFetch<AnalyticsDashboard>('/analytics/dashboard'),
+        apiFetch<OperationalGap[]>('/analytics/gaps'),
+      ]);
+      setFetchState({ status: 'success', dashboard, gaps });
+    } catch (err: unknown) {
+      const e = err as Error & { status?: number };
+      // 401 / 403 — the analytics endpoint uses a different auth strategy
+      // (REZ_MERCHANT_STRATEGY). Regular restaurant JWT sessions will get a 401.
+      if (e.status === 401 || e.status === 403) {
+        setFetchState({
+          status: 'unavailable',
+          reason:
+            'Your account is not yet linked to the REZ merchant analytics platform. ' +
+            'Please complete the REZ merchant onboarding to unlock full analytics.',
+        });
+      } else {
+        setFetchState({ status: 'error', message: e.message || 'Failed to load analytics' });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // ── Render states ──────────────────────────────────────────────────────────
+
+  if (fetchState.status === 'idle' || fetchState.status === 'loading') {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-3 text-muted-foreground">Loading analytics...</span>
         </div>
       </DashboardLayout>
     );
   }
 
-  if (!analytics) {
+  if (fetchState.status === 'unavailable') {
     return (
       <DashboardLayout>
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Failed to load analytics</h3>
-          <p className="text-muted-foreground">Please try refreshing the page</p>
+        <ComingSoonBanner reason={fetchState.reason} />
+      </DashboardLayout>
+    );
+  }
+
+  if (fetchState.status === 'error') {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4 text-center">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <h3 className="text-lg font-semibold">Failed to load analytics</h3>
+          <p className="text-muted-foreground max-w-sm">{fetchState.message}</p>
+          <Button variant="outline" onClick={load}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
         </div>
       </DashboardLayout>
     );
   }
+
+  // ── Success state ──────────────────────────────────────────────────────────
+
+  const { dashboard, gaps } = fetchState;
+  const kpis = dashboard.kpis ?? [];
+  const benchmarks = dashboard.benchmarks ?? [];
+
+  // Extract numeric KPI values for the metric cards, falling back to whatever
+  // top-level numbers the API returned.
+  const getKpi = (name: string, fallback = 0): number => {
+    const found = kpis.find(k => k.metricName === name);
+    if (found) return found.value;
+    return (dashboard[name] as number) ?? fallback;
+  };
 
   return (
     <DashboardLayout>
@@ -258,304 +261,131 @@ export default function JobAnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Job Analytics</h1>
-            <p className="text-muted-foreground">Track your job posting performance and hiring metrics</p>
+            <h1 className="text-3xl font-bold">Analytics</h1>
+            <p className="text-muted-foreground">
+              Your restaurant KPIs and peer benchmarks
+            </p>
           </div>
-          <div className="flex items-center space-x-3">
-            <Select value={timeframe} onValueChange={setTimeframe}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="quarter">Quarter</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </Button>
-          </div>
+          <Button variant="outline" onClick={load}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
         </div>
 
-        {/* Overview Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <MetricCard
-              title="Total Jobs"
-              value={analytics.overview.totalJobs}
-              icon={Briefcase}
-              subtitle={`${analytics.overview.activeJobs} active`}
-            />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <MetricCard
-              title="Total Views"
-              value={analytics.overview.totalViews}
-              change={15.3}
-              icon={Eye}
-            />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <MetricCard
-              title="Applications"
-              value={analytics.overview.totalApplications}
-              change={8.7}
-              icon={Users}
-            />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <MetricCard
-              title="Application Rate"
-              value={analytics.overview.applicationRate}
-              change={2.1}
-              icon={Target}
-              format="percentage"
-            />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <MetricCard
-              title="Hire Rate"
-              value={analytics.overview.hireRate}
-              change={-1.3}
-              icon={UserCheck}
-              format="percentage"
-            />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <MetricCard
-              title="Time to Hire"
-              value={14}
-              change={-5.2}
-              icon={Clock}
-              subtitle="days average"
-            />
-          </motion.div>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="performance" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="performance">Job Performance</TabsTrigger>
-            <TabsTrigger value="funnel">Hiring Funnel</TabsTrigger>
-            <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
-            <TabsTrigger value="demographics">Demographics</TabsTrigger>
-          </TabsList>
-
-          {/* Job Performance Tab */}
-          <TabsContent value="performance" className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2" />
-                    Individual Job Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {analytics.jobPerformance.map((job, index) => (
-                      <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center space-x-3">
-                            <h4 className="font-medium">{job.title}</h4>
-                            <Badge 
-                              variant={job.status === 'active' ? 'default' : job.status === 'paused' ? 'secondary' : 'outline'}
-                              className="text-xs"
-                            >
-                              {job.status}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {job.category}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center text-sm text-muted-foreground space-x-4">
-                            <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              Posted {new Date(job.postedDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-8 text-sm">
-                          <div className="text-center">
-                            <div className="font-semibold">{job.views.toLocaleString()}</div>
-                            <div className="text-muted-foreground">Views</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="font-semibold">{job.applications}</div>
-                            <div className="text-muted-foreground">Applications</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="font-semibold">{job.applicationRate.toFixed(1)}%</div>
-                            <div className="text-muted-foreground">App. Rate</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </TabsContent>
-
-          {/* Hiring Funnel Tab */}
-          <TabsContent value="funnel" className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
-                    Hiring Funnel Analysis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {Object.entries(analytics.hiringFunnel).map(([stage, count], index) => {
-                      const percentage = (count / analytics.hiringFunnel.applications) * 100;
-                      const stageNames = {
-                        applications: 'Applications Received',
-                        screening: 'Passed Screening',
-                        interviews: 'Interviewed',
-                        offers: 'Offers Extended',
-                        hired: 'Successfully Hired'
-                      };
-                      
-                      return (
-                        <div key={stage} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">{stageNames[stage as keyof typeof stageNames]}</span>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-2xl font-bold">{count}</span>
-                              <span className="text-sm text-muted-foreground">
-                                ({percentage.toFixed(1)}%)
-                              </span>
-                            </div>
-                          </div>
-                          <Progress value={percentage} className="h-3" />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </TabsContent>
-
-          {/* Traffic Sources Tab */}
-          <TabsContent value="sources" className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Search className="h-5 w-5 mr-2" />
-                    Traffic Sources
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {analytics.trafficSources.map((source, index) => (
-                      <div key={source.source} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-medium">{source.source}</h4>
-                            <Badge 
-                              variant={source.trend === 'up' ? 'default' : source.trend === 'down' ? 'destructive' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {source.trend === 'up' ? <ArrowUp className="h-3 w-3 mr-1" /> : 
-                               source.trend === 'down' ? <ArrowDown className="h-3 w-3 mr-1" /> : ''}
-                              {source.trend}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {source.count.toLocaleString()} views
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">{source.percentage}%</div>
-                          <Progress value={source.percentage} className="w-20 h-2 mt-1" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </TabsContent>
-
-          {/* Demographics Tab */}
-          <TabsContent value="demographics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Experience Level */}
+        {/* KPI Overview — show any KPIs the API returned */}
+        {kpis.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {kpis.map((kpi, index) => (
               <motion.div
+                key={kpi.metricName}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Users className="h-5 w-5 mr-2" />
-                      Experience Level
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {analytics.demographics.experienceLevel.map((level) => (
-                      <div key={level.level} className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="font-medium">{level.level}</span>
-                          <span className="text-sm text-muted-foreground">
-                            {level.count} ({level.percentage}%)
-                          </span>
-                        </div>
-                        <Progress value={level.percentage} className="h-2" />
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                <MetricCard
+                  title={kpi.metricName.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                  value={kpi.value}
+                  icon={TrendingUp}
+                  subtitle={kpi.period ?? undefined}
+                />
               </motion.div>
+            ))}
+          </div>
+        )}
 
-              {/* Geographic Distribution */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <MapPin className="h-5 w-5 mr-2" />
-                      Geographic Distribution
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {analytics.demographics.locations.map((location) => (
-                      <div key={location.city} className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="font-medium">{location.city}</span>
-                          <span className="text-sm text-muted-foreground">
-                            {location.count} ({location.percentage}%)
+        {/* Benchmarks vs peers */}
+        {benchmarks.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                Peer Benchmarks
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-5">
+                {benchmarks.map(b => {
+                  const isPositive = b.delta >= 0;
+                  const percentage = b.peerAvg > 0
+                    ? Math.min(100, (b.merchantValue / b.peerAvg) * 100)
+                    : 0;
+                  return (
+                    <div key={b.metricName} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">
+                          {b.metricName.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        </span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-muted-foreground">
+                            You: {b.merchantValue.toLocaleString()}
                           </span>
+                          <span className="text-muted-foreground">
+                            Peers: {b.peerAvg.toLocaleString()}
+                          </span>
+                          <Badge variant={isPositive ? 'default' : 'destructive'} className="text-xs">
+                            {isPositive ? <ArrowUp className="h-3 w-3 mr-1 inline" /> : <ArrowDown className="h-3 w-3 mr-1 inline" />}
+                            {Math.abs(b.delta).toFixed(1)}%
+                          </Badge>
                         </div>
-                        <Progress value={location.percentage} className="h-2" />
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-          </TabsContent>
-        </Tabs>
+                      <Progress value={percentage} className="h-2" />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Operational Gaps */}
+        {gaps.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <AlertCircle className="h-5 w-5 mr-2 text-yellow-500" />
+                Top Operational Gaps
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {gaps.map(gap => (
+                  <div
+                    key={gap.metricName}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <h4 className="font-medium">
+                        {gap.metricName.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        You: {gap.merchantValue.toLocaleString()} &nbsp;|&nbsp;
+                        Peers avg: {gap.peerAvg.toLocaleString()} &nbsp;|&nbsp;
+                        Gap: {gap.gapPercent.toFixed(1)}%
+                      </p>
+                    </div>
+                    {gap.trainingModuleSlug && (
+                      <Badge variant="outline" className="text-xs whitespace-nowrap ml-4">
+                        Training: {gap.trainingModuleSlug}
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty state when API returned data but no KPIs/benchmarks/gaps yet */}
+        {kpis.length === 0 && benchmarks.length === 0 && gaps.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 space-y-4 text-center">
+            <BarChart3 className="h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-semibold">No analytics data yet</h3>
+            <p className="text-muted-foreground max-w-sm">
+              Your dashboard is connected but there is not enough activity to generate metrics.
+              Check back after more orders and job activity.
+            </p>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

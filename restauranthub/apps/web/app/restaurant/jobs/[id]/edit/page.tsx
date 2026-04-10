@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useParams } from 'next/navigation';
-import { 
+import {
   Briefcase,
   MapPin,
   Clock,
@@ -15,7 +15,8 @@ import {
   X,
   Save,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,17 +29,34 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { toast } from '@/lib/toast';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message || `Request failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
+
 interface JobFormData {
   title: string;
   department: string;
   location: string;
-  employmentType: string;
+  jobType: string;
   experience: string;
-  salary: {
-    min: string;
-    max: string;
-    type: string;
-  };
+  salaryMin: string;
+  salaryMax: string;
   description: string;
   responsibilities: string[];
   requirements: string[];
@@ -51,22 +69,39 @@ interface JobFormData {
   status: string;
 }
 
+// Raw shape returned by the API
+interface JobApiResponse {
+  id: string;
+  title: string;
+  department?: string;
+  location?: string;
+  jobType?: string;
+  experienceMin?: number;
+  experienceMax?: number;
+  salaryMin?: number;
+  salaryMax?: number;
+  description?: string;
+  requirements?: string[];
+  benefits?: string[];
+  skills?: string[];
+  workingHours?: string;
+  workingDays?: string[];
+  isUrgent?: boolean;
+  isRemote?: boolean;
+  status?: string;
+  applicationCount?: number;
+}
+
 const departments = [
-  'Kitchen',
-  'Service',
-  'Management',
-  'Bar',
-  'Cleaning',
-  'Security',
-  'Delivery'
+  'Kitchen', 'Service', 'Management', 'Bar', 'Cleaning', 'Security', 'Delivery'
 ];
 
-const employmentTypes = [
-  'Full-time',
-  'Part-time',
-  'Contract',
-  'Temporary',
-  'Internship'
+const jobTypes = [
+  { label: 'Full-time', value: 'FULL_TIME' },
+  { label: 'Part-time', value: 'PART_TIME' },
+  { label: 'Contract', value: 'CONTRACT' },
+  { label: 'Temporary', value: 'TEMPORARY' },
+  { label: 'Internship', value: 'INTERNSHIP' },
 ];
 
 const experienceLevels = [
@@ -76,153 +111,146 @@ const experienceLevels = [
   'Expert Level (10+ years)'
 ];
 
-const salaryTypes = [
-  'Per Month',
-  'Per Hour',
-  'Per Day',
-  'Per Year'
+const workingDayOptions = [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
 ];
 
-const workingDays = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday'
-];
+const EMPTY_FORM: JobFormData = {
+  title: '',
+  department: '',
+  location: '',
+  jobType: '',
+  experience: '',
+  salaryMin: '',
+  salaryMax: '',
+  description: '',
+  responsibilities: [''],
+  requirements: [''],
+  benefits: [''],
+  skills: [''],
+  workingHours: '',
+  workingDays: [],
+  urgentHiring: false,
+  remoteFriendly: false,
+  status: 'ACTIVE',
+};
+
+function mapApiToForm(api: JobApiResponse): JobFormData {
+  return {
+    title: api.title ?? '',
+    department: api.department ?? '',
+    location: api.location ?? '',
+    jobType: api.jobType ?? '',
+    experience: api.experienceMin != null
+      ? `${api.experienceMin}${api.experienceMax != null ? `-${api.experienceMax}` : '+'} years`
+      : '',
+    salaryMin: api.salaryMin != null ? String(api.salaryMin) : '',
+    salaryMax: api.salaryMax != null ? String(api.salaryMax) : '',
+    description: api.description ?? '',
+    responsibilities: api.skills?.length ? api.skills : [''],
+    requirements: api.requirements?.length ? api.requirements : [''],
+    benefits: api.benefits?.length ? api.benefits : [''],
+    skills: api.skills?.length ? api.skills : [''],
+    workingHours: api.workingHours ?? '',
+    workingDays: api.workingDays ?? [],
+    urgentHiring: api.isUrgent ?? false,
+    remoteFriendly: api.isRemote ?? false,
+    status: api.status ?? 'ACTIVE',
+  };
+}
 
 export default function EditJobPage() {
   const router = useRouter();
   const params = useParams();
-  // const { toast } = useToast();
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState<JobFormData>({
-    title: '',
-    department: '',
-    location: '',
-    employmentType: '',
-    experience: '',
-    salary: {
-      min: '',
-      max: '',
-      type: 'Per Month'
-    },
-    description: '',
-    responsibilities: [''],
-    requirements: [''],
-    benefits: [''],
-    skills: [''],
-    workingHours: '',
-    workingDays: [],
-    urgentHiring: false,
-    remoteFriendly: false,
-    status: 'active'
-  });
+  const [formData, setFormData] = useState<JobFormData>(EMPTY_FORM);
   const [hasApplications, setHasApplications] = useState(false);
 
-  useEffect(() => {
-    // Simulate API call to fetch job details
-    const fetchJob = async () => {
-      setLoading(true);
-      try {
-        // Mock data - in a real app, this would be an API call
-        const mockJob = {
-          title: 'Senior Head Chef',
-          department: 'Kitchen',
-          location: 'Mumbai, Maharashtra',
-          employmentType: 'Full-time',
-          experience: 'Senior Level (5+ years)',
-          salary: {
-            min: '45000',
-            max: '65000',
-            type: 'Per Month'
-          },
-          description: 'We are looking for an experienced Head Chef to lead our kitchen team and create exceptional dining experiences for our customers. The ideal candidate will have strong leadership skills and extensive culinary expertise.',
-          responsibilities: [
-            'Lead and manage kitchen operations',
-            'Develop new menu items and recipes',
-            'Ensure food quality and safety standards',
-            'Train and mentor junior kitchen staff',
-            'Manage inventory and food costs'
-          ],
-          requirements: [
-            'Minimum 5 years experience as Head Chef',
-            'Culinary degree or equivalent experience',
-            'Strong leadership and communication skills',
-            'Knowledge of food safety regulations',
-            'Experience with Indian and Continental cuisine'
-          ],
-          benefits: [
-            'Competitive salary package',
-            'Health insurance coverage',
-            'Paid time off',
-            'Professional development opportunities',
-            'Staff meals provided'
-          ],
-          skills: [
-            'Culinary Excellence',
-            'Team Leadership',
-            'Menu Planning',
-            'Food Safety',
-            'Cost Management'
-          ],
-          workingHours: '10:00 AM - 10:00 PM (Split shifts)',
-          workingDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-          urgentHiring: true,
-          remoteFriendly: false,
-          status: 'active'
-        };
-        
-        setFormData(mockJob);
-        setHasApplications(true); // Simulate that this job has applications
-      } catch (error) {
-        console.error('Failed to load job details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const jobId = Array.isArray(params.id) ? params.id[0] : params.id;
 
+  const fetchJob = useCallback(async () => {
+    if (!jobId) return;
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const api = await apiFetch<JobApiResponse>(`/jobs/${jobId}`);
+      setFormData(mapApiToForm(api));
+      setHasApplications((api.applicationCount ?? 0) > 0);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to load job details';
+      setLoadError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [jobId]);
+
+  useEffect(() => {
     fetchJob();
-  }, [params.id]);
+  }, [fetchJob]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!jobId) return;
     setSaving(true);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    // Build the payload — only send fields the API understands
+    const payload: Record<string, unknown> = {
+      title: formData.title,
+      department: formData.department,
+      location: formData.location,
+      jobType: formData.jobType,
+      description: formData.description,
+      requirements: formData.requirements.filter(Boolean),
+      benefits: formData.benefits.filter(Boolean),
+      skills: formData.skills.filter(Boolean),
+      status: formData.status,
+      isUrgent: formData.urgentHiring,
+      isRemote: formData.remoteFriendly,
+      workingHours: formData.workingHours || undefined,
+      workingDays: formData.workingDays.length ? formData.workingDays : undefined,
+    };
 
-      console.log('Job Updated Successfully');
-      router.push(`/restaurant/jobs/${params.id}`);
-    } catch (error) {
-      console.error('Failed to update job posting:', error);
+    if (formData.salaryMin !== '') {
+      payload.salaryMin = parseInt(formData.salaryMin, 10);
+    }
+    if (formData.salaryMax !== '') {
+      payload.salaryMax = parseInt(formData.salaryMax, 10);
+    }
+
+    try {
+      await apiFetch(`/jobs/${jobId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      toast.success('Job updated successfully');
+      router.push(`/restaurant/jobs/${jobId}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to update job posting';
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
   };
 
-  const addArrayField = (field: keyof Pick<JobFormData, 'responsibilities' | 'requirements' | 'benefits' | 'skills'>) => {
+  type ArrayField = 'responsibilities' | 'requirements' | 'benefits' | 'skills';
+
+  const addArrayField = (field: ArrayField) => {
+    setFormData(prev => ({ ...prev, [field]: [...prev[field], ''] }));
+  };
+
+  const removeArrayField = (field: ArrayField, index: number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: [...prev[field], '']
+      [field]: prev[field].filter((_, i) => i !== index),
     }));
   };
 
-  const removeArrayField = (field: keyof Pick<JobFormData, 'responsibilities' | 'requirements' | 'benefits' | 'skills'>, index: number) => {
+  const updateArrayField = (field: ArrayField, index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateArrayField = (field: keyof Pick<JobFormData, 'responsibilities' | 'requirements' | 'benefits' | 'skills'>, index: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }));
   };
 
@@ -231,7 +259,7 @@ export default function EditJobPage() {
       ...prev,
       workingDays: prev.workingDays.includes(day)
         ? prev.workingDays.filter(d => d !== day)
-        : [...prev.workingDays, day]
+        : [...prev.workingDays, day],
     }));
   };
 
@@ -240,6 +268,27 @@ export default function EditJobPage() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-3 text-muted-foreground">Loading job details...</span>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <p className="text-destructive font-medium">{loadError}</p>
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={fetchJob}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+            <Button variant="outline" onClick={() => router.back()}>
+              Go Back
+            </Button>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -251,11 +300,7 @@ export default function EditJobPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              
-              onClick={() => router.back()}
-            >
+            <Button variant="ghost" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -272,7 +317,8 @@ export default function EditJobPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Caution</AlertTitle>
             <AlertDescription>
-              This job has existing applications. Major changes to requirements or job details may affect candidate matching and should be made carefully.
+              This job has existing applications. Major changes to requirements or job details may
+              affect candidate matching and should be made carefully.
             </AlertDescription>
           </Alert>
         )}
@@ -293,9 +339,7 @@ export default function EditJobPage() {
                       <Briefcase className="h-5 w-5 mr-2" />
                       Basic Information
                     </CardTitle>
-                    <CardDescription>
-                      Update the essential details about the position
-                    </CardDescription>
+                    <CardDescription>Update the essential details about the position</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -311,8 +355,8 @@ export default function EditJobPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="department">Department *</Label>
-                        <Select 
-                          value={formData.department} 
+                        <Select
+                          value={formData.department}
                           onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
                         >
                           <SelectTrigger>
@@ -339,17 +383,17 @@ export default function EditJobPage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="employment-type">Employment Type *</Label>
-                        <Select 
-                          value={formData.employmentType} 
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, employmentType: value }))}
+                        <Label htmlFor="job-type">Job Type *</Label>
+                        <Select
+                          value={formData.jobType}
+                          onValueChange={(value) => setFormData(prev => ({ ...prev, jobType: value }))}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                           <SelectContent>
-                            {employmentTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            {jobTypes.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -357,9 +401,9 @@ export default function EditJobPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="experience">Experience Level *</Label>
-                      <Select 
-                        value={formData.experience} 
+                      <Label htmlFor="experience">Experience Level</Label>
+                      <Select
+                        value={formData.experience}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, experience: value }))}
                       >
                         <SelectTrigger>
@@ -388,58 +432,33 @@ export default function EditJobPage() {
                       <DollarSign className="h-5 w-5 mr-2" />
                       Salary Information
                     </CardTitle>
-                    <CardDescription>
-                      Update the compensation range for this position
-                    </CardDescription>
+                    <CardDescription>Update the compensation range for this position</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="salary-min">Minimum Salary *</Label>
+                        <Label htmlFor="salary-min">Minimum Salary (per month)</Label>
                         <Input
                           id="salary-min"
                           type="number"
                           placeholder="25000"
-                          value={formData.salary.min}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            salary: { ...prev.salary, min: e.target.value }
-                          }))}
-                          required
+                          value={formData.salaryMin}
+                          onChange={(e) =>
+                            setFormData(prev => ({ ...prev, salaryMin: e.target.value }))
+                          }
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="salary-max">Maximum Salary *</Label>
+                        <Label htmlFor="salary-max">Maximum Salary (per month)</Label>
                         <Input
                           id="salary-max"
                           type="number"
                           placeholder="35000"
-                          value={formData.salary.max}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            salary: { ...prev.salary, max: e.target.value }
-                          }))}
-                          required
+                          value={formData.salaryMax}
+                          onChange={(e) =>
+                            setFormData(prev => ({ ...prev, salaryMax: e.target.value }))
+                          }
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="salary-type">Salary Type *</Label>
-                        <Select 
-                          value={formData.salary.type} 
-                          onValueChange={(value) => setFormData(prev => ({
-                            ...prev,
-                            salary: { ...prev.salary, type: value }
-                          }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {salaryTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </div>
                   </CardContent>
@@ -458,9 +477,7 @@ export default function EditJobPage() {
                       <FileText className="h-5 w-5 mr-2" />
                       Job Description
                     </CardTitle>
-                    <CardDescription>
-                      Update detailed information about the role
-                    </CardDescription>
+                    <CardDescription>Update detailed information about the role</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -473,39 +490,6 @@ export default function EditJobPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                         required
                       />
-                    </div>
-
-                    {/* Responsibilities */}
-                    <div className="space-y-2">
-                      <Label>Key Responsibilities</Label>
-                      {formData.responsibilities.map((responsibility, index) => (
-                        <div key={index} className="flex space-x-2">
-                          <Input
-                            placeholder="Enter a key responsibility..."
-                            value={responsibility}
-                            onChange={(e) => updateArrayField('responsibilities', index, e.target.value)}
-                          />
-                          {formData.responsibilities.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => removeArrayField('responsibilities', index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        
-                        onClick={() => addArrayField('responsibilities')}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Responsibility
-                      </Button>
                     </div>
 
                     {/* Requirements */}
@@ -533,7 +517,6 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        
                         onClick={() => addArrayField('requirements')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -543,7 +526,7 @@ export default function EditJobPage() {
 
                     {/* Benefits */}
                     <div className="space-y-2">
-                      <Label>Benefits & Perks</Label>
+                      <Label>Benefits &amp; Perks</Label>
                       {formData.benefits.map((benefit, index) => (
                         <div key={index} className="flex space-x-2">
                           <Input
@@ -566,7 +549,6 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        
                         onClick={() => addArrayField('benefits')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -599,7 +581,6 @@ export default function EditJobPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        
                         onClick={() => addArrayField('skills')}
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -622,9 +603,7 @@ export default function EditJobPage() {
                       <Clock className="h-5 w-5 mr-2" />
                       Work Schedule
                     </CardTitle>
-                    <CardDescription>
-                      Update the working hours and days for this position
-                    </CardDescription>
+                    <CardDescription>Update the working hours and days for this position</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -640,7 +619,7 @@ export default function EditJobPage() {
                     <div className="space-y-2">
                       <Label>Working Days</Label>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {workingDays.map((day) => (
+                        {workingDayOptions.map((day) => (
                           <div key={day} className="flex items-center space-x-2">
                             <Checkbox
                               id={day}
@@ -668,22 +647,21 @@ export default function EditJobPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Job Status</CardTitle>
-                    <CardDescription>
-                      Control the visibility of this job posting
-                    </CardDescription>
+                    <CardDescription>Control the visibility of this job posting</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Select 
-                      value={formData.status} 
+                    <Select
+                      value={formData.status}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="paused">Paused</SelectItem>
-                        <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="ACTIVE">Active</SelectItem>
+                        <SelectItem value="PAUSED">Paused</SelectItem>
+                        <SelectItem value="CLOSED">Closed</SelectItem>
+                        <SelectItem value="DRAFT">Draft</SelectItem>
                       </SelectContent>
                     </Select>
                   </CardContent>
@@ -705,7 +683,9 @@ export default function EditJobPage() {
                       <Checkbox
                         id="urgent-hiring"
                         checked={formData.urgentHiring}
-                        onChange={(e) => setFormData(prev => ({ ...prev, urgentHiring: (e.target as HTMLInputElement).checked }))}
+                        onCheckedChange={(checked) =>
+                          setFormData(prev => ({ ...prev, urgentHiring: !!checked }))
+                        }
                       />
                       <Label htmlFor="urgent-hiring">Urgent Hiring</Label>
                     </div>
@@ -713,7 +693,9 @@ export default function EditJobPage() {
                       <Checkbox
                         id="remote-friendly"
                         checked={formData.remoteFriendly}
-                        onChange={(e) => setFormData(prev => ({ ...prev, remoteFriendly: (e.target as HTMLInputElement).checked }))}
+                        onCheckedChange={(checked) =>
+                          setFormData(prev => ({ ...prev, remoteFriendly: !!checked }))
+                        }
                       />
                       <Label htmlFor="remote-friendly">Remote Friendly</Label>
                     </div>
@@ -730,9 +712,7 @@ export default function EditJobPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Job Preview</CardTitle>
-                    <CardDescription>
-                      How this job will appear to candidates
-                    </CardDescription>
+                    <CardDescription>How this job will appear to candidates</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="p-3 border rounded-lg">
@@ -742,10 +722,10 @@ export default function EditJobPage() {
                         <MapPin className="h-3 w-3 mr-1" />
                         {formData.location || 'Location'}
                       </div>
-                      {formData.salary.min && formData.salary.max && (
+                      {formData.salaryMin && formData.salaryMax && (
                         <div className="flex items-center text-xs text-success-600 mt-1">
                           <DollarSign className="h-3 w-3 mr-1" />
-                          ₹{formData.salary.min} - ₹{formData.salary.max} {formData.salary.type}
+                          ₹{formData.salaryMin} - ₹{formData.salaryMax} / month
                         </div>
                       )}
                       <div className="flex space-x-1 mt-2">
@@ -773,18 +753,26 @@ export default function EditJobPage() {
               >
                 <Card>
                   <CardContent className="pt-6 space-y-2">
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      loading={saving}
-                      disabled={!formData.title || !formData.department || !formData.location}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={saving || !formData.title || !formData.department || !formData.location}
                     >
-                      <Save className="h-4 w-4 mr-2" />
-                      {saving ? 'Updating Job...' : 'Update Job Posting'}
+                      {saving ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Updating Job...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Update Job Posting
+                        </>
+                      )}
                     </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       className="w-full"
                       onClick={() => router.back()}
                     >

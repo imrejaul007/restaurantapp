@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Card } from '../../../../components/ui/card';
@@ -24,9 +24,31 @@ import {
   StarIcon,
   ChatBubbleLeftIcon,
   ArrowLeftIcon,
+  ExclamationCircleIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message || `Request failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
 
 interface JobApplication {
   id: string;
@@ -37,11 +59,19 @@ interface JobApplication {
   currentSalary?: number;
   expectedSalary: number;
   appliedAt: string;
-  status: 'pending' | 'shortlisted' | 'interviewed' | 'hired' | 'rejected';
-  resume: string;
+  status: string;
+  resume?: string;
   rating?: number;
   notes?: string;
   availableFrom?: string;
+  // API may return employee nested object
+  employee?: {
+    id: string;
+    user?: { profile?: { firstName?: string; lastName?: string }; email?: string };
+    phone?: string;
+  };
+  coverLetter?: string;
+  resumeUrl?: string;
 }
 
 interface JobPosting {
@@ -49,104 +79,22 @@ interface JobPosting {
   title: string;
   department: string;
   location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship';
-  experience: string;
-  salary: { min: number; max: number };
+  jobType: string;
+  experienceMin?: number;
+  experienceMax?: number;
+  salaryMin?: number;
+  salaryMax?: number;
   description: string;
   requirements: string[];
   benefits: string[];
-  status: 'active' | 'paused' | 'closed' | 'draft';
-  postedAt: string;
-  closingDate: string;
+  status: string;
+  createdAt: string;
+  deadline?: string;
+  applicationCount: number;
+  viewCount: number;
   applications: JobApplication[];
-  views: number;
-  restaurants: string[];
+  restaurant?: { name?: string };
 }
-
-// Mock job data
-const mockJob: JobPosting = {
-  id: '1',
-  title: 'Senior Chef',
-  department: 'Kitchen',
-  location: 'Mumbai, Maharashtra',
-  type: 'full-time',
-  experience: '3-5 years',
-  salary: { min: 35000, max: 50000 },
-  description: `We are looking for an experienced Senior Chef to join our dynamic kitchen team. The ideal candidate will have a passion for creating exceptional dishes and leading a team of junior chefs.
-
-Key Responsibilities:
-- Plan and oversee daily kitchen operations
-- Create and develop new menu items
-- Ensure food quality and safety standards
-- Train and mentor junior kitchen staff
-- Manage inventory and control food costs
-- Collaborate with management on menu pricing`,
-  requirements: [
-    'Culinary degree or equivalent experience',
-    '3-5 years of experience in a similar role',
-    'Strong leadership and communication skills',
-    'Knowledge of food safety regulations',
-    'Ability to work in a fast-paced environment',
-    'Creative flair and attention to detail'
-  ],
-  benefits: [
-    'Competitive salary package',
-    'Health insurance coverage',
-    'Performance-based bonuses',
-    'Professional development opportunities',
-    'Meal allowances',
-    'Flexible working hours'
-  ],
-  status: 'active',
-  postedAt: '2024-01-15T10:30:00Z',
-  closingDate: '2024-02-15T23:59:59Z',
-  views: 1247,
-  restaurants: ['Pizza Palace'],
-  applications: [
-    {
-      id: 'APP-001',
-      applicantName: 'Rahul Sharma',
-      email: 'rahul.sharma@email.com',
-      phone: '+91-9876543210',
-      experience: 4,
-      currentSalary: 32000,
-      expectedSalary: 45000,
-      appliedAt: '2024-01-18T14:30:00Z',
-      status: 'shortlisted',
-      resume: '/resumes/rahul-sharma-resume.pdf',
-      rating: 4.5,
-      notes: 'Strong background in Italian cuisine. Good leadership skills.',
-      availableFrom: '2024-02-01'
-    },
-    {
-      id: 'APP-002',
-      applicantName: 'Priya Patel',
-      email: 'priya.patel@email.com',
-      phone: '+91-9876543211',
-      experience: 5,
-      currentSalary: 38000,
-      expectedSalary: 48000,
-      appliedAt: '2024-01-16T09:15:00Z',
-      status: 'interviewed',
-      resume: '/resumes/priya-patel-resume.pdf',
-      rating: 4.8,
-      notes: 'Excellent technical skills and creativity. Very impressive portfolio.',
-      availableFrom: '2024-01-25'
-    },
-    {
-      id: 'APP-003',
-      applicantName: 'Amit Kumar',
-      email: 'amit.kumar@email.com',
-      phone: '+91-9876543212',
-      experience: 3,
-      expectedSalary: 40000,
-      appliedAt: '2024-01-20T16:45:00Z',
-      status: 'pending',
-      resume: '/resumes/amit-kumar-resume.pdf',
-      availableFrom: '2024-02-15'
-    }
-  ]
-};
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -154,74 +102,108 @@ export default function JobDetailPage() {
   const [job, setJob] = useState<JobPosting | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
+
+  const jobId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const loadJob = useCallback(async () => {
+    if (!jobId) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await apiFetch<JobPosting>(`/jobs/${jobId}`);
+      setJob(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load job details');
+      toast.error('Failed to load job details');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [jobId]);
 
   useEffect(() => {
-    // Simulate API call
-    const loadJob = async () => {
-      setIsLoading(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setJob(mockJob);
-      } catch (error) {
-        toast.error('Failed to load job details');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadJob();
-  }, [params.id]);
+  }, [loadJob]);
 
-  const handleStatusChange = async (newStatus: JobPosting['status']) => {
+  const handleStatusChange = async (newStatus: string) => {
+    if (!job) return;
+    setUpdatingStatus(true);
     try {
-      setJob(prev => prev ? { ...prev, status: newStatus } : null);
-      toast.success(`Job ${newStatus} successfully`);
-    } catch (error) {
-      toast.error('Failed to update job status');
+      const updated = await apiFetch<JobPosting>(`/jobs/${job.id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setJob(updated);
+      toast.success(`Job ${newStatus.toLowerCase()} successfully`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update job status');
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
-  const handleApplicationAction = async (applicationId: string, action: 'shortlist' | 'interview' | 'hire' | 'reject') => {
+  const handleApplicationAction = async (
+    applicationId: string,
+    action: 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED' | 'REVIEWED'
+  ) => {
+    setUpdatingApplicationId(applicationId);
     try {
-      setJob(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          applications: prev.applications.map(app =>
-            app.id === applicationId
-              ? { ...app, status: action === 'shortlist' ? 'shortlisted' : 
-                                action === 'interview' ? 'interviewed' :
-                                action === 'hire' ? 'hired' : 'rejected' }
-              : app
-          )
-        };
+      await apiFetch(`/jobs/applications/${applicationId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: action }),
       });
-      
-      toast.success(`Application ${action}ed successfully`);
-    } catch (error) {
-      toast.error(`Failed to ${action} application`);
+      // Refresh the job to get updated application statuses
+      await loadJob();
+      toast.success('Application updated successfully');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update application');
+    } finally {
+      setUpdatingApplicationId(null);
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!job) return;
+    if (!confirm('Are you sure you want to delete this job posting? This cannot be undone.')) return;
+    try {
+      await apiFetch(`/jobs/${job.id}`, { method: 'DELETE' });
+      toast.success('Job deleted successfully');
+      router.push('/restaurant/jobs');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete job');
     }
   };
 
   const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'green';
-      case 'paused': return 'yellow';
-      case 'closed': return 'red';
-      case 'draft': return 'gray';
+    switch (status?.toUpperCase()) {
+      case 'ACTIVE': return 'green';
+      case 'PAUSED': return 'yellow';
+      case 'CLOSED': return 'red';
+      case 'DRAFT': return 'gray';
       default: return 'gray';
     }
   };
 
   const getApplicationStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'hired': return 'green';
-      case 'interviewed': return 'blue';
-      case 'shortlisted': return 'yellow';
-      case 'rejected': return 'red';
-      case 'pending': return 'gray';
+    switch (status?.toUpperCase()) {
+      case 'ACCEPTED': return 'green';
+      case 'REVIEWED': return 'blue';
+      case 'SHORTLISTED': return 'yellow';
+      case 'REJECTED': return 'red';
+      case 'PENDING': return 'gray';
       default: return 'gray';
     }
+  };
+
+  const getApplicantName = (app: JobApplication): string => {
+    if (app.applicantName) return app.applicantName;
+    const p = app.employee?.user?.profile;
+    if (p?.firstName || p?.lastName) {
+      return `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim();
+    }
+    return 'Unknown Applicant';
   };
 
   if (isLoading) {
@@ -232,14 +214,24 @@ export default function JobDetailPage() {
     );
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <BriefcaseIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Job Not Found</h2>
-          <p className="text-gray-600 mb-4">The job posting you're looking for doesn't exist.</p>
-          <Button onClick={() => router.back()}>Go Back</Button>
+        <div className="text-center space-y-4">
+          <ExclamationCircleIcon className="w-16 h-16 text-red-400 mx-auto" />
+          <h2 className="text-xl font-semibold text-gray-900">
+            {error ? 'Failed to load job' : 'Job Not Found'}
+          </h2>
+          <p className="text-gray-600">
+            {error ?? "The job posting you're looking for doesn't exist."}
+          </p>
+          <div className="flex items-center justify-center space-x-3">
+            <Button variant="outline" onClick={loadJob}>
+              <ArrowPathIcon className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+            <Button onClick={() => router.back()}>Go Back</Button>
+          </div>
         </div>
       </div>
     );
@@ -247,19 +239,34 @@ export default function JobDetailPage() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BriefcaseIcon },
-    { id: 'applications', label: `Applications (${job.applications.length})`, icon: UserGroupIcon },
+    { id: 'applications', label: `Applications (${job.applications?.length ?? 0})`, icon: UserGroupIcon },
     { id: 'analytics', label: 'Analytics', icon: StarIcon },
     { id: 'settings', label: 'Settings', icon: PencilIcon },
   ];
 
+  const applications = job.applications ?? [];
   const applicationStats = {
-    total: job.applications.length,
-    pending: job.applications.filter(a => a.status === 'pending').length,
-    shortlisted: job.applications.filter(a => a.status === 'shortlisted').length,
-    interviewed: job.applications.filter(a => a.status === 'interviewed').length,
-    hired: job.applications.filter(a => a.status === 'hired').length,
-    rejected: job.applications.filter(a => a.status === 'rejected').length,
+    total: applications.length,
+    pending: applications.filter(a => a.status?.toUpperCase() === 'PENDING').length,
+    shortlisted: applications.filter(a => a.status?.toUpperCase() === 'SHORTLISTED').length,
+    reviewed: applications.filter(a => a.status?.toUpperCase() === 'REVIEWED').length,
+    accepted: applications.filter(a => a.status?.toUpperCase() === 'ACCEPTED').length,
+    rejected: applications.filter(a => a.status?.toUpperCase() === 'REJECTED').length,
   };
+
+  const salaryStr =
+    job.salaryMin != null && job.salaryMax != null
+      ? `₹${job.salaryMin.toLocaleString()} - ₹${job.salaryMax.toLocaleString()} per month`
+      : 'Not specified';
+
+  const experienceStr =
+    job.experienceMin != null || job.experienceMax != null
+      ? `${job.experienceMin ?? 0}–${job.experienceMax ?? '?'} years`
+      : null;
+
+  const daysActive = Math.ceil(
+    (Date.now() - new Date(job.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   return (
     <motion.div
@@ -270,11 +277,7 @@ export default function JobDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            
-            onClick={() => router.back()}
-          >
+          <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
             Back
           </Button>
@@ -285,35 +288,33 @@ export default function JobDetailPage() {
                 {job.status}
               </Badge>
             </div>
-            <p className="text-gray-600">{job.department} • {job.location}</p>
+            <p className="text-gray-600">
+              {[job.department, job.location].filter(Boolean).join(' • ')}
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" >
-            <EyeIcon className="w-4 h-4 mr-2" />
-            Preview
-          </Button>
-          <Button variant="outline" >
+          <Button variant="outline" onClick={() => router.push(`/restaurant/jobs/${job.id}/edit`)}>
             <PencilIcon className="w-4 h-4 mr-2" />
             Edit
           </Button>
-          {job.status === 'active' ? (
+          {job.status?.toUpperCase() === 'ACTIVE' ? (
             <Button
               variant="outline"
-              
-              onClick={() => handleStatusChange('paused')}
+              disabled={updatingStatus}
+              onClick={() => handleStatusChange('PAUSED')}
             >
               <PauseIcon className="w-4 h-4 mr-2" />
-              Pause
+              {updatingStatus ? 'Updating...' : 'Pause'}
             </Button>
           ) : (
             <Button
               variant="outline"
-              
-              onClick={() => handleStatusChange('active')}
+              disabled={updatingStatus}
+              onClick={() => handleStatusChange('ACTIVE')}
             >
               <PlayIcon className="w-4 h-4 mr-2" />
-              Activate
+              {updatingStatus ? 'Updating...' : 'Activate'}
             </Button>
           )}
         </div>
@@ -328,11 +329,11 @@ export default function JobDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Views</p>
-              <p className="text-2xl font-bold text-gray-900">{job.views}</p>
+              <p className="text-2xl font-bold text-gray-900">{job.viewCount ?? 0}</p>
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-green-100 rounded-lg">
@@ -344,7 +345,7 @@ export default function JobDetailPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-yellow-100 rounded-lg">
@@ -352,21 +353,19 @@ export default function JobDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Days Active</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {Math.ceil((new Date().getTime() - new Date(job.postedAt).getTime()) / (1000 * 60 * 60 * 24))}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{daysActive}</p>
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-purple-100 rounded-lg">
               <CheckCircleIcon className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Hired</p>
-              <p className="text-2xl font-bold text-gray-900">{applicationStats.hired}</p>
+              <p className="text-sm text-gray-600">Accepted</p>
+              <p className="text-2xl font-bold text-gray-900">{applicationStats.accepted}</p>
             </div>
           </div>
         </Card>
@@ -384,71 +383,80 @@ export default function JobDetailPage() {
             ))}
           </TabsList>
         </Tabs>
-        
+
         <div className="p-6">
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Job Details</h3>
-                  
+
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <MapPinIcon className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{job.location}</span>
-                    </div>
+                    {job.location && (
+                      <div className="flex items-center space-x-2">
+                        <MapPinIcon className="w-5 h-5 text-gray-400" />
+                        <span className="text-gray-900">{job.location}</span>
+                      </div>
+                    )}
                     <div className="flex items-center space-x-2">
                       <BriefcaseIcon className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{job.type} • {job.experience}</span>
+                      <span className="text-gray-900">
+                        {job.jobType?.replace('_', '-').toLowerCase() ?? 'N/A'}
+                        {experienceStr ? ` • ${experienceStr}` : ''}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <CurrencyDollarIcon className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">
-                        ₹{job.salary.min.toLocaleString()} - ₹{job.salary.max.toLocaleString()} per month
-                      </span>
+                      <span className="text-gray-900">{salaryStr}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <CalendarIcon className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">
-                        Closes on {format(new Date(job.closingDate), 'MMM dd, yyyy')}
-                      </span>
-                    </div>
+                    {job.deadline && (
+                      <div className="flex items-center space-x-2">
+                        <CalendarIcon className="w-5 h-5 text-gray-400" />
+                        <span className="text-gray-900">
+                          Closes on {format(new Date(job.deadline), 'MMM dd, yyyy')}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Requirements</h4>
-                    <ul className="space-y-1">
-                      {job.requirements.map((req, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-start">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {job.requirements?.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Requirements</h4>
+                      <ul className="space-y-1">
+                        {job.requirements.map((req, index) => (
+                          <li key={index} className="text-sm text-gray-600 flex items-start">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                            {req}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Description</h3>
                   <div className="prose prose-sm text-gray-600">
-                    {job.description.split('\n').map((paragraph, index) => (
+                    {job.description?.split('\n').map((paragraph, index) => (
                       <p key={index} className="mb-3">{paragraph}</p>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Benefits</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {job.benefits.map((benefit, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-gray-600">{benefit}</span>
-                    </div>
-                  ))}
+              {job.benefits?.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Benefits</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {job.benefits.map((benefit, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-600">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -456,223 +464,232 @@ export default function JobDetailPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Applications</h3>
-                <Button variant="outline" >
-                  Export Applications
-                </Button>
               </div>
 
               {/* Application Stats */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-gray-900">{applicationStats.total}</div>
-                  <div className="text-xs text-gray-600">Total</div>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-gray-600">{applicationStats.pending}</div>
-                  <div className="text-xs text-gray-600">Pending</div>
-                </div>
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <div className="text-lg font-semibold text-yellow-600">{applicationStats.shortlisted}</div>
-                  <div className="text-xs text-yellow-600">Shortlisted</div>
-                </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-lg font-semibold text-blue-600">{applicationStats.interviewed}</div>
-                  <div className="text-xs text-blue-600">Interviewed</div>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <div className="text-lg font-semibold text-green-600">{applicationStats.hired}</div>
-                  <div className="text-xs text-green-600">Hired</div>
-                </div>
-                <div className="text-center p-3 bg-red-50 rounded-lg">
-                  <div className="text-lg font-semibold text-red-600">{applicationStats.rejected}</div>
-                  <div className="text-xs text-red-600">Rejected</div>
-                </div>
+                {[
+                  { label: 'Total', value: applicationStats.total, bg: 'bg-gray-50', textColor: 'text-gray-900', labelColor: 'text-gray-600' },
+                  { label: 'Pending', value: applicationStats.pending, bg: 'bg-gray-50', textColor: 'text-gray-600', labelColor: 'text-gray-600' },
+                  { label: 'Shortlisted', value: applicationStats.shortlisted, bg: 'bg-yellow-50', textColor: 'text-yellow-600', labelColor: 'text-yellow-600' },
+                  { label: 'Reviewed', value: applicationStats.reviewed, bg: 'bg-blue-50', textColor: 'text-blue-600', labelColor: 'text-blue-600' },
+                  { label: 'Accepted', value: applicationStats.accepted, bg: 'bg-green-50', textColor: 'text-green-600', labelColor: 'text-green-600' },
+                  { label: 'Rejected', value: applicationStats.rejected, bg: 'bg-red-50', textColor: 'text-red-600', labelColor: 'text-red-600' },
+                ].map(({ label, value, bg, textColor, labelColor }) => (
+                  <div key={label} className={`text-center p-3 ${bg} rounded-lg`}>
+                    <div className={`text-lg font-semibold ${textColor}`}>{value}</div>
+                    <div className={`text-xs ${labelColor}`}>{label}</div>
+                  </div>
+                ))}
               </div>
 
               {/* Applications List */}
-              <div className="space-y-4">
-                {job.applications.map((application) => (
-                  <Card key={application.id} className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <span className="text-gray-600 font-medium">
-                            {application.applicantName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">{application.applicantName}</h4>
-                          <p className="text-sm text-gray-600">{application.email}</p>
-                        </div>
-                      </div>
-                      <Badge color={getApplicationStatusBadgeColor(application.status)}>
-                        {application.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Experience:</span>
-                        <span className="ml-1 text-gray-900">{application.experience} years</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Expected Salary:</span>
-                        <span className="ml-1 text-gray-900">₹{application.expectedSalary.toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Applied:</span>
-                        <span className="ml-1 text-gray-900">
-                          {format(new Date(application.appliedAt), 'MMM dd, yyyy')}
-                        </span>
-                      </div>
-                      {application.availableFrom && (
-                        <div>
-                          <span className="text-gray-600">Available from:</span>
-                          <span className="ml-1 text-gray-900">
-                            {format(new Date(application.availableFrom), 'MMM dd, yyyy')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+              {applications.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <UserGroupIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>No applications yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {applications.map((application) => {
+                    const name = getApplicantName(application);
+                    const email = application.email || application.employee?.user?.email || '';
+                    const isUpdating = updatingApplicationId === application.id;
+                    const statusUpper = application.status?.toUpperCase() ?? 'PENDING';
 
-                    {application.rating && (
-                      <div className="flex items-center space-x-1 mb-3">
-                        <span className="text-sm text-gray-600">Rating:</span>
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <StarIcon
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.floor(application.rating || 0)
-                                  ? 'text-yellow-400 fill-current'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
+                    return (
+                      <Card key={application.id} className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                              <span className="text-gray-600 font-medium">
+                                {name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{name}</h4>
+                              {email && <p className="text-sm text-gray-600">{email}</p>}
+                            </div>
+                          </div>
+                          <Badge color={getApplicationStatusBadgeColor(application.status)}>
+                            {application.status?.toLowerCase() ?? 'pending'}
+                          </Badge>
                         </div>
-                        <span className="text-sm text-gray-900">{application.rating}</span>
-                      </div>
-                    )}
 
-                    {application.notes && (
-                      <div className="mb-3">
-                        <span className="text-sm text-gray-600">Notes:</span>
-                        <p className="text-sm text-gray-900 mt-1">{application.notes}</p>
-                      </div>
-                    )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 text-sm">
+                          {application.experience != null && (
+                            <div>
+                              <span className="text-gray-600">Experience:</span>
+                              <span className="ml-1 text-gray-900">{application.experience} years</span>
+                            </div>
+                          )}
+                          {application.expectedSalary != null && (
+                            <div>
+                              <span className="text-gray-600">Expected Salary:</span>
+                              <span className="ml-1 text-gray-900">
+                                ₹{application.expectedSalary.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                          {application.appliedAt && (
+                            <div>
+                              <span className="text-gray-600">Applied:</span>
+                              <span className="ml-1 text-gray-900">
+                                {format(new Date(application.appliedAt), 'MMM dd, yyyy')}
+                              </span>
+                            </div>
+                          )}
+                          {application.availableFrom && (
+                            <div>
+                              <span className="text-gray-600">Available from:</span>
+                              <span className="ml-1 text-gray-900">
+                                {format(new Date(application.availableFrom), 'MMM dd, yyyy')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex space-x-2">
-                        <Button variant="outline" >
-                          <EyeIcon className="w-4 h-4 mr-1" />
-                          View Resume
-                        </Button>
-                        <Button variant="outline" >
-                          <ChatBubbleLeftIcon className="w-4 h-4 mr-1" />
-                          Message
-                        </Button>
-                      </div>
-                      
-                      {application.status === 'pending' && (
-                        <div className="flex space-x-2">
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'shortlist')}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                          >
-                            Shortlist
-                          </Button>
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'reject')}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                          >
-                            Reject
-                          </Button>
+                        {application.rating != null && (
+                          <div className="flex items-center space-x-1 mb-3">
+                            <span className="text-sm text-gray-600">Rating:</span>
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <StarIcon
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < Math.floor(application.rating ?? 0)
+                                      ? 'text-yellow-400 fill-current'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-900">{application.rating}</span>
+                          </div>
+                        )}
+
+                        {application.notes && (
+                          <div className="mb-3">
+                            <span className="text-sm text-gray-600">Notes:</span>
+                            <p className="text-sm text-gray-900 mt-1">{application.notes}</p>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex space-x-2">
+                            {(application.resumeUrl || application.resume) && (
+                              <Button
+                                variant="outline"
+                                onClick={() =>
+                                  window.open(application.resumeUrl || application.resume, '_blank')
+                                }
+                              >
+                                <EyeIcon className="w-4 h-4 mr-1" />
+                                View Resume
+                              </Button>
+                            )}
+                          </div>
+
+                          <div className="flex space-x-2">
+                            {statusUpper === 'PENDING' && (
+                              <>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'SHORTLISTED')}
+                                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                                >
+                                  Shortlist
+                                </Button>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'REJECTED')}
+                                  className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+
+                            {statusUpper === 'SHORTLISTED' && (
+                              <>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'REVIEWED')}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  Mark Reviewed
+                                </Button>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'REJECTED')}
+                                  className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+
+                            {statusUpper === 'REVIEWED' && (
+                              <>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'ACCEPTED')}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  Accept
+                                </Button>
+                                <Button
+                                  disabled={isUpdating}
+                                  onClick={() => handleApplicationAction(application.id, 'REJECTED')}
+                                  className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      )}
-                      
-                      {application.status === 'shortlisted' && (
-                        <div className="flex space-x-2">
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'interview')}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            Interview
-                          </Button>
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'reject')}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                          >
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                      
-                      {application.status === 'interviewed' && (
-                        <div className="flex space-x-2">
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'hire')}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            Hire
-                          </Button>
-                          <Button
-                            
-                            onClick={() => handleApplicationAction(application.id, 'reject')}
-                            className="bg-red-600 hover:bg-red-700 text-white"
-                          >
-                            Reject
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Job Performance Analytics</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className="p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Application Rate</h4>
                   <div className="text-3xl font-bold text-blue-600">
-                    {((applicationStats.total / job.views) * 100).toFixed(1)}%
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {applicationStats.total} applications from {job.views} views
-                  </p>
-                </Card>
-                
-                <Card className="p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Success Rate</h4>
-                  <div className="text-3xl font-bold text-green-600">
-                    {applicationStats.total > 0 
-                      ? ((applicationStats.hired / applicationStats.total) * 100).toFixed(1)
+                    {job.viewCount && job.viewCount > 0
+                      ? (((applicationStats.total / job.viewCount) * 100).toFixed(1))
                       : '0'}%
                   </div>
                   <p className="text-sm text-gray-600">
-                    {applicationStats.hired} hired from {applicationStats.total} applications
+                    {applicationStats.total} applications from {job.viewCount ?? 0} views
                   </p>
                 </Card>
-                
+
                 <Card className="p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Avg. Experience</h4>
-                  <div className="text-3xl font-bold text-purple-600">
-                    {job.applications.length > 0
-                      ? (job.applications.reduce((sum, app) => sum + app.experience, 0) / job.applications.length).toFixed(1)
-                      : '0'} years
+                  <h4 className="font-medium text-gray-900 mb-2">Success Rate</h4>
+                  <div className="text-3xl font-bold text-green-600">
+                    {applicationStats.total > 0
+                      ? ((applicationStats.accepted / applicationStats.total) * 100).toFixed(1)
+                      : '0'}%
                   </div>
                   <p className="text-sm text-gray-600">
-                    Average experience of applicants
+                    {applicationStats.accepted} accepted from {applicationStats.total} applications
                   </p>
+                </Card>
+
+                <Card className="p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">Days Active</h4>
+                  <div className="text-3xl font-bold text-purple-600">{daysActive}</div>
+                  <p className="text-sm text-gray-600">Since posting date</p>
                 </Card>
               </div>
             </div>
@@ -681,42 +698,43 @@ export default function JobDetailPage() {
           {activeTab === 'settings' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Job Settings</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="p-4">
                   <h4 className="font-medium text-gray-900 mb-4">Status Management</h4>
                   <div className="space-y-3">
                     <Button
-                      onClick={() => handleStatusChange('active')}
-                      disabled={job.status === 'active'}
+                      onClick={() => handleStatusChange('ACTIVE')}
+                      disabled={job.status?.toUpperCase() === 'ACTIVE' || updatingStatus}
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
                     >
                       Activate Job
                     </Button>
                     <Button
-                      onClick={() => handleStatusChange('paused')}
-                      disabled={job.status === 'paused'}
+                      onClick={() => handleStatusChange('PAUSED')}
+                      disabled={job.status?.toUpperCase() === 'PAUSED' || updatingStatus}
                       variant="outline"
                       className="w-full"
                     >
                       Pause Job
                     </Button>
                     <Button
-                      onClick={() => handleStatusChange('closed')}
-                      disabled={job.status === 'closed'}
+                      onClick={() => handleStatusChange('CLOSED')}
+                      disabled={job.status?.toUpperCase() === 'CLOSED' || updatingStatus}
                       className="w-full bg-red-600 hover:bg-red-700 text-white"
                     >
                       Close Job
                     </Button>
                   </div>
                 </Card>
-                
+
                 <Card className="p-4">
                   <h4 className="font-medium text-gray-900 mb-4">Danger Zone</h4>
                   <div className="space-y-3">
                     <Button
                       variant="outline"
                       className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={handleDeleteJob}
                     >
                       <TrashIcon className="w-4 h-4 mr-2" />
                       Delete Job
