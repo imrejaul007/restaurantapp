@@ -1,30 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
 import { Input } from '../../../../components/ui/input';
 import { Textarea } from '../../../../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
-import { 
+import {
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
   ExclamationTriangleIcon,
-  UserCircleIcon,
   BuildingStorefrontIcon,
   DocumentTextIcon,
-  ChatBubbleLeftRightIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
   BellIcon,
   EnvelopeIcon,
-  PhoneIcon,
+  MagnifyingGlassIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { apiClient } from '@/lib/api/client';
 
 interface VerificationRequest {
   id: string;
@@ -41,7 +38,7 @@ interface VerificationRequest {
   lastUpdated: string;
   assignedTo?: string;
   businessType: string;
-  estimatedReviewTime: number; // in hours
+  estimatedReviewTime: number;
 }
 
 interface ApprovalAction {
@@ -53,76 +50,6 @@ interface ApprovalAction {
   notifyOwner: boolean;
   assignTo?: string;
 }
-
-// Mock verification requests
-const mockRequests: VerificationRequest[] = [
-  {
-    id: 'VER-2024-001',
-    restaurantId: 'REST-001',
-    restaurantName: 'Spice Garden Restaurant',
-    ownerName: 'Arjun Patel',
-    email: 'owner@spicegarden.com',
-    phone: '+91-9876543211',
-    submittedAt: '2024-01-20T09:15:00Z',
-    status: 'IN_REVIEW',
-    priority: 'HIGH',
-    completedDocuments: 4,
-    totalDocuments: 5,
-    lastUpdated: '2024-01-20T14:30:00Z',
-    assignedTo: 'Admin (John Doe)',
-    businessType: 'Restaurant',
-    estimatedReviewTime: 2,
-  },
-  {
-    id: 'VER-2024-002',
-    restaurantId: 'REST-002',
-    restaurantName: 'Urban Cafe',
-    ownerName: 'Sarah Johnson',
-    email: 'owner@urbancafe.com',
-    phone: '+91-9876543212',
-    submittedAt: '2024-01-19T16:20:00Z',
-    status: 'PENDING',
-    priority: 'MEDIUM',
-    completedDocuments: 5,
-    totalDocuments: 5,
-    lastUpdated: '2024-01-19T16:20:00Z',
-    businessType: 'Cafe',
-    estimatedReviewTime: 4,
-  },
-  {
-    id: 'VER-2024-003',
-    restaurantId: 'REST-003',
-    restaurantName: 'Dragon Palace',
-    ownerName: 'Wang Chen',
-    email: 'owner@dragonpalace.com',
-    phone: '+91-9876543213',
-    submittedAt: '2024-01-18T11:45:00Z',
-    status: 'REQUIRES_CHANGES',
-    priority: 'LOW',
-    completedDocuments: 3,
-    totalDocuments: 5,
-    lastUpdated: '2024-01-19T09:30:00Z',
-    assignedTo: 'Admin (Jane Smith)',
-    businessType: 'Restaurant',
-    estimatedReviewTime: 6,
-  },
-  {
-    id: 'VER-2024-004',
-    restaurantId: 'REST-004',
-    restaurantName: 'Fresh Bites',
-    ownerName: 'Michael Brown',
-    email: 'owner@freshbites.com',
-    phone: '+91-9876543214',
-    submittedAt: '2024-01-17T08:30:00Z',
-    status: 'PENDING',
-    priority: 'URGENT',
-    completedDocuments: 5,
-    totalDocuments: 5,
-    lastUpdated: '2024-01-17T08:30:00Z',
-    businessType: 'Quick Service',
-    estimatedReviewTime: 1,
-  },
-];
 
 const approvalReasons = {
   approve: [
@@ -147,9 +74,32 @@ const approvalReasons = {
   ],
 };
 
+// Map raw VendorApplication fields to VerificationRequest shape
+function mapToVerificationRequest(item: any): VerificationRequest {
+  return {
+    id: item.id,
+    restaurantId: item.restaurantId ?? item.id,
+    restaurantName: item.businessName ?? item.restaurantName ?? 'Unknown',
+    ownerName: item.ownerName ?? item.contactName ?? 'Unknown',
+    email: item.contactEmail ?? item.email ?? '',
+    phone: item.contactPhone ?? item.phone ?? '',
+    submittedAt: item.createdAt ?? item.submittedAt ?? new Date().toISOString(),
+    status: (item.status as VerificationRequest['status']) ?? 'PENDING',
+    priority: (item.priority as VerificationRequest['priority']) ?? 'MEDIUM',
+    completedDocuments: item.completedDocuments ?? 0,
+    totalDocuments: item.totalDocuments ?? 1,
+    lastUpdated: item.updatedAt ?? item.lastUpdated ?? new Date().toISOString(),
+    assignedTo: item.assignedTo,
+    businessType: item.category ?? item.businessType ?? 'Restaurant',
+    estimatedReviewTime: item.estimatedReviewTime ?? 4,
+  };
+}
+
 export default function ApprovalActionsPage() {
-  const [requests, setRequests] = useState<VerificationRequest[]>(mockRequests);
-  const [filteredRequests, setFilteredRequests] = useState<VerificationRequest[]>(mockRequests);
+  const [requests, setRequests] = useState<VerificationRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<VerificationRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -163,11 +113,30 @@ export default function ApprovalActionsPage() {
   const [newCondition, setNewCondition] = useState('');
   const [followUpRequired, setFollowUpRequired] = useState(false);
   const [notifyOwner, setNotifyOwner] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchRequests = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(false);
+    try {
+      const response = await apiClient.get<any>('/admin/verification?limit=100');
+      const raw = response?.data ?? response;
+      const items: any[] = Array.isArray(raw) ? raw : (raw?.data ?? []);
+      setRequests(items.map(mapToVerificationRequest));
+    } catch {
+      setFetchError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   useEffect(() => {
     let filtered = requests;
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(req =>
         req.restaurantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -177,17 +146,14 @@ export default function ApprovalActionsPage() {
       );
     }
 
-    // Status filter
     if (statusFilter) {
       filtered = filtered.filter(req => req.status === statusFilter);
     }
 
-    // Priority filter
     if (priorityFilter) {
       filtered = filtered.filter(req => req.priority === priorityFilter);
     }
 
-    // Assignee filter
     if (assigneeFilter) {
       if (assigneeFilter === 'unassigned') {
         filtered = filtered.filter(req => !req.assignedTo);
@@ -224,58 +190,61 @@ export default function ApprovalActionsPage() {
     setShowActionModal(true);
   };
 
+  const resetModal = () => {
+    setShowActionModal(false);
+    setCurrentAction(null);
+    setActionReason('');
+    setCustomReason('');
+    setConditions([]);
+    setNewCondition('');
+    setFollowUpRequired(false);
+    setNotifyOwner(true);
+    setSelectedRequests([]);
+  };
+
   const executeAction = async () => {
     if (!currentAction) return;
 
+    const finalReason = actionReason === 'custom' ? customReason : actionReason;
+
+    if (!finalReason.trim()) {
+      toast.error('Please provide a reason for the action');
+      return;
+    }
+
+    const requestIds = currentAction.requestId.split(',');
+    const statusMap = {
+      approve: 'APPROVED',
+      reject: 'REJECTED',
+      request_changes: 'REQUIRES_CHANGES',
+    } as const;
+    const newStatus = statusMap[currentAction.action];
+
+    setSubmitting(true);
     try {
-      const finalReason = actionReason === 'custom' ? customReason : actionReason;
-      
-      if (!finalReason.trim()) {
-        toast.error('Please provide a reason for the action');
-        return;
-      }
+      await Promise.all(
+        requestIds.map(id =>
+          apiClient.patch(`/admin/verification/${id}`, {
+            status: newStatus,
+            reason: finalReason,
+          })
+        )
+      );
 
-      const requestIds = currentAction.requestId.split(',');
-      const newStatus = currentAction.action === 'approve' ? 'APPROVED' : 
-                       currentAction.action === 'reject' ? 'REJECTED' : 'REQUIRES_CHANGES';
+      setRequests(prev =>
+        prev.map(req =>
+          requestIds.includes(req.id)
+            ? { ...req, status: newStatus, lastUpdated: new Date().toISOString() }
+            : req
+        )
+      );
 
-      setRequests(prev => prev.map(req => 
-        requestIds.includes(req.id) 
-          ? { 
-              ...req, 
-              status: newStatus as any,
-              lastUpdated: new Date().toISOString(),
-              assignedTo: currentAction.assignTo || req.assignedTo,
-            }
-          : req
-      ));
-
-      // Send notifications if enabled
-      if (notifyOwner) {
-        // In real app, send email/SMS to restaurant owner
-        console.log('Sending notification to restaurant owner(s)');
-      }
-
-      // Add follow-up tasks if required
-      if (followUpRequired) {
-        console.log('Creating follow-up tasks');
-      }
-
-      toast.success(`${requestIds.length} request(s) ${currentAction.action}d successfully`);
-      
-      // Reset modal state
-      setShowActionModal(false);
-      setCurrentAction(null);
-      setActionReason('');
-      setCustomReason('');
-      setConditions([]);
-      setNewCondition('');
-      setFollowUpRequired(false);
-      setNotifyOwner(true);
-      setSelectedRequests([]);
-      
-    } catch (error) {
+      toast.success(`${requestIds.length} request(s) ${currentAction.action.replace('_', ' ')}d successfully`);
+      resetModal();
+    } catch {
       toast.error('Failed to execute action');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -312,6 +281,7 @@ export default function ApprovalActionsPage() {
   };
 
   const getProgressPercentage = (completed: number, total: number) => {
+    if (total === 0) return 0;
     return Math.round((completed / total) * 100);
   };
 
@@ -321,6 +291,27 @@ export default function ApprovalActionsPage() {
     requiresChanges: requests.filter(r => r.status === 'REQUIRES_CHANGES').length,
     urgent: requests.filter(r => r.priority === 'URGENT').length,
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-64 space-y-4">
+        <ExclamationTriangleIcon className="w-12 h-12 text-red-400" />
+        <p className="text-gray-700 font-medium">Failed to load verification requests</p>
+        <Button onClick={fetchRequests} variant="outline" size="default">
+          <ArrowPathIcon className="w-4 h-4 mr-2" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -359,7 +350,7 @@ export default function ApprovalActionsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -371,7 +362,7 @@ export default function ApprovalActionsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-orange-100 rounded-lg">
@@ -383,7 +374,7 @@ export default function ApprovalActionsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-red-100 rounded-lg">
@@ -413,7 +404,7 @@ export default function ApprovalActionsPage() {
                 />
               </div>
             </div>
-            
+
             <div className="flex gap-2">
               <select
                 value={statusFilter}
@@ -425,7 +416,7 @@ export default function ApprovalActionsPage() {
                 <option value="IN_REVIEW">In Review</option>
                 <option value="REQUIRES_CHANGES">Requires Changes</option>
               </select>
-              
+
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
@@ -437,15 +428,13 @@ export default function ApprovalActionsPage() {
                 <option value="MEDIUM">Medium</option>
                 <option value="LOW">Low</option>
               </select>
-              
+
               <select
                 value={assigneeFilter}
                 onChange={(e) => setAssigneeFilter(e.target.value)}
                 className="min-w-[150px] px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">All Assignees</option>
-                <option value="John Doe">John Doe</option>
-                <option value="Jane Smith">Jane Smith</option>
                 <option value="unassigned">Unassigned</option>
               </select>
             </div>
@@ -500,164 +489,176 @@ export default function ApprovalActionsPage() {
 
       {/* Verification Requests */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <input
-                    type="checkbox"
-                    checked={selectedRequests.length === filteredRequests.length && filteredRequests.length > 0}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedRequests(filteredRequests.map(r => r.id));
-                      } else {
-                        setSelectedRequests([]);
-                      }
-                    }}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Request Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Restaurant Info
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status & Priority
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Progress
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRequests.map((request) => (
-                <motion.tr
-                  key={request.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="hover:bg-gray-50"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
+        {filteredRequests.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <DocumentTextIcon className="w-12 h-12 mb-3 text-gray-300" />
+            <p className="font-medium">No verification requests found</p>
+            <p className="text-sm mt-1">
+              {requests.length === 0
+                ? 'There are no pending verification requests.'
+                : 'Try adjusting your filters.'}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <input
                       type="checkbox"
-                      checked={selectedRequests.includes(request.id)}
+                      checked={selectedRequests.length === filteredRequests.length && filteredRequests.length > 0}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedRequests([...selectedRequests, request.id]);
+                          setSelectedRequests(filteredRequests.map(r => r.id));
                         } else {
-                          setSelectedRequests(selectedRequests.filter(id => id !== request.id));
+                          setSelectedRequests([]);
                         }
                       }}
                       className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{request.id}</div>
-                      <div className="text-sm text-gray-500">
-                        Submitted: {format(new Date(request.submittedAt), 'MMM dd, yyyy')}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Est. review: {request.estimatedReviewTime}h
-                      </div>
-                      {request.assignedTo && (
-                        <div className="text-xs text-blue-600 mt-1">
-                          Assigned to: {request.assignedTo}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Request Details
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Restaurant Info
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status &amp; Priority
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Progress
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredRequests.map((request) => (
+                  <motion.tr
+                    key={request.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedRequests.includes(request.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedRequests([...selectedRequests, request.id]);
+                          } else {
+                            setSelectedRequests(selectedRequests.filter(id => id !== request.id));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{request.id}</div>
+                        <div className="text-sm text-gray-500">
+                          Submitted: {format(new Date(request.submittedAt), 'MMM dd, yyyy')}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-lg bg-gray-300 flex items-center justify-center">
-                          <BuildingStorefrontIcon className="h-5 w-5 text-gray-500" />
+                        <div className="text-sm text-gray-500">
+                          Est. review: {request.estimatedReviewTime}h
+                        </div>
+                        {request.assignedTo && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            Assigned to: {request.assignedTo}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-lg bg-gray-300 flex items-center justify-center">
+                            <BuildingStorefrontIcon className="h-5 w-5 text-gray-500" />
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{request.restaurantName}</div>
+                          <div className="text-sm text-gray-500">{request.ownerName}</div>
+                          <div className="text-xs text-gray-500">{request.businessType}</div>
                         </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{request.restaurantName}</div>
-                        <div className="text-sm text-gray-500">{request.ownerName}</div>
-                        <div className="text-xs text-gray-500">{request.businessType}</div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-2">
+                        <Badge color={getStatusBadgeColor(request.status)}>
+                          {request.status.replace('_', ' ')}
+                        </Badge>
+                        <br />
+                        <Badge color={getPriorityBadgeColor(request.priority)}>
+                          {request.priority}
+                        </Badge>
                       </div>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="space-y-2">
-                      <Badge color={getStatusBadgeColor(request.status)}>
-                        {request.status.replace('_', ' ')}
-                      </Badge>
-                      <br />
-                      <Badge color={getPriorityBadgeColor(request.priority)} >
-                        {request.priority}
-                      </Badge>
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {request.completedDocuments}/{request.totalDocuments} documents
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                      <div
-                        className="bg-primary-600 h-2 rounded-full"
-                        style={{ width: `${getProgressPercentage(request.completedDocuments, request.totalDocuments)}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {getProgressPercentage(request.completedDocuments, request.totalDocuments)}% complete
-                    </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex flex-col space-y-2">
-                      <div className="flex space-x-1">
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {request.completedDocuments}/{request.totalDocuments} documents
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div
+                          className="bg-primary-600 h-2 rounded-full"
+                          style={{ width: `${getProgressPercentage(request.completedDocuments, request.totalDocuments)}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {getProgressPercentage(request.completedDocuments, request.totalDocuments)}% complete
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex space-x-1">
+                          <Button
+                            size="default"
+                            variant="default"
+                            onClick={() => handleSingleAction(request.id, 'approve')}
+                            className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
+                            disabled={request.status === 'APPROVED'}
+                          >
+                            <CheckCircleIcon className="w-3 h-3 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="default"
+                            variant="default"
+                            onClick={() => handleSingleAction(request.id, 'reject')}
+                            className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1"
+                            disabled={request.status === 'REJECTED'}
+                          >
+                            <XCircleIcon className="w-3 h-3 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
                         <Button
                           size="default"
-                          variant="default"
-                          onClick={() => handleSingleAction(request.id, 'approve')}
-                          className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
-                          disabled={request.status === 'APPROVED'}
+                          variant="outline"
+                          onClick={() => handleSingleAction(request.id, 'request_changes')}
+                          className="border-orange-600 text-orange-600 hover:bg-orange-50 text-xs"
+                          disabled={request.status === 'REQUIRES_CHANGES'}
                         >
-                          <CheckCircleIcon className="w-3 h-3 mr-1" />
-                          Approve
-                        </Button>
-                        <Button
-                          size="default"
-                          variant="default"
-                          onClick={() => handleSingleAction(request.id, 'reject')}
-                          className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1"
-                          disabled={request.status === 'REJECTED'}
-                        >
-                          <XCircleIcon className="w-3 h-3 mr-1" />
-                          Reject
+                          <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
+                          Request Changes
                         </Button>
                       </div>
-                      <Button
-                        size="default"
-                        variant="outline"
-                        onClick={() => handleSingleAction(request.id, 'request_changes')}
-                        className="border-orange-600 text-orange-600 hover:bg-orange-50 text-xs"
-                        disabled={request.status === 'REQUIRES_CHANGES'}
-                      >
-                        <ExclamationTriangleIcon className="w-3 h-3 mr-1" />
-                        Request Changes
-                      </Button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
 
       {/* Action Modal */}
@@ -667,7 +668,7 @@ export default function ApprovalActionsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               {currentAction.action.charAt(0).toUpperCase() + currentAction.action.slice(1).replace('_', ' ')} Request
             </h3>
-            
+
             <div className="space-y-4">
               {/* Reason Selection */}
               <div>
@@ -687,7 +688,7 @@ export default function ApprovalActionsPage() {
                   ))}
                   <option value="custom">Custom reason...</option>
                 </select>
-                
+
                 {actionReason === 'custom' && (
                   <Textarea
                     value={customReason}
@@ -715,7 +716,7 @@ export default function ApprovalActionsPage() {
                       Add
                     </Button>
                   </div>
-                  
+
                   {conditions.length > 0 && (
                     <div className="space-y-1">
                       {conditions.map((condition, index) => (
@@ -749,7 +750,7 @@ export default function ApprovalActionsPage() {
                     Create follow-up task
                   </label>
                 </div>
-                
+
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -764,20 +765,12 @@ export default function ApprovalActionsPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
               <Button
                 variant="outline"
-                onClick={() => {
-                  setShowActionModal(false);
-                  setCurrentAction(null);
-                  setActionReason('');
-                  setCustomReason('');
-                  setConditions([]);
-                  setNewCondition('');
-                  setFollowUpRequired(false);
-                  setNotifyOwner(true);
-                }}
+                onClick={resetModal}
+                disabled={submitting}
               >
                 Cancel
               </Button>
@@ -788,11 +781,11 @@ export default function ApprovalActionsPage() {
                   currentAction.action === 'reject' ? 'bg-red-600 hover:bg-red-700 text-white' :
                   'bg-orange-600 hover:bg-orange-700 text-white'
                 }
-                disabled={!actionReason || (actionReason === 'custom' && !customReason.trim())}
+                disabled={submitting || !actionReason || (actionReason === 'custom' && !customReason.trim())}
                 size="default"
                 variant="default"
               >
-                {currentAction.action.charAt(0).toUpperCase() + currentAction.action.slice(1).replace('_', ' ')}
+                {submitting ? 'Saving...' : currentAction.action.charAt(0).toUpperCase() + currentAction.action.slice(1).replace('_', ' ')}
               </Button>
             </div>
           </div>

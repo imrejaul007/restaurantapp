@@ -1,20 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
 import { Input } from '../../../../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
-import { 
+import { Select } from '../../../../components/ui/select';
+import {
   DocumentTextIcon,
   MagnifyingGlassIcon,
   EyeIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
-  FunnelIcon,
   PhotoIcon,
   CalendarIcon,
   UserIcon,
@@ -22,15 +21,18 @@ import {
   ArrowDownTrayIcon,
   FolderIcon,
   DocumentDuplicateIcon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { format, parseISO } from 'date-fns';
 import toast from 'react-hot-toast';
+import { apiClient } from '@/lib/api/client';
 
 interface Document {
   id: string;
   fileName: string;
   originalName: string;
-  type: 'GST' | 'FSSAI' | 'PAN' | 'BUSINESS_LICENSE' | 'IDENTITY_PROOF' | 'ADDRESS_PROOF';
+  type: 'GST' | 'FSSAI' | 'PAN' | 'BUSINESS_LICENSE' | 'IDENTITY_PROOF' | 'ADDRESS_PROOF' | string;
   restaurantId: string;
   restaurantName: string;
   ownerName: string;
@@ -52,127 +54,35 @@ interface Document {
   };
 }
 
-// Mock documents data
-const mockDocuments: Document[] = [
-  {
-    id: 'DOC-001',
-    fileName: 'gst-certificate-001.pdf',
-    originalName: 'GST Certificate - Spice Garden.pdf',
-    type: 'GST',
-    restaurantId: 'REST-001',
-    restaurantName: 'Spice Garden Restaurant',
-    ownerName: 'Arjun Patel',
-    fileUrl: '/documents/gst-certificate-001.pdf',
-    thumbnailUrl: '/thumbnails/gst-certificate-001.jpg',
-    fileSize: 2048576,
-    mimeType: 'application/pdf',
-    uploadedAt: '2024-01-20T09:15:00Z',
-    status: 'PENDING',
-    tags: ['verification', 'tax-document'],
-    metadata: {
-      expiryDate: '2025-12-31',
-      issueDate: '2024-01-01',
-      issuingAuthority: 'GST Department',
-      documentNumber: 'GST123456789',
-    },
-  },
-  {
-    id: 'DOC-002',
-    fileName: 'fssai-license-002.pdf',
-    originalName: 'FSSAI License - Pizza Palace.pdf',
-    type: 'FSSAI',
-    restaurantId: 'REST-002',
-    restaurantName: 'Pizza Palace',
-    ownerName: 'Marco Rossi',
-    fileUrl: '/documents/fssai-license-002.pdf',
-    thumbnailUrl: '/thumbnails/fssai-license-002.jpg',
-    fileSize: 1536000,
-    mimeType: 'application/pdf',
-    uploadedAt: '2024-01-19T14:30:00Z',
-    status: 'APPROVED',
-    verifiedBy: 'Admin (John Doe)',
-    verifiedAt: '2024-01-20T10:45:00Z',
-    tags: ['verification', 'food-safety'],
-    metadata: {
-      expiryDate: '2026-03-15',
-      issueDate: '2023-03-15',
-      issuingAuthority: 'FSSAI',
-      documentNumber: 'FSSAI987654321',
-    },
-  },
-  {
-    id: 'DOC-003',
-    fileName: 'pan-card-003.jpg',
-    originalName: 'PAN Card - Sarah Wilson.jpg',
-    type: 'PAN',
-    restaurantId: 'REST-003',
-    restaurantName: 'Burger Junction',
-    ownerName: 'Sarah Wilson',
-    fileUrl: '/documents/pan-card-003.jpg',
-    thumbnailUrl: '/thumbnails/pan-card-003.jpg',
-    fileSize: 1024000,
-    mimeType: 'image/jpeg',
-    uploadedAt: '2024-01-18T16:20:00Z',
-    status: 'REJECTED',
-    verifiedBy: 'Admin (Jane Smith)',
-    verifiedAt: '2024-01-19T11:30:00Z',
-    rejectionReason: 'Image quality is too poor to read details clearly. Please upload a clearer image.',
-    tags: ['verification', 'identity'],
-    metadata: {
-      issuingAuthority: 'Income Tax Department',
-      documentNumber: 'ABCDE1234F',
-    },
-  },
-  {
-    id: 'DOC-004',
-    fileName: 'business-license-004.pdf',
-    originalName: 'Business License - Sushi Zen.pdf',
-    type: 'BUSINESS_LICENSE',
-    restaurantId: 'REST-004',
-    restaurantName: 'Sushi Zen',
-    ownerName: 'Takeshi Yamamoto',
-    fileUrl: '/documents/business-license-004.pdf',
-    fileSize: 2560000,
-    mimeType: 'application/pdf',
-    uploadedAt: '2024-01-17T12:10:00Z',
-    status: 'REJECTED',
-    verifiedBy: 'Admin (Jane Smith)',
-    verifiedAt: '2024-01-18T15:20:00Z',
-    rejectionReason: 'License has expired. Please upload a valid current business license.',
-    tags: ['verification', 'business'],
-    metadata: {
-      expiryDate: '2023-12-31',
-      issueDate: '2020-01-01',
-      issuingAuthority: 'Municipal Corporation',
-      documentNumber: 'BL789012345',
-    },
-  },
-  {
-    id: 'DOC-005',
-    fileName: 'address-proof-005.pdf',
-    originalName: 'Electricity Bill - Spice Garden.pdf',
-    type: 'ADDRESS_PROOF',
-    restaurantId: 'REST-001',
-    restaurantName: 'Spice Garden Restaurant',
-    ownerName: 'Arjun Patel',
-    fileUrl: '/documents/address-proof-005.pdf',
-    fileSize: 1200000,
-    mimeType: 'application/pdf',
-    uploadedAt: '2024-01-16T08:45:00Z',
-    status: 'APPROVED',
-    verifiedBy: 'Admin (John Doe)',
-    verifiedAt: '2024-01-17T09:15:00Z',
-    tags: ['verification', 'address'],
-    metadata: {
-      issueDate: '2024-01-01',
-      issuingAuthority: 'State Electricity Board',
-    },
-  },
-];
+// Map a raw VendorApplication or document record to the Document shape
+function mapToDocument(item: any): Document {
+  return {
+    id: item.id,
+    fileName: item.fileName ?? item.documentUrl?.split('/').pop() ?? 'document',
+    originalName: item.originalName ?? item.fileName ?? item.businessName ?? item.id,
+    type: item.type ?? item.category ?? 'BUSINESS_LICENSE',
+    restaurantId: item.restaurantId ?? item.id,
+    restaurantName: item.restaurantName ?? item.businessName ?? 'Unknown',
+    ownerName: item.ownerName ?? item.contactName ?? 'Unknown',
+    fileUrl: item.fileUrl ?? item.documentUrl ?? '',
+    thumbnailUrl: item.thumbnailUrl,
+    fileSize: item.fileSize ?? 0,
+    mimeType: item.mimeType ?? (item.fileName?.endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'),
+    uploadedAt: item.uploadedAt ?? item.createdAt ?? new Date().toISOString(),
+    status: (item.status as Document['status']) ?? 'PENDING',
+    verifiedBy: item.verifiedBy,
+    verifiedAt: item.verifiedAt,
+    rejectionReason: item.rejectionReason,
+    tags: item.tags ?? [],
+    metadata: item.metadata ?? {},
+  };
+}
 
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState<Document[]>(mockDocuments);
-  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>(mockDocuments);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -182,10 +92,29 @@ export default function DocumentsPage() {
   const [documentsPerPage] = useState(12);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  const fetchDocuments = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(false);
+    try {
+      // Fetch pending verifications and treat each as a document record
+      const response = await apiClient.get<any>('/admin/verification?limit=100');
+      const raw = response?.data ?? response;
+      const items: any[] = Array.isArray(raw) ? raw : (raw?.data ?? []);
+      setDocuments(items.map(mapToDocument));
+    } catch {
+      setFetchError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
   useEffect(() => {
     let filtered = documents;
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(doc =>
         doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -196,21 +125,18 @@ export default function DocumentsPage() {
       );
     }
 
-    // Type filter
     if (typeFilter) {
       filtered = filtered.filter(doc => doc.type === typeFilter);
     }
 
-    // Status filter
     if (statusFilter) {
       filtered = filtered.filter(doc => doc.status === statusFilter);
     }
 
-    // Date filter
     if (dateFilter) {
       const now = new Date();
       const filterDate = new Date();
-      
+
       switch (dateFilter) {
         case 'today':
           filterDate.setHours(0, 0, 0, 0);
@@ -239,20 +165,26 @@ export default function DocumentsPage() {
 
   const handleDocumentAction = async (documentId: string, action: 'approve' | 'reject', reason?: string) => {
     try {
-      setDocuments(prev => prev.map(doc => 
-        doc.id === documentId 
-          ? { 
-              ...doc, 
-              status: action === 'approve' ? 'APPROVED' : 'REJECTED',
+      const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
+      await apiClient.patch(`/admin/verification/${documentId}`, {
+        status: newStatus,
+        ...(reason ? { reason } : {}),
+      });
+
+      setDocuments(prev => prev.map(doc =>
+        doc.id === documentId
+          ? {
+              ...doc,
+              status: newStatus,
               rejectionReason: reason,
-              verifiedBy: 'Admin (Current User)',
+              verifiedBy: 'Admin',
               verifiedAt: new Date().toISOString(),
             }
           : doc
       ));
-      
+
       toast.success(`Document ${action}d successfully`);
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} document`);
     }
   };
@@ -263,26 +195,34 @@ export default function DocumentsPage() {
       return;
     }
 
-    try {
-      if (action === 'download') {
-        toast.success(`Downloading ${selectedDocuments.length} documents...`);
-      } else {
-        setDocuments(prev => prev.map(doc => 
-          selectedDocuments.includes(doc.id) 
-            ? { 
-                ...doc, 
-                status: action === 'approve' ? 'APPROVED' : 'REJECTED',
-                verifiedBy: 'Admin (Current User)',
-                verifiedAt: new Date().toISOString(),
-              }
-            : doc
-        ));
-        
-        toast.success(`${selectedDocuments.length} documents ${action}d successfully`);
-      }
-      
+    if (action === 'download') {
+      toast.success(`Downloading ${selectedDocuments.length} documents...`);
       setSelectedDocuments([]);
-    } catch (error) {
+      return;
+    }
+
+    try {
+      const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED';
+      await Promise.all(
+        selectedDocuments.map(id =>
+          apiClient.patch(`/admin/verification/${id}`, { status: newStatus })
+        )
+      );
+
+      setDocuments(prev => prev.map(doc =>
+        selectedDocuments.includes(doc.id)
+          ? {
+              ...doc,
+              status: newStatus,
+              verifiedBy: 'Admin',
+              verifiedAt: new Date().toISOString(),
+            }
+          : doc
+      ));
+
+      toast.success(`${selectedDocuments.length} documents ${action}d successfully`);
+      setSelectedDocuments([]);
+    } catch {
       toast.error(`Failed to ${action} documents`);
     }
   };
@@ -321,6 +261,27 @@ export default function DocumentsPage() {
     rejected: documents.filter(d => d.status === 'REJECTED').length,
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-64 space-y-4">
+        <ExclamationTriangleIcon className="w-12 h-12 text-red-400" />
+        <p className="text-gray-700 font-medium">Failed to load documents</p>
+        <Button onClick={fetchDocuments} variant="outline" size="default">
+          <ArrowPathIcon className="w-4 h-4 mr-2" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -336,13 +297,12 @@ export default function DocumentsPage() {
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
           <Button
             variant="outline"
-            
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
           >
             <FolderIcon className="w-4 h-4 mr-2" />
             {viewMode === 'grid' ? 'List View' : 'Grid View'}
           </Button>
-          <Button variant="outline" >
+          <Button variant="outline">
             <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -362,7 +322,7 @@ export default function DocumentsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-yellow-100 rounded-lg">
@@ -374,7 +334,7 @@ export default function DocumentsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-green-100 rounded-lg">
@@ -386,7 +346,7 @@ export default function DocumentsPage() {
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-red-100 rounded-lg">
@@ -416,11 +376,12 @@ export default function DocumentsPage() {
                 />
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <Select
+              <select
                 value={typeFilter}
-                onValueChange={(value) => setTypeFilter(value)}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="min-w-[160px] px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">All Types</option>
                 <option value="GST">GST Certificate</option>
@@ -429,27 +390,29 @@ export default function DocumentsPage() {
                 <option value="BUSINESS_LICENSE">Business License</option>
                 <option value="IDENTITY_PROOF">Identity Proof</option>
                 <option value="ADDRESS_PROOF">Address Proof</option>
-              </Select>
-              
-              <Select
+              </select>
+
+              <select
                 value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value)}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="min-w-[130px] px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">All Status</option>
                 <option value="PENDING">Pending</option>
                 <option value="APPROVED">Approved</option>
                 <option value="REJECTED">Rejected</option>
-              </Select>
-              
-              <Select
+              </select>
+
+              <select
                 value={dateFilter}
-                onValueChange={(value) => setDateFilter(value)}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="min-w-[130px] px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="">All Dates</option>
                 <option value="today">Today</option>
                 <option value="week">Past Week</option>
                 <option value="month">Past Month</option>
-              </Select>
+              </select>
             </div>
           </div>
 
@@ -461,28 +424,24 @@ export default function DocumentsPage() {
               </span>
               <div className="flex space-x-2">
                 <Button
-                  
                   onClick={() => handleBulkAction('approve')}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Approve All
                 </Button>
                 <Button
-                  
                   onClick={() => handleBulkAction('reject')}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
                   Reject All
                 </Button>
                 <Button
-                  
                   variant="outline"
                   onClick={() => handleBulkAction('download')}
                 >
                   Download All
                 </Button>
                 <Button
-                  
                   variant="outline"
                   onClick={() => setSelectedDocuments([])}
                 >
@@ -496,7 +455,19 @@ export default function DocumentsPage() {
 
       {/* Documents */}
       <Card>
-        {viewMode === 'grid' ? (
+        {documents.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <DocumentTextIcon className="w-12 h-12 mb-3 text-gray-300" />
+            <p className="font-medium">No documents pending review</p>
+            <p className="text-sm mt-1">All verification documents have been processed.</p>
+          </div>
+        ) : currentDocuments.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <DocumentTextIcon className="w-12 h-12 mb-3 text-gray-300" />
+            <p className="font-medium">No documents match your filters</p>
+            <p className="text-sm mt-1">Try adjusting your search or filter criteria.</p>
+          </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
             {currentDocuments.map((document) => {
               const IconComponent = getDocumentIcon(document.mimeType);
@@ -520,11 +491,11 @@ export default function DocumentsPage() {
                       }}
                       className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
-                    <Badge color={getStatusBadgeColor(document.status)} >
+                    <Badge color={getStatusBadgeColor(document.status)}>
                       {document.status}
                     </Badge>
                   </div>
-                  
+
                   <div className="text-center mb-4">
                     <div className="w-16 h-16 mx-auto mb-2 bg-gray-100 rounded-lg flex items-center justify-center">
                       <IconComponent className="w-8 h-8 text-gray-500" />
@@ -532,7 +503,7 @@ export default function DocumentsPage() {
                     <h4 className="font-medium text-gray-900 text-sm truncate">{document.type}</h4>
                     <p className="text-xs text-gray-600 truncate">{document.originalName}</p>
                   </div>
-                  
+
                   <div className="space-y-2 text-xs text-gray-600">
                     <div className="flex items-center">
                       <BuildingStorefrontIcon className="w-4 h-4 mr-1" />
@@ -546,29 +517,29 @@ export default function DocumentsPage() {
                       <CalendarIcon className="w-4 h-4 mr-1" />
                       <span>{format(parseISO(document.uploadedAt), 'MMM dd, yyyy')}</span>
                     </div>
-                    <div className="flex items-center">
-                      <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
-                      <span>{formatFileSize(document.fileSize)}</span>
-                    </div>
+                    {document.fileSize > 0 && (
+                      <div className="flex items-center">
+                        <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
+                        <span>{formatFileSize(document.fileSize)}</span>
+                      </div>
+                    )}
                   </div>
-                  
+
                   <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
-                    <Button variant="outline" >
+                    <Button variant="outline">
                       <EyeIcon className="w-3 h-3 mr-1" />
                       View
                     </Button>
-                    
+
                     {document.status === 'PENDING' && (
                       <div className="flex space-x-1">
                         <Button
-                          
                           onClick={() => handleDocumentAction(document.id, 'approve')}
                           className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1"
                         >
                           <CheckCircleIcon className="w-3 h-3" />
                         </Button>
                         <Button
-                          
                           onClick={() => handleDocumentAction(document.id, 'reject', 'Rejected by admin')}
                           className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1"
                         >
@@ -577,7 +548,7 @@ export default function DocumentsPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   {document.status === 'REJECTED' && document.rejectionReason && (
                     <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
                       {document.rejectionReason}
@@ -595,7 +566,7 @@ export default function DocumentsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <input
                       type="checkbox"
-                      checked={selectedDocuments.length === currentDocuments.length}
+                      checked={selectedDocuments.length === currentDocuments.length && currentDocuments.length > 0}
                       onChange={(e) => {
                         if (e.target.checked) {
                           setSelectedDocuments(currentDocuments.map(d => d.id));
@@ -642,7 +613,7 @@ export default function DocumentsPage() {
                           className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                         />
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -653,16 +624,18 @@ export default function DocumentsPage() {
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{document.type}</div>
                             <div className="text-sm text-gray-500 truncate max-w-xs">{document.originalName}</div>
-                            <div className="text-xs text-gray-400">{formatFileSize(document.fileSize)}</div>
+                            {document.fileSize > 0 && (
+                              <div className="text-xs text-gray-400">{formatFileSize(document.fileSize)}</div>
+                            )}
                           </div>
                         </div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{document.restaurantName}</div>
                         <div className="text-sm text-gray-500">{document.ownerName}</div>
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Badge color={getStatusBadgeColor(document.status)}>
                           {document.status}
@@ -673,26 +646,25 @@ export default function DocumentsPage() {
                           </div>
                         )}
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {format(parseISO(document.uploadedAt), 'MMM dd, yyyy HH:mm')}
                       </td>
-                      
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <Button variant="outline" >
+                          <Button variant="outline">
                             <EyeIcon className="w-4 h-4 mr-1" />
                             View
                           </Button>
-                          <Button variant="outline" >
+                          <Button variant="outline">
                             <ArrowDownTrayIcon className="w-4 h-4 mr-1" />
                             Download
                           </Button>
-                          
+
                           {document.status === 'PENDING' && (
                             <div className="flex space-x-1">
                               <Button
-                                
                                 onClick={() => handleDocumentAction(document.id, 'approve')}
                                 className="bg-green-600 hover:bg-green-700 text-white"
                               >
@@ -700,7 +672,6 @@ export default function DocumentsPage() {
                                 Approve
                               </Button>
                               <Button
-                                
                                 onClick={() => handleDocumentAction(document.id, 'reject', 'Rejected by admin')}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                               >
@@ -718,7 +689,7 @@ export default function DocumentsPage() {
             </table>
           </div>
         )}
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="px-6 py-3 border-t border-gray-200">
@@ -729,7 +700,6 @@ export default function DocumentsPage() {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
@@ -737,7 +707,6 @@ export default function DocumentsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
