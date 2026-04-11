@@ -84,7 +84,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
     }
 
     // Create Socket.IO connection to KDS namespace
-    const socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/kds`, {
+    const socket = io(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/kds`, {
       auth: {
         token,
       },
@@ -259,7 +259,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
 
         // Call backend API to persist status change
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/merchant/orders/${orderId}/items/${itemId}/status`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/merchant/orders/${orderId}/items/${itemId}/status`,
           {
             method: 'PUT',
             headers: {
@@ -333,7 +333,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
 
         // Call backend API to persist status change
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/merchant/orders/${orderId}/status`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/merchant/orders/${orderId}/status`,
           {
             method: 'PUT',
             headers: {

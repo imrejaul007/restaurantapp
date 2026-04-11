@@ -1,100 +1,57 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
-import { Badge } from '../../../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
 import {
   ChartBarIcon,
   CurrencyDollarIcon,
   ShoppingBagIcon,
-  BuildingStorefrontIcon,
   UserGroupIcon,
-  CalendarIcon,
-  FunnelIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  MapPinIcon,
-  ChartPieIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
-// Mock drill-down data
-const drillDownData = {
-  revenue: {
-    total: 15420000,
-    growth: 12.5,
-    breakdown: {
-      'Mumbai': { value: 5420000, growth: 15.2, restaurants: 45 },
-      'Delhi': { value: 3890000, growth: 8.7, restaurants: 32 },
-      'Bangalore': { value: 2980000, growth: 22.1, restaurants: 28 },
-      'Chennai': { value: 1890000, growth: -3.4, restaurants: 18 },
-      'Kolkata': { value: 1240000, growth: 18.9, restaurants: 15 },
-    }
-  },
-  orders: {
-    total: 125890,
-    growth: 18.2,
-    breakdown: {
-      'Dine-in': { value: 45230, percentage: 35.9, growth: 12.4 },
-      'Takeaway': { value: 38940, percentage: 30.9, growth: 22.1 },
-      'Delivery': { value: 41720, percentage: 33.2, growth: 20.8 },
-    }
-  },
-  restaurants: {
-    total: 138,
-    active: 125,
-    pending: 8,
-    suspended: 5,
-    byCategory: {
-      'Fine Dining': 34,
-      'Casual Dining': 58,
-      'Quick Service': 32,
-      'Cafe': 14,
-    }
-  },
-  topPerformers: [
-    { name: 'Pizza Palace', revenue: 890000, orders: 2340, growth: 28.5 },
-    { name: 'Spice Garden', revenue: 720000, orders: 1890, growth: 22.1 },
-    { name: 'Urban Cafe', revenue: 650000, orders: 2120, growth: 19.8 },
-    { name: 'Dragon Palace', revenue: 580000, orders: 1650, growth: 15.2 },
-    { name: 'Fresh Bites', revenue: 520000, orders: 1780, growth: 12.9 },
-  ]
-};
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('accessToken');
+}
 
 export default function DrillDownReportsPage() {
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
+  const [selectedMetric, setSelectedMetric] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [totalUsers, setTotalUsers] = useState<number | null>(null);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    const fetchUserMetrics = async () => {
+      setLoadingUsers(true);
+      try {
+        const token = getAuthToken();
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(`${API_BASE}/admin/users`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          const count = data.total ?? data.count ?? (Array.isArray(data) ? data.length : (Array.isArray(data?.users) ? data.users.length : null));
+          setTotalUsers(count);
+        }
+      } catch {
+        // silently handle
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUserMetrics();
+  }, []);
 
   const handleExport = (format: 'pdf' | 'excel' | 'csv') => {
     toast.success(`Exporting drill-down report as ${format.toUpperCase()}...`);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatGrowth = (growth: number) => {
-    const isPositive = growth >= 0;
-    return (
-      <span className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-        {isPositive ? (
-          <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
-        ) : (
-          <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
-        )}
-        {Math.abs(growth).toFixed(1)}%
-      </span>
-    );
   };
 
   return (
@@ -197,47 +154,51 @@ export default function DrillDownReportsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(drillDownData.revenue.total)}</p>
-              <div className="mt-1">{formatGrowth(drillDownData.revenue.growth)}</div>
+              <p className="text-2xl font-bold text-gray-900">—</p>
+              <p className="text-sm text-gray-500 mt-1">Select a report to drill down</p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
               <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{drillDownData.orders.total.toLocaleString()}</p>
-              <div className="mt-1">{formatGrowth(drillDownData.orders.growth)}</div>
+              <p className="text-2xl font-bold text-gray-900">—</p>
+              <p className="text-sm text-gray-500 mt-1">Select a report to drill down</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <ShoppingBagIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Restaurants</p>
-              <p className="text-2xl font-bold text-gray-900">{drillDownData.restaurants.active}</p>
-              <p className="text-sm text-gray-500">of {drillDownData.restaurants.total} total</p>
+              <p className="text-sm font-medium text-gray-600">Total Users</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loadingUsers ? '...' : totalUsers !== null ? totalUsers.toLocaleString() : '—'}
+              </p>
+              {!loadingUsers && totalUsers === null && (
+                <p className="text-sm text-gray-500 mt-1">No data available</p>
+              )}
             </div>
             <div className="p-3 bg-purple-100 rounded-lg">
-              <BuildingStorefrontIcon className="w-6 h-6 text-purple-600" />
+              <UserGroupIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </Card>
-        
+
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg Order Value</p>
-              <p className="text-2xl font-bold text-gray-900">₹{Math.round(drillDownData.revenue.total / drillDownData.orders.total)}</p>
-              <div className="mt-1">{formatGrowth(-2.1)}</div>
+              <p className="text-2xl font-bold text-gray-900">—</p>
+              <p className="text-sm text-gray-500 mt-1">Select a report to drill down</p>
             </div>
             <div className="p-3 bg-orange-100 rounded-lg">
               <ChartBarIcon className="w-6 h-6 text-orange-600" />
@@ -246,227 +207,22 @@ export default function DrillDownReportsPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue by Region */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <MapPinIcon className="w-5 h-5 mr-2" />
-            Revenue by Region
-          </h3>
-          
-          <div className="space-y-4">
-            {Object.entries(drillDownData.revenue.breakdown).map(([region, data]) => (
-              <div key={region} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-medium text-gray-900">{region}</div>
-                  <div className="text-sm text-gray-500">{data.restaurants} restaurants</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-gray-900">{formatCurrency(data.value)}</div>
-                  <div>{formatGrowth(data.growth)}</div>
-                </div>
-              </div>
-            ))}
+      {/* Empty state — select a report to drill down */}
+      {!selectedMetric ? (
+        <Card className="p-12">
+          <div className="flex flex-col items-center justify-center text-center text-gray-500 space-y-3">
+            <ChartBarIcon className="w-12 h-12 text-gray-300" />
+            <p className="text-lg font-medium text-gray-600">Select a report to drill down</p>
+            <p className="text-sm">Use the Metric filter above to choose what to analyse.</p>
           </div>
         </Card>
-
-        {/* Orders by Type */}
+      ) : (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <ChartPieIcon className="w-5 h-5 mr-2" />
-            Orders by Type
-          </h3>
-          
-          <div className="space-y-4">
-            {Object.entries(drillDownData.orders.breakdown).map(([type, data]) => (
-              <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-medium text-gray-900">{type}</div>
-                  <div className="text-sm text-gray-500">{data.percentage}% of total</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-gray-900">{data.value.toLocaleString()}</div>
-                  <div>{formatGrowth(data.growth)}</div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-center h-48 text-gray-500 text-sm">
+            Analytics data loading...
           </div>
         </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performers */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <ArrowTrendingUpIcon className="w-5 h-5 mr-2" />
-            Top Performing Restaurants
-          </h3>
-          
-          <div className="space-y-3">
-            {drillDownData.topPerformers.map((restaurant, index) => (
-              <div key={restaurant.name} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-primary-600 font-semibold text-sm">#{index + 1}</span>
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{restaurant.name}</div>
-                    <div className="text-sm text-gray-500">{restaurant.orders.toLocaleString()} orders</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold text-gray-900">{formatCurrency(restaurant.revenue)}</div>
-                  <div>{formatGrowth(restaurant.growth)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Restaurant Categories */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <BuildingStorefrontIcon className="w-5 h-5 mr-2" />
-            Restaurant Categories
-          </h3>
-          
-          <div className="space-y-4">
-            {Object.entries(drillDownData.restaurants.byCategory).map(([category, count]) => {
-              const percentage = (count / drillDownData.restaurants.total) * 100;
-              return (
-                <div key={category} className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">{category}</span>
-                    <span className="text-sm text-gray-500">{count} ({percentage.toFixed(1)}%)</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-primary-600 h-2 rounded-full"
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
-
-      {/* Detailed Metrics Table */}
-      <Card>
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Detailed Metrics</h3>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Metric
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Current Period
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Previous Period
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Growth
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Target
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Total Revenue
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(15420000)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatCurrency(13700000)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {formatGrowth(12.5)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatCurrency(16000000)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge color="yellow">96% of target</Badge>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Total Orders
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  125,890
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  106,542
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {formatGrowth(18.2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  120,000
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge color="green">105% of target</Badge>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Active Restaurants
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  125
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  118
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {formatGrowth(5.9)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  130
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge color="yellow">96% of target</Badge>
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Customer Retention
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  78.5%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  75.2%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {formatGrowth(4.4)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  80%
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge color="yellow">98% of target</Badge>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      )}
     </motion.div>
   );
 }

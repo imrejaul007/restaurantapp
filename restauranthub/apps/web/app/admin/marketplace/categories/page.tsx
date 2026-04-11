@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api/client';
 
 interface Category {
   id: string;
@@ -38,73 +39,32 @@ interface Category {
   color?: string;
 }
 
-// Mock data - in real app this would come from API
-const initialCategories: Category[] = [
-  {
-    id: '1',
-    name: 'Utilities',
-    description: 'Gas, water, electricity and other utility services',
-    type: 'vendor',
-    isActive: true,
-    productCount: 0,
-    vendorCount: 15,
-    createdAt: '2024-01-15',
-    icon: '⚡',
-    color: 'blue'
-  },
-  {
-    id: '2',
-    name: 'Food Supplies',
-    description: 'Fresh ingredients, packaged foods, and supplies',
-    type: 'product',
-    isActive: true,
-    productCount: 1250,
-    vendorCount: 45,
-    createdAt: '2024-01-10',
-    icon: '🥬',
-    color: 'green'
-  },
-  {
-    id: '3',
-    name: 'Kitchen Equipment',
-    description: 'Commercial kitchen equipment and tools',
-    type: 'product',
-    isActive: true,
-    productCount: 890,
-    vendorCount: 25,
-    createdAt: '2024-01-08',
-    icon: '🔧',
-    color: 'orange'
-  },
-  {
-    id: '4',
-    name: 'Marketing Services',
-    description: 'Digital marketing, advertising, and promotional services',
-    type: 'service',
-    isActive: true,
-    productCount: 0,
-    vendorCount: 8,
-    createdAt: '2024-01-05',
-    icon: '📢',
-    color: 'purple'
-  },
-  {
-    id: '5',
-    name: 'Cleaning Supplies',
-    description: 'Sanitizers, cleaning equipment, and maintenance supplies',
-    type: 'product',
-    isActive: false,
-    productCount: 320,
-    vendorCount: 12,
-    createdAt: '2024-01-03',
-    icon: '🧽',
-    color: 'cyan'
-  }
-];
-
 export default function CategoryManagementPage() {
   const { toast } = useToast();
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const response = await apiClient.get('/marketplace/categories');
+        const data = response.data;
+        const list: Category[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.categories)
+          ? data.categories
+          : [];
+        setCategories(list);
+      } catch {
+        // silently handle — show empty state
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<'all' | 'vendor' | 'product' | 'service'>('all');
   const [showForm, setShowForm] = useState(false);
@@ -323,8 +283,17 @@ export default function CategoryManagementPage() {
       </Card>
 
       {/* Categories Grid */}
+      {loadingCategories ? (
+        <div className="flex items-center justify-center py-16 text-gray-500 text-sm">
+          Loading categories...
+        </div>
+      ) : filteredCategories.length === 0 ? (
+        <div className="flex items-center justify-center py-16 text-gray-500 text-sm">
+          {searchTerm || selectedType !== 'all' ? 'No categories match your filters.' : 'No categories found.'}
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCategories.map((category) => {
+        {!loadingCategories && filteredCategories.map((category) => {
           const TypeIcon = getTypeIcon(category.type);
           
           return (
