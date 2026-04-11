@@ -15,7 +15,8 @@ import {
   AlertCircle,
   CheckCircle,
   Settings,
-  Edit3
+  Edit3,
+  Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,7 @@ import { VerificationBadge, VerificationStatus } from '@/components/verification
 import { DocumentUpload } from '@/components/verification/document-upload';
 import { AadhaarVerification } from '@/components/verification/aadhaar-verification';
 import { verificationService } from '@/lib/api/verification';
+import { apiClient } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 
 interface EmployeeProfile {
@@ -53,53 +55,82 @@ interface EmployeeProfile {
   };
 }
 
-// Mock data - in real app this would come from API
-const mockProfile: EmployeeProfile = {
-  id: 'emp_123',
-  employeeCode: 'EMP001',
-  designation: 'Senior Chef',
-  department: 'Kitchen',
-  joiningDate: '2023-01-15',
-  isActive: true,
-  user: {
-    id: 'user_123',
-    email: 'john.doe@email.com',
-    profile: {
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '+91 98765 43210',
-      dateOfBirth: '1990-05-15',
-      address: 'Mumbai, Maharashtra'
-    }
-  },
-  restaurant: {
-    id: 'rest_123',
-    name: 'The Grand Restaurant',
-    location: 'Mumbai, India'
-  }
-};
+// Maps a raw /users/profile response to the page's EmployeeProfile shape.
+// The API returns: { id, email, role, profile: { firstName, lastName, ... }, employee: { ... } }
+function mapApiResponseToProfile(raw: any): EmployeeProfile | null {
+  if (!raw) return null;
+
+  const apiProfile = raw.profile ?? {};
+  const employee = raw.employee ?? {};
+  const restaurant = employee.restaurant ?? {};
+
+  return {
+    id: employee.id ?? raw.id ?? '',
+    employeeCode: employee.employeeCode ?? '',
+    designation: employee.designation ?? '',
+    department: employee.department ?? undefined,
+    joiningDate: employee.joiningDate ?? employee.createdAt ?? new Date().toISOString(),
+    isActive: employee.isActive ?? raw.isActive ?? true,
+    user: {
+      id: raw.id ?? '',
+      email: raw.email ?? '',
+      profile: apiProfile.firstName
+        ? {
+            firstName: apiProfile.firstName,
+            lastName: apiProfile.lastName ?? '',
+            phone: raw.phone ?? apiProfile.phone ?? undefined,
+            avatar: apiProfile.avatar ?? undefined,
+            dateOfBirth: apiProfile.dateOfBirth ?? undefined,
+            address: [apiProfile.address, apiProfile.city, apiProfile.state]
+              .filter(Boolean)
+              .join(', ') || undefined,
+          }
+        : undefined,
+    },
+    restaurant: {
+      id: restaurant.id ?? '',
+      name: restaurant.name ?? '',
+      location: [restaurant.city, restaurant.state].filter(Boolean).join(', ') || '',
+    },
+  };
+}
 
 export default function EmployeeProfilePage() {
-  const [profile] = useState<EmployeeProfile>(mockProfile);
+  const [profile, setProfile] = useState<EmployeeProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [verificationStatus, setVerificationStatus] = useState<any>(null);
   const [aadhaarStatus, setAadhaarStatus] = useState<any>(null);
   const [documents, setDocuments] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    loadVerificationData();
+    loadProfile();
   }, []);
 
-  const loadVerificationData = async () => {
+  const loadProfile = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
+      const res = await apiClient.get<any>('/users/profile');
+      const mapped = mapApiResponseToProfile(res?.data ?? res);
+      setProfile(mapped);
 
-      // Load verification status, Aadhaar status, and documents
+      if (mapped?.id) {
+        await loadVerificationData(mapped.id);
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadVerificationData = async (employeeId: string) => {
+    try {
       const [verStatus, aadhaarStat, docs] = await Promise.all([
-        verificationService.getEmployeeVerificationStatus(profile.id),
+        verificationService.getEmployeeVerificationStatus(employeeId),
         verificationService.getAadhaarVerificationStatus(),
-        verificationService.getEmployeeDocuments(profile.id)
+        verificationService.getEmployeeDocuments(employeeId),
       ]);
 
       setVerificationStatus(verStatus);
@@ -107,28 +138,21 @@ export default function EmployeeProfilePage() {
       setDocuments(docs);
     } catch (error) {
       console.error('Failed to load verification data:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleDocumentUpload = async (file: File, documentType: string) => {
+    if (!profile) return;
     try {
       setIsUploading(true);
-
-      // Upload file and get URL
       const fileUrl = await verificationService.uploadFile(file, documentType);
-
-      // Create document record
       await verificationService.uploadDocument({
         type: documentType,
         name: file.name,
         url: fileUrl,
-        employeeId: profile.id
+        employeeId: profile.id,
       });
-
-      // Reload data
-      await loadVerificationData();
+      await loadVerificationData(profile.id);
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -137,18 +161,20 @@ export default function EmployeeProfilePage() {
   };
 
   const handleDeleteDocument = async (documentId: string) => {
+    if (!profile) return;
     try {
       await verificationService.deleteDocument(documentId);
-      await loadVerificationData();
+      await loadVerificationData(profile.id);
     } catch (error) {
       console.error('Delete failed:', error);
     }
   };
 
   const handleAadhaarVerification = async (data: any) => {
+    if (!profile) return;
     try {
       await verificationService.initiateAadhaarVerification(data);
-      await loadVerificationData();
+      await loadVerificationData(profile.id);
     } catch (error) {
       console.error('Aadhaar verification failed:', error);
     }
@@ -199,8 +225,7 @@ export default function EmployeeProfilePage() {
                       <li key={docType}>
                         {docType.charAt(0).toUpperCase() + docType.slice(1).replace('_', ' ')} document
                       </li>
-                    ))
-                  }
+                    ))}
                 </ul>
               </div>
             </div>
@@ -210,7 +235,7 @@ export default function EmployeeProfilePage() {
     );
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto p-6">
@@ -220,6 +245,26 @@ export default function EmployeeProfilePage() {
               <div className="h-96 bg-muted rounded-lg"></div>
               <div className="lg:col-span-2 h-96 bg-muted rounded-lg"></div>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <User className="h-16 w-16 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">Complete your profile</h2>
+            <p className="text-muted-foreground mb-6">
+              No profile data found. Add your details to get started.
+            </p>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Profile Details
+            </Button>
           </div>
         </div>
       </div>
@@ -258,12 +303,18 @@ export default function EmployeeProfilePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">
-                      {profile.user.profile?.firstName} {profile.user.profile?.lastName}
+                      {profile.user.profile
+                        ? `${profile.user.profile.firstName} ${profile.user.profile.lastName}`.trim()
+                        : profile.user.email}
                     </h3>
-                    <p className="text-sm text-muted-foreground">{profile.designation}</p>
-                    <Badge variant="secondary" className="mt-2">
-                      {profile.employeeCode}
-                    </Badge>
+                    {profile.designation ? (
+                      <p className="text-sm text-muted-foreground">{profile.designation}</p>
+                    ) : null}
+                    {profile.employeeCode ? (
+                      <Badge variant="secondary" className="mt-2">
+                        {profile.employeeCode}
+                      </Badge>
+                    ) : null}
                   </div>
                 </div>
               </CardHeader>
@@ -278,20 +329,26 @@ export default function EmployeeProfilePage() {
                     <span className="text-sm">{profile.user.profile.phone}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profile.restaurant.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profile.restaurant.location}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    Joined {new Date(profile.joiningDate).toLocaleDateString()}
-                  </span>
-                </div>
+                {profile.restaurant.name && (
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{profile.restaurant.name}</span>
+                  </div>
+                )}
+                {profile.restaurant.location && (
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{profile.restaurant.location}</span>
+                  </div>
+                )}
+                {profile.joiningDate && (
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      Joined {new Date(profile.joiningDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
