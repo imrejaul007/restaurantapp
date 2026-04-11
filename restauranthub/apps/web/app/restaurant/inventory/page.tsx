@@ -96,7 +96,7 @@ export default function InventoryManagement() {
       const items: InventoryItem[] = (batches ?? []).map((batch: any) => {
         const currentStock = batch.quantity ?? 0;
         const minStock = batch.product?.minStock ?? 0;
-        const maxStock = batch.product?.maxStock ?? currentStock * 2 || 100;
+        const maxStock = batch.product?.maxStock ?? (currentStock * 2 || 100);
         const itemForStatus = { currentStock, minStock };
         return {
           id: batch.id,

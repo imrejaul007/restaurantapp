@@ -33,7 +33,7 @@ export const authApi = {
 
   async signUp(data: SignUpRequest): Promise<LoginResponse> {
     const response = await apiClient.post<LoginResponse>('/auth/signup', data);
-    return response.data;
+    return (response as any).data || response;
   },
 
   async logout(): Promise<void> {

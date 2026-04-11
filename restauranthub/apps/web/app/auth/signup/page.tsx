@@ -31,6 +31,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { authApi } from '@/lib/api/auth';
 
 interface SignupFormData {
   // Common fields
@@ -239,17 +240,24 @@ export default function SignupPage() {
         }),
       };
       
-      // Make direct API call for signup
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(signupData)
-      });
+      const result = await authApi.signUp(signupData as any);
 
-      if (!response.ok) {
-        throw new Error('Signup failed');
+      // Store tokens and redirect to dashboard
+      if (result?.accessToken) {
+        localStorage.setItem('accessToken', result.accessToken);
+        if (result.refreshToken) {
+          localStorage.setItem('refreshToken', result.refreshToken);
+        }
       }
-      
+
+      const dashboardPaths: Record<string, string> = {
+        restaurant: '/restaurant/dashboard',
+        vendor: '/vendor/dashboard',
+        employee: '/employee/dashboard',
+        customer: '/dashboard',
+      };
+      router.push(dashboardPaths[formData.role] || '/dashboard');
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Signup failed. Please try again.';
       setError(errorMessage);
