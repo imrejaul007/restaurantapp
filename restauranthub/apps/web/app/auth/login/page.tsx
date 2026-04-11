@@ -7,25 +7,29 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
-  Loader2, 
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Loader2,
   User,
   Building2,
   Users,
   Package,
   ArrowRight,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { TwoFactorChallenge } from '@/components/auth/two-factor-challenge';
+
+const _rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE = _rawBase.includes('/api/v1') ? _rawBase : `${_rawBase.replace(/\/$/, '')}/api/v1`;
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -99,6 +103,10 @@ export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [needsTwoFactor, setNeedsTwoFactor] = useState(false);
   const [loginData, setLoginData] = useState<LoginForm | null>(null);
+  const [showRezModal, setShowRezModal] = useState(false);
+  const [rezToken, setRezToken] = useState('');
+  const [rezLoading, setRezLoading] = useState(false);
+  const [rezError, setRezError] = useState('');
   const { login, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -156,6 +164,31 @@ export default function LoginPage() {
     setNeedsTwoFactor(false);
     setLoginData(null);
     setLoginError('');
+  };
+
+  const handleRezLogin = async () => {
+    if (!rezToken.trim()) return;
+    setRezLoading(true);
+    setRezError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/rez-bridge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ rezToken: rezToken.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'REZ authentication failed');
+      if (data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+      }
+      setShowRezModal(false);
+      router.push('/restaurant/dashboard');
+    } catch (err: any) {
+      setRezError(err.message || 'Authentication failed');
+    } finally {
+      setRezLoading(false);
+    }
   };
 
   const fillDemoCredentials = (account: DemoAccount) => {
@@ -498,13 +531,52 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <a
-                href={`${process.env.NEXT_PUBLIC_REZ_MERCHANT_URL || 'https://merchant.rez.money'}/auth/sso?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/auth/rez-callback`}
+              <button
+                type="button"
+                onClick={() => { setShowRezModal(true); setRezError(''); setRezToken(''); }}
                 className="flex items-center justify-center space-x-2 w-full py-2.5 px-4 border border-orange-300 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/30 dark:border-orange-800 dark:hover:bg-orange-950/50 transition-colors text-sm font-medium text-orange-700 dark:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
               >
                 <span className="text-orange-500 font-bold text-base">₹</span>
                 <span>Sign in with REZ Merchant Account</span>
-              </a>
+              </button>
+
+              {/* REZ Token Modal */}
+              {showRezModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowRezModal(false)}>
+                  <div className="bg-background rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-semibold">Sign in with REZ</h2>
+                      <button onClick={() => setShowRezModal(false)} className="text-muted-foreground hover:text-foreground">
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Copy your JWT from the REZ Merchant app (Settings → Developer → API Token) and paste it below.
+                    </p>
+                    <textarea
+                      value={rezToken}
+                      onChange={e => setRezToken(e.target.value)}
+                      placeholder="Paste your REZ JWT token here…"
+                      rows={4}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                    {rezError && (
+                      <p className="text-sm text-destructive flex items-center space-x-1">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>{rezError}</span>
+                      </p>
+                    )}
+                    <Button
+                      onClick={handleRezLogin}
+                      disabled={rezLoading || !rezToken.trim()}
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      {rezLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      {rezLoading ? 'Verifying…' : 'Authenticate with REZ'}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Sign Up Link */}
               <nav className="text-center" role="navigation" aria-label="Account registration">
