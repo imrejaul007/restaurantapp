@@ -638,7 +638,7 @@ export default function SignupPage() {
                   <Checkbox
                     id="terms"
                     checked={formData.acceptTerms}
-                    onChange={(e) => setFormData(prev => ({ ...prev, acceptTerms: (e.target as HTMLInputElement).checked }))}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, acceptTerms: checked === true }))}
                   />
                   <label
                     htmlFor="terms"
