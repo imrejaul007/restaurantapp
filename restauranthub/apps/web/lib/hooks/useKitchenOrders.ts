@@ -259,7 +259,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
 
         // Call backend API to persist status change
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/merchant/orders/${orderId}/items/${itemId}/status`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/v1/orders/${orderId}/status`,
           {
             method: 'PUT',
             headers: {
@@ -333,7 +333,7 @@ export const useKitchenOrders = (merchantId?: string, storeId?: string) => {
 
         // Call backend API to persist status change
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/merchant/orders/${orderId}/status`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/v1/orders/${orderId}/status`,
           {
             method: 'PUT',
             headers: {
