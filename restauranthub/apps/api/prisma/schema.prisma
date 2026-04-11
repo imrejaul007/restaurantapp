@@ -162,6 +162,10 @@ model User {
   userSessions         UserSession[]
   blacklistedTokens    BlacklistedToken[]
 
+  // Saved jobs & support
+  savedJobs       SavedJob[]
+  supportTickets  SupportTicket[]
+
   @@index([email])
   @@index([phone])
   @@index([role])
@@ -427,6 +431,7 @@ model Job {
   // Relations
   restaurant   Restaurant       @relation(fields: [restaurantId], references: [id])
   applications JobApplication[]
+  savedBy      SavedJob[]
 
   @@index([restaurantId])
   @@index([status])
@@ -2772,4 +2777,27 @@ model QRSettings {
 
   @@index([restaurantId])
   @@index([templateId])
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, jobId])
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  userId      String
+  subject     String
+  description String
+  status      String   @default("open")
+  priority    String   @default("medium")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -25,22 +25,15 @@ import { ApplicationStatus, JobStatus } from '@prisma/client';
 export class JobsController {
   constructor(private jobsService: JobsService) {}
 
-  // Saved Jobs endpoints — DB migration pending, stubbed responses until SavedJob model exists
+  // Saved Jobs endpoints
   @Get('saved')
-  async getSavedJobs() {
-    return {
-      data: [],
-      message: 'Saved jobs require a DB migration — coming soon',
-    };
+  async getSavedJobs(@Request() req: any) {
+    return this.jobsService.getSavedJobs(req.user.sub);
   }
 
   @Post(':id/save')
-  async saveJob(@Param('id') id: string) {
-    return {
-      saved: false,
-      jobId: id,
-      message: 'Save/unsave toggle requires a DB migration — coming soon',
-    };
+  async saveJob(@Param('id') id: string, @Request() req: any) {
+    return this.jobsService.toggleSaveJob(req.user.sub, id);
   }
 
   // Job CRUD endpoints

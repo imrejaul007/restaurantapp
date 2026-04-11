@@ -621,6 +621,56 @@ export class JobsService {
     };
   }
 
+  // Saved Jobs methods
+  async getSavedJobs(userId: string) {
+    const savedJobs = await this.prisma.savedJob.findMany({
+      where: { userId },
+      include: {
+        job: {
+          include: {
+            restaurant: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            _count: {
+              select: { applications: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      data: savedJobs.map(s => s.job),
+      total: savedJobs.length,
+    };
+  }
+
+  async toggleSaveJob(userId: string, jobId: string) {
+    // Verify job exists
+    const job = await this.prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) {
+      throw new NotFoundException(`Job ${jobId} not found`);
+    }
+
+    const existing = await this.prisma.savedJob.findUnique({
+      where: { userId_jobId: { userId, jobId } },
+    });
+
+    if (existing) {
+      await this.prisma.savedJob.delete({
+        where: { userId_jobId: { userId, jobId } },
+      });
+      return { saved: false, jobId };
+    }
+
+    await this.prisma.savedJob.create({ data: { userId, jobId } });
+    return { saved: true, jobId };
+  }
+
   // File upload helper methods
   async uploadResume(file: Express.Multer.File): Promise<string> {
     const result = await this.fileStorageService.uploadResume(file);
