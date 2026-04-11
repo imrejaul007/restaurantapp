@@ -10,6 +10,7 @@ import * as express from 'express';
 import helmet from 'helmet';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { SecurityMiddleware } from './common/middleware/security.middleware';
 import { getHttpsConfig, securityHeaders } from './config/https.config';
 import { SecurityModule } from './common/modules/security.module';
@@ -61,6 +62,9 @@ async function bootstrap() {
   });
 
   const appConfigService = app.get(ConfigService);
+
+  // Enable Socket.IO WebSocket adapter
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // Trust proxy (for accurate IP addresses behind load balancers)
   const expressApp = app.getHttpAdapter().getInstance();

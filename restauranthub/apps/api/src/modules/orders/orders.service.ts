@@ -4,10 +4,14 @@ import {
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
+  Optional,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto, OrderQueryDto } from './dto/update-order.dto';
+import { KdsGateway } from '../kds/kds.gateway';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { createHmac } from 'crypto';
@@ -45,7 +49,10 @@ export class OrdersService {
   private readonly rezBackendUrl = process.env.REZ_BACKEND_URL || 'http://localhost:4000';
   private readonly webhookSecret = process.env.REZ_WEBHOOK_SECRET;
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    @Optional() @Inject(forwardRef(() => KdsGateway)) private readonly kdsGateway?: KdsGateway,
+  ) {
     if (!this.webhookSecret) {
       this.logger.warn('⚠️  REZ_WEBHOOK_SECRET is not configured. Webhook signatures will be skipped.');
     }
@@ -99,6 +106,27 @@ export class OrdersService {
       this.sendToRezBackend(order, createOrderDto).catch((err) =>
         this.logger.warn(`[${requestId}] REZ integration failed: ${err?.message}`),
       );
+
+      // Notify all KDS displays watching this restaurant
+      if (this.kdsGateway) {
+        this.kdsGateway.notifyNewOrder(createOrderDto.restaurantId, {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          orderType: 'delivery',
+          items: (order as any).items?.map((item: any) => ({
+            id: item.id,
+            name: item.productId, // product name not stored on OrderItem; KDS display can enrich
+            quantity: item.quantity,
+            price: item.price,
+            cookingTime: 15,
+            station: 'main',
+            allergens: [],
+            modifications: [],
+          })) ?? [],
+          specialInstructions: createOrderDto.specialInstructions ?? null,
+          storeId: createOrderDto.restaurantId,
+        });
+      }
 
       return {
         success: true,

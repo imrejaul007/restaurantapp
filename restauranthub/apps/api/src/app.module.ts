@@ -26,6 +26,7 @@ import { CommunityModule } from './modules/community/community.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { VendorProductsModule } from './modules/vendor-products/vendor-products.module';
 import { MessagesModule } from './modules/messages/messages.module';
+import { KdsModule } from './modules/kds/kds.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { MessagesModule } from './modules/messages/messages.module';
     ReviewsModule,
     VendorProductsModule,
     MessagesModule,
+    KdsModule,
   ],
   controllers: [AppController],
   providers: [KeepAliveService],
