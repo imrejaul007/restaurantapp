@@ -1,6 +1,7 @@
 import { toast } from 'react-hot-toast';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const _rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = _rawBase.includes('/api/v1') ? _rawBase : `${_rawBase.replace(/\/$/, '')}/api/v1`;
 
 interface ApiResponse<T> {
   data?: T;

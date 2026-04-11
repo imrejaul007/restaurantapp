@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const _vp_raw = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE = _vp_raw.includes('/api/v1') ? _vp_raw : `${_vp_raw.replace(/\/$/, '')}/api/v1`;
 
 export interface VendorProduct {
   id: string;

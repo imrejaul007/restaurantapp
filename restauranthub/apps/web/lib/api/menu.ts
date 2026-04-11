@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const _menu_raw = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE = _menu_raw.includes('/api/v1') ? _menu_raw : `${_menu_raw.replace(/\/$/, '')}/api/v1`;
 
 export interface MenuCategory {
   id: string;

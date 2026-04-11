@@ -19,8 +19,13 @@ class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
+    const rawBase = process.env.NEXT_PUBLIC_API_URL || '';
+    const baseURL = rawBase.endsWith('/api/v1') || rawBase.endsWith('/api/v1/')
+      ? rawBase
+      : `${rawBase.replace(/\/$/, '')}/api/v1`;
+
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL,
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
