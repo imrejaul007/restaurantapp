@@ -488,6 +488,24 @@ export default function LoginPage() {
                 </div>
               </section>
 
+              {/* REZ Merchant SSO */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              <a
+                href={`${process.env.NEXT_PUBLIC_REZ_MERCHANT_URL || 'https://merchant.rez.money'}/auth/sso?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : '')}/auth/rez-callback`}
+                className="flex items-center justify-center space-x-2 w-full py-2.5 px-4 border border-orange-300 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/30 dark:border-orange-800 dark:hover:bg-orange-950/50 transition-colors text-sm font-medium text-orange-700 dark:text-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+              >
+                <span className="text-orange-500 font-bold text-base">₹</span>
+                <span>Sign in with REZ Merchant Account</span>
+              </a>
+
               {/* Sign Up Link */}
               <nav className="text-center" role="navigation" aria-label="Account registration">
                 <p className="text-sm text-muted-foreground">
