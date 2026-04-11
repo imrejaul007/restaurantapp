@@ -18,7 +18,7 @@ export class ApiKeyGuard implements CanActivate {
     private reflector: Reflector,
   ) {}
 
-  async canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const apiKeyRequired = this.reflector.get<boolean>(API_KEY_REQUIRED, context.getHandler()) ||
                           this.reflector.get<boolean>(API_KEY_REQUIRED, context.getClass());
 
@@ -109,7 +109,7 @@ export class ApiKeyGuard implements CanActivate {
       request.apiKey = {
         id: apiKeyRecord.id,
         name: apiKeyRecord.name,
-        permissions: apiKeyRecord.permissions,
+        permissions: (apiKeyRecord as any).permissions,
         userId: apiKeyRecord.userId,
         user: apiKeyRecord.user,
       };

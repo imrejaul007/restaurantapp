@@ -165,6 +165,7 @@ model User {
   // Saved jobs & support
   savedJobs       SavedJob[]
   supportTickets  SupportTicket[]
+  apiKeys         ApiKey[]
 
   @@index([email])
   @@index([phone])
@@ -208,13 +209,15 @@ model Profile {
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  ipAddress String?
-  userAgent String?
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id              String    @id @default(cuid())
+  userId          String
+  token           String    @unique
+  ipAddress       String?
+  userAgent       String?
+  deviceInfo      String?
+  lastAccessedAt  DateTime?
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2800,4 +2803,47 @@ model SupportTicket {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+
+// ─── Security: Brute-force protection ────────────────────────────────────────
+
+model FailedAttempt {
+  id          String   @id @default(cuid())
+  ipAddress   String
+  endpoint    String
+  email       String?
+  attemptedAt DateTime @default(now())
+
+  @@index([ipAddress, endpoint, attemptedAt])
+}
+
+model BlockedIp {
+  id           String   @id @default(cuid())
+  ipAddress    String   @unique
+  reason       String
+  blockedAt    DateTime @default(now())
+  blockedUntil DateTime
+  blockCount   Int      @default(1)
+
+  @@index([blockedUntil])
+}
+
+// ─── Security: API Key management ────────────────────────────────────────────
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  keyHash    String    @unique
+  name       String?
+  isActive   Boolean   @default(true)
+  usageCount Int       @default(0)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([keyHash])
 }

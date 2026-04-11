@@ -109,7 +109,7 @@ export class MarketplaceService {
       data: {
         supplierId: dto.supplierId,
         merchantId,
-        restopapaUserId,
+        restauranthubUserId: restopapaUserId,
         category: dto.category,
         quantity: dto.quantity,
         unit: dto.unit ?? 'kg',

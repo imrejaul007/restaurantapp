@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 import { Injectable } from '@nestjs/common';
-import * as xss from 'xss';
-import * as sanitizeHtml from 'sanitize-html';
+import xss from 'xss';
+import sanitizeHtml from 'sanitize-html';
 
 @ValidatorConstraint({ name: 'isSecureString', async: false })
 @Injectable()

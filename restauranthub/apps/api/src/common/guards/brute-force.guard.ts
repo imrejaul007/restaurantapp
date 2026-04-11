@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, Logger, TooManyRequestsException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -25,7 +25,7 @@ export class BruteForceGuard implements CanActivate {
         endpoint,
         severity: 'HIGH'
       });
-      throw new TooManyRequestsException('IP address is temporarily blocked due to suspicious activity');
+      throw new HttpException('IP address is temporarily blocked due to suspicious activity', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     // Check attempt count for this IP
@@ -42,7 +42,7 @@ export class BruteForceGuard implements CanActivate {
         maxAttempts,
         severity: 'CRITICAL'
       });
-      throw new TooManyRequestsException('Too many attempts. IP address has been temporarily blocked.');
+      throw new HttpException('Too many attempts. IP address has been temporarily blocked.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     return true;

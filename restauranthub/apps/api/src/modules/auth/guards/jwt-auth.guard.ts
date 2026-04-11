@@ -12,7 +12,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  override async canActivate(context: ExecutionContext): Promise<boolean> {
     const canActivate = await super.canActivate(context);
 
     if (!canActivate) {
@@ -29,7 +29,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return true;
   }
 
-  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+  override handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     if (err || !user) {
       // Enhanced error messages for different scenarios
       if (info?.name === 'TokenExpiredError') {

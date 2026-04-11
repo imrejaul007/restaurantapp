@@ -46,7 +46,7 @@ export class PerformanceService {
   private errorCount = 0;
   private responseTimes: number[] = [];
   private eventLoopDelays: number[] = [];
-  private performanceObserver: PerformanceObserver;
+  private performanceObserver!: PerformanceObserver;
   private gcStats: any = {};
 
   // Metrics storage
@@ -74,7 +74,7 @@ export class PerformanceService {
       });
     });
 
-    this.performanceObserver.observe({ entryTypes: ['measure', 'navigation', 'resource'] });
+    this.performanceObserver.observe({ entryTypes: ['measure'] });
   }
 
   private startEventLoopMonitoring(): void {

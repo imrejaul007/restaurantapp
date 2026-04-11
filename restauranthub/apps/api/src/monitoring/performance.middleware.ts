@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { PerformanceService } from './performance.service';
 
@@ -10,37 +10,30 @@ export class PerformanceMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction): void {
     const startTime = process.hrtime.bigint();
-    const startTimestamp = Date.now();
+    (req as any)['startTime'] = startTime;
+    (req as any)['startTimestamp'] = Date.now();
 
-    // Add request start marker
-    req['startTime'] = startTime;
-    req['startTimestamp'] = startTimestamp;
+    // Capture class members before the closure to avoid `this` binding issues
+    const perfSvc = this.performanceService;
+    const log = this.logger;
 
-    // Override res.end to capture response time
-    const originalEnd = res.end;
+    const originalEnd = res.end.bind(res) as typeof res.end;
 
-    res.end = function(chunk?: any, encoding?: BufferEncoding | (() => void), cb?: () => void) {
+    (res as any).end = function(chunk?: any, encoding?: BufferEncoding | (() => void), cb?: () => void) {
       const endTime = process.hrtime.bigint();
-      const responseTime = Number(endTime - startTime) / 1_000_000; // Convert to milliseconds
-
-      // Determine if this was an error response
+      const responseTime = Number(endTime - startTime) / 1_000_000;
       const isError = res.statusCode >= 400;
 
-      // Record performance metrics
-      performanceService.recordRequest(responseTime, isError);
+      perfSvc.recordRequest(responseTime, isError);
 
-      // Log performance information
-      if (responseTime > 1000) { // Log slow requests
-        logger.warn(`Slow request detected: ${req.method} ${req.path} - ${responseTime.toFixed(2)}ms`);
+      if (responseTime > 1000) {
+        log.warn(`Slow request detected: ${req.method} ${req.path} - ${responseTime.toFixed(2)}ms`);
       }
-
-      // Log error responses
       if (isError) {
-        logger.error(`Error response: ${req.method} ${req.path} - ${res.statusCode} in ${responseTime.toFixed(2)}ms`);
+        log.error(`Error response: ${req.method} ${req.path} - ${res.statusCode} in ${responseTime.toFixed(2)}ms`);
       }
 
-      // Call original end method
-      return originalEnd.call(this, chunk, encoding as BufferEncoding, cb);
+      return originalEnd.call(res, chunk, encoding as BufferEncoding, cb);
     };
 
     next();
@@ -48,9 +41,9 @@ export class PerformanceMiddleware implements NestMiddleware {
 }
 
 // Performance interceptor for controllers
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import type {} from '@nestjs/common'; // no-op: NestInterceptor/ExecutionContext/CallHandler already imported above
 
 @Injectable()
 export class PerformanceInterceptor implements NestInterceptor {
@@ -223,15 +216,18 @@ export class RequestSizeMiddleware implements NestMiddleware {
     }
 
     // Monitor response size
-    const originalSend = res.send;
-    res.send = function(body) {
+    const sizeLogger = this.logger;
+    const originalSend = res.send.bind(res);
+    (res as any).send = function(body: any) {
       if (body) {
-        const responseSize = Buffer.byteLength(JSON.stringify(body));
-        if (responseSize > 5 * 1024 * 1024) { // Larger than 5MB
-          logger.warn(`Large response sent: ${responseSize} bytes to ${req.ip} from ${req.path}`);
-        }
+        try {
+          const responseSize = Buffer.byteLength(JSON.stringify(body));
+          if (responseSize > 5 * 1024 * 1024) {
+            sizeLogger.warn(`Large response sent: ${responseSize} bytes to ${req.ip} from ${req.path}`);
+          }
+        } catch { /* ignore non-serialisable bodies */ }
       }
-      return originalSend.call(this, body);
+      return originalSend(body);
     };
 
     next();

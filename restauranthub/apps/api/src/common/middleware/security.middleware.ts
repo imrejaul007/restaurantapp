@@ -1,8 +1,8 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
-import * as sanitizeHtml from 'sanitize-html';
-import * as xss from 'xss';
+import sanitizeHtml from 'sanitize-html';
+import xss from 'xss';
 import * as mongoSanitize from 'express-mongo-sanitize';
 
 @Injectable()

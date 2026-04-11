@@ -88,7 +88,7 @@ export class FileStorageService {
 
       return result;
     } catch (error) {
-      throw new BadRequestException(`Failed to save file: ${error.message}`);
+      throw new BadRequestException(`Failed to save file: ${(error as any).message}`);
     }
   }
 

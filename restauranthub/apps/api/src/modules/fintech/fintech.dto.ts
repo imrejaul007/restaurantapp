@@ -6,10 +6,15 @@
  */
 
 import { IsIn, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import type { CreditFactor, CreditTier } from '@restopapa/rez-client';
 
-// Re-export tier type for convenience
-export type { CreditTier, CreditFactor };
+// Local type definitions (originally from @restopapa/rez-client which is not published)
+export type CreditTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+export type CreditFactor = {
+  name: string;
+  score: number;
+  impact: 'positive' | 'negative' | 'neutral';
+  description?: string;
+};
 
 // ── Credit profile (read) ─────────────────────────────────────────────────────
 
