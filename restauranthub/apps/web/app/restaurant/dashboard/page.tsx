@@ -1,25 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { 
-  Users, 
-  Briefcase, 
-  ShoppingCart, 
+import {
+  Users,
+  Briefcase,
+  ShoppingCart,
   TrendingUp,
   TrendingDown,
   Calendar,
-  Clock,
   DollarSign,
   Package,
   UserCheck,
-  AlertCircle,
-  CheckCircle,
   Eye,
-  MessageSquare,
   Star,
-  MapPin,
   ChefHat
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,113 +22,25 @@ import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { EmailVerificationAlert } from '@/components/auth/email-verification-alert';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { apiClient } from '@/lib/api/client';
 
-// Mock data for Restaurant Dashboard
-const restaurantStats = [
-  {
-    title: 'Total Employees',
-    value: '47',
-    change: '+3',
-    changeType: 'increase' as const,
-    icon: Users,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100 dark:bg-blue-900',
-    description: '5 pending applications',
-  },
-  {
-    title: 'Active Job Posts',
-    value: '12',
-    change: '+2',
-    changeType: 'increase' as const,
-    icon: Briefcase,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100 dark:bg-green-900',
-    description: '87 total applications',
-  },
-  {
-    title: 'Monthly Orders',
-    value: '₹2,47,350',
-    change: '+18%',
-    changeType: 'increase' as const,
-    icon: ShoppingCart,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100 dark:bg-purple-900',
-    description: '156 orders this month',
-  },
-  {
-    title: 'Customer Rating',
-    value: '4.8',
-    change: '+0.2',
-    changeType: 'increase' as const,
-    icon: Star,
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-100 dark:bg-yellow-900',
-    description: 'Based on 1,247 reviews',
-  },
-];
+interface DashboardStats {
+  employeeCount: string;
+  openJobCount: string;
+  monthlyRevenue: string;
+  orderCount: string;
+  reservationCount: string;
+}
 
-const recentApplications = [
-  {
-    id: '1',
-    name: 'Amit Sharma',
-    position: 'Head Chef',
-    experience: '8 years',
-    appliedAt: '2024-01-10T14:30:00Z',
-    status: 'pending',
-    avatar: null,
-    skills: ['Indian Cuisine', 'Team Leadership', 'Menu Planning'],
-  },
-  {
-    id: '2',
-    name: 'Priya Patel',
-    position: 'Sous Chef',
-    experience: '5 years',
-    appliedAt: '2024-01-10T11:15:00Z',
-    status: 'reviewed',
-    avatar: null,
-    skills: ['Continental', 'Pastry', 'Food Safety'],
-  },
-  {
-    id: '3',
-    name: 'Rajesh Kumar',
-    position: 'Waiter',
-    experience: '3 years',
-    appliedAt: '2024-01-09T16:45:00Z',
-    status: 'shortlisted',
-    avatar: null,
-    skills: ['Customer Service', 'Hindi', 'English'],
-  },
-];
-
-const recentOrders = [
-  {
-    id: '1',
-    vendor: 'Fresh Farm Supplies',
-    items: 'Vegetables, Dairy Products',
-    amount: 15420,
-    status: 'delivered',
-    deliveryDate: '2024-01-10T10:30:00Z',
-    orderDate: '2024-01-08T14:20:00Z',
-  },
-  {
-    id: '2',
-    vendor: 'Spice Garden',
-    items: 'Spices, Condiments',
-    amount: 8750,
-    status: 'processing',
-    deliveryDate: '2024-01-12T16:00:00Z',
-    orderDate: '2024-01-10T09:15:00Z',
-  },
-  {
-    id: '3',
-    vendor: 'Metro Cash & Carry',
-    items: 'Rice, Pulses, Oil',
-    amount: 24580,
-    status: 'shipped',
-    deliveryDate: '2024-01-11T14:30:00Z',
-    orderDate: '2024-01-09T11:45:00Z',
-  },
-];
+interface ApplicationEntry {
+  id: string;
+  name: string;
+  position: string;
+  experience: string;
+  appliedAt: string;
+  status: string;
+  skills: string[];
+}
 
 const quickActions = [
   {
@@ -170,6 +77,135 @@ export default function RestaurantDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const router = useRouter();
 
+  const [stats, setStats] = useState<DashboardStats>({
+    employeeCount: '—',
+    openJobCount: '—',
+    monthlyRevenue: '—',
+    orderCount: '—',
+    reservationCount: '—',
+  });
+  const [applications, setApplications] = useState<ApplicationEntry[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
+  const [applicationsEmpty, setApplicationsEmpty] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [jobsResult, ordersResult, staffResult, reservationsResult] =
+        await Promise.allSettled([
+          apiClient.getPaginated('/jobs/my-jobs', { page: 1, limit: 1 }),
+          apiClient.getPaginated('/orders', { page: 1, limit: 100 }),
+          apiClient.getPaginated('/staff/employees', { page: 1, limit: 1 }),
+          apiClient.getPaginated('/reservations', { page: 1, limit: 1 }),
+        ]);
+
+      const nextStats: DashboardStats = {
+        employeeCount: '—',
+        openJobCount: '—',
+        monthlyRevenue: '—',
+        orderCount: '—',
+        reservationCount: '—',
+      };
+
+      if (jobsResult.status === 'fulfilled') {
+        const val = jobsResult.value as any;
+        const count = val?.total ?? val?.data?.total ?? null;
+        if (count !== null) nextStats.openJobCount = String(count);
+      }
+
+      if (ordersResult.status === 'fulfilled') {
+        const val = ordersResult.value as any;
+        const items: any[] = val?.data ?? [];
+        const total = val?.total ?? null;
+        nextStats.orderCount = total !== null ? String(total) : String(items.length);
+        const revenue = items.reduce(
+          (sum: number, o: any) => sum + (o?.total ?? o?.amount ?? 0),
+          0
+        );
+        nextStats.monthlyRevenue = formatCurrency(revenue);
+      }
+
+      if (staffResult.status === 'fulfilled') {
+        const val = staffResult.value as any;
+        const count = val?.total ?? val?.data?.total ?? null;
+        if (count !== null) nextStats.employeeCount = String(count);
+      }
+
+      if (reservationsResult.status === 'fulfilled') {
+        const val = reservationsResult.value as any;
+        const count = val?.total ?? val?.data?.total ?? null;
+        if (count !== null) nextStats.reservationCount = String(count);
+      }
+
+      setStats(nextStats);
+    };
+
+    const fetchApplications = async () => {
+      setApplicationsLoading(true);
+      try {
+        const res = await apiClient.getPaginated('/jobs/applications', { limit: 5 });
+        const items: any[] = (res as any)?.data ?? [];
+        if (items.length === 0) {
+          setApplicationsEmpty(true);
+        } else {
+          const mapped: ApplicationEntry[] = items.map((app: any) => ({
+            id: app.id ?? '',
+            name: app.applicant
+              ? `${app.applicant.firstName ?? ''} ${app.applicant.lastName ?? ''}`.trim()
+              : app.name ?? 'Unknown',
+            position: app.job?.title ?? app.position ?? 'Unknown Position',
+            experience: app.applicant?.experience ?? app.experience ?? '',
+            appliedAt: app.appliedAt ?? app.createdAt ?? '',
+            status: (app.status ?? 'pending').toLowerCase(),
+            skills: app.applicant?.skills ?? app.skills ?? [],
+          }));
+          setApplications(mapped);
+        }
+      } catch {
+        setApplicationsEmpty(true);
+      } finally {
+        setApplicationsLoading(false);
+      }
+    };
+
+    fetchStats();
+    fetchApplications();
+  }, []);
+
+  const statCards = [
+    {
+      title: 'Total Employees',
+      value: stats.employeeCount,
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100 dark:bg-blue-900',
+      description: 'Active staff members',
+    },
+    {
+      title: 'Active Job Posts',
+      value: stats.openJobCount,
+      icon: Briefcase,
+      color: 'text-green-600',
+      bgColor: 'bg-green-100 dark:bg-green-900',
+      description: 'Open positions',
+    },
+    {
+      title: 'Monthly Revenue',
+      value: stats.monthlyRevenue,
+      icon: DollarSign,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100 dark:bg-purple-900',
+      description: `${stats.orderCount} orders this month`,
+    },
+    {
+      title: 'Upcoming Reservations',
+      value: stats.reservationCount,
+      icon: Calendar,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-100 dark:bg-yellow-900',
+      description: 'Scheduled reservations',
+    },
+  ];
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -201,11 +237,11 @@ export default function RestaurantDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" >
+            <Button variant="outline">
               <Calendar className="h-4 w-4 mr-2" />
               Last 30 days
             </Button>
-            <Button >
+            <Button>
               <TrendingUp className="h-4 w-4 mr-2" />
               View Reports
             </Button>
@@ -217,7 +253,7 @@ export default function RestaurantDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {restaurantStats.map((stat, index) => {
+          {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <motion.div
@@ -236,23 +272,6 @@ export default function RestaurantDashboard() {
                         <p className="text-2xl font-bold text-foreground mt-1">
                           {stat.value}
                         </p>
-                        <div className="flex items-center mt-2">
-                          {stat.changeType === 'increase' ? (
-                            <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
-                          ) : (
-                            <TrendingDown className="h-4 w-4 text-destructive mr-1" />
-                          )}
-                          <span className={`text-sm font-medium ${
-                            stat.changeType === 'increase' 
-                              ? 'text-success-500' 
-                              : 'text-destructive'
-                          }`}>
-                            {stat.change}
-                          </span>
-                          <span className="text-sm text-muted-foreground ml-1">
-                            this month
-                          </span>
-                        </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {stat.description}
                         </p>
@@ -282,58 +301,71 @@ export default function RestaurantDashboard() {
                   <CardTitle className="text-lg font-semibold">
                     Recent Applications
                   </CardTitle>
-                  <Button variant="ghost" >
+                  <Button variant="ghost">
                     <Eye className="h-4 w-4 mr-2" />
                     View All
                   </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {recentApplications.map((application) => (
-                    <div
-                      key={application.id}
-                      className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <ChefHat className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-sm">{application.name}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            {application.position} • {application.experience}
-                          </p>
-                          <div className="flex items-center space-x-1 mt-1">
-                            {application.skills.slice(0, 2).map((skill, index) => (
-                              <span
-                                key={index}
-                                className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                            {application.skills.length > 2 && (
-                              <span className="text-xs text-muted-foreground">
-                                +{application.skills.length - 2} more
-                              </span>
+                  {applicationsLoading ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">Loading...</p>
+                  ) : applicationsEmpty || applications.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      No recent applications
+                    </p>
+                  ) : (
+                    applications.map((application) => (
+                      <div
+                        key={application.id}
+                        className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                            <ChefHat className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm">{application.name}</h4>
+                            <p className="text-xs text-muted-foreground">
+                              {application.position}
+                              {application.experience ? ` • ${application.experience}` : ''}
+                            </p>
+                            {application.skills.length > 0 && (
+                              <div className="flex items-center space-x-1 mt-1">
+                                {application.skills.slice(0, 2).map((skill, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                                {application.skills.length > 2 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    +{application.skills.length - 2} more
+                                  </span>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-xs px-2 py-1 rounded-full ${getStatusColor(application.status)}`}>
-                          {application.status}
+                        <div className="text-right">
+                          <div className={`text-xs px-2 py-1 rounded-full ${getStatusColor(application.status)}`}>
+                            {application.status}
+                          </div>
+                          {application.appliedAt && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatDate(application.appliedAt, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(application.appliedAt, { 
-                            month: 'short', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -378,57 +410,6 @@ export default function RestaurantDashboard() {
             </Card>
           </motion.div>
         </div>
-
-        {/* Recent Orders */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold">
-                Recent Orders
-              </CardTitle>
-              <Button variant="ghost" >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                View All Orders
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Package className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">{order.vendor}</h4>
-                        <p className="text-xs text-muted-foreground">{order.items}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Ordered: {formatDate(order.orderDate, { month: 'short', day: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-sm">{formatCurrency(order.amount)}</p>
-                      <div className={`text-xs px-2 py-1 rounded-full mt-1 ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ETA: {formatDate(order.deliveryDate, { month: 'short', day: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
     </DashboardLayout>
   );

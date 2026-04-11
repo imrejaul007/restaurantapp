@@ -1,13 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { 
-  Users, 
-  Building2, 
-  Package, 
-  ShoppingCart, 
+import {
+  Users,
+  Building2,
+  Package,
   TrendingUp,
   TrendingDown,
   Calendar,
@@ -21,118 +20,85 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { EmailVerificationAlert } from '@/components/auth/email-verification-alert';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { adminApi } from '@/lib/api/admin';
+import type { AdminDashboard } from '@/lib/api/admin';
 
-// Mock data for demonstration
-const stats = [
-  {
-    title: 'Total Users',
-    value: '12,847',
-    change: '+12%',
-    changeType: 'increase' as const,
-    icon: Users,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100 dark:bg-blue-900',
-  },
-  {
-    title: 'Active Restaurants',
-    value: '2,134',
-    change: '+8%',
-    changeType: 'increase' as const,
-    icon: Building2,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100 dark:bg-green-900',
-  },
-  {
-    title: 'Verified Vendors',
-    value: '847',
-    change: '+23%',
-    changeType: 'increase' as const,
-    icon: Package,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100 dark:bg-purple-900',
-  },
-  {
-    title: 'Monthly Revenue',
-    value: '₹8,47,392',
-    change: '+15%',
-    changeType: 'increase' as const,
-    icon: DollarSign,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100 dark:bg-orange-900',
-  },
-];
-
-const pendingVerifications = [
-  {
-    id: '1',
-    type: 'Restaurant',
-    name: 'The Spice Route',
-    email: 'owner@spiceroute.com',
-    submittedAt: '2024-01-10T10:30:00Z',
-    documents: ['GST Certificate', 'FSSAI License', 'PAN Card'],
-    status: 'pending',
-  },
-  {
-    id: '2',
-    type: 'Vendor',
-    name: 'Fresh Farm Supplies',
-    email: 'contact@freshfarm.com',
-    submittedAt: '2024-01-09T14:20:00Z',
-    documents: ['Business Registration', 'GST Certificate'],
-    status: 'pending',
-  },
-  {
-    id: '3',
-    type: 'Employee',
-    name: 'Rajesh Kumar',
-    email: 'rajesh@email.com',
-    submittedAt: '2024-01-08T16:45:00Z',
-    documents: ['Aadhaar Card', 'Previous Employment Letter'],
-    status: 'pending',
-  },
-];
-
-const recentActivities = [
-  {
-    id: '1',
-    action: 'New restaurant registration',
-    user: 'Mumbai Bistro',
-    timestamp: '2024-01-10T11:30:00Z',
-    type: 'success',
-  },
-  {
-    id: '2',
-    action: 'Vendor verification approved',
-    user: 'Green Valley Foods',
-    timestamp: '2024-01-10T10:15:00Z',
-    type: 'success',
-  },
-  {
-    id: '3',
-    action: 'Suspicious activity detected',
-    user: 'User ID: 12847',
-    timestamp: '2024-01-10T09:45:00Z',
-    type: 'warning',
-  },
-  {
-    id: '4',
-    action: 'Large order placed',
-    user: 'Hotel Grand Plaza',
-    timestamp: '2024-01-10T09:20:00Z',
-    type: 'info',
-  },
-];
+interface StatCard {
+  title: string;
+  value: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
-  
+
+  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true);
+      try {
+        const res = await adminApi.getDashboard();
+        setDashboard(res.data);
+      } catch {
+        // keep dashboard null — UI will show "—"
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  const fmt = (n: number | undefined | null): string =>
+    n !== undefined && n !== null ? n.toLocaleString() : '—';
+
+  const stats: StatCard[] = [
+    {
+      title: 'Total Users',
+      value: loading ? '—' : fmt(dashboard?.users?.total),
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100 dark:bg-blue-900',
+    },
+    {
+      title: 'Active Restaurants',
+      value: loading ? '—' : fmt(dashboard?.restaurants?.total),
+      icon: Building2,
+      color: 'text-green-600',
+      bgColor: 'bg-green-100 dark:bg-green-900',
+    },
+    {
+      title: 'Pending Verifications',
+      value: loading ? '—' : fmt(dashboard?.restaurants?.pending),
+      icon: Package,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100 dark:bg-purple-900',
+    },
+    {
+      title: 'Monthly Revenue',
+      value: loading
+        ? '—'
+        : dashboard?.orders?.revenue !== undefined && dashboard.orders.revenue !== null
+        ? `₹${dashboard.orders.revenue.toLocaleString()}`
+        : '—',
+      icon: DollarSign,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-100 dark:bg-orange-900',
+    },
+  ];
+
   const quickActions = [
     { icon: Users, label: 'Manage Users', href: '/admin/users' },
     { icon: CheckCircle, label: 'Verifications', href: '/admin/verification' },
     { icon: AlertCircle, label: 'Security Alerts', href: '/admin/security' },
     { icon: TrendingUp, label: 'Analytics', href: '/admin/analytics' },
   ];
+
+  const recentActivities = dashboard?.recentActivity ?? [];
 
   return (
     <DashboardLayout>
@@ -146,11 +112,11 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-            <Button variant="outline" >
+            <Button variant="outline">
               <Calendar className="h-4 w-4 mr-2" />
               Last 30 days
             </Button>
-            <Button >
+            <Button>
               Generate Report
             </Button>
           </div>
@@ -180,23 +146,6 @@ export default function AdminDashboard() {
                         <p className="text-2xl font-bold text-foreground mt-1">
                           {stat.value}
                         </p>
-                        <div className="flex items-center mt-2">
-                          {stat.changeType === 'increase' ? (
-                            <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
-                          ) : (
-                            <TrendingDown className="h-4 w-4 text-destructive mr-1" />
-                          )}
-                          <span className={`text-sm font-medium ${
-                            stat.changeType === 'increase' 
-                              ? 'text-success-500' 
-                              : 'text-destructive'
-                          }`}>
-                            {stat.change}
-                          </span>
-                          <span className="text-sm text-muted-foreground ml-1">
-                            vs last month
-                          </span>
-                        </div>
                       </div>
                       <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                         <Icon className={`h-6 w-6 ${stat.color}`} />
@@ -210,7 +159,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Pending Verifications */}
+          {/* Pending Verifications summary */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -221,34 +170,34 @@ export default function AdminDashboard() {
                 <CardTitle className="text-lg font-semibold">
                   Pending Verifications
                 </CardTitle>
-                <Button variant="ghost" >
+                <Button variant="ghost" onClick={() => router.push('/admin/verification')}>
                   View All
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {pendingVerifications.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
-                        <Clock className="h-4 w-4 text-warning-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.type} • {item.documents.length} documents
-                        </p>
-                      </div>
+              <CardContent>
+                {loading ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Loading...</p>
+                ) : (
+                  <div className="flex items-center space-x-3 p-3 bg-muted/30 rounded-lg">
+                    <div className="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
+                      <Clock className="h-4 w-4 text-warning-600" />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Button variant="outline" >
+                    <div>
+                      <p className="font-medium text-sm">
+                        {fmt(dashboard?.restaurants?.pending)} restaurant
+                        {(dashboard?.restaurants?.pending ?? 0) !== 1 ? 's' : ''} awaiting review
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Requires document verification
+                      </p>
+                    </div>
+                    <div className="ml-auto">
+                      <Button variant="outline" size="sm" onClick={() => router.push('/admin/verification')}>
                         Review
                       </Button>
                     </div>
                   </div>
-                ))}
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -264,40 +213,48 @@ export default function AdminDashboard() {
                 <CardTitle className="text-lg font-semibold">
                   Recent Activity
                 </CardTitle>
-                <Button variant="ghost" >
+                <Button variant="ghost">
                   <Activity className="h-4 w-4" />
                 </Button>
               </CardHeader>
               <CardContent className="space-y-3">
-                {recentActivities.map((activity) => {
-                  const getActivityIcon = (type: string) => {
-                    switch (type) {
-                      case 'success':
-                        return <CheckCircle className="h-4 w-4 text-success-500" />;
-                      case 'warning':
-                        return <AlertCircle className="h-4 w-4 text-warning-500" />;
-                      default:
-                        return <Activity className="h-4 w-4 text-primary" />;
-                    }
-                  };
+                {loading ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Loading...</p>
+                ) : recentActivities.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">
+                    No recent activity
+                  </p>
+                ) : (
+                  recentActivities.map((activity) => {
+                    const getActivityIcon = (priority: string) => {
+                      switch (priority) {
+                        case 'high':
+                          return <AlertCircle className="h-4 w-4 text-warning-500" />;
+                        case 'low':
+                          return <CheckCircle className="h-4 w-4 text-success-500" />;
+                        default:
+                          return <Activity className="h-4 w-4 text-primary" />;
+                      }
+                    };
 
-                  return (
-                    <div
-                      key={activity.id}
-                      className="flex items-center space-x-3 p-3 hover:bg-muted/30 rounded-lg transition-colors"
-                    >
-                      <div className="flex-shrink-0">
-                        {getActivityIcon(activity.type)}
+                    return (
+                      <div
+                        key={activity.id}
+                        className="flex items-center space-x-3 p-3 hover:bg-muted/30 rounded-lg transition-colors"
+                      >
+                        <div className="flex-shrink-0">
+                          {getActivityIcon(activity.priority)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {activity.type} • {new Date(activity.timestamp).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {activity.user} • {new Date(activity.timestamp).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -321,9 +278,9 @@ export default function AdminDashboard() {
                 {quickActions.map((action, index) => {
                   const Icon = action.icon;
                   return (
-                    <Button 
+                    <Button
                       key={index}
-                      variant="outline" 
+                      variant="outline"
                       className="h-20 flex-col space-y-2"
                       onClick={() => router.push(action.href)}
                     >
