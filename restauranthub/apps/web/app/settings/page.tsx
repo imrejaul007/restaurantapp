@@ -130,7 +130,7 @@ export default function SettingsPage() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/auth/2fa`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/auth/2fa`,
         {
           method: 'DELETE',
           headers: {

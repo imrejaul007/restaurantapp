@@ -112,7 +112,7 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await fetch(`${apiBase}/support/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
