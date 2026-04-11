@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { IsString, IsEmail, IsOptional, MinLength } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PrismaService } from '../../prisma/prisma.service';
 
 class CreateTicketDto {
   @IsString()
@@ -55,6 +56,8 @@ class ContactDto {
 export class SupportController {
   private readonly logger = new Logger(SupportController.name);
 
+  constructor(private readonly prisma: PrismaService) {}
+
   @Post('contact')
   @HttpCode(HttpStatus.OK)
   async contact(@Body() dto: ContactDto) {
@@ -67,30 +70,31 @@ export class SupportController {
     return { success: true, message: 'Your message has been received. We will get back to you within 24 hours.' };
   }
 
-  // Support Tickets — stubbed until SupportTicket model is added via DB migration
   @Get('tickets')
   @UseGuards(JwtAuthGuard)
   async listTickets(@Request() req: any) {
-    this.logger.log(`Ticket list requested by user ${req.user.id}`);
-    return [];
+    this.logger.log(`Ticket list requested by user ${req.user.sub}`);
+    return this.prisma.supportTicket.findMany({
+      where: { userId: req.user.sub },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   @Post('tickets')
   @UseGuards(JwtAuthGuard)
   async createTicket(@Request() req: any, @Body() dto: CreateTicketDto) {
     this.logger.log(
-      `Support ticket created by user ${req.user.id} — subject: "${dto.subject}"`,
+      `Support ticket created by user ${req.user.sub} — subject: "${dto.subject}"`,
     );
-    // Stub: no SupportTicket model in schema yet. Returns a mock ticket object.
-    return {
-      id: `ticket_${Date.now()}`,
-      userId: req.user.id,
-      subject: dto.subject,
-      description: dto.description,
-      category: dto.category ?? 'general',
-      status: 'open',
-      createdAt: new Date().toISOString(),
-    };
+    return this.prisma.supportTicket.create({
+      data: {
+        userId: req.user.sub,
+        subject: dto.subject,
+        description: dto.description,
+        status: 'open',
+        priority: 'medium',
+      },
+    });
   }
 
   @Get('articles')

@@ -27,6 +27,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
 interface JobCategory {
   id: string;
   name: string;
@@ -48,121 +50,18 @@ export default function JobCategoriesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to fetch job categories
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        // Mock data
-        const mockCategories: JobCategory[] = [
-          {
-            id: 'kitchen-staff',
-            name: 'Kitchen Staff',
-            description: 'Cooking, food preparation, and kitchen operations roles',
-            icon: <ChefHat className="h-8 w-8" />,
-            jobCount: 1247,
-            averageSalary: 35000,
-            growth: 8.2,
-            color: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300',
-            subCategories: ['Head Chef', 'Sous Chef', 'Line Cook', 'Prep Cook', 'Kitchen Assistant'],
-            popularLocations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad'],
-            topCompanies: ['The Taj Group', 'Oberoi Hotels', 'ITC Hotels', 'Leela Palaces', 'Marriott']
-          },
-          {
-            id: 'front-of-house',
-            name: 'Front of House',
-            description: 'Customer service, serving, and guest experience roles',
-            icon: <Users className="h-8 w-8" />,
-            jobCount: 892,
-            averageSalary: 28000,
-            growth: 6.5,
-            color: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
-            subCategories: ['Server', 'Host/Hostess', 'Bartender', 'Captain', 'Floor Manager'],
-            popularLocations: ['Mumbai', 'Goa', 'Delhi', 'Pune', 'Bangalore'],
-            topCompanies: ['Cafe Coffee Day', 'Starbucks', 'Pizza Hut', 'Dominos', 'McDonalds']
-          },
-          {
-            id: 'management',
-            name: 'Management',
-            description: 'Leadership, operations, and administrative positions',
-            icon: <Clipboard className="h-8 w-8" />,
-            jobCount: 456,
-            averageSalary: 65000,
-            growth: 12.3,
-            color: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300',
-            subCategories: ['Restaurant Manager', 'Assistant Manager', 'Area Manager', 'Operations Head'],
-            popularLocations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata'],
-            topCompanies: ['Zomato', 'Swiggy', 'Jubilant FoodWorks', 'Westlife Development', 'Burger King']
-          },
-          {
-            id: 'barista',
-            name: 'Barista & Beverages',
-            description: 'Coffee preparation and beverage specialty roles',
-            icon: <Coffee className="h-8 w-8" />,
-            jobCount: 324,
-            averageSalary: 25000,
-            growth: 15.7,
-            color: 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300',
-            subCategories: ['Barista', 'Coffee Roaster', 'Beverage Specialist', 'Tea Sommelier'],
-            popularLocations: ['Bangalore', 'Mumbai', 'Delhi', 'Pune', 'Chennai'],
-            topCompanies: ['Starbucks', 'Cafe Coffee Day', 'Third Wave Coffee', 'Blue Tokai', 'Tata Starbucks']
-          },
-          {
-            id: 'delivery',
-            name: 'Delivery & Logistics',
-            description: 'Food delivery and supply chain management roles',
-            icon: <Truck className="h-8 w-8" />,
-            jobCount: 1823,
-            averageSalary: 22000,
-            growth: 25.4,
-            color: 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300',
-            subCategories: ['Delivery Executive', 'Driver', 'Logistics Coordinator', 'Supply Chain Manager'],
-            popularLocations: ['All Cities', 'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad'],
-            topCompanies: ['Swiggy', 'Zomato', 'Amazon Fresh', 'BigBasket', 'Grofers']
-          },
-          {
-            id: 'accounting',
-            name: 'Finance & Accounting',
-            description: 'Financial management and accounting positions',
-            icon: <Calculator className="h-8 w-8" />,
-            jobCount: 187,
-            averageSalary: 45000,
-            growth: 4.8,
-            color: 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
-            subCategories: ['Accountant', 'Finance Manager', 'Cost Controller', 'Auditor'],
-            popularLocations: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Pune'],
-            topCompanies: ['Restaurant Chains', 'Hotel Groups', 'Food Tech Companies', 'Cloud Kitchens']
-          },
-          {
-            id: 'customer-service',
-            name: 'Customer Service',
-            description: 'Customer support and service excellence roles',
-            icon: <Headphones className="h-8 w-8" />,
-            jobCount: 298,
-            averageSalary: 27000,
-            growth: 7.2,
-            color: 'bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-300',
-            subCategories: ['Customer Support', 'Call Center', 'Guest Relations', 'Complaint Resolution'],
-            popularLocations: ['Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai'],
-            topCompanies: ['Zomato', 'Swiggy', 'Food Delivery Apps', 'Restaurant Chains', 'Hotel Groups']
-          },
-          {
-            id: 'specialty-cuisine',
-            name: 'Specialty Cuisine',
-            description: 'Specialized cooking and culinary expertise roles',
-            icon: <Utensils className="h-8 w-8" />,
-            jobCount: 567,
-            averageSalary: 42000,
-            growth: 18.9,
-            color: 'bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-300',
-            subCategories: ['Sushi Chef', 'Pastry Chef', 'Tandoor Specialist', 'Regional Cuisine Expert'],
-            popularLocations: ['Mumbai', 'Delhi', 'Bangalore', 'Goa', 'Chennai'],
-            topCompanies: ['Fine Dining Restaurants', 'Luxury Hotels', 'Specialty Restaurants', 'Resort Chains']
-          }
-        ];
-        
-        setCategories(mockCategories);
+        const res = await fetch(`${API_BASE}/jobs/categories`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setCategories(json.data ?? json ?? []);
       } catch (error) {
         console.error('Failed to fetch job categories:', error);
+        setCategories([]);
       } finally {
         setLoading(false);
       }
@@ -192,7 +91,9 @@ export default function JobCategoriesPage() {
   }
 
   const totalJobs = categories.reduce((sum, cat) => sum + cat.jobCount, 0);
-  const averageGrowth = categories.reduce((sum, cat) => sum + cat.growth, 0) / categories.length;
+  const averageGrowth = categories.length > 0
+    ? categories.reduce((sum, cat) => sum + cat.growth, 0) / categories.length
+    : 0;
 
   return (
     <DashboardLayout>
@@ -234,6 +135,19 @@ export default function JobCategoriesPage() {
             />
           </div>
         </div>
+
+        {/* Empty state when no categories are available at all */}
+        {categories.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+              <Utensils className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No categories available</h3>
+            <p className="text-muted-foreground">
+              Job categories will appear here once they are added.
+            </p>
+          </div>
+        )}
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

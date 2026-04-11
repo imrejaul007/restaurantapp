@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { 
+import {
   Briefcase,
   FileText,
   Clock,
@@ -21,7 +21,8 @@ import {
   BookOpen,
   Target,
   MessageSquare,
-  Bell
+  Bell,
+  Trophy
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -361,23 +362,28 @@ export default function EmployeeDashboard() {
           </Card>
         </motion.div>
 
-        {/* Achievements — coming soon */}
+        {/* Achievements */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Recent Achievements</CardTitle>
-              <CardDescription>
-                Your progress milestones and certifications
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle className="text-lg font-semibold">Achievements</CardTitle>
+                <CardDescription>
+                  Your progress milestones and certifications
+                </CardDescription>
+              </div>
+              <Button variant="outline" disabled className="opacity-50 cursor-not-allowed">
+                View All
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="text-center py-6 text-muted-foreground">
-                <Award className="h-8 w-8 mx-auto mb-2" />
-                <p className="text-sm">Achievements will appear here as you complete milestones.</p>
+                <Trophy className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Complete tasks and milestones to earn badges</p>
               </div>
             </CardContent>
           </Card>

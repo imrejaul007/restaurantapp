@@ -12,6 +12,8 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api';
+
 interface VendorProduct {
   id: string;
   name: string;
@@ -80,237 +82,13 @@ interface Vendor {
   reviews: VendorReview[];
 }
 
-const mockVendors: Record<string, Vendor> = {
-  'bella-vista': {
-    id: 'bella-vista',
-    name: 'Bella Vista Italian',
-    description: 'Authentic Italian cuisine with a modern twist. Our family recipes have been passed down for generations, bringing you the true taste of Italy with fresh ingredients and traditional cooking methods.',
-    cuisine: ['Italian', 'Pizza', 'Pasta'],
-    rating: 4.8,
-    reviewCount: 1247,
-    location: {
-      address: '123 Main Street, Downtown',
-      city: 'New York',
-      coordinates: { lat: 40.7128, lng: -74.0060 }
-    },
-    contact: {
-      phone: '+1 (555) 123-4567',
-      email: 'info@bellavista.com'
-    },
-    operatingHours: {
-      'Monday': { open: '11:00', close: '22:00', isOpen: true },
-      'Tuesday': { open: '11:00', close: '22:00', isOpen: true },
-      'Wednesday': { open: '11:00', close: '22:00', isOpen: true },
-      'Thursday': { open: '11:00', close: '22:00', isOpen: true },
-      'Friday': { open: '11:00', close: '23:00', isOpen: true },
-      'Saturday': { open: '11:00', close: '23:00', isOpen: true },
-      'Sunday': { open: '12:00', close: '21:00', isOpen: true }
-    },
-    deliveryInfo: {
-      fee: 3.99,
-      minOrder: 25.00,
-      estimatedTime: '25-35 minutes',
-      radius: 5
-    },
-    stats: {
-      totalOrders: 12543,
-      responseTime: '~15 min',
-      acceptanceRate: 98,
-      joinedDate: '2019-03-15'
-    },
-    features: [
-      'Wood-fired oven',
-      'Fresh daily ingredients',
-      'Gluten-free options',
-      'Vegan menu available',
-      'Family recipes',
-      'Wine pairing'
-    ],
-    certifications: [
-      'FSSAI Certified',
-      'Organic Ingredients',
-      'Halal Certified'
-    ],
-    images: {
-      logo: '🍕',
-      cover: '🏪',
-      gallery: ['🍝', '🥗', '🍷', '👨‍🍳']
-    },
-    isVerified: true,
-    isOpen: true,
-    products: [
-      {
-        id: '1',
-        name: 'Artisan Margherita Pizza',
-        description: 'Wood-fired pizza with San Marzano tomatoes and fresh mozzarella',
-        price: 18.99,
-        originalPrice: 22.99,
-        rating: 4.8,
-        reviewCount: 342,
-        image: '🍕',
-        category: 'Pizza',
-        isPopular: true,
-        inStock: true
-      },
-      {
-        id: '2',
-        name: 'Truffle Pasta',
-        description: 'Handmade pasta with truffle oil and parmesan',
-        price: 24.99,
-        rating: 4.9,
-        reviewCount: 189,
-        image: '🍝',
-        category: 'Pasta',
-        isPopular: true,
-        inStock: true
-      },
-      {
-        id: '3',
-        name: 'Caesar Salad',
-        description: 'Fresh romaine with homemade dressing and croutons',
-        price: 12.99,
-        rating: 4.6,
-        reviewCount: 98,
-        image: '🥗',
-        category: 'Salads',
-        isPopular: false,
-        inStock: true
-      },
-      {
-        id: '4',
-        name: 'Tiramisu',
-        description: 'Traditional Italian dessert with espresso and mascarpone',
-        price: 8.99,
-        rating: 4.7,
-        reviewCount: 156,
-        image: '🍰',
-        category: 'Desserts',
-        isPopular: false,
-        inStock: true
-      }
-    ],
-    reviews: [
-      {
-        id: '1',
-        user: 'Maria Rodriguez',
-        rating: 5,
-        comment: 'Amazing food and service! The pizza was perfectly cooked and the pasta was incredibly fresh. Definitely coming back!',
-        date: '2024-01-15',
-        verified: true,
-        orderItems: ['Artisan Margherita Pizza', 'Truffle Pasta']
-      },
-      {
-        id: '2',
-        user: 'James Wilson',
-        rating: 4,
-        comment: 'Great authentic Italian food. The delivery was quick and everything arrived hot. Highly recommend the tiramisu!',
-        date: '2024-01-12',
-        verified: true,
-        orderItems: ['Caesar Salad', 'Tiramisu']
-      },
-      {
-        id: '3',
-        user: 'Sarah Chen',
-        rating: 5,
-        comment: 'This is my go-to place for Italian food. Never disappoints!',
-        date: '2024-01-10',
-        verified: false,
-        orderItems: []
-      }
-    ]
-  },
-  'tokyo-sushi': {
-    id: 'tokyo-sushi',
-    name: 'Tokyo Sushi Bar',
-    description: 'Authentic Japanese sushi and sashimi prepared by certified sushi chefs. We source only the freshest fish and use traditional Japanese techniques.',
-    cuisine: ['Japanese', 'Sushi', 'Sashimi'],
-    rating: 4.9,
-    reviewCount: 892,
-    location: {
-      address: '456 Oak Avenue, Midtown',
-      city: 'New York',
-      coordinates: { lat: 40.7549, lng: -73.9840 }
-    },
-    contact: {
-      phone: '+1 (555) 987-6543',
-      email: 'info@tokyosushi.com'
-    },
-    operatingHours: {
-      'Monday': { open: '17:00', close: '22:00', isOpen: true },
-      'Tuesday': { open: '17:00', close: '22:00', isOpen: true },
-      'Wednesday': { open: '17:00', close: '22:00', isOpen: true },
-      'Thursday': { open: '17:00', close: '22:00', isOpen: true },
-      'Friday': { open: '17:00', close: '23:00', isOpen: true },
-      'Saturday': { open: '17:00', close: '23:00', isOpen: true },
-      'Sunday': { open: '17:00', close: '21:00', isOpen: true }
-    },
-    deliveryInfo: {
-      fee: 4.99,
-      minOrder: 30.00,
-      estimatedTime: '20-30 minutes',
-      radius: 3
-    },
-    stats: {
-      totalOrders: 8934,
-      responseTime: '~20 min',
-      acceptanceRate: 95,
-      joinedDate: '2020-06-20'
-    },
-    features: [
-      'Sashimi-grade fish',
-      'Certified sushi chefs',
-      'Daily fresh preparation',
-      'Traditional techniques',
-      'Omakase available',
-      'Sake selection'
-    ],
-    certifications: [
-      'FSSAI Certified',
-      'Fresh Fish Guarantee',
-      'Japanese Certified Chef'
-    ],
-    images: {
-      logo: '🍣',
-      cover: '🏮',
-      gallery: ['🐟', '🍚', '🥢', '🍶']
-    },
-    isVerified: true,
-    isOpen: false,
-    products: [
-      {
-        id: '5',
-        name: 'Premium Sushi Roll Set',
-        description: 'Fresh sashimi-grade salmon and tuna sushi rolls',
-        price: 28.50,
-        originalPrice: 32.00,
-        rating: 4.9,
-        reviewCount: 189,
-        image: '🍣',
-        category: 'Sushi',
-        isPopular: true,
-        inStock: true
-      }
-    ],
-    reviews: [
-      {
-        id: '4',
-        user: 'Yuki Tanaka',
-        rating: 5,
-        comment: 'Authentic and fresh! Reminds me of home in Tokyo.',
-        date: '2024-01-14',
-        verified: true,
-        orderItems: ['Premium Sushi Roll Set']
-      }
-    ]
-  }
-};
-
 export default function VendorPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
   
   const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [vendorNotFound, setVendorNotFound] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState<VendorProduct[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -318,20 +96,24 @@ export default function VendorPage() {
 
   useEffect(() => {
     const vendorId = params.id as string;
-    const foundVendor = mockVendors[vendorId];
-    
-    if (foundVendor) {
-      setVendor(foundVendor);
-      setFilteredProducts(foundVendor.products);
-    } else {
-      toast({
-        title: "Vendor not found",
-        description: "The requested vendor could not be found.",
-        variant: "error"
-      });
-      router.push('/marketplace');
-    }
-  }, [params.id, toast, router]);
+    const fetchVendor = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/marketplace/suppliers/${vendorId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          setVendorNotFound(true);
+          return;
+        }
+        const data: Vendor = await res.json();
+        setVendor(data);
+        setFilteredProducts(data.products ?? []);
+      } catch {
+        setVendorNotFound(true);
+      }
+    };
+    fetchVendor();
+  }, [params.id]);
 
   useEffect(() => {
     if (!vendor) return;
@@ -382,6 +164,20 @@ export default function VendorPage() {
       window.open(`mailto:${vendor.contact.email}`);
     }
   };
+
+  if (vendorNotFound) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">Vendor not found</h2>
+            <p className="text-muted-foreground mb-4">This vendor does not exist or is no longer available.</p>
+            <Button onClick={() => router.push('/marketplace')}>Back to Marketplace</Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!vendor) {
     return (
