@@ -197,12 +197,23 @@ class AuthApiClient {
 
   private async performTokenRefresh(): Promise<boolean> {
     try {
+      // Read the refresh token from localStorage (set by auth-provider after login)
+      const refreshToken = typeof window !== 'undefined'
+        ? localStorage.getItem('refreshToken')
+        : null;
+
+      if (!refreshToken) {
+        this.clearSessionData();
+        return false;
+      }
+
       const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Include httpOnly cookies for refresh token
+        body: JSON.stringify({ refreshToken }),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -405,22 +416,41 @@ class AuthApiClient {
   // Utility methods
   isAuthenticated(): boolean {
     if (typeof window === 'undefined') return false;
-    
+
     try {
+      // Check sessionStorage (legacy AuthApiClient session indicator)
       const sessionData = sessionStorage.getItem('authSession');
       if (sessionData) {
         const session = JSON.parse(sessionData);
-        return session.authenticated && session.expiresAt > Date.now();
+        if (session.authenticated && session.expiresAt > Date.now()) {
+          return true;
+        }
       }
-      return false;
+
+      // Also check localStorage — auth-provider stores the access token there
+      return !!localStorage.getItem('accessToken');
     } catch {
       return false;
     }
   }
 
   getAccessToken(): string | null {
-    // Tokens are now in httpOnly cookies, not accessible to JavaScript
-    return null;
+    if (typeof window === 'undefined') return null;
+
+    try {
+      // Check sessionStorage first for legacy AuthApiClient sessions
+      const sessionData = sessionStorage.getItem('authSession');
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        if (session.authenticated && session.expiresAt > Date.now() && session.accessToken) {
+          return session.accessToken;
+        }
+      }
+      // Fall back to localStorage where auth-provider stores the token
+      return localStorage.getItem('accessToken');
+    } catch {
+      return null;
+    }
   }
 
   getCurrentUser() {

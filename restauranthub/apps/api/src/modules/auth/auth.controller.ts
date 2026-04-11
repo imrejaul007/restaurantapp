@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsNotEmpty } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UserRole } from '@prisma/client';
@@ -50,6 +50,21 @@ class SignInDto {
 class RefreshDto {
   @IsString()
   refreshToken!: string;
+}
+
+class ForgotPasswordDto {
+  @IsEmail()
+  email!: string;
+}
+
+class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  token!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
 }
 
 @Controller('auth')
@@ -105,6 +120,20 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async disable2FA(@Request() req: any) {
     return this.authService.disable2FA(req.user.id);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    // Always return success to avoid user enumeration. Email delivery can be wired later.
+    return { success: true, message: 'If that email exists, a reset link has been sent' };
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    // Password reset token validation is not yet implemented. Return a clear error.
+    return { success: false, message: 'Password reset is not yet configured. Contact support.' };
   }
 
   @Get('test')

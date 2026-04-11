@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { formatDate, cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { communityApi } from '@/lib/api/community';
 import CreatePostModal from '@/components/community/create-post-modal';
 import CommentsSection from '@/components/community/comments-section';
 
@@ -63,13 +64,6 @@ interface CommunityPost {
   featured: boolean;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
-
-function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('accessToken');
-}
-
 export default function CommunityPage() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<CommunityPost[]>([]);
@@ -83,20 +77,12 @@ export default function CommunityPage() {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const token = getAuthToken();
-        const params = new URLSearchParams();
-        if (searchTerm) params.set('search', searchTerm);
-        if (categoryFilter !== 'all') params.set('category', categoryFilter);
-
-        const res = await fetch(`${API_BASE}/community/posts?${params.toString()}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPosts(Array.isArray(data) ? data : data.posts || []);
-        } else {
-          setPosts([]);
-        }
+        const filters = {
+          ...(categoryFilter !== 'all' ? { category: [categoryFilter] } : {}),
+        };
+        const result = await communityApi.getPosts(filters);
+        const raw = (result as any).data ?? result;
+        setPosts(Array.isArray(raw) ? raw : []);
       } catch {
         setPosts([]);
       } finally {
@@ -125,11 +111,7 @@ export default function CommunityPage() {
     );
 
     try {
-      const token = getAuthToken();
-      await fetch(`${API_BASE}/community/posts/${postId}/like`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      await communityApi.likePost(postId);
     } catch {
       // Revert on failure
       setPosts(prev =>
@@ -168,20 +150,15 @@ export default function CommunityPage() {
     location?: string;
   }) => {
     try {
-      const token = getAuthToken();
-      const res = await fetch(`${API_BASE}/community/posts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(postData),
+      const response = await communityApi.createPost({
+        title: postData.content.slice(0, 80),
+        content: postData.content,
+        category: postData.category,
+        tags: postData.tags ?? [],
       });
-      if (res.ok) {
-        const created = await res.json();
-        setPosts(prev => [created, ...prev]);
-        return;
-      }
+      const created = (response as any).data ?? response;
+      setPosts(prev => [created, ...prev]);
+      return;
     } catch {
       // fall through to optimistic create
     }
@@ -218,15 +195,7 @@ export default function CommunityPage() {
 
   const handleAddComment = async (postId: string, content: string, parentId?: string) => {
     try {
-      const token = getAuthToken();
-      await fetch(`${API_BASE}/community/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ content, parentId }),
-      });
+      await communityApi.createComment(postId, content, parentId);
     } catch {
       // silently fail
     }

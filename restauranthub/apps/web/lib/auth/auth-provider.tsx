@@ -66,12 +66,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setLoading(false);
         return;
       }
+      // Re-sync the middleware-readable cookie in case it was lost (e.g. browser restart)
+      document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
       const userData = await authApi.getProfile();
       setUser(userData);
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      document.cookie = 'accessToken=; path=/; max-age=0';
     } finally {
       setLoading(false);
     }
@@ -81,9 +84,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true);
     try {
       const response = await authApi.login(email, password, role, twoFactorToken);
-      
+
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
+
+      // Set cookie so Next.js middleware can read the token (middleware has no localStorage access)
+      document.cookie = `accessToken=${response.accessToken}; path=/; max-age=604800; SameSite=Lax`;
       
       setUser(response.user);
       
@@ -108,6 +114,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      // Clear the middleware-readable cookie on logout
+      document.cookie = 'accessToken=; path=/; max-age=0';
       setUser(null);
       router.push('/auth/login');
       toast.success('Logged out successfully');

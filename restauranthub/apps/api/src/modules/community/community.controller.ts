@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Param,
   Query,
@@ -21,6 +22,19 @@ export class CommunityController {
 
   constructor(private readonly communityService: CommunityService) {}
 
+  // NOTE: Static sub-routes (/trending, /recommended/:userId) must come BEFORE
+  // the dynamic /:id route to avoid NestJS matching them as post IDs.
+  @Get('posts/trending')
+  async getTrendingPosts() {
+    return this.communityService.getTrendingPosts();
+  }
+
+  @Get('posts/recommended/:userId')
+  @UseGuards(JwtAuthGuard)
+  async getRecommendedPosts(@Param('userId') userId: string) {
+    return this.communityService.getRecommendedPosts(userId);
+  }
+
   @Get('posts')
   async listPosts(
     @Query('search') search?: string,
@@ -36,6 +50,12 @@ export class CommunityController {
     });
   }
 
+  @Get('posts/:id')
+  @UseGuards(JwtAuthGuard)
+  async getPost(@Param('id') id: string) {
+    return this.communityService.getPost(id);
+  }
+
   @Post('posts')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -47,11 +67,57 @@ export class CommunityController {
     return this.communityService.createPost(req.user.id, body);
   }
 
+  @Put('posts/:id')
+  @UseGuards(JwtAuthGuard)
+  async updatePost(
+    @Param('id') id: string,
+    @Body() dto: any,
+    @Request() req: any,
+  ) {
+    this.logger.log(`User ${req.user.id} updating post ${id}`);
+    return this.communityService.updatePost(id, dto, req.user.id);
+  }
+
   @Post('posts/:id/like')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async toggleLike(@Param('id') id: string, @Request() req: any) {
     return this.communityService.toggleLike(id, req.user.id);
+  }
+
+  @Post('posts/:id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async bookmarkPost(@Param('id') id: string, @Request() req: any) {
+    return this.communityService.toggleBookmark(id, req.user.id);
+  }
+
+  @Post('posts/:id/report')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async reportPost(
+    @Param('id') id: string,
+    @Body() dto: { reason: string },
+    @Request() req: any,
+  ) {
+    return this.communityService.reportPost(id, req.user.id, dto.reason);
+  }
+
+  @Get('posts/:id/comments')
+  @UseGuards(JwtAuthGuard)
+  async getComments(@Param('id') postId: string) {
+    return this.communityService.getComments(postId);
+  }
+
+  @Post('posts/:id/comments')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async addComment(
+    @Param('id') postId: string,
+    @Body() dto: { content: string },
+    @Request() req: any,
+  ) {
+    return this.communityService.addComment(postId, req.user.id, dto.content);
   }
 
   @Delete('posts/:id')

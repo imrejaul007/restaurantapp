@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import {
   ChefHat,
   Mail,
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+import { authApi } from '@/lib/api/auth';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -41,10 +42,7 @@ export default function ForgotPasswordPage() {
     setError('');
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For demo purposes, always succeed
+      await authApi.forgotPassword(email);
       setSubmitted(true);
     } catch (err) {
       setError('Failed to send reset email. Please try again.');
