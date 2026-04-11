@@ -45,17 +45,30 @@ export class FileStorageService {
       );
     }
 
-    // Generate unique filename
+    // Generate unique filename — derive extension from the validated MIME type,
+    // not from the original filename, to prevent directory-traversal attacks.
     const timestamp = Date.now();
     const randomId = Math.round(Math.random() * 1E9);
-    const extension = file.originalname.split('.').pop();
+    const mimeToExt: Record<string, string> = {
+      'application/pdf': 'pdf',
+      'application/msword': 'doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+    };
+    const extension = mimeToExt[file.mimetype] ?? 'bin';
     const sanitizedName = file.originalname
       .replace(/\.[^/.]+$/, '') // Remove extension
       .replace(/[^a-zA-Z0-9]/g, '_') // Replace special chars
       .substring(0, 50); // Limit length
 
     const filename = `${sanitizedName}_${timestamp}_${randomId}.${extension}`;
-    const uploadDir = join(this.baseUploadPath, subfolder);
+    // Guard against path traversal in the subfolder argument itself
+    const safeSubfolder = subfolder.replace(/[^a-zA-Z0-9_-]/g, '');
+    const uploadDir = join(this.baseUploadPath, safeSubfolder);
     const filePath = join(uploadDir, filename);
 
     try {
@@ -68,7 +81,7 @@ export class FileStorageService {
       const result: UploadResult = {
         filename,
         path: filePath,
-        url: `${this.baseUrl}/uploads/${subfolder}/${filename}`,
+        url: `${this.baseUrl}/uploads/${safeSubfolder}/${filename}`,
         size: file.size,
         mimetype: file.mimetype
       };

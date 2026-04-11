@@ -49,14 +49,26 @@ export class OrdersController {
   }
 
   @Get(':id')
-  async getOrderById(@Param('id') orderId: string) {
+  async getOrderById(@Param('id') orderId: string, @Request() req: any) {
+    const restaurantId = req?.user?.restaurantId;
+    if (!restaurantId) {
+      throw new ForbiddenException('User does not have an associated restaurant');
+    }
     this.logger.log(`Fetching order ${orderId}`);
-    return this.ordersService.getOrderById(orderId);
+    return this.ordersService.getOrderById(orderId, restaurantId);
   }
 
   @Put(':id/status')
-  async updateOrderStatus(@Param('id') orderId: string, @Body() updateDto: UpdateOrderStatusDto) {
+  async updateOrderStatus(
+    @Param('id') orderId: string,
+    @Body() updateDto: UpdateOrderStatusDto,
+    @Request() req: any,
+  ) {
+    const restaurantId = req?.user?.restaurantId;
+    if (!restaurantId) {
+      throw new ForbiddenException('User does not have an associated restaurant');
+    }
     this.logger.log(`Updating order ${orderId} status to ${updateDto.status}`);
-    return this.ordersService.updateOrderStatus(orderId, updateDto);
+    return this.ordersService.updateOrderStatus(orderId, updateDto, restaurantId);
   }
 }

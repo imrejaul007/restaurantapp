@@ -60,18 +60,34 @@ export class ReviewsService {
 
   async createReview(
     userId: string,
-    dto: { rating: number; comment?: string; orderId?: string },
+    dto: { rating: number; comment?: string; orderId?: string; restaurantId?: string },
   ) {
-    const restaurantId = await this.getRestaurantIdForUser(userId);
+    // Derive the target restaurant from the order when orderId is provided,
+    // otherwise require an explicit restaurantId in the request body.
+    let restaurantId: string;
 
     if (dto.orderId) {
       const order = await this.prisma.order.findUnique({
         where: { id: dto.orderId },
         select: { id: true, restaurantId: true },
       });
-      if (!order || order.restaurantId !== restaurantId) {
-        throw new NotFoundException('Order not found or does not belong to this restaurant');
+      if (!order) {
+        throw new NotFoundException('Order not found');
       }
+      restaurantId = order.restaurantId;
+    } else if (dto.restaurantId) {
+      restaurantId = dto.restaurantId;
+    } else {
+      throw new ForbiddenException('Either orderId or restaurantId must be provided');
+    }
+
+    // Prevent a restaurant owner from reviewing their own restaurant.
+    const ownedRestaurant = await this.prisma.restaurant.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (ownedRestaurant?.id === restaurantId) {
+      throw new ForbiddenException('Restaurant owners may not review their own restaurant');
     }
 
     const review = await this.prisma.review.create({

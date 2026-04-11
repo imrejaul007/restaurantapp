@@ -33,7 +33,7 @@ async function bootstrap() {
     }));
     app.setGlobalPrefix('api/v1');
     const config = new swagger_1.DocumentBuilder()
-        .setTitle('RestaurantHub Restaurant Service')
+        .setTitle('RestoPapa Restaurant Service')
         .setDescription('Restaurant Management microservice API')
         .setVersion('1.0')
         .addBearerAuth()

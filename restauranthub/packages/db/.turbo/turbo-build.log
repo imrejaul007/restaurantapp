@@ -1,17 +1,27 @@
 
-> @restauranthub/db@1.0.0 build
+> @restopapa/db@1.0.0 build
 > npm run db:generate
 
 
-> @restauranthub/db@1.0.0 db:generate
+> @restopapa/db@1.0.0 db:generate
 > prisma generate
 
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.15.0 -> 7.7.0                       │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
 
-✔ Generated Prisma Client (v6.15.0) to ./../../node_modules/@prisma/client in 869ms
+✔ Generated Prisma Client (v6.15.0) to ./../../node_modules/@prisma/client in 3.22s
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
 

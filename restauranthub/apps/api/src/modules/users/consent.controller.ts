@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -48,7 +49,15 @@ export class ConsentController {
   /** GET /users/:id/rez-profile — used by useRezProfile hook in the web app */
   @Get(':id/rez-profile')
   @UseGuards(JwtAuthGuard)
-  async getRezProfile(@Param('id') id: string) {
+  async getRezProfile(
+    @Param('id') id: string,
+    @Request() req: { user: { id: string; role: string } },
+  ) {
+    // Enforce ownership: a user may only fetch their own REZ profile unless they are an admin.
+    if (req.user.id !== id && req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('You may only view your own REZ profile');
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {

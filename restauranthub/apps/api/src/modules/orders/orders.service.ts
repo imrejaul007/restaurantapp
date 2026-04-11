@@ -153,10 +153,10 @@ export class OrdersService {
     }
   }
 
-  async getOrderById(orderId: string): Promise<any> {
+  async getOrderById(orderId: string, restaurantId: string): Promise<any> {
     try {
-      const order = await this.prisma.order.findUnique({
-        where: { id: orderId },
+      const order = await this.prisma.order.findFirst({
+        where: { id: orderId, restaurantId },
         include: { items: true, statusHistory: true },
       });
       if (!order) throw new NotFoundException('Order not found');
@@ -168,10 +168,10 @@ export class OrdersService {
     }
   }
 
-  async updateOrderStatus(orderId: string, updateDto: UpdateOrderStatusDto): Promise<any> {
+  async updateOrderStatus(orderId: string, updateDto: UpdateOrderStatusDto, restaurantId: string): Promise<any> {
     try {
-      const order = await this.prisma.order.findUnique({
-        where: { id: orderId },
+      const order = await this.prisma.order.findFirst({
+        where: { id: orderId, restaurantId },
         include: { items: true },
       });
       if (!order) throw new NotFoundException('Order not found');
