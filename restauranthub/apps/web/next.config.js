@@ -13,16 +13,15 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
 
+  // Move to top-level — required by Next.js 14+
+  serverExternalPackages: ['@prisma/client'],
+
+  // SWC minification is the default in Next.js 14; no config needed
+
   // Experimental features for performance
   experimental: {
-    // Enable server components
-    serverComponentsExternalPackages: ['@prisma/client'],
     // Optimize bundle splitting
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    // Enable SWC minification
-    swcMinify: true,
-    // Enable middleware optimization
-    middlewareSourceMaps: false,
     // Optimize CSS
     optimizeCss: true,
   },

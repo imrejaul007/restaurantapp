@@ -25,6 +25,14 @@ export class NotificationsController {
     return this.notificationsService.listForUser(req.user.id);
   }
 
+  @Patch('read-all')
+  @HttpCode(HttpStatus.OK)
+  async markAllRead(@Request() req: any) {
+    const userId = req.user.sub || req.user.id;
+    this.logger.log(`Marking all notifications as read for user ${userId}`);
+    return this.notificationsService.markAllRead(userId);
+  }
+
   @Patch(':id/read')
   @HttpCode(HttpStatus.OK)
   async markRead(@Param('id') id: string, @Request() req: any) {

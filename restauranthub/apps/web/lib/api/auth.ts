@@ -71,8 +71,9 @@ export const authApi = {
   },
 
   async getProfile(): Promise<User> {
-    const response = await apiClient.get<User>('/users/profile');
-    return response.data;
+    const response = await apiClient.get<any>('/auth/me');
+    // Backend returns { authenticated: true, user: {...} }
+    return (response as any).user || (response as any).data?.user || (response as any).data || response;
   },
 
   async updateProfile(data: Partial<User>): Promise<User> {

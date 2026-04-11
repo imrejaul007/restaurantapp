@@ -11,6 +11,7 @@ import { useRezProfile } from '@/hooks/use-rez-profile';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import { usersApi } from '@/lib/api/users';
+import { apiClient } from '@/lib/api/client';
 
 type RestaurantProfileShape = {
   id: string;
@@ -153,21 +154,33 @@ export default function ProfilePage() {
     refetchRez();
   };
 
-  const handleUpdateProfile = (updatedProfile: RestaurantProfileShape) => {
+  const handleUpdateProfile = async (updatedProfile: RestaurantProfileShape) => {
     setProfile(updatedProfile);
-    // TODO: persist via PATCH /users/profile when that endpoint is available
-    console.log('Profile updated:', updatedProfile);
+    try {
+      const p = updatedProfile.basicInfo;
+      await apiClient.patch('/users/profile', {
+        firstName: p.name?.split(' ')[0] ?? '',
+        lastName: p.name?.split(' ').slice(1).join(' ') ?? '',
+        bio: updatedProfile.basicInfo.description,
+        address: updatedProfile.location.address,
+        city: updatedProfile.location.city,
+        state: updatedProfile.location.state,
+        country: updatedProfile.location.country,
+        pincode: updatedProfile.location.zipCode,
+      });
+    } catch (err) {
+      console.error('Failed to persist profile update:', err);
+    }
   };
 
   const handleUploadImage = async (type: 'logo' | 'cover' | 'gallery', file: File): Promise<string> => {
-    // Simulate image upload
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // In a real app, you would upload the file to your storage service
-        const fakeImageUrl = URL.createObjectURL(file);
-        resolve(fakeImageUrl);
-      }, 2000);
-    });
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      await apiClient.patch('/users/profile', { avatar: objectUrl });
+    } catch (err) {
+      console.error('Failed to update avatar:', err);
+    }
+    return objectUrl;
   };
 
   // Only show restaurant profile for restaurant users

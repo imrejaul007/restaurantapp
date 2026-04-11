@@ -15,6 +15,15 @@ export class NotificationsService {
     });
   }
 
+  async markAllRead(userId: string) {
+    const result = await this.prisma.notification.updateMany({
+      where: { userId, isRead: false },
+      data: { isRead: true, readAt: new Date() },
+    });
+    this.logger.log(`Marked ${result.count} notifications as read for user ${userId}`);
+    return { count: result.count };
+  }
+
   async markRead(id: string, userId: string) {
     await this.assertOwnership(id, userId);
     return this.prisma.notification.update({

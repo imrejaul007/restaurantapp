@@ -45,6 +45,11 @@ class ApiClient {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
           }
+          // Attach Bearer token for all guarded endpoints
+          const token = localStorage.getItem('accessToken');
+          if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+          }
         }
         return config;
       },
