@@ -1,5 +1,7 @@
 import { ImageResponse } from 'next/og'
 
+export const runtime = 'edge'
+
 export const size = {
   width: 32,
   height: 32,
@@ -11,7 +13,7 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
+          fontSize: 20,
           background: '#ff6b35',
           width: '100%',
           height: '100%',
@@ -19,14 +21,13 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           color: 'white',
-          fontWeight: 'bold',
+          fontWeight: '900',
+          borderRadius: '6px',
         }}
       >
         R
       </div>
     ),
-    {
-      ...size,
-    }
+    { ...size }
   )
 }

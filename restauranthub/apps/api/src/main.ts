@@ -260,7 +260,16 @@ async function bootstrap() {
   const corsOrigin = appConfigService.get('CORS_ORIGIN', '');
   const allowedOriginsEnv = appConfigService.get('ALLOWED_ORIGINS', '');
   const frontendUrl = appConfigService.get('FRONTEND_URL', '');
+  // Hardcoded production origins — always allowed regardless of env vars
+  const PRODUCTION_ORIGINS = [
+    'https://restaurantapp-olive.vercel.app',
+    'https://restopapa.vercel.app',
+    'https://restopapa.com',
+    'https://www.restopapa.com',
+  ];
+
   const allowedOrigins = [
+    ...PRODUCTION_ORIGINS,
     ...corsOrigin.split(',').filter(Boolean),
     ...allowedOriginsEnv.split(',').filter(Boolean),
     ...(frontendUrl ? [frontendUrl] : []),
