@@ -28,8 +28,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { TwoFactorChallenge } from '@/components/auth/two-factor-challenge';
 
-const _rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const API_BASE = _rawBase.includes('/api/v1') ? _rawBase : `${_rawBase.replace(/\/$/, '')}/api/v1`;
+const API_BASE = '/api/proxy';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

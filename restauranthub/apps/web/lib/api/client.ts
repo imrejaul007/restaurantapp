@@ -19,10 +19,18 @@ class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
-    const rawBase = process.env.NEXT_PUBLIC_API_URL || '';
-    const baseURL = rawBase.endsWith('/api/v1') || rawBase.endsWith('/api/v1/')
-      ? rawBase
-      : `${rawBase.replace(/\/$/, '')}/api/v1`;
+    // In the browser: route through the Next.js proxy to avoid CORS entirely.
+    // On the server (SSR): call the backend directly.
+    const isBrowser = typeof window !== 'undefined';
+    let baseURL: string;
+    if (isBrowser) {
+      baseURL = '/api/proxy';
+    } else {
+      const rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      baseURL = rawBase.endsWith('/api/v1') || rawBase.endsWith('/api/v1/')
+        ? rawBase
+        : `${rawBase.replace(/\/$/, '')}/api/v1`;
+    }
 
     this.client = axios.create({
       baseURL,

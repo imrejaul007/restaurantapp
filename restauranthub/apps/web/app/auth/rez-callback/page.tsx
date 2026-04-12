@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
-const rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const API_BASE = rawBase.includes('/api/v1') ? rawBase : `${rawBase.replace(/\/$/, '')}/api/v1`;
+const API_BASE = '/api/proxy';
 
 export default function RezCallbackPage() {
   const router = useRouter();

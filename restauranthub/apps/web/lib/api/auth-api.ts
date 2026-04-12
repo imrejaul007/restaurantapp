@@ -1,7 +1,12 @@
 import { toast } from 'react-hot-toast';
 
-const _rawBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const API_BASE_URL = _rawBase.includes('/api/v1') ? _rawBase : `${_rawBase.replace(/\/$/, '')}/api/v1`;
+// Route through Next.js proxy in the browser to avoid CORS
+const API_BASE_URL = typeof window !== 'undefined'
+  ? '/api/proxy'
+  : (() => {
+      const raw = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      return raw.includes('/api/v1') ? raw : `${raw.replace(/\/$/, '')}/api/v1`;
+    })();
 
 interface ApiResponse<T> {
   data?: T;
