@@ -53,12 +53,13 @@ interface DemoAccount {
   bgColor: string;
 }
 
-// Demo accounts configuration - credentials loaded securely from environment
+const DEMO_PASSWORD = 'RestoPapa@123';
+
 const demoAccounts: DemoAccount[] = [
   {
     role: 'admin',
-    email: process.env.NEXT_PUBLIC_DEMO_ADMIN_EMAIL || 'demo-admin@example.com',
-    password: '••••••••', // Hidden for security
+    email: 'admin@restopapa.dev',
+    password: DEMO_PASSWORD,
     name: 'Platform Admin',
     description: 'Full platform access with user management',
     icon: User,
@@ -67,8 +68,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'restaurant',
-    email: process.env.NEXT_PUBLIC_DEMO_RESTAURANT_EMAIL || 'demo-restaurant@example.com',
-    password: '••••••••', // Hidden for security
+    email: 'restaurant@restopapa.dev',
+    password: DEMO_PASSWORD,
     name: 'Restaurant Owner',
     description: 'Manage staff, orders, and marketplace',
     icon: Building2,
@@ -77,8 +78,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'employee',
-    email: process.env.NEXT_PUBLIC_DEMO_EMPLOYEE_EMAIL || 'demo-employee@example.com',
-    password: '••••••••', // Hidden for security
+    email: 'employee@restopapa.dev',
+    password: DEMO_PASSWORD,
     name: 'Job Seeker',
     description: 'Search jobs and manage applications',
     icon: Users,
@@ -87,8 +88,8 @@ const demoAccounts: DemoAccount[] = [
   },
   {
     role: 'vendor',
-    email: process.env.NEXT_PUBLIC_DEMO_VENDOR_EMAIL || 'demo-vendor@example.com',
-    password: '••••••••', // Hidden for security
+    email: 'vendor@restopapa.dev',
+    password: DEMO_PASSWORD,
     name: 'Supplier/Vendor',
     description: 'Manage inventory and process orders',
     icon: Package,
@@ -193,10 +194,10 @@ export default function LoginPage() {
 
   const fillDemoCredentials = (account: DemoAccount) => {
     form.setValue('email', account.email);
+    form.setValue('password', account.password);
     form.setValue('role', account.role);
     setSelectedRole(account.role);
-    // Note: Demo passwords are managed securely on the backend
-    // Contact support for demo access credentials
+    setLoginError('');
   };
 
   return (
@@ -495,6 +496,7 @@ export default function LoginPage() {
                 <div className="grid grid-cols-1 gap-2" role="list" aria-labelledby="demo-accounts-title">
                   {demoAccounts.map((account) => {
                     const Icon = account.icon;
+                    const isSelected = selectedRole === account.role;
 
                     return (
                       <button
@@ -502,8 +504,13 @@ export default function LoginPage() {
                         type="button"
                         role="listitem"
                         onClick={() => fillDemoCredentials(account)}
-                        aria-label={`Fill demo credentials for ${account.name}: ${account.description}`}
-                        className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        aria-label={`Fill demo credentials for ${account.name}`}
+                        className={cn(
+                          'flex items-center justify-between p-3 border rounded-lg transition-colors text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                          isSelected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:bg-accent/50'
+                        )}
                       >
                         <div className="flex items-center space-x-3">
                           <div className={`p-1.5 rounded ${account.bgColor}`} aria-hidden="true">
@@ -511,14 +518,17 @@ export default function LoginPage() {
                           </div>
                           <div>
                             <p className="font-medium text-sm">{account.name}</p>
-                            <p className="text-xs text-muted-foreground">{account.description}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{account.email}</p>
                           </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                          {isSelected ? '✓ filled' : 'click to use'}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
+                <p className="text-xs text-center text-muted-foreground">Password: <span className="font-mono">RestoPapa@123</span></p>
               </section>
 
               {/* REZ Merchant SSO */}
