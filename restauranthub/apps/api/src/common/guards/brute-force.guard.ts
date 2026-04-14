@@ -199,7 +199,14 @@ export class BruteForceGuard implements CanActivate {
       ]);
 
       this.logger.log(`Cleanup completed: ${deletedAttempts.count} attempts, ${deletedBlocks.count} blocks removed`);
-    } catch (error) {
+    } catch (error: any) {
+      // P2021 = table does not exist — guard against un-migrated DB in dev/staging
+      // P1001 = can't reach database — network issue, not a code bug
+      const safeCodes = ['P2021', 'P1001'];
+      if (safeCodes.includes(error?.code)) {
+        this.logger.warn(`Brute-force cleanup skipped: table or DB unavailable (${error?.code})`);
+        return;
+      }
       this.logger.error('Failed to cleanup expired records:', error);
     }
   }

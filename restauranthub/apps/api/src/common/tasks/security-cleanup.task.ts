@@ -77,7 +77,14 @@ export class SecurityCleanupTask {
       });
 
       this.logger.log(`Audit log cleanup completed: ${deletedAttempts.count} attempts, ${deletedSessions.count} sessions removed`);
-    } catch (error) {
+    } catch (error: any) {
+      // P2021 = table does not exist — guard against un-migrated DB
+      // P1001 = can't reach database — network issue, not a code bug
+      const safeCodes = ['P2021', 'P1001'];
+      if (safeCodes.includes(error?.code)) {
+        this.logger.warn(`Audit cleanup skipped: table or DB unavailable (${error?.code})`);
+        return;
+      }
       this.logger.error('Failed to cleanup audit logs:', error);
     }
   }
