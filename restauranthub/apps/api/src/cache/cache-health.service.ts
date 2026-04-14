@@ -117,7 +117,7 @@ export class CacheHealthService {
       this.errorCount++;
       return {
         connected: false,
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }
@@ -142,7 +142,7 @@ export class CacheHealthService {
         maxSize: 0,
         hitRatio: 0,
         tags: 0,
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }

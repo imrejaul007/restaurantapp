@@ -326,7 +326,7 @@ export class CacheService {
       return {
         status: 'unhealthy',
         details: {
-          error: error.message,
+          error: (error as Error).message,
           metrics: this.getMetrics(),
         },
       };

@@ -5,8 +5,8 @@ import { CacheConfigService } from './cache-config.service';
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  private client: Redis;
-  private subscriber: Redis;
+  private client!: Redis;
+  private subscriber!: Redis;
   private isConnected = false;
   private connectionRetryCount = 0;
   private readonly maxRetries = 5;
@@ -37,7 +37,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         connectTimeout: 10000,
         commandTimeout: 5000,
         family: 4,
-        keepAlive: true,
+        keepAlive: 30000,
         retryDelayOnClusterDown: 300,
         enableReadyCheck: true,
       };
@@ -62,7 +62,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         this.isConnected = false;
       });
 
-      this.client.on('reconnecting', (delay) => {
+      this.client.on('reconnecting', (delay: number) => {
         this.connectionRetryCount++;
         this.logger.log(`Redis client reconnecting in ${delay}ms (attempt ${this.connectionRetryCount})`);
       });

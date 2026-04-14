@@ -249,7 +249,7 @@ export class MemoryCacheService {
       return {
         status: 'unhealthy',
         details: {
-          error: error.message,
+          error: (error as Error).message,
           stats: this.getStats(),
         },
       };
