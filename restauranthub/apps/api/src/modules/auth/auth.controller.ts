@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsNotEmpty, Matches } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UserRole } from '@prisma/client';
@@ -10,6 +10,9 @@ class SignUpDto {
 
   @IsString()
   @MinLength(8)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
+    message: 'Password must contain at least one uppercase letter, one lowercase letter, and one digit',
+  })
   password!: string;
 
   @IsOptional()

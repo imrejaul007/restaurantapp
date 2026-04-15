@@ -43,8 +43,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw err || new UnauthorizedException('Authentication required');
     }
 
-    // Additional security checks
-    if (!user.isActive) {
+    // Additional security checks - verify user object has required properties
+    if (!user || typeof user !== 'object') {
+      throw new UnauthorizedException('Invalid user object');
+    }
+
+    if (user.isActive === false) {
       throw new UnauthorizedException('Account is deactivated');
     }
 
@@ -52,13 +56,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private extractTokenFromHeader(request: any): string | null {
-    const authorization = request.headers.authorization;
+    const authorization = request?.headers?.authorization;
     if (!authorization || typeof authorization !== 'string') {
       return null;
     }
 
     const parts = authorization.split(' ');
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    if (parts.length !== 2 || parts[0] !== 'Bearer' || !parts[1]) {
       return null;
     }
 

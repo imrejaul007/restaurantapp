@@ -76,14 +76,12 @@ export class AuthService {
 
   async signIn(signInDto: any) {
     const { email, password, appSource = 'restopapa_web' } = signInDto;
-    this.logger.debug(`Signin attempt for user`);
 
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
-      this.logger.debug('User not found');
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -95,16 +93,12 @@ export class AuthService {
     const passwordValid = await argon2.verify(user.passwordHash, password);
 
     if (!passwordValid) {
-      this.logger.debug('Password validation failed');
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (!user.isActive) {
-      this.logger.debug('User is not active');
       throw new UnauthorizedException('Account is deactivated');
     }
-
-    this.logger.debug(`Authentication successful, generating tokens`);
 
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role);
@@ -214,7 +208,8 @@ export class AuthService {
   }
 
   private async generateTokens(userId: string, email: string, role: string) {
-    const jti = crypto.randomUUID();
+    const accessJti = crypto.randomUUID();
+    const refreshJti = crypto.randomUUID();
     const now = Math.floor(Date.now() / 1000);
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -223,7 +218,7 @@ export class AuthService {
           sub: userId,
           email,
           role,
-          jti,
+          jti: accessJti,
           iat: now,
           type: 'access'
         },
@@ -237,7 +232,7 @@ export class AuthService {
           sub: userId,
           email,
           role,
-          jti: crypto.randomUUID(),
+          jti: refreshJti,
           iat: now,
           type: 'refresh'
         },

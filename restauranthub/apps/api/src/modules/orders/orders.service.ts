@@ -63,8 +63,36 @@ export class OrdersService {
     try {
       this.logger.log(`[${requestId}] Creating order for restaurant ${createOrderDto.restaurantId}`);
 
+      // Check for idempotent duplicate
+      if (createOrderDto.idempotencyKey) {
+        const existingOrder = await this.prisma.order.findFirst({
+          where: { idempotencyKey: createOrderDto.idempotencyKey },
+          include: { items: true },
+        });
+        if (existingOrder) {
+          this.logger.log(`[${requestId}] Idempotent duplicate detected, returning existing order`);
+          return {
+            success: true,
+            order: {
+              id: existingOrder.id,
+              orderNumber: existingOrder.orderNumber,
+              status: existingOrder.status,
+              total: existingOrder.totalAmount,
+              items: existingOrder.items || [],
+              createdAt: existingOrder.createdAt,
+            },
+          };
+        }
+      }
+
       const { subtotal, gstAmount, totalAmount, items: validatedItems } =
         await this.validateAndCalculateTotals(createOrderDto.items);
+
+      // Validate total order amount (max 1 million INR per order)
+      const maxOrderAmount = 1000000;
+      if (totalAmount > maxOrderAmount) {
+        throw new BadRequestException(`Order total (₹${totalAmount}) exceeds maximum allowed amount (₹${maxOrderAmount})`);
+      }
 
       const orderNumber = this.generateOrderNumber();
 
@@ -82,6 +110,7 @@ export class OrdersService {
           paymentStatus: 'PENDING',
           notes: createOrderDto.specialInstructions,
           shippingAddress: (createOrderDto.deliveryAddress as any) ?? undefined,
+          idempotencyKey: createOrderDto.idempotencyKey,
           items: {
             create: validatedItems.map((item) => ({
               productId: item.productId,
@@ -108,12 +137,12 @@ export class OrdersService {
       );
 
       // Notify all KDS displays watching this restaurant
-      if (this.kdsGateway) {
+      if (this.kdsGateway && order.items && order.items.length > 0) {
         this.kdsGateway.notifyNewOrder(createOrderDto.restaurantId, {
           orderId: order.id,
           orderNumber: order.orderNumber,
           orderType: 'delivery',
-          items: (order as any).items?.map((item: any) => ({
+          items: order.items.map((item: any) => ({
             id: item.id,
             name: item.productId, // product name not stored on OrderItem; KDS display can enrich
             quantity: item.quantity,
@@ -122,7 +151,7 @@ export class OrdersService {
             station: 'main',
             allergens: [],
             modifications: [],
-          })) ?? [],
+          })),
           specialInstructions: createOrderDto.specialInstructions ?? null,
           storeId: createOrderDto.restaurantId,
         });
@@ -135,14 +164,14 @@ export class OrdersService {
           orderNumber: order.orderNumber,
           status: order.status,
           total: order.totalAmount,
-          items: (order as any).items,
+          items: order.items || [],
           createdAt: order.createdAt,
         },
       };
     } catch (error) {
-      this.logger.error(`[${requestId}] Failed to create order:`, error);
+      this.logger.error(`[${requestId}] Failed to create order`, { error: (error as any).message });
       if (error instanceof BadRequestException) throw error;
-      throw new InternalServerErrorException('Failed to create order: ' + (error as any).message);
+      throw new InternalServerErrorException('Failed to create order');
     }
   }
 
@@ -248,8 +277,12 @@ export class OrdersService {
     let subtotal = 0;
     const validatedItems: OrderItemDto[] = [];
     for (const item of items) {
-      if (item.quantity < 1 || item.price <= 0) {
-        throw new BadRequestException(`Invalid item: ${item.productName} (price must be > 0)`);
+      // Ensure quantity is a positive integer
+      if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+        throw new BadRequestException(`Invalid item: ${item.productName} (quantity must be a positive integer)`);
+      }
+      if (item.price <= 0 || !Number.isFinite(item.price)) {
+        throw new BadRequestException(`Invalid item: ${item.productName} (price must be a positive number)`);
       }
       subtotal += item.price * item.quantity;
       validatedItems.push(item);

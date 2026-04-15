@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -34,10 +35,23 @@ export class ReservationsService {
 
   /**
    * Combine a date string ("2025-04-10") and time string ("19:00")
-   * into a single UTC Date object.
+   * into a single UTC Date object. Validates ISO format.
    */
   private buildReservationTime(date: string, time: string): Date {
-    return new Date(`${date}T${time}:00`);
+    // Validate date format (YYYY-MM-DD)
+    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      throw new BadRequestException('Date must be in format YYYY-MM-DD');
+    }
+    // Validate time format (HH:MM)
+    if (!time.match(/^\d{2}:\d{2}$/)) {
+      throw new BadRequestException('Time must be in format HH:MM');
+    }
+
+    const dateTime = new Date(`${date}T${time}:00`);
+    if (isNaN(dateTime.getTime())) {
+      throw new BadRequestException('Invalid date or time');
+    }
+    return dateTime;
   }
 
   // ── Tables ─────────────────────────────────────────────────────────────────
@@ -185,11 +199,20 @@ export class ReservationsService {
   async createReservation(dto: CreateReservationDto, restaurantId: string): Promise<any> {
     await this.assertRestaurantOwner(restaurantId);
     try {
+      // Validate party size
+      if (!Number.isInteger(dto.partySize) || dto.partySize < 1 || dto.partySize > 1000) {
+        throw new BadRequestException('Party size must be a positive integer between 1 and 1000');
+      }
+
       // If tableId provided, verify it belongs to this restaurant
       if (dto.tableId) {
         const table = await this.prisma.table.findUnique({ where: { id: dto.tableId } });
         if (!table || table.restaurantId !== restaurantId) {
           throw new NotFoundException('Table not found');
+        }
+        // Validate table capacity
+        if (table.capacity < dto.partySize) {
+          throw new BadRequestException(`Party size ${dto.partySize} exceeds table capacity ${table.capacity}`);
         }
       } else {
         // Auto-assign first available table with enough capacity
@@ -208,7 +231,7 @@ export class ReservationsService {
       }
 
       if (!dto.tableId) {
-        throw new NotFoundException('No table specified and no available table found');
+        throw new BadRequestException('No available table found for the requested party size');
       }
 
       // Find or create customer by phone within this restaurant
