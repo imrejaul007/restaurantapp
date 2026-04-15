@@ -32,7 +32,8 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api/v1');
+  // NOTE: No global prefix here — path handling is done in ApiProxyMiddleware
+  // to ensure http-proxy-middleware sees the correct URL for upstream forwarding.
 
   // const logger = app.get(LoggerService);
   // app.useLogger(logger);

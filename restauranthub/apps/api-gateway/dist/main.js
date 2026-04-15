@@ -27,7 +27,6 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    app.setGlobalPrefix('api/v1');
     const config = new swagger_1.DocumentBuilder()
         .setTitle('RestoPapa API Gateway')
         .setDescription('Unified API Gateway for all microservices')
