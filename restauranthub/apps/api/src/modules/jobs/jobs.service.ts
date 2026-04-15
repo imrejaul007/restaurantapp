@@ -306,7 +306,7 @@ export class JobsService {
       where: { id: jobId }
     });
 
-    if (!job) {
+    if (!job || !job.status) {
       throw new NotFoundException('Job not found');
     }
 
@@ -327,13 +327,23 @@ export class JobsService {
       throw new BadRequestException('You have already applied to this job');
     }
 
+    // Sanitize resume file path - only accept files from trusted upload directory
+    let resumePath: string | undefined;
+    if (resumeFile) {
+      // Reject path traversal attempts
+      if (resumeFile.includes('..') || resumeFile.includes('/') || !resumeFile.match(/^[a-zA-Z0-9._-]+$/)) {
+        throw new BadRequestException('Invalid resume file path');
+      }
+      resumePath = resumeFile;
+    }
+
     // Create application
     const application = await this.prisma.jobApplication.create({
       data: {
         jobId,
         employeeId,
         coverLetter,
-        resume: resumeFile, // File upload path
+        resume: resumePath,
         status: 'PENDING'
       },
       include: {

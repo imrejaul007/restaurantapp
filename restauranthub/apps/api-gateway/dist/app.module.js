@@ -9,7 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const api_proxy_middleware_1 = require("./api-proxy.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(api_proxy_middleware_1.ApiProxyMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([

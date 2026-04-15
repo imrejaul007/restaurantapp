@@ -51,8 +51,14 @@ export class MarketplaceService {
       );
     }
 
-    const page = filters.page ?? 1;
-    const limit = filters.limit ?? 20;
+    // Validate pagination bounds
+    let page = filters.page ?? 1;
+    let limit = filters.limit ?? 20;
+
+    if (!Number.isInteger(page) || page < 1) page = 1;
+    if (!Number.isInteger(limit) || limit < 1) limit = 20;
+    if (limit > 100) limit = 100; // Cap max limit
+
     const start = (page - 1) * limit;
 
     return filtered.slice(start, start + limit);
@@ -162,11 +168,27 @@ export class MarketplaceService {
     page?: number;
     limit?: number;
   }): Promise<{ data: any[]; total: number; page: number; limit: number }> {
-    const page = filters.page ?? 1;
-    const limit = filters.limit ?? 20;
+    // Validate pagination
+    let page = filters.page ?? 1;
+    let limit = filters.limit ?? 20;
+
+    if (!Number.isInteger(page) || page < 1) page = 1;
+    if (!Number.isInteger(limit) || limit < 1) limit = 20;
+    if (limit > 100) limit = 100; // Cap max limit
+
     const skip = (page - 1) * limit;
 
-    const where = filters.status ? { status: filters.status.toUpperCase() } : {};
+    // Validate status filter
+    let status: string | undefined;
+    if (filters.status) {
+      const upperStatus = filters.status.toUpperCase();
+      const validStatuses = ['PENDING', 'APPROVED', 'REJECTED', 'ONBOARDED'];
+      if (validStatuses.includes(upperStatus)) {
+        status = upperStatus;
+      }
+    }
+
+    const where = status ? { status } : {};
 
     const [data, total] = await Promise.all([
       this.prisma.vendorApplication.findMany({

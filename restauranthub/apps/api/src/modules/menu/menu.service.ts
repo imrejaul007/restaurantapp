@@ -110,7 +110,11 @@ export class MenuService {
   }
 
   async updateMenuItem(id: string, dto: UpdateMenuItemDto, restaurantId: string) {
-    await this.assertMenuItemOwnership(id, restaurantId);
+    const item = await this.assertMenuItemOwnership(id, restaurantId);
+    // Prevent updates to deleted items
+    if (item && (item as any).deletedAt) {
+      throw new NotFoundException(`Menu item ${id} has been deleted`);
+    }
     if (dto.categoryId) {
       await this.assertCategoryOwnership(dto.categoryId, restaurantId);
     }
@@ -125,9 +129,13 @@ export class MenuService {
   }
 
   async deleteMenuItem(id: string, restaurantId: string) {
-    await this.assertMenuItemOwnership(id, restaurantId);
+    const item = await this.assertMenuItemOwnership(id, restaurantId);
     this.logger.log(`Deleting menu item ${id} for restaurant ${restaurantId}`);
-    await this.prisma.menuItem.delete({ where: { id } });
+    // Use soft delete to preserve order history
+    await this.prisma.menuItem.update({
+      where: { id },
+      data: { isAvailable: false, deletedAt: new Date() },
+    });
     return { message: 'Menu item deleted successfully' };
   }
 

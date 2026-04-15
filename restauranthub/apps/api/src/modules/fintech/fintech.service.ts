@@ -134,6 +134,11 @@ export class FintechService {
       );
     }
 
+    // Type narrowing - profile is now CreditProfile
+    if (!profile || typeof profile !== 'object' || !('eligibleForSupplierTerms' in profile)) {
+      throw new BadRequestException('Invalid credit profile returned');
+    }
+
     if (!profile.eligibleForSupplierTerms) {
       throw new BadRequestException(
         'Bronze tier merchants are not eligible for supplier credit. Improve your REZ score first.',
@@ -207,6 +212,13 @@ export class FintechService {
     else if (creditScore >= 40) status = 'under_review';
     else status = 'rejected';
 
+    this.logger.warn('[FintechService] Creating STUB credit application — NBFC proxy unavailable', {
+      merchantId,
+      amount: dto.requestedAmount,
+      status,
+      creditScore,
+    });
+
     const record = await this.prisma.creditApplication.create({
       data: {
         rezMerchantId: merchantId,
@@ -216,7 +228,7 @@ export class FintechService {
         purpose: dto.purpose,
         creditScore,
         status: status.toUpperCase(),
-        nbfcPartner: 'stub',
+        nbfcPartner: 'stub', // Clearly marked as stub
         approvedAmount: status === 'approved' ? dto.requestedAmount : null,
       },
     });
@@ -313,9 +325,22 @@ export class FintechService {
     rezMerchantId: string,
     dto: SupplierPaymentDto,
   ): Promise<SupplierPaymentResult> {
+    // Validate payment amount
+    if (!Number.isFinite(dto.amount) || dto.amount <= 0) {
+      throw new BadRequestException('Payment amount must be a positive number');
+    }
+
     const profile = await this.getMerchantCreditProfile(rezMerchantId);
 
-    if ('ineligible' in profile || !profile.eligibleForSupplierTerms) {
+    if ('ineligible' in profile) {
+      throw new BadRequestException('Merchant is not eligible to use supplier credit payment');
+    }
+
+    if (!profile || typeof profile !== 'object' || !('eligibleForSupplierTerms' in profile)) {
+      throw new BadRequestException('Invalid credit profile returned');
+    }
+
+    if (!profile.eligibleForSupplierTerms) {
       throw new BadRequestException('Merchant is not eligible to use supplier credit payment');
     }
 

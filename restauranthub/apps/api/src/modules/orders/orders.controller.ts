@@ -28,7 +28,15 @@ export class OrdersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createOrder(@Body() createOrderDto: CreateOrderDto) {
+  async createOrder(@Body() createOrderDto: CreateOrderDto, @Request() req: any) {
+    const restaurantId = req?.user?.restaurantId;
+    if (!restaurantId) {
+      throw new ForbiddenException('User does not have an associated restaurant');
+    }
+    // Ensure user can only create orders for their own restaurant
+    if (createOrderDto.restaurantId !== restaurantId) {
+      throw new ForbiddenException('Cannot create orders for other restaurants');
+    }
     this.logger.log(`Creating order for restaurant ${createOrderDto.restaurantId}`);
     const result = await this.ordersService.createOrder(createOrderDto);
     return result;
