@@ -47,9 +47,9 @@ export default function RezCallbackPage() {
         setTimeout(() => {
           router.push('/restaurant/dashboard');
         }, 1000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setStatus('error');
-        setMessage(err.message || 'Authentication failed. Please try again.');
+        setMessage(err instanceof Error ? err.message : 'Authentication failed. Please try again.');
       }
     }
 

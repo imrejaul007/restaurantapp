@@ -53,8 +53,8 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
       setLoading(true);
       const orderData = await ordersApi.getOrder(orderId);
       setOrder(orderData);
-    } catch (err: any) {
-      console.error('Failed to fetch order:', err);
+    } catch (err: unknown) {
+      console.error('Failed to fetch order:', err instanceof Error ? err.message : String(err));
       setError('Failed to load order details');
       toast.error('Failed to load order details');
     } finally {

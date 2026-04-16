@@ -82,8 +82,8 @@ function mapApiOrder(raw: any): Order {
     REFUNDED: 'cancelled',
   };
 
-  const items: OrderItem[] = (raw.items ?? []).map((item: any) => ({
-    id: item.id ?? String(Math.random()),
+  const items: OrderItem[] = (raw.items ?? []).map((item: any, index: number) => ({
+    id: item.id ?? item.productId ?? `item-${index}`,
     name: item.productName ?? item.product?.name ?? 'Item',
     quantity: item.quantity ?? 1,
     price: item.price ?? 0,
@@ -184,8 +184,8 @@ export default function OrderStatusManagement() {
       const res = await apiClient.get<any>('/orders', { params });
       const rawList: any[] = res?.data?.data ?? res?.data ?? [];
       setOrders(rawList.map(mapApiOrder));
-    } catch (err: any) {
-      setLoadError(err?.message ?? 'Failed to load orders');
+    } catch (err: unknown) {
+      setLoadError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingOrders(false);
     }

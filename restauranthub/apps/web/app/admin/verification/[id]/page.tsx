@@ -174,8 +174,9 @@ export default function VerificationWorkflowPage() {
         try {
           const res = await apiClient.get<any>(`/admin/restaurants/${params.id}`);
           raw = res?.data ?? res;
-        } catch (err: any) {
-          if (err?.response?.status === 404) {
+        } catch (err: unknown) {
+          const axiosErr = err as { response?: { status?: number } };
+          if (axiosErr?.response?.status === 404) {
             setNotFound(true);
             return;
           }

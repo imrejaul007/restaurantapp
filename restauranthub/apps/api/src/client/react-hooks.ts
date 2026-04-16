@@ -60,8 +60,8 @@ export function useAuth() {
       setUser(response.data.user);
       setTokens(response.data.tokens);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -79,8 +79,8 @@ export function useAuth() {
       setUser(response.data.user);
       setTokens(response.data.tokens);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -93,8 +93,8 @@ export function useAuth() {
       await client.signOut();
       setUser(null);
       setTokens(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -110,8 +110,8 @@ export function useAuth() {
       const response = await client.updateUserProfile(userData);
       setUser(response.data);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -150,8 +150,8 @@ export function useRestaurants() {
       setRestaurants(response.data);
       setPagination(response.pagination);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -168,8 +168,8 @@ export function useRestaurants() {
       const response = await client.createRestaurant(restaurantData);
       setRestaurants(prev => [...prev, response.data]);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -191,8 +191,8 @@ export function useRestaurants() {
         )
       );
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -208,8 +208,8 @@ export function useRestaurants() {
       setError(null);
       await client.deleteRestaurant(id);
       setRestaurants(prev => prev.filter(restaurant => restaurant.id !== id));
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -247,8 +247,8 @@ export function useOrders() {
       setOrders(response.data);
       setPagination(response.pagination);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -265,8 +265,8 @@ export function useOrders() {
       const response = await client.createOrder(orderData);
       setOrders(prev => [...prev, response.data]);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -288,8 +288,8 @@ export function useOrders() {
         )
       );
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -338,8 +338,8 @@ export function useSocket() {
     if (socket) {
       try {
         await socket.connect();
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
       }
     }
   }, [socket]);
@@ -463,8 +463,8 @@ export function useFileUpload() {
       const response = await client.uploadFile(file, options);
       setProgress(100);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setUploading(false);
@@ -497,8 +497,8 @@ export function useSearch<T = any>() {
       const response = await client.globalSearch(query, type);
       setResults(response.data);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -514,8 +514,8 @@ export function useSearch<T = any>() {
       const response = await client.getSearchSuggestions(query, type);
       setSuggestions(response.data);
       return response;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
   }, []);

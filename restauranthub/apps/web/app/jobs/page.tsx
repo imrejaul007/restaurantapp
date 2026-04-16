@@ -183,8 +183,8 @@ export default function JobsPage() {
       const json = await res.json();
       const raw: any[] = json.data ?? json ?? [];
       setJobs(raw.map(normalizeJob));
-    } catch (err: any) {
-      setJobsError(err?.message ?? 'Could not load jobs. Please refresh.');
+    } catch (err: unknown) {
+      setJobsError(err instanceof Error ? err.message : String(err));
     } finally {
       setJobsLoading(false);
     }

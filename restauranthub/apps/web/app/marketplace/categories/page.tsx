@@ -52,8 +52,8 @@ export default function CategoriesPage() {
       try {
         const data = await apiFetch<MarketplaceCategory[]>('/marketplace/categories');
         setCategories(data ?? []);
-      } catch (err: any) {
-        setError(err.message ?? 'Failed to load categories');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load categories');
       } finally {
         setLoading(false);
       }

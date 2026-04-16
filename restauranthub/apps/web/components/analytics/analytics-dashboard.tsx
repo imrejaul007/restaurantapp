@@ -112,8 +112,8 @@ export default function AnalyticsDashboard({
     try {
       const response = await apiClient.get<AnalyticsDashboard>('/analytics/dashboard');
       setDashboard(response.data);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to load analytics data');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load analytics data');
     } finally {
       setIsLoading(false);
     }

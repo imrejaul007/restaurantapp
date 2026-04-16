@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEmployeeDto, UpdateEmployeeDto, CreateShiftDto, UpdateShiftDto, StaffQueryDto } from './staff.dto';
 
@@ -116,7 +117,7 @@ export class StaffService {
       }
     }
 
-    const employeeCode = `EMP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const employeeCode = `EMP-${Date.now()}-${randomUUID().replace(/-/g, '').slice(0, 8)}`;
 
     // Create user account for the employee
     const user = await this.prisma.user.create({

@@ -112,8 +112,9 @@ export default function AddEmployee() {
       });
       toast.success('Employee added successfully');
       router.push('/restaurant/employees');
-    } catch (err: any) {
-      const msg = err?.response?.data?.message ?? 'Failed to add employee';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string | string[] } } };
+      const msg = axiosErr?.response?.data?.message ?? 'Failed to add employee';
       setError(Array.isArray(msg) ? msg.join(', ') : msg);
     } finally {
       setLoading(false);

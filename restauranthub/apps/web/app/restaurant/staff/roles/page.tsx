@@ -66,8 +66,8 @@ export default function StaffRoleManagement() {
       const res = await apiClient.get<{ data: string[] }>('/staff/roles');
       const serverRoles: string[] = res.data.data ?? [];
       setRoles(serverRoles.map((name) => ({ name })));
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to load roles');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load roles');
     } finally {
       setLoading(false);
     }

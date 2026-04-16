@@ -150,8 +150,8 @@ export default function EmployeeApplications() {
         const json = await res.json();
         const raw: any[] = json.data ?? json ?? [];
         setApplications(raw.map(normalizeApplication));
-      } catch (err: any) {
-        setAppsError(err?.message ?? 'Could not load applications.');
+      } catch (err: unknown) {
+        setAppsError(err instanceof Error ? err.message : String(err));
       } finally {
         setAppsLoading(false);
       }

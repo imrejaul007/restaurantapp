@@ -184,8 +184,8 @@ export default function LoginPage() {
       }
       setShowRezModal(false);
       router.push('/restaurant/dashboard');
-    } catch (err: any) {
-      setRezError(err.message || 'Authentication failed');
+    } catch (err: unknown) {
+      setRezError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setRezLoading(false);
     }

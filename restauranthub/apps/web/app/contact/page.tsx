@@ -132,8 +132,8 @@ export default function ContactPage() {
       }
 
       setIsSubmitted(true);
-    } catch (err: any) {
-      console.error('Contact form error:', err);
+    } catch (err: unknown) {
+      console.error('Contact form error:', err instanceof Error ? err.message : String(err));
       // Still show success to user for UX — server received it or will retry
       setIsSubmitted(true);
     } finally {

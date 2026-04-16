@@ -47,9 +47,9 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
       status: upstream.status,
       headers: resHeaders,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { message: 'Backend unavailable', error: err?.message },
+      { message: 'Backend unavailable', error: err instanceof Error ? err.message : String(err) },
       { status: 502 }
     );
   }

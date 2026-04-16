@@ -148,9 +148,9 @@ export default function SettingsPage() {
       setShow2FADisableConfirm(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Surface error without crashing
-      console.error('Disable 2FA error:', err);
+      console.error('Disable 2FA error:', err instanceof Error ? err.message : String(err));
     } finally {
       setDisabling2FA(false);
     }

@@ -77,10 +77,10 @@ export class AnalyticsService {
 
       if (response.data?.insufficient_data) return null;
       return response.data?.data ?? null;
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.warn('[AnalyticsService] fetchBenchmarks failed — continuing without peer data', {
         rezMerchantId,
-        error: err.message,
+        error: err instanceof Error ? err.message : String(err),
       });
       return null;
     }
@@ -197,8 +197,8 @@ export class AnalyticsService {
         },
       );
       return response.data?.data;
-    } catch (err: any) {
-      this.logger.warn('[AnalyticsService] getPeerGroupStats failed', { city, cuisine, error: err.message });
+    } catch (err: unknown) {
+      this.logger.warn('[AnalyticsService] getPeerGroupStats failed', { city, cuisine, error: err instanceof Error ? err.message : String(err) });
       return {
         city,
         cuisineType: cuisine,
