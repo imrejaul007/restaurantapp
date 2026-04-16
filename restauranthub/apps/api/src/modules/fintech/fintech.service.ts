@@ -90,9 +90,9 @@ export class FintechService {
       const walletBalance = await this.fetchWalletBalance(rezMerchantId);
 
       return { ...score, merchantId: rezMerchantId, walletBalance };
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error('[FintechService] getMerchantCreditProfile failed', {
-        rezMerchantId, error: err.message,
+        rezMerchantId, error: err instanceof Error ? err.message : String(err),
       });
       throw err;
     }
@@ -186,15 +186,16 @@ export class FintechService {
       });
 
       return result;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Fallback: create a stub result if the payment service NBFC proxy endpoint
       // doesn't exist yet (it's a stub) — this keeps the UI functional
-      if (err?.response?.status === 404 || err.code === 'ECONNREFUSED') {
+      const axiosErr = err as { response?: { status?: number }; code?: string };
+      if (axiosErr?.response?.status === 404 || axiosErr?.code === 'ECONNREFUSED') {
         this.logger.warn('[FintechService] NBFC proxy not available — creating stub application');
         return this.createStubApplication(rezMerchantId, dto, profile.score);
       }
       this.logger.error('[FintechService] applyForSupplierCredit failed', {
-        rezMerchantId, error: err.message,
+        rezMerchantId, error: err instanceof Error ? err.message : String(err),
       });
       throw err;
     }
@@ -269,7 +270,7 @@ export class FintechService {
       const result = resp.data?.data;
       if (!result) throw new Error('Application not found');
       return result;
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.warn('[FintechService] getApplicationStatus — application not found', {
         applicationId,
       });
@@ -309,9 +310,9 @@ export class FintechService {
           reference: t.reference,
           createdAt: t.createdAt,
         }));
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.warn('[FintechService] getCreditHistory failed', {
-        rezMerchantId, error: err.message,
+        rezMerchantId, error: err instanceof Error ? err.message : String(err),
       });
       return [];
     }

@@ -51,8 +51,9 @@ export function useApi<T>(
         setData(response.data);
         onSuccess?.(response.data);
       }
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosErr?.response?.data?.message || (err instanceof Error ? err.message : String(err));
 
       if (mounted.current) {
         setError(errorMessage);
@@ -112,8 +113,9 @@ export function usePaginatedApi<T>(
         setPage(currentPage);
         onSuccess?.(response.data);
       }
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosErr?.response?.data?.message || (err instanceof Error ? err.message : String(err));
 
       if (mounted.current) {
         setError(errorMessage);
@@ -197,8 +199,9 @@ export function useMutation<TData, TVariables = void>(
       onSuccess?.(response.data, variables);
 
       return response.data;
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosErr?.response?.data?.message || (err instanceof Error ? err.message : String(err));
 
       setLoading(false);
       setError(errorMessage);
@@ -252,8 +255,9 @@ export function useOptimisticMutation<TData, TVariables = void>(
       onSuccess?.(response.data, variables);
 
       return response.data;
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosErr?.response?.data?.message || (err instanceof Error ? err.message : String(err));
 
       // Revert optimistic update on error
       setData(null);
@@ -315,8 +319,9 @@ export function useInfiniteApi<T>(
         setPage(pageNum);
         onSuccess?.(response.data);
       }
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err?.message || 'An error occurred';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const errorMessage = axiosErr?.response?.data?.message || (err instanceof Error ? err.message : String(err));
 
       if (mounted.current) {
         setError(errorMessage);

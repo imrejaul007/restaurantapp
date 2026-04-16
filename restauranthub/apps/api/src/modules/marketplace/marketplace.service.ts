@@ -104,8 +104,8 @@ export class MarketplaceService {
 
       const json: any = await response.json();
       return (json.data as DemandSignal[]) ?? [];
-    } catch (err: any) {
-      this.logger.error('Failed to fetch demand signals', err.message);
+    } catch (err: unknown) {
+      this.logger.error('Failed to fetch demand signals', err instanceof Error ? err.message : String(err));
       return [];
     }
   }

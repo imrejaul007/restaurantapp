@@ -76,7 +76,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         // Add new item
         const newItem: CartItem = {
           ...action.payload,
-          id: `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: `cart_${Date.now()}_${crypto.randomUUID().replace(/-/g, '').slice(0, 12)}`,
           quantity: Math.max(action.payload.quantity || 1, action.payload.minOrderQty)
         };
         newItems = [...state.items, newItem];

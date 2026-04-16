@@ -74,8 +74,8 @@ export default function RestaurantEmployees() {
       const res = await apiClient.get<EmployeesResponse>(`/staff/employees?${params.toString()}`);
       setEmployees(res.data.data ?? []);
       setTotal(res.data.total ?? 0);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to load employees');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load employees');
     } finally {
       setLoading(false);
     }
@@ -91,8 +91,8 @@ export default function RestaurantEmployees() {
       await apiClient.delete(`/staff/employees/${id}`);
       toast.success(`${name} deactivated`);
       fetchEmployees();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to deactivate employee');
+    } catch (err: unknown) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to deactivate employee');
     }
   };
 

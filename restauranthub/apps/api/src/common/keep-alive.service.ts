@@ -36,8 +36,8 @@ export class KeepAliveService implements OnModuleInit {
     try {
       const res = await fetch(this.selfUrl, { signal: AbortSignal.timeout(10_000) });
       this.logger.debug(`Keep-alive ping → ${res.status}`);
-    } catch (err: any) {
-      this.logger.warn(`Keep-alive ping failed: ${err.message}`);
+    } catch (err: unknown) {
+      this.logger.warn(`Keep-alive ping failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 }

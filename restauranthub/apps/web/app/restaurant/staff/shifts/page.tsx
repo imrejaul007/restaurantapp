@@ -98,8 +98,8 @@ export default function ShiftManagement() {
         `/staff/shifts?weekStart=${weekStart}`
       );
       setShifts(res.data.data ?? []);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to load shifts');
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load shifts');
     } finally {
       setLoading(false);
     }
@@ -137,8 +137,8 @@ export default function ShiftManagement() {
       setIsCreateShiftOpen(false);
       setShiftForm(emptyShiftForm);
       fetchShifts();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to create shift');
+    } catch (err: unknown) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to create shift');
     } finally {
       setSubmitting(false);
     }
@@ -153,8 +153,8 @@ export default function ShiftManagement() {
       setEditingShift(null);
       setShiftForm(emptyShiftForm);
       fetchShifts();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to update shift');
+    } catch (err: unknown) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to update shift');
     } finally {
       setSubmitting(false);
     }
@@ -166,8 +166,8 @@ export default function ShiftManagement() {
       await apiClient.delete(`/staff/shifts/${id}`);
       toast.success('Shift deleted');
       setShifts((prev) => prev.filter((s) => s.id !== id));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to delete shift');
+    } catch (err: unknown) {
+      toast.error((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to delete shift');
     }
   };
 

@@ -58,9 +58,9 @@ export class ShiftSyncService {
       try {
         const job = await this.upsertDraftJob(restaurantId, rezMerchantId, gap, validTill);
         draftJobs.push(this.toDto(job));
-      } catch (err: any) {
+      } catch (err: unknown) {
         this.logger.error(
-          `Failed to upsert job for gap ${gap.role} on ${gap.startTime}: ${err.message}`,
+          `Failed to upsert job for gap ${gap.role} on ${gap.startTime}: ${err instanceof Error ? err.message : String(err)}`,
         );
       }
     }

@@ -119,8 +119,8 @@ export class RezBridgeController {
 
     try {
       payload = jwt.verify(token, this.rezJwtSecret, { algorithms: ['HS256'] }) as RezJwtPayload;
-    } catch (err: any) {
-      this.logger.warn(`RezBridge: invalid REZ token — ${err?.message}`);
+    } catch (err: unknown) {
+      this.logger.warn(`RezBridge: invalid REZ token — ${err instanceof Error ? err.message : String(err)}`);
       throw new UnauthorizedException('Invalid or expired REZ token');
     }
 

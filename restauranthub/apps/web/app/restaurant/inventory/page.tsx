@@ -118,8 +118,8 @@ export default function InventoryManagement() {
         };
       });
       setInventory(items);
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to load inventory');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load inventory');
     } finally {
       setLoading(false);
     }

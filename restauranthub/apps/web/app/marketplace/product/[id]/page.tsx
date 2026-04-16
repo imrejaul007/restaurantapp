@@ -84,11 +84,12 @@ export default function ProductPage() {
           `/marketplace/suppliers/${encodeURIComponent(supplierId)}`,
         );
         setSupplier(data);
-      } catch (err: any) {
-        if (err.message?.includes('404') || err.message?.includes('not found')) {
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        if (errMsg.includes('404') || errMsg.includes('not found')) {
           setNotFound(true);
         } else {
-          setError(err.message ?? 'Failed to load supplier');
+          setError(err instanceof Error ? err.message : 'Failed to load supplier');
         }
       } finally {
         setLoading(false);

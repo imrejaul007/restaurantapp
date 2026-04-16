@@ -155,8 +155,8 @@ export default function ApplicationsPage() {
       const res = await apiClient.get<any>('/jobs/restaurant-applications?limit=100');
       const rawList: any[] = res?.data?.data ?? res?.data ?? [];
       setApplications(rawList.map(mapApiApplication));
-    } catch (err: any) {
-      setLoadError(err?.message ?? 'Failed to load applications');
+    } catch (err: unknown) {
+      setLoadError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingApplications(false);
     }

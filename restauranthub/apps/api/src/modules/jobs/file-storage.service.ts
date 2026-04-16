@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { randomUUID } from 'crypto';
 
 export interface UploadResult {
   filename: string;
@@ -48,7 +49,7 @@ export class FileStorageService {
     // Generate unique filename — derive extension from the validated MIME type,
     // not from the original filename, to prevent directory-traversal attacks.
     const timestamp = Date.now();
-    const randomId = Math.round(Math.random() * 1E9);
+    const randomId = randomUUID().replace(/-/g, '').slice(0, 12);
     const mimeToExt: Record<string, string> = {
       'application/pdf': 'pdf',
       'application/msword': 'doc',

@@ -128,8 +128,8 @@ export default function VendorVerificationPage() {
         '/marketplace/vendor-applications',
       );
       setRequests(normaliseApplications(res.data ?? []));
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to load vendor applications');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load vendor applications');
     } finally {
       setLoading(false);
     }

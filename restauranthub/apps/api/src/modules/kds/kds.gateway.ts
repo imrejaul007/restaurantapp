@@ -70,8 +70,8 @@ export class KdsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Attach user info to the socket for downstream handlers
       (client as any).user = payload;
       this.logger.log(`[KDS] Client connected: ${client.id} (user ${payload.id})`);
-    } catch (err: any) {
-      this.logger.error(`[KDS] handleConnection error: ${err?.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`[KDS] handleConnection error: ${err instanceof Error ? err.message : String(err)}`);
       client.disconnect(true);
     }
   }
@@ -124,8 +124,8 @@ export class KdsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const orders = dbOrders.map((order) => this.mapOrderToKds(order));
       return { orders };
-    } catch (err: any) {
-      this.logger.error(`[KDS] get-current-orders error: ${err?.message}`);
+    } catch (err: unknown) {
+      this.logger.error(`[KDS] get-current-orders error: ${err instanceof Error ? err.message : String(err)}`);
       return { orders: [] };
     }
   }

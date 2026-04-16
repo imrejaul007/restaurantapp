@@ -70,8 +70,8 @@ export default function TrainingPage() {
             });
           }
         }
-      } catch (err: any) {
-        setError(err?.message || 'Failed to load training content. Please check your connection and try again.');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load training content. Please check your connection and try again.');
       } finally {
         setLoading(false);
       }
