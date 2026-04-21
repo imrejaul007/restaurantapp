@@ -311,27 +311,8 @@ export class RestoPapaSocketClient extends EventEmitter {
     };
   }
 
-  // Event type definitions for TypeScript users
-  on(event: 'connected', listener: () => void): this;
-  on(event: 'disconnected', listener: (reason?: string) => void): this;
-  on(event: 'connectionError', listener: (error: Error) => void): this;
-  on(event: 'reconnected', listener: (attemptNumber: number) => void): this;
-  on(event: 'reconnectionError', listener: (error: Error) => void): this;
-  on(event: 'reconnectionFailed', listener: () => void): this;
-  on(event: 'orderUpdate', listener: (data: OrderUpdate) => void): this;
-  on(event: 'newMessage', listener: (data: any) => void): this;
-  on(event: 'notification', listener: (data: NotificationData) => void): this;
-  on(event: 'restaurantStatusUpdate', listener: (data: any) => void): this;
-  on(event: 'menuItemUpdate', listener: (data: any) => void): this;
-  on(event: 'kitchenOrderUpdate', listener: (data: any) => void): this;
-  on(event: 'driverLocationUpdate', listener: (data: any) => void): this;
-  on(event: 'paymentUpdate', listener: (data: any) => void): this;
-  on(event: 'socketError', listener: (error: any) => void): this;
-  on(event: 'authError', listener: (error: any) => void): this;
-  on(event: 'authenticated', listener: () => void): this;
-  on(event: 'orderUpdate', listener: (data: any) => void): this;
-  on(event: 'notification', listener: (data: any) => void): this;
-  on(event: string | symbol, listener: (...args: any[]) => void): this {
+  // Typed event listeners — implementation uses `string` so TS resolves overloads correctly
+  override on(event: string, listener: (...args: any[]) => void): this {
     return super.on(event, listener);
   }
 }

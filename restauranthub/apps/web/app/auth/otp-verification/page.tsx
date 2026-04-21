@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   CheckCircle,
   AlertCircle,
   Loader2,
@@ -12,12 +12,23 @@ import {
   Mail,
   Phone,
   Clock,
-  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
+
+async function apiFetch(path: string, options?: RequestInit) {
+  const base = typeof window !== 'undefined' ? '/api/proxy' : process.env.NEXT_PUBLIC_API_URL + '/api/v1';
+  const res = await fetch(`${base}${path}`, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    credentials: 'include',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.message || data?.error || `HTTP ${res.status}`);
+  return data;
+}
 
 export default function OTPVerificationPage() {
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
@@ -25,28 +36,27 @@ export default function OTPVerificationPage() {
   const [countdown, setCountdown] = useState(60);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get('email') || 'user@example.com';
-  const phone = searchParams.get('phone') || '+1 (555) 123-4567';
+  const email = searchParams.get('email') || '';
+  const phone = searchParams.get('phone') || '';
   const type = searchParams.get('type') || 'email';
   const purpose = searchParams.get('purpose') || 'signup';
+  const identifier = type === 'email' ? email : phone;
 
   // Countdown timer
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [countdown]);
+    const id = setInterval(() => {
+      setCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleOTPChange = (index: number, value: string) => {
     if (value.length > 1) return;
-    
+
     const newOTP = [...otpCode];
     newOTP[index] = value;
     setOtpCode(newOTP);
-    
-    // Auto-focus next input
+
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
@@ -60,37 +70,40 @@ export default function OTPVerificationPage() {
     }
   };
 
+  const navigateAfterSuccess = () => {
+    if (purpose === 'signup') {
+      router.push('/auth/profile-setup');
+    } else if (purpose === 'reset') {
+      router.push('/auth/reset-password');
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
   const handleVerify = async () => {
-    const otp = otpCode.join('');
-    
-    if (otp.length !== 6) {
+    const code = otpCode.join('');
+
+    if (code.length !== 6) {
       toast.error('Please enter the complete 6-digit code');
       return;
     }
 
+    if (!identifier) {
+      toast.error('Missing identifier — cannot verify OTP');
+      return;
+    }
+
     setIsLoading(true);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Demo verification
-      if (otp === '123456' || Math.random() > 0.3) {
-        toast.success('Verification successful!');
-        
-        setTimeout(() => {
-          if (purpose === 'signup') {
-            router.push('/auth/profile-setup');
-          } else if (purpose === 'reset') {
-            router.push('/auth/reset-password');
-          } else {
-            router.push('/dashboard');
-          }
-        }, 1000);
-      } else {
-        throw new Error('Invalid verification code');
-      }
-    } catch (error) {
-      toast.error('Invalid verification code. Please try again.');
+      await apiFetch('/auth/otp/verify', {
+        method: 'POST',
+        body: JSON.stringify({ identifier, code, purpose }),
+      });
+      toast.success('Verification successful!');
+      setTimeout(navigateAfterSuccess, 1000);
+    } catch (err: any) {
+      toast.error(err?.message || 'Invalid verification code. Please try again.');
       setOtpCode(['', '', '', '', '', '']);
     } finally {
       setIsLoading(false);
@@ -98,17 +111,19 @@ export default function OTPVerificationPage() {
   };
 
   const handleResend = async () => {
-    if (countdown > 0) return;
-    
+    if (countdown > 0 || !identifier) return;
+
     setIsLoading(true);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await apiFetch('/auth/otp/send', {
+        method: 'POST',
+        body: JSON.stringify({ identifier, purpose }),
+      });
       toast.success(`New verification code sent to your ${type}`);
       setCountdown(60);
       setOtpCode(['', '', '', '', '', '']);
-    } catch (error) {
-      toast.error('Failed to resend code. Please try again.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to resend code. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -135,13 +150,13 @@ export default function OTPVerificationPage() {
               </div>
               <CardTitle className="text-2xl">Verify Your {type === 'email' ? 'Email' : 'Phone'}</CardTitle>
               <p className="text-muted-foreground text-sm mt-2">
-                We've sent a 6-digit verification code to
+                We have sent a 6-digit verification code to
               </p>
               <p className="font-medium text-foreground">
                 {type === 'email' ? email : phone}
               </p>
             </CardHeader>
-            
+
             <CardContent className="p-6 space-y-6">
               {/* OTP Input */}
               <div>
@@ -151,12 +166,13 @@ export default function OTPVerificationPage() {
                 <div className="flex space-x-2 justify-center">
                   {otpCode.map((digit, index) => (
                     <input
-                      key={index}
+                      key={`otp-${index}`}
                       id={`otp-${index}`}
                       type="text"
+                      inputMode="numeric"
                       maxLength={1}
                       value={digit}
-                      onChange={(e) => e.target.value}
+                      onChange={(e) => handleOTPChange(index, e.target.value)}
                       onKeyDown={(e) => handleOTPKeyDown(index, e)}
                       className="w-12 h-12 text-center text-lg font-medium border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
@@ -168,8 +184,8 @@ export default function OTPVerificationPage() {
               </div>
 
               {/* Verify Button */}
-              <Button 
-                onClick={handleVerify} 
+              <Button
+                onClick={handleVerify}
                 disabled={isLoading || otpCode.join('').length !== 6}
                 className="w-full"
               >
@@ -189,13 +205,12 @@ export default function OTPVerificationPage() {
               {/* Resend */}
               <div className="text-center space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Didn't receive the code?
+                  Did not receive the code?
                 </p>
                 <Button
                   onClick={handleResend}
-                  disabled={countdown > 0 || isLoading}
+                  disabled={countdown > 0 || isLoading || !identifier}
                   variant="outline"
-                  
                 >
                   {countdown > 0 ? (
                     <div className="flex items-center space-x-2">
@@ -223,17 +238,6 @@ export default function OTPVerificationPage() {
             </CardContent>
           </Card>
         </motion.div>
-
-        {/* Demo Helper */}
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div className="flex items-start space-x-3">
-            <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-200">
-              <p className="font-medium mb-1">Demo Mode</p>
-              <p>Use code <strong>123456</strong> to verify, or any 6-digit code for random success.</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

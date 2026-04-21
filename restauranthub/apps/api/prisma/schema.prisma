@@ -617,6 +617,7 @@ model Order {
   cancelledAt     DateTime?
   cancelReason    String?
   creditUsed      Float         @default(0)
+  idempotencyKey  String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -636,6 +637,7 @@ model Order {
   @@index([orderNumber])
   @@index([status])
   @@index([createdAt])
+  @@index([idempotencyKey])
 }
 
 model OrderItem {
@@ -2846,4 +2848,19 @@ model ApiKey {
 
   @@index([userId])
   @@index([keyHash])
+}
+
+// ─── OTP Verification ──────────────────────────────────────────────────────────
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  identifier String   // email address or phone number
+  codeHash  String   // bcrypt hash of the 6-digit code
+  purpose   String   // 'signup' | 'reset' | 'login' | 'profile_update'
+  attempts  Int      @default(0)  // failed verification attempts
+  expiresAt DateTime
+  verifiedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([identifier, purpose, expiresAt])
 }

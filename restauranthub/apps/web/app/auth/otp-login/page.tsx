@@ -96,11 +96,21 @@ export default function OTPLoginPage() {
 
   const handleSendOTP = async (data: PhoneForm | EmailForm) => {
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      const payload = method === 'phone'
+        ? { phone: `${(data as PhoneForm).countryCode}${(data as PhoneForm).phoneNumber}`, type: 'phone' }
+        : { email: (data as EmailForm).email, type: 'email' };
+
+      const res = await fetch('/api/proxy/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to send OTP');
+
       if (method === 'phone') {
         const phoneData = data as PhoneForm;
         setContactInfo(`${phoneData.countryCode} ${phoneData.phoneNumber}`);
@@ -110,11 +120,11 @@ export default function OTPLoginPage() {
         setContactInfo(emailData.email);
         toast.success(`OTP sent to ${emailData.email}`);
       }
-      
+
       setStep('verify');
-      setCountdown(60); // 60 seconds countdown
-    } catch (error) {
-      toast.error('Failed to send OTP. Please try again.');
+      setCountdown(60);
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -122,37 +132,32 @@ export default function OTPLoginPage() {
 
   const handleVerifyOTP = async () => {
     const otp = otpCode.join('');
-    
+
     if (otp.length !== 6) {
       toast.error('Please enter the complete 6-digit code');
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate random success/failure for demo
-      const success = otp === '123456' || Math.random() > 0.3;
-      
-      if (success) {
-        toast.success('Successfully verified! Logging you in...');
-        
-        // Simulate redirect delay
-        setTimeout(() => {
-          const destination = redirectTo || '/dashboard';
-          router.push(destination);
-        }, 1000);
-      } else {
-        throw new Error('Invalid OTP code. Please try again.');
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Verification failed';
-      toast.error(message);
-      
-      // Clear OTP inputs on error
+      const res = await fetch('/api/proxy/auth/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ identifier: contactInfo, code: otp }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Invalid OTP code');
+
+      toast.success('Successfully verified! Logging you in...');
+
+      setTimeout(() => {
+        const destination = redirectTo || '/dashboard';
+        router.push(destination);
+      }, 1000);
+    } catch (err: any) {
+      toast.error(err?.message || 'Verification failed');
       setOtpCode(['', '', '', '', '', '']);
     } finally {
       setIsLoading(false);
@@ -161,18 +166,24 @@ export default function OTPLoginPage() {
 
   const handleResendOTP = async () => {
     if (countdown > 0) return;
-    
+
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const res = await fetch('/api/proxy/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ identifier: contactInfo }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to resend OTP');
+
       toast.success(`New OTP sent to ${contactInfo}`);
       setCountdown(60);
       setOtpCode(['', '', '', '', '', '']);
-    } catch (error) {
-      toast.error('Failed to resend OTP. Please try again.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to resend OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -498,14 +509,6 @@ export default function OTPLoginPage() {
           </p>
         </div>
 
-        {/* Demo Helper */}
-        {step === 'verify' && (
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-blue-800 dark:text-blue-200 text-center">
-              💡 Demo: Use code <strong>123456</strong> to verify
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
