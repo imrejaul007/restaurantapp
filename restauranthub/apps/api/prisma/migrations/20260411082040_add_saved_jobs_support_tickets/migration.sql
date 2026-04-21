@@ -1,4 +1,4 @@
--- CreateTable
+-- CreateTable: SavedJob
 CREATE TABLE "public"."SavedJob" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE "public"."SavedJob" (
     CONSTRAINT "SavedJob_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
+-- CreateTable: SupportTicket
 CREATE TABLE "public"."SupportTicket" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -33,3 +33,18 @@ ALTER TABLE "public"."SavedJob" ADD CONSTRAINT "SavedJob_jobId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "public"."SupportTicket" ADD CONSTRAINT "SupportTicket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- CreateTable: OtpCode
+CREATE TABLE "public"."OtpCode" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "purpose" TEXT NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "verifiedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateIndex
+CREATE INDEX "OtpCode_identifier_purpose_expiresAt_idx" ON "public"."OtpCode"("identifier", "purpose", "expiresAt");

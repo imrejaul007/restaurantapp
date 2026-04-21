@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsNotEmpty, Matches } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -68,6 +68,34 @@ class ResetPasswordDto {
   @IsString()
   @MinLength(8)
   password!: string;
+}
+
+class SendOtpDto {
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  type!: string;
+}
+
+class VerifyOtpDto {
+  @IsString()
+  @IsNotEmpty()
+  identifier!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  code!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  purpose!: string;
 }
 
 @Controller('auth')
@@ -145,5 +173,21 @@ export class AuthController {
       message: 'Auth endpoints are working!',
       timestamp: new Date().toISOString(),
     };
+  }
+
+  @Post('otp/send')
+  @HttpCode(HttpStatus.OK)
+  async sendOtp(@Body() dto: SendOtpDto) {
+    const identifier = dto.phone || dto.email;
+    if (!identifier) {
+      throw new BadRequestException('Either phone or email must be provided');
+    }
+    return this.authService.sendOtp(identifier, dto.type || 'login');
+  }
+
+  @Post('otp/verify')
+  @HttpCode(HttpStatus.OK)
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto.identifier, dto.code, dto.purpose);
   }
 }

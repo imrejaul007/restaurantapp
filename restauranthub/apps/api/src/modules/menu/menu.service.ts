@@ -134,7 +134,7 @@ export class MenuService {
     // Use soft delete to preserve order history
     await this.prisma.menuItem.update({
       where: { id },
-      data: { isAvailable: false, deletedAt: new Date() },
+      data: { isAvailable: false },
     });
     return { message: 'Menu item deleted successfully' };
   }

@@ -292,6 +292,73 @@ export class AuthService {
     return { message: '2FA has been disabled successfully' };
   }
 
+  async sendOtp(identifier: string, purpose: string) {
+    // Generate 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeHash = await argon2.hash(code);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    // Invalidate any existing unverified OTPs for this identifier+purpose
+    await this.prisma.otpCode.updateMany({
+      where: { identifier, purpose, verifiedAt: null },
+      data: { expiresAt: new Date() }, // expire immediately
+    });
+
+    await this.prisma.otpCode.create({
+      data: { identifier, codeHash, purpose, expiresAt },
+    });
+
+    // TODO: Wire actual SMS/email delivery (Twilio, msg91, SendGrid, etc.)
+    // For now, log the code so it can be tested in dev
+    if (process.env.NODE_ENV !== 'production') {
+      this.logger.warn(`[OTP] To ${identifier} (${purpose}): ${code}`);
+    }
+
+    return { success: true, message: 'OTP sent successfully' };
+  }
+
+  async verifyOtp(identifier: string, code: string, purpose: string) {
+    // Rate limit: max 5 failed attempts before the record self-expires
+    const MAX_ATTEMPTS = 5;
+
+    const record = await this.prisma.otpCode.findFirst({
+      where: {
+        identifier,
+        purpose,
+        verifiedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!record) {
+      throw new BadRequestException('No active OTP found. Please request a new one.');
+    }
+
+    if (record.attempts >= MAX_ATTEMPTS) {
+      await this.prisma.otpCode.update({ where: { id: record.id }, data: { expiresAt: new Date() } });
+      throw new BadRequestException('Too many failed attempts. Please request a new OTP.');
+    }
+
+    const valid = await argon2.verify(record.codeHash, code);
+    if (!valid) {
+      await this.prisma.otpCode.update({
+        where: { id: record.id },
+        data: { attempts: record.attempts + 1 },
+      });
+      throw new BadRequestException('Invalid OTP code');
+    }
+
+    // Success — mark as verified
+    await this.prisma.otpCode.update({
+      where: { id: record.id },
+      data: { verifiedAt: new Date() },
+    });
+
+    this.logger.log(`OTP verified for ${identifier} (${purpose})`);
+    return { success: true, message: 'OTP verified successfully' };
+  }
+
   private sanitizeUser(user: any) {
     const { passwordHash, refreshToken, twoFactorSecret, ...sanitized } = user;
     return sanitized;
