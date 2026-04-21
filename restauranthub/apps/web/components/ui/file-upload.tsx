@@ -101,37 +101,56 @@ export function FileUpload({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const simulateUpload = async (fileItem: FileItem): Promise<UploadedFile> => {
+  const uploadFileToServer = async (fileItem: FileItem): Promise<UploadedFile> => {
+    const formData = new FormData();
+    formData.append('file', fileItem.file);
+    formData.append('fileId', fileItem.id);
+
     return new Promise((resolve, reject) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          
-          // Simulate upload success/failure
-          if (Math.random() > 0.1) { // 90% success rate
-            const uploadedFile: UploadedFile = {
-              id: fileItem.id,
-              name: fileItem.file.name,
-              size: fileItem.file.size,
-              type: fileItem.file.type,
-              url: URL.createObjectURL(fileItem.file), // In real app, this would be server URL
-              uploadedAt: new Date()
-            };
-            resolve(uploadedFile);
-          } else {
-            reject(new Error('Upload failed'));
-          }
-        } else {
-          setFiles(prevFiles =>
-            prevFiles.map(f =>
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100);
+          setFiles((prevFiles) =>
+            prevFiles.map((f) =>
               f.id === fileItem.id ? { ...f, progress } : f
             )
           );
         }
-      }, 100);
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const json = JSON.parse(xhr.responseText);
+            resolve({
+              id: fileItem.id,
+              name: fileItem.file.name,
+              size: fileItem.file.size,
+              type: fileItem.file.type,
+              url: json.url || json.fileUrl || '',
+              uploadedAt: new Date(),
+            });
+          } catch {
+            reject(new Error('Invalid response from server'));
+          }
+        } else {
+          try {
+            const json = JSON.parse(xhr.responseText);
+            reject(new Error(json?.error || `Upload failed (${xhr.status})`));
+          } catch {
+            reject(new Error(`Upload failed (${xhr.status})`));
+          }
+        }
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+      xhr.addEventListener('abort', () => reject(new Error('Upload was cancelled')));
+
+      xhr.open('POST', '/api/proxy/uploads/file');
+      xhr.withCredentials = true;
+      xhr.send(formData);
     });
   };
 
@@ -143,7 +162,7 @@ export function FileUpload({
     );
 
     try {
-      const uploadedFile = await simulateUpload(fileItem);
+      const uploadedFile = await uploadFileToServer(fileItem);
       
       setFiles(prevFiles =>
         prevFiles.map(f =>

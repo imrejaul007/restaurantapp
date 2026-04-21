@@ -89,34 +89,24 @@ export default function SocialLoginPage() {
     setError('');
 
     try {
-      // Simulate OAuth flow
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate random success/failure for demo
-      const success = Math.random() > 0.3;
-      
-      if (success) {
-        setStep('success');
-        toast.success(`Successfully signed in with ${socialProviders.find(p => p.id === providerId)?.name}!`);
-        
-        // Redirect after successful login
-        setTimeout(() => {
-          const dashboardRoutes = {
-            restaurant: '/restaurant/dashboard',
-            employee: '/employee/dashboard',
-            vendor: '/vendor/dashboard',
-            admin: '/admin/dashboard',
-            user: '/dashboard'
-          };
-          
-          const destination = redirectTo || dashboardRoutes[role as keyof typeof dashboardRoutes] || '/dashboard';
-          router.push(destination);
-        }, 1500);
+      // Initiate OAuth flow via backend — opens provider's auth page
+      const res = await fetch('/api/proxy/auth/social/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ provider: providerId, role, redirect: redirectTo }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'OAuth initiation failed');
+
+      // Redirect to the OAuth provider's authorization URL
+      if (json.authorizationUrl) {
+        window.location.href = json.authorizationUrl;
       } else {
-        throw new Error('Authentication failed. Please try again.');
+        throw new Error('No authorization URL received from server');
       }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed';
+    } catch (err: any) {
+      const message = err?.message || 'Login failed';
       setError(message);
       setStep('error');
       toast.error(message);
