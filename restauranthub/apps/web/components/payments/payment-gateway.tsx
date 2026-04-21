@@ -203,15 +203,14 @@ export default function PaymentGateway({
     if (!selectedMethod) return;
 
     setPaymentStep('processing');
-    
-    // Simulate different processing messages
+
     const messages = [
       'Processing your payment...',
       'Verifying payment details...',
       'Communicating with bank...',
-      'Finalizing transaction...'
+      'Finalizing transaction...',
     ];
-    
+
     let messageIndex = 0;
     const messageInterval = setInterval(() => {
       if (messageIndex < messages.length - 1) {
@@ -220,37 +219,50 @@ export default function PaymentGateway({
       }
     }, 1500);
 
-    // Simulate payment processing
     try {
-      await new Promise(resolve => setTimeout(resolve, 6000));
-      
-      // Simulate success/failure (90% success rate)
-      const isSuccess = Math.random() > 0.1;
-      
-      clearInterval(messageInterval);
-      
-      if (isSuccess) {
-        const transactionData = {
-          transactionId: `TXN${Date.now()}`,
-          paymentId: `PAY${Date.now()}`,
+      // Real payment API call
+      const res = await fetch('/api/proxy/payments/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          orderId: paymentDetails.orderId,
           amount: getTotalAmount(selectedMethod),
+          currency: paymentDetails.currency,
           method: selectedMethod.type,
-          timestamp: new Date().toISOString(),
-          status: 'completed'
-        };
-        
-        setPaymentResult(transactionData);
-        setPaymentStep('success');
-        onPaymentSuccess(transactionData.paymentId, selectedMethod.type, transactionData);
-      } else {
-        const errorMessage = 'Transaction failed. Please try again.';
-        setPaymentStep('failed');
-        onPaymentFailure(errorMessage, selectedMethod.type);
-      }
-    } catch (error) {
+          methodData: {
+            ...(selectedMethod.type === 'card' && {
+              maskedNumber: cardDetails.number.replace(/\s/g, '').slice(-4),
+              name: cardDetails.name,
+              expiry: cardDetails.expiry,
+            }),
+            ...(selectedMethod.type === 'upi' && { upiId }),
+            ...(selectedMethod.type === 'net_banking' && { bank: selectedBank }),
+          },
+        }),
+      });
+      const json = await res.json();
+      clearInterval(messageInterval);
+
+      if (!res.ok) throw new Error(json?.error || 'Payment failed');
+
+      const transactionData = {
+        transactionId: json.transactionId || `TXN${Date.now()}`,
+        paymentId: json.paymentId || `PAY${Date.now()}`,
+        amount: getTotalAmount(selectedMethod),
+        method: selectedMethod.type,
+        timestamp: new Date().toISOString(),
+        status: 'completed',
+        ...json,
+      };
+
+      setPaymentResult(transactionData);
+      setPaymentStep('success');
+      onPaymentSuccess(transactionData.paymentId, selectedMethod.type, transactionData);
+    } catch (err: any) {
       clearInterval(messageInterval);
       setPaymentStep('failed');
-      onPaymentFailure('Payment processing error', selectedMethod.type);
+      onPaymentFailure(err?.message || 'Payment processing error', selectedMethod.type);
     }
   };
 
