@@ -28,6 +28,51 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+interface NormalizedVendorApplication {
+  id: string;
+  vendorId: string;
+  requestDate: string;
+  status: string;
+  priority: 'low' | 'medium' | 'high';
+  vendorInfo: {
+    businessName: string;
+    contactPerson: string;
+    email: string;
+    phone: string;
+    businessType: string;
+    gstNumber: string;
+    panNumber: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+    yearsInBusiness: number;
+    employeeCount: number;
+    annualRevenue: number;
+    description: string;
+  };
+  documents: unknown[];
+  verificationChecks: Record<string, { status: string; score: number; details: string }>;
+  riskAssessment: {
+    overallScore: number;
+    riskLevel: string;
+    factors: unknown[];
+  };
+  timeline: Array<{
+    id: string;
+    action: string;
+    timestamp: string;
+    performedBy: string;
+    details: string;
+  }>;
+  assignedTo: string;
+  estimatedCompletion: string;
+  internalNotes: unknown[];
+}
+
 interface VendorApplicationRaw {
   id: string;
   businessName: string;
@@ -54,7 +99,7 @@ function normaliseApplications(raw: VendorApplicationRaw[]) {
       id: app.id,
       vendorId: app.id,
       requestDate: app.createdAt,
-      status: app.status.toLowerCase() as any,
+      status: app.status.toLowerCase(),
       priority: 'medium' as const,
       vendorInfo: {
         businessName: app.businessName,
@@ -110,7 +155,7 @@ function normaliseApplications(raw: VendorApplicationRaw[]) {
 
 export default function VendorVerificationPage() {
   const { user } = useAuth();
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<NormalizedVendorApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

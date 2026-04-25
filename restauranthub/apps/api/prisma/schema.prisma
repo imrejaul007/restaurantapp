@@ -440,6 +440,7 @@ model Job {
   @@index([status])
   @@index([createdAt])
   @@index([source])
+  @@index([validTill])
 }
 
 model JobApplication {
@@ -691,6 +692,8 @@ model Transaction {
   @@index([restaurantId])
   @@index([vendorId])
   @@index([type])
+  @@index([createdAt])
+  @@index([restaurantId, createdAt])
 }
 
 model Credit {
@@ -1811,6 +1814,33 @@ model BlacklistedToken {
 
   @@index([token])
   @@index([expiresAt])
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  verifiedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
   @@index([userId])
 }
 

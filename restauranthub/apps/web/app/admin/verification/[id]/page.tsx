@@ -160,12 +160,12 @@ export default function VerificationWorkflowPage() {
     setFetchError(false);
     try {
       // Try verification endpoint first (VendorApplication), fall back to restaurant
-      let raw: any = null;
+      let raw: unknown = null;
       try {
-        const res = await apiClient.get<any>(`/admin/verification?limit=200`);
-        const data = res?.data ?? res;
-        const items: any[] = Array.isArray(data) ? data : (data?.data ?? []);
-        raw = items.find((item: any) => item.id === params.id) ?? null;
+        const res = await apiClient.get<{ data?: unknown[] }>(`/admin/verification?limit=200`);
+        const data = res?.data;
+        const items = Array.isArray(data) ? data : [];
+        raw = items.find((item) => (item as { id?: string })?.id === params.id) ?? null;
       } catch {
         // ignore, try restaurant next
       }

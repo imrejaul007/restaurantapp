@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-provider';
 import { authApi } from '@/lib/api/auth';
+import { SignUpRequest } from '@/types/auth';
 
 interface SignupFormData {
   // Common fields
@@ -92,9 +93,9 @@ export default function SignupPage() {
 
   // Set role from URL params if provided
   useEffect(() => {
-    const role = searchParams.get('role');
+    const role = searchParams.get('role') as SignupFormData['role'] | null;
     if (role && ['restaurant', 'vendor', 'employee', 'customer'].includes(role)) {
-      setFormData(prev => ({ ...prev, role: role as any }));
+      setFormData(prev => ({ ...prev, role }));
     }
   }, [searchParams]);
 
@@ -240,7 +241,7 @@ export default function SignupPage() {
         }),
       };
       
-      const result = await authApi.signUp(signupData as any);
+      const result = await authApi.signUp(signupData as SignUpRequest);
 
       // Store tokens and redirect to dashboard
       if (result?.accessToken) {

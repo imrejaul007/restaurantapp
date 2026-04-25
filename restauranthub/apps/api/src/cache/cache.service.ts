@@ -151,12 +151,31 @@ export class CacheService {
     }
 
     try {
-      const keys = await this.redisService.getClient().keys(fullPattern);
+      // Use SCAN instead of KEYS to avoid blocking Redis in production
+      const client = this.redisService.getClient();
+      const keys: string[] = [];
+      let cursor = '0';
+
+      do {
+        const result = await (client.scan as (cursor: string, match: string, count: number) => Promise<[string, string[]]>)(
+          cursor,
+          fullPattern,
+          100,
+        );
+        cursor = result[0];
+        keys.push(...result[1]);
+      } while (cursor !== '0');
+
       if (keys.length === 0) return 0;
 
-      const pipeline = this.redisService.getClient().pipeline();
-      keys.forEach(key => pipeline.del(key));
-      await pipeline.exec();
+      // Delete in batches to avoid overwhelming Redis
+      const batchSize = 100;
+      for (let i = 0; i < keys.length; i += batchSize) {
+        const batch = keys.slice(i, i + batchSize);
+        const pipeline = client.pipeline();
+        batch.forEach(key => pipeline.del(key));
+        await pipeline.exec();
+      }
 
       this.metrics.deletes += keys.length;
       return keys.length;

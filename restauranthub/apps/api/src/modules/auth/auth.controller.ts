@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Request, UseGuards, HttpCode, HttpStatus, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum, IsNotEmpty, Matches } from 'class-validator';
 import { AuthService } from './auth.service';
+import { VerificationService } from './services/verification.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole } from '@prisma/client';
 
 class SignUpDto {
@@ -100,7 +102,11 @@ class VerifyOtpDto {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly verificationService: VerificationService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDto) {
@@ -156,15 +162,13 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    // Always return success to avoid user enumeration. Email delivery can be wired later.
-    return { success: true, message: 'If that email exists, a reset link has been sent' };
+    return this.authService.forgotPassword(dto.email);
   }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    // Password reset token validation is not yet implemented. Return a clear error.
-    return { success: false, message: 'Password reset is not yet configured. Contact support.' };
+    return this.authService.resetPassword(dto.token, dto.password);
   }
 
   @Get('test')
@@ -189,5 +193,48 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto.identifier, dto.code, dto.purpose);
+  }
+
+  @Post('verify-email/send')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async sendEmailVerification(@Request() req: any) {
+    const user = await this.prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) throw new BadRequestException('User not found');
+    return this.verificationService.sendEmailVerification(user.id, user.email);
+  }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Body() body: { token: string }) {
+    return this.verificationService.verifyEmail(body.token);
+  }
+
+  @Get('2fa/setup')
+  @UseGuards(JwtAuthGuard)
+  async setup2FA(@Request() req: any) {
+    return this.verificationService.setup2FA(req.user.id);
+  }
+
+  @Post('2fa/verify')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async verify2FASetup(@Request() req: any, @Body() body: { token: string }) {
+    return this.verificationService.verify2FASetup(req.user.id, body.token);
+  }
+
+  @Post('2fa/disable')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async disable2FAWithToken(@Request() req: any, @Body() body: { token: string }) {
+    return this.verificationService.disable2FA(req.user.id, body.token);
+  }
+
+  @Post('2fa/validate')
+  @HttpCode(HttpStatus.OK)
+  async validate2FA(@Body() body: { userId: string; token: string }) {
+    const valid = await this.verificationService.verify2FAToken(body.userId, body.token);
+    if (!valid) throw new UnauthorizedException('Invalid 2FA code');
+    return { valid: true };
   }
 }

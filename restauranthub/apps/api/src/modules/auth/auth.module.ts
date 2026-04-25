@@ -8,6 +8,8 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { TokenBlacklistService } from './services/token-blacklist.service';
+import { EmailService } from './services/email.service';
+import { VerificationService } from './services/verification.service';
 import { SecureTokenService } from './secure-token.service';
 
 @Module({
@@ -37,12 +39,16 @@ import { SecureTokenService } from './secure-token.service';
     JwtStrategy,
     JwtAuthGuard,
     TokenBlacklistService,
+    EmailService,
+    VerificationService,
     SecureTokenService,
   ],
   exports: [
     AuthService,
     JwtAuthGuard,
     TokenBlacklistService,
+    EmailService,
+    VerificationService,
     JwtModule,
   ],
 })

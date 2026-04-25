@@ -5,6 +5,8 @@ import * as argon2 from 'argon2';
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
+import { EmailService } from './services/email.service';
+import { VerificationService } from './services/verification.service';
 import { UserRole } from '@prisma/client';
 import * as crypto from 'crypto';
 import { Logger } from '@nestjs/common';
@@ -18,39 +20,41 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private tokenBlacklistService: TokenBlacklistService,
+    private emailService: EmailService,
+    private verificationService: VerificationService,
   ) {}
 
   async signUp(signUpDto: any) {
     const { email, password, role = UserRole.CUSTOMER, firstName, lastName, phone, appSource = 'restopapa_web' } = signUpDto;
 
-    // Check if user exists
-    const existingUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [
-          { email },
-          { phone: phone || undefined },
-        ],
-      },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('User with this email or phone already exists');
+    // Validate required fields
+    if (!email || !password) {
+      throw new BadRequestException('Email and password are required');
     }
 
     // Hash password
     const passwordHash = await argon2.hash(password);
 
-    // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        phone,
-        passwordHash,
-        role: role as UserRole,
-        appSource,
-        lastLoginApp: appSource,
-      },
-    });
+    // Create user with unique constraint handling to prevent race conditions
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          phone: phone || null,
+          passwordHash,
+          role: role as UserRole,
+          appSource,
+          lastLoginApp: appSource,
+        },
+      });
+    } catch (error: any) {
+      // Handle unique constraint violation (race condition when user was just created)
+      if (error.code === 'P2002') {
+        throw new ConflictException('User with this email or phone already exists');
+      }
+      throw error;
+    }
 
     // Create profile with firstName and lastName
     await this.prisma.profile.create({
@@ -68,6 +72,11 @@ export class AuthService {
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     await this.createSession(user.id, tokens.accessToken);
 
+    // Send email verification (non-blocking)
+    this.verificationService.sendEmailVerification(user.id, user.email).catch((err) => {
+      this.logger.error(`Failed to send verification email to ${user.email}:`, err);
+    });
+
     return {
       user: this.sanitizeUser(user),
       ...tokens,
@@ -76,6 +85,11 @@ export class AuthService {
 
   async signIn(signInDto: any) {
     const { email, password, appSource = 'restopapa_web' } = signInDto;
+
+    // Validate required fields
+    if (!email || !password) {
+      throw new BadRequestException('Email and password are required');
+    }
 
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -357,6 +371,102 @@ export class AuthService {
 
     this.logger.log(`OTP verified for ${identifier} (${purpose})`);
     return { success: true, message: 'OTP verified successfully' };
+  }
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string; previewUrl?: string }> {
+    // Always return success to prevent email enumeration
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      this.logger.log(`Password reset requested for non-existent email: ${email}`);
+      return { success: true, message: 'If that email exists, a reset link has been sent' };
+    }
+
+    // Invalidate any existing reset tokens for this email
+    await this.prisma.passwordReset.updateMany({
+      where: { email, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    // Generate secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.prisma.passwordReset.create({
+      data: {
+        email,
+        token: hashedToken,
+        expiresAt,
+      },
+    });
+
+    // Get user name for email
+    const profile = await this.prisma.profile.findUnique({ where: { userId: user.id } });
+    const userName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : undefined;
+
+    // Send email
+    const emailResult = await this.emailService.sendPasswordResetEmail(email, resetToken, userName);
+    this.logger.log(`Password reset email sent to ${email}`);
+
+    return {
+      success: true,
+      message: 'If that email exists, a reset link has been sent',
+      previewUrl: emailResult.previewUrl,
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    if (!token || !newPassword) {
+      throw new BadRequestException('Token and new password are required');
+    }
+
+    // Hash the token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const resetRecord = await this.prisma.passwordReset.findFirst({
+      where: {
+        token: hashedToken,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!resetRecord) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { email: resetRecord.email } });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Hash new password and update
+    const passwordHash = await argon2.hash(newPassword);
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          passwordHash,
+          refreshToken: null, // Invalidate all existing sessions
+        },
+      }),
+      this.prisma.passwordReset.update({
+        where: { id: resetRecord.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+
+    // Blacklist all existing sessions
+    await this.tokenBlacklistService.blacklistAllUserTokens(user.id, 'password_reset');
+
+    this.logger.log(`Password reset completed for user ${user.id}`);
+
+    return {
+      success: true,
+      message: 'Password has been reset successfully. Please log in with your new password.',
+    };
   }
 
   private sanitizeUser(user: any) {
