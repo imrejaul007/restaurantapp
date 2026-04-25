@@ -131,7 +131,7 @@ export default function ProfilePage() {
   useEffect(() => {
     usersApi.getProfile()
       .then((res) => {
-        const apiUser = (res as any)?.data ?? res;
+        const apiUser = (res as { data?: unknown })?.data ?? res;
         if (apiUser) {
           setProfile(buildProfileFromApiUser(apiUser));
         }
@@ -245,9 +245,9 @@ export default function ProfilePage() {
       )}
 
       <RestaurantProfile
-        profile={profile as any}
+        profile={profile}
         isOwner={true}
-        onUpdateProfile={handleUpdateProfile as any}
+        onUpdateProfile={handleUpdateProfile}
         onUploadImage={handleUploadImage}
       />
 

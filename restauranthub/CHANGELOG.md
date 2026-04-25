@@ -4,6 +4,70 @@ This file tracks all changes, updates, and fixes made to the RestoPapa applicati
 
 ---
 
+## 📅 **April 25, 2026**
+
+### 🔒 **Security & Code Quality Audit — Full Monorepo**
+**Status:** ✅ **COMPLETED**
+
+~45 issues fixed across backend, app, shared packages, and security.
+
+#### Backend (`apps/api`)
+
+| Fix | File | Details |
+|-----|------|---------|
+| Input validation | `app.controller.ts` | `LoginDto`/`RegisterDto` added with `@IsEmail()`, `@MinLength(8)` |
+| Race condition | `auth.service.ts` | TOCTOU → atomic Prisma unique constraint with try-catch |
+| Null checks | `auth.service.ts` | email/password validation added to `signIn()` |
+| Docker secrets | `docker-compose.yml` | Hardcoded passwords replaced with env vars |
+| Redis blocking | `cache.service.ts` | `KEYS` command → `SCAN` cursor-based iteration with properly typed scan options (prevents prod blocking) |
+| Distributed lock | `job-queue.service.ts` | `SET NX` lock added before job processing (prevents duplicate processing) |
+| Webhook clarity | `orders.service.ts` | Warning message improved for clarity |
+| Missing indexes | `prisma/schema.prisma` | `@@index([validTill])` on Job, `@@index([createdAt])` on Transaction |
+| BullMQ workers | `job-queue.service.ts` | Verified OK — proper retry logic, error logging, 500 failed-job cap |
+| Auth guards | All modules | Verified OK — `@UseGuards(JwtAuthGuard)` on all production endpoints |
+| Password reset | `auth.service.ts`, `email.service.ts`, `prisma/schema.prisma` | Full implementation — `PasswordReset` model, secure token with SHA256 hash, 1-hour expiry, auto-invalidates existing sessions, nodemailer with Ethereal fallback for dev |
+| Email verification | `auth.service.ts`, `verification.service.ts`, `prisma/schema.prisma` | `EmailVerification` model, auto-sent on signup, 24-hour token expiry, verify endpoint, TOTP-based 2FA with QR code setup |
+
+#### App (`apps/web`)
+
+| Fix | File | Details |
+|-----|------|---------|
+| Unsafe casts | `profile/page.tsx` | 3 `as any` casts removed |
+| Unsafe casts | `orders/page.tsx` | 2 `as any` casts removed |
+| Unsafe casts | `restaurant/dashboard/page.tsx` | 7 `as any` casts removed (Promise.allSettled results properly typed) |
+| Unsafe casts | `auth/signup/page.tsx` | 2 `as any` casts removed |
+| Unsafe casts | `restaurant/jobs/applications/page.tsx` | `any[]` → `unknown[]` |
+| Unsafe casts | `restaurant/orders/status/page.tsx` | `any[]` → `unknown[]` |
+| Unsafe casts | `admin/verification/[id]/page.tsx` | Proper typed variables added |
+| Unsafe casts | `vendor-verification/page.tsx` | 3 `as any` casts removed, `NormalizedVendorApplication` interface added |
+| No Alert.prompt | All screens | Verified — no iOS-only `Alert.prompt` found |
+| Memory leaks | All screens | Verified — all `setInterval`/`setTimeout` have proper cleanup |
+| Auth checks | All screens | Verified — pages check user roles before rendering sensitive data |
+
+#### Shared Packages (`packages`)
+
+| Fix | Details |
+|-----|---------|
+| Build artifacts removed | 16 `*.js` / `*.d.ts` files deleted from `packages/rez-client/src/` |
+| `.gitignore` created | Patterns for node_modules, dist/, `*.js`, `*.d.ts` |
+
+#### Infrastructure & Scripts
+
+| Fix | File | Details |
+|-----|------|---------|
+| Missing env vars | `.env.example` | 11 vars added: `POSTGRES_REPLICATION_*`, `REDIS_*_PASSWORD`, `REZ_*_SECRET`, `INTERNAL_BRIDGE_TOKEN` |
+| Backup timeout | `scripts/backup-daemon.sh` | `curl`/`mail` commands given 10s timeout to prevent hangs |
+| Unsafe env loading | `scripts/setup-database.sh` | `export $(cat .env)` replaced with safer `set -a`/`source` pattern |
+
+#### Items Reviewed — No Action Required
+
+- **Silent catch handlers** (`orders.service.ts`): Non-critical webhook fire-and-forget pattern with proper logging — acceptable
+- **Webhook signature**: Uses `X-Internal-Token` header validation — consistent with internal service-to-service pattern
+- **Seed files**: Demo passwords in development seeds — acceptable for dev only
+- **~30 remaining `as any` casts**: Lower priority — typically user role casts already validated elsewhere
+
+---
+
 ## 📅 **January 11, 2025**
 
 ### 🔧 **Critical Bug Fix: White Screen Issue Resolution**
@@ -316,6 +380,6 @@ Currently: **No active issues** ✅
 
 ---
 
-*Last Updated: September 11, 2025*
+*Last Updated: April 25, 2026*
 *Next Review: When new features are requested or issues arise*
 *Major Update: Advanced Community System with Social Commerce Integration*

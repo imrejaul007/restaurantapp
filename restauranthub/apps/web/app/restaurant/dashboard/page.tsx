@@ -107,31 +107,31 @@ export default function RestaurantDashboard() {
       };
 
       if (jobsResult.status === 'fulfilled') {
-        const val = jobsResult.value as any;
+        const val = jobsResult.value as { total?: number; data?: { total?: number } };
         const count = val?.total ?? val?.data?.total ?? null;
         if (count !== null) nextStats.openJobCount = String(count);
       }
 
       if (ordersResult.status === 'fulfilled') {
-        const val = ordersResult.value as any;
-        const items: any[] = val?.data ?? [];
+        const val = ordersResult.value as { data?: unknown[]; total?: number };
+        const items = (val?.data ?? []) as { total?: number; amount?: number }[];
         const total = val?.total ?? null;
         nextStats.orderCount = total !== null ? String(total) : String(items.length);
         const revenue = items.reduce(
-          (sum: number, o: any) => sum + (o?.total ?? o?.amount ?? 0),
+          (sum: number, o) => sum + (o?.total ?? o?.amount ?? 0),
           0
         );
         nextStats.monthlyRevenue = formatCurrency(revenue);
       }
 
       if (staffResult.status === 'fulfilled') {
-        const val = staffResult.value as any;
+        const val = staffResult.value as { total?: number; data?: { total?: number } };
         const count = val?.total ?? val?.data?.total ?? null;
         if (count !== null) nextStats.employeeCount = String(count);
       }
 
       if (reservationsResult.status === 'fulfilled') {
-        const val = reservationsResult.value as any;
+        const val = reservationsResult.value as { total?: number; data?: { total?: number } };
         const count = val?.total ?? val?.data?.total ?? null;
         if (count !== null) nextStats.reservationCount = String(count);
       }
@@ -143,11 +143,11 @@ export default function RestaurantDashboard() {
       setApplicationsLoading(true);
       try {
         const res = await apiClient.getPaginated('/jobs/applications', { limit: 5 });
-        const items: any[] = (res as any)?.data ?? [];
+        const items = (res as { data?: unknown[] })?.data ?? [];
         if (items.length === 0) {
           setApplicationsEmpty(true);
         } else {
-          const mapped: ApplicationEntry[] = items.map((app: any) => ({
+          const mapped: ApplicationEntry[] = items.map((app) => ({
             id: app.id ?? '',
             name: app.applicant
               ? `${app.applicant.firstName ?? ''} ${app.applicant.lastName ?? ''}`.trim()

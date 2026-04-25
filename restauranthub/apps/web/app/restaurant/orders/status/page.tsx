@@ -180,9 +180,9 @@ export default function OrderStatusManagement() {
     setLoadingOrders(true);
     setLoadError(null);
     try {
-      const params: Record<string, any> = { page: 1, limit: 50 };
-      const res = await apiClient.get<any>('/orders', { params });
-      const rawList: any[] = res?.data?.data ?? res?.data ?? [];
+      const params = { page: 1, limit: 50 };
+      const res = await apiClient.get<{ data?: { data?: unknown[] } | unknown[] }>('/orders', { params });
+      const rawList: unknown[] = res?.data?.data ?? res?.data ?? [];
       setOrders(rawList.map(mapApiOrder));
     } catch (err: unknown) {
       setLoadError(err instanceof Error ? err.message : String(err));

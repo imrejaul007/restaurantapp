@@ -111,6 +111,7 @@ REDIS_URL=redis://user:pass@host:6379
 # Authentication
 JWT_SECRET=your-super-secure-secret
 JWT_REFRESH_SECRET=your-refresh-secret
+ENCRYPTION_KEY=your-32-char-encryption-key
 
 # AWS Services
 AWS_ACCESS_KEY_ID=your-access-key
@@ -126,6 +127,10 @@ RAZORPAY_WEBHOOK_SECRET=webhook-secret
 SMTP_HOST=smtp.your-provider.com
 SMTP_USER=your-email@domain.com
 SMTP_PASSWORD=your-app-password
+SMTP_FROM=noreply@your-domain.com
+
+# App
+FRONTEND_URL=https://your-frontend-domain.com
 ```
 
 #### Optional Variables

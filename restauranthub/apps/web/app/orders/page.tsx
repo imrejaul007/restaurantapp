@@ -69,7 +69,7 @@ export default function OrdersPage() {
       const queryParams = {
         page: currentPage,
         limit: 10,
-        ...(statusFilter !== 'all' && { status: statusFilter.toUpperCase() as any }),
+        ...(statusFilter !== 'all' && { status: statusFilter.toUpperCase() }),
         ...(searchTerm && { search: searchTerm }),
         sortBy: sortBy === 'newest' ? 'createdAt' : 
                sortBy === 'oldest' ? 'createdAt' : 
@@ -476,8 +476,8 @@ export default function OrdersPage() {
                   <div className="mt-4">
                     <OrderStatusUpdater
                       orderId={order.id}
-                      currentStatus={order.status as any}
-                      userRole={(user?.role || 'CUSTOMER') as any}
+                      currentStatus={order.status}
+                      userRole={(user?.role || 'CUSTOMER')}
                       onStatusUpdate={(newStatus) => handleStatusUpdate(order.id, newStatus)}
                     />
                   </div>
