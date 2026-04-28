@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Param, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/users')
@@ -152,7 +153,7 @@ export class EnhancedUsersController {
     // Filter by timeframe (simplified simulation)
     if (timeframe !== 'all') {
       // In a real app, this would filter by actual timeframe data
-      sortedUsers = sortedUsers.filter(() => Math.random() > 0.3); // Simulate some users being active
+      sortedUsers = sortedUsers.filter(() => crypto.randomInt(0, 9) > 2); // Simulate some users being active
     }
 
     const leaderboard = sortedUsers.slice(0, 25).map((user, index) => ({
@@ -166,7 +167,7 @@ export class EnhancedUsersController {
       badges: user.badges,
       isVerified: user.isVerified,
       score: this.getScoreForCategory(user, category),
-      change: Math.floor(Math.random() * 10) - 5, // Simulated rank change
+      change: crypto.randomInt(-5, 4), // Simulated rank change
       activityLevel: user.activityLevel
     }));
 
@@ -229,7 +230,7 @@ export class EnhancedUsersController {
         averagePostsPerUser: parseFloat((this.users.reduce((sum, u) => sum + u.stats.postsCreated, 0) / this.users.length).toFixed(1)),
         averageCommentsPerUser: parseFloat((this.users.reduce((sum, u) => sum + u.stats.commentsPosted, 0) / this.users.length).toFixed(1)),
         averageLikesPerUser: parseFloat((this.users.reduce((sum, u) => sum + u.stats.likesReceived, 0) / this.users.length).toFixed(1)),
-        userRetentionRate: Math.floor(Math.random() * 20) + 70 // Simulated
+        userRetentionRate: crypto.randomInt(70, 89) // Simulated
       },
       roleDistribution: this.getUsersByRole(),
       topPerformingUsers: this.users
@@ -278,7 +279,7 @@ export class EnhancedUsersController {
         memberSince: this.getTimeAgo(user.joinedDate),
         lastActiveSince: this.getTimeAgo(user.lastActive),
         engagementScore: this.calculateEngagementScore(user),
-        profileViews: Math.floor(Math.random() * 500) + 100,
+        profileViews: crypto.randomInt(100, 599),
         totalPosts: userPosts.length,
         totalLikes: userPosts.reduce((sum, post) => sum + post.likeCount, 0),
         recentActivity: recentActivity.map(post => ({
@@ -296,7 +297,7 @@ export class EnhancedUsersController {
           publicProfile: true,
           showEmail: false,
           notifications: true,
-          newsletter: Math.random() > 0.5
+          newsletter: crypto.randomInt(0, 1) === 0
         }
       }
     };
@@ -445,13 +446,13 @@ export class EnhancedUsersController {
   private getGrowthMetrics() {
     // Simulate growth metrics
     return {
-      monthOverMonthGrowth: parseFloat((Math.random() * 15 + 5).toFixed(1)),
-      quarterOverQuarterGrowth: parseFloat((Math.random() * 40 + 10).toFixed(1)),
+      monthOverMonthGrowth: (crypto.randomInt(500, 1999) / 100).toFixed(1),
+      quarterOverQuarterGrowth: (crypto.randomInt(1000, 4999) / 100).toFixed(1),
       averageUsersPerDay: Math.floor(this.users.length / 365),
       retentionRate: {
-        daily: Math.floor(Math.random() * 20) + 70,
-        weekly: Math.floor(Math.random() * 15) + 60,
-        monthly: Math.floor(Math.random() * 10) + 50
+        daily: crypto.randomInt(70, 89),
+        weekly: crypto.randomInt(60, 74),
+        monthly: crypto.randomInt(50, 59)
       }
     };
   }
@@ -487,8 +488,8 @@ export class EnhancedUsersController {
       month.setMonth(month.getMonth() - (11 - i));
       return {
         month: month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        newUsers: Math.floor(Math.random() * 50) + 10,
-        totalUsers: Math.floor(Math.random() * 100) + 50 + i * 20
+        newUsers: crypto.randomInt(10, 59),
+        totalUsers: crypto.randomInt(50, 149) + i * 20
       };
     });
   }
@@ -499,20 +500,20 @@ export class EnhancedUsersController {
       date.setDate(date.getDate() - (29 - i));
       return {
         date: date.toISOString().split('T')[0],
-        posts: Math.floor(Math.random() * 15) + 2,
-        comments: Math.floor(Math.random() * 30) + 5,
-        likes: Math.floor(Math.random() * 60) + 10,
-        activeUsers: Math.floor(Math.random() * 80) + 20
+        posts: crypto.randomInt(2, 16),
+        comments: crypto.randomInt(5, 34),
+        likes: crypto.randomInt(10, 69),
+        activeUsers: crypto.randomInt(20, 99)
       };
     });
   }
 
   private generateUserConnections(user: any) {
     const connectionCount = user.activityLevel === 'HIGH' ?
-      Math.floor(Math.random() * 20) + 10 :
+      crypto.randomInt(10, 29) :
       user.activityLevel === 'MEDIUM' ?
-      Math.floor(Math.random() * 10) + 3 :
-      Math.floor(Math.random() * 5) + 1;
+      crypto.randomInt(3, 12) :
+      crypto.randomInt(1, 5);
 
     return Array.from({ length: connectionCount }, (_, i) => {
       const connectedUser = this.users[i % this.users.length];
@@ -521,8 +522,8 @@ export class EnhancedUsersController {
         fullName: `${connectedUser.firstName} ${connectedUser.lastName}`,
         avatar: connectedUser.avatar,
         role: connectedUser.role,
-        mutualConnections: Math.floor(Math.random() * 5),
-        connectedSince: this.getTimeAgo(new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000))
+        mutualConnections: crypto.randomInt(0, 4),
+        connectedSince: this.getTimeAgo(new Date(Date.now() - crypto.randomInt(0, 364) * 24 * 60 * 60 * 1000))
       };
     });
   }
@@ -568,9 +569,9 @@ export class EnhancedUsersController {
         type: 'comment',
         title: 'Posted a comment',
         description: 'Added a helpful comment to a discussion',
-        timestamp: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
-        timeAgo: this.getTimeAgo(new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000)),
-        data: { helpful: Math.random() > 0.7 }
+        timestamp: new Date(Date.now() - crypto.randomInt(0, 89) * 24 * 60 * 60 * 1000),
+        timeAgo: this.getTimeAgo(new Date(Date.now() - crypto.randomInt(0, 89) * 24 * 60 * 60 * 1000)),
+        data: { helpful: crypto.randomInt(0, 9) > 6 }
       });
     }
 
@@ -593,9 +594,9 @@ export class EnhancedUsersController {
       month.setMonth(month.getMonth() - (11 - i));
       return {
         month: month.toLocaleDateString('en-US', { month: 'short' }),
-        posts: Math.floor(Math.random() * 10),
-        comments: Math.floor(Math.random() * 20),
-        likes: Math.floor(Math.random() * 30)
+        posts: crypto.randomInt(0, 9),
+        comments: crypto.randomInt(0, 19),
+        likes: crypto.randomInt(0, 29)
       };
     });
   }

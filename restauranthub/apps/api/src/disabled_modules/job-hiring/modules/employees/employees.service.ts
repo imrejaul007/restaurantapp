@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
+import crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 // import { RedisService } from '../../redis/redis.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -201,7 +202,7 @@ export class EmployeesService {
   // Utility methods
   private async generateEmployeeCode(): Promise<string> {
     const timestamp = Date.now().toString().slice(-6);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const random = crypto.randomInt(0, 999).toString().padStart(3, '0');
     return `EMP${timestamp}${random}`;
   }
 }

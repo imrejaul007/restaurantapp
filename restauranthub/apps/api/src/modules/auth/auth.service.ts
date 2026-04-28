@@ -308,7 +308,7 @@ export class AuthService {
 
   async sendOtp(identifier: string, purpose: string) {
     // Generate 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = crypto.randomInt(100000, 999999).toString();
     const codeHash = await argon2.hash(code);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 

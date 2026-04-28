@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import crypto from 'crypto';
 import { RedisService } from '../redis/redis.service';
 
 export interface JobData {
@@ -36,6 +37,8 @@ export class JobQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly processingKey = 'job_processing';
   private readonly completedKey = 'job_completed';
   private readonly failedKey = 'job_failed';
+  private readonly lockKeyPrefix = 'job_lock:';
+  private readonly lockTtlSeconds = 60;
 
   constructor(private readonly redis: RedisService) {}
 
@@ -62,7 +65,7 @@ export class JobQueueService implements OnModuleInit, OnModuleDestroy {
       backoff?: { type: 'fixed' | 'exponential'; delay: number };
     } = {}
   ): Promise<string> {
-    const jobId = `${type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const jobId = `${type}_${Date.now()}_${crypto.randomInt(100000000, 999999999)}`;
 
     const job: JobData = {
       id: jobId,
@@ -146,10 +149,21 @@ export class JobQueueService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    // Acquire distributed lock to prevent duplicate processing across instances
+    const lockKey = `${this.lockKeyPrefix}${job.id}`;
+    const lockAcquired = await client.set(lockKey, '1', 'EX', this.lockTtlSeconds, 'NX');
+
+    if (!lockAcquired) {
+      // Another instance is processing this job, skip
+      this.logger.debug(`Job ${job.id} already being processed by another instance`);
+      return;
+    }
+
     // Check if we have a processor for this job type
     const processor = this.processors.get(job.type);
     if (!processor) {
       this.logger.warn(`No processor found for job type: ${job.type}`);
+      await client.del(lockKey);
       await this.moveJobToFailed(job, 'No processor found');
       return;
     }
@@ -203,6 +217,9 @@ export class JobQueueService implements OnModuleInit, OnModuleDestroy {
         // Job failed permanently
         await this.moveJobToFailed(job, job.error);
       }
+    } finally {
+      // Always release the lock
+      await client.del(lockKey);
     }
   }
 

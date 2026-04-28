@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Param, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/restaurants')
@@ -176,7 +177,7 @@ export class EnhancedRestaurantsController {
           monthAgo.setMonth(monthAgo.getMonth() - 1);
           return new Date(restaurant.joinedDate) > monthAgo;
         }).length,
-        totalOrdersThisMonth: Math.floor(Math.random() * 5000) + 2000 // Simulated
+        totalOrdersThisMonth: crypto.randomInt(2000, 6999) // Simulated
       },
       geographicDistribution: this.getGeographicDistribution()
     };
@@ -231,9 +232,9 @@ export class EnhancedRestaurantsController {
           twitter: `https://twitter.com/${restaurant.name.replace(/\s+/g, '').toLowerCase()}`
         },
         analytics: {
-          monthlyViews: Math.floor(Math.random() * 1000) + 200,
-          profileCompleteness: Math.floor(Math.random() * 20) + 80,
-          responseRate: Math.floor(Math.random() * 30) + 70
+          monthlyViews: crypto.randomInt(200, 1199),
+          profileCompleteness: crypto.randomInt(80, 99),
+          responseRate: crypto.randomInt(70, 99)
         }
       }
     };
@@ -404,9 +405,9 @@ export class EnhancedRestaurantsController {
       id: `item-${i + 1}`,
       name: items[i % items.length] || `Delicious ${cuisineOrCategory} Dish ${i + 1}`,
       description: 'A wonderful dish prepared with fresh ingredients and traditional techniques.',
-      price: parseFloat((Math.random() * 20 + 8).toFixed(2)),
+      price: (crypto.randomInt(800, 2799) / 100).toFixed(2),
       category: cuisineOrCategory,
-      isPopular: Math.random() > 0.7,
+      isPopular: crypto.randomInt(0, 9) > 6,
       image: `https://picsum.photos/300/200?random=${i + 100}`
     }));
   }
@@ -416,10 +417,10 @@ export class EnhancedRestaurantsController {
     return Array.from({ length: reviewCount }, (_, i) => ({
       id: `review-${i + 1}`,
       customerName: `${this.users[i % this.users.length].firstName} ${this.users[i % this.users.length].lastName}`,
-      rating: Math.floor(Math.random() * 2) + 4, // 4 or 5 stars for recent reviews
+      rating: crypto.randomInt(4, 5), // 4 or 5 stars for recent reviews
       comment: 'Great food and excellent service! Highly recommend this place to anyone looking for quality dining.',
-      date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      verified: Math.random() > 0.3
+      date: new Date(Date.now() - crypto.randomInt(0, 29) * 24 * 60 * 60 * 1000),
+      verified: crypto.randomInt(0, 9) > 2
     }));
   }
 

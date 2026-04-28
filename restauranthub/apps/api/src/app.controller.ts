@@ -1,5 +1,27 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
+
+class LoginDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+}
+
+class RegisterDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  @IsNotEmpty()
+  password!: string;
+}
 
 @Controller()
 export class AppController {
@@ -133,7 +155,7 @@ export class AppController {
 
   // Legacy endpoints for backward compatibility
   @Post('auth/login')
-  login(@Body() body: any) {
+  login(@Body() body: LoginDto) {
     return {
       success: true,
       message: 'Login endpoint available',
@@ -141,7 +163,7 @@ export class AppController {
         token: 'mock-jwt-token',
         user: {
           id: '1',
-          email: body.email || 'test@example.com',
+          email: body.email,
           role: 'RESTAURANT'
         }
       }
@@ -149,13 +171,13 @@ export class AppController {
   }
 
   @Post('auth/register')
-  register(@Body() body: any) {
+  register(@Body() body: RegisterDto) {
     return {
       success: true,
       message: 'Register endpoint available',
       data: {
         id: '1',
-        email: body.email || 'test@example.com',
+        email: body.email,
         role: 'RESTAURANT',
         isVerified: false
       }

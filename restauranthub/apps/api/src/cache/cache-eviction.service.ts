@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import crypto from 'crypto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CacheService } from './cache.service';
 import { CacheConfigService } from './cache-config.service';
@@ -249,7 +250,7 @@ export class CacheEvictionService {
         if (rule.maxAge) {
           // This is a simplified approach - in a real implementation,
           // you'd track entry timestamps
-          const shouldEvict = Math.random() < 0.1; // 10% chance
+          const shouldEvict = crypto.randomInt(0, 9) === 0; // ~10% chance
           if (shouldEvict) {
             await this.evictByRule(ruleName);
           }

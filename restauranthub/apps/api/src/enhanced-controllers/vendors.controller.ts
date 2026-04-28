@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Param, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/vendors')
@@ -176,8 +177,8 @@ export class EnhancedVendorsController {
       performanceMetrics: this.getPerformanceMetrics(),
       topPerformers: this.getTopPerformers(),
       recentActivity: {
-        newVendorsThisMonth: this.vendors.filter(vendor => Math.random() > 0.8).length, // Simulated
-        totalOrdersThisMonth: Math.floor(Math.random() * 2000) + 500 // Simulated
+        newVendorsThisMonth: this.vendors.filter(vendor => crypto.randomInt(0, 9) > 7).length, // Simulated
+        totalOrdersThisMonth: crypto.randomInt(500, 2499) // Simulated
       },
       marketInsights: this.getMarketInsights()
     };
@@ -219,17 +220,17 @@ export class EnhancedVendorsController {
         paymentTerms: {
           terms: 'Net 30',
           acceptedMethods: ['Credit Card', 'Bank Transfer', 'Check'],
-          creditLimit: Math.floor(Math.random() * 50000) + 10000
+          creditLimit: crypto.randomInt(10000, 59999)
         },
         shippingInfo: {
           freeShippingMinimum: vendor.minimumOrder,
-          averageDeliveryTime: Math.floor(Math.random() * 5) + 2 + ' days',
+          averageDeliveryTime: crypto.randomInt(2, 7).toString() + ' days',
           shippingMethods: ['Standard', 'Express', 'Overnight']
         },
         analytics: {
-          monthlyOrders: Math.floor(Math.random() * 100) + 20,
-          repeatCustomerRate: Math.floor(Math.random() * 30) + 60,
-          profileViews: Math.floor(Math.random() * 200) + 50
+          monthlyOrders: crypto.randomInt(20, 119),
+          repeatCustomerRate: crypto.randomInt(60, 89),
+          profileViews: crypto.randomInt(50, 249)
         }
       }
     };
@@ -363,7 +364,7 @@ export class EnhancedVendorsController {
   }
 
   private generateResponseTime(): string {
-    const hours = Math.floor(Math.random() * 12) + 1;
+    const hours = crypto.randomInt(1, 12);
     return hours <= 4 ? `${hours} hours` : hours <= 8 ? 'Same day' : '1-2 days';
   }
 
@@ -463,20 +464,20 @@ export class EnhancedVendorsController {
     ];
 
     this.vendors.forEach(vendor => {
-      const productCount = Math.floor(Math.random() * 30) + 10;
+      const productCount = crypto.randomInt(10, 39);
       for (let i = 0; i < productCount; i++) {
         products.push({
           id: `${vendor.id}-product-${i + 1}`,
           vendorId: vendor.id,
-          name: productNames[Math.floor(Math.random() * productNames.length)] + ` ${i + 1}`,
+          name: productNames[crypto.randomInt(0, productNames.length - 1)] + ` ${i + 1}`,
           description: 'High-quality product perfect for restaurant operations.',
-          price: parseFloat((Math.random() * 100 + 5).toFixed(2)),
-          unit: Math.random() > 0.5 ? 'case' : 'lb',
+          price: parseFloat((crypto.randomInt(500, 10499) / 100).toFixed(2)),
+          unit: crypto.randomInt(0, 1) === 0 ? 'case' : 'lb',
           category: vendor.businessType,
-          inStock: Math.random() > 0.1,
-          minimumOrder: Math.floor(Math.random() * 10) + 1,
-          orderCount: Math.floor(Math.random() * 100),
-          image: `https://picsum.photos/250/200?random=${Math.floor(Math.random() * 1000)}`
+          inStock: crypto.randomInt(0, 9) === 0,
+          minimumOrder: crypto.randomInt(1, 10),
+          orderCount: crypto.randomInt(0, 99),
+          image: `https://picsum.photos/250/200?random=${crypto.randomInt(0, 999)}`
         });
       }
     });
@@ -499,11 +500,11 @@ export class EnhancedVendorsController {
     return Array.from({ length: reviewCount }, (_, i) => ({
       id: `review-${vendor.id}-${i + 1}`,
       customerName: `Restaurant ${i + 1}`,
-      rating: Math.floor(Math.random() * 2) + 4, // 4 or 5 stars
+      rating: crypto.randomInt(4, 5), // 4 or 5 stars
       comment: 'Excellent service and quality products. Reliable delivery and competitive pricing.',
-      date: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
-      verified: Math.random() > 0.2,
-      helpful: Math.floor(Math.random() * 10)
+      date: new Date(Date.now() - crypto.randomInt(0, 89) * 24 * 60 * 60 * 1000),
+      verified: crypto.randomInt(0, 9) > 1,
+      helpful: crypto.randomInt(0, 9)
     }));
   }
 
@@ -531,11 +532,11 @@ export class EnhancedVendorsController {
     ];
 
     return allCertifications
-      .filter(() => Math.random() > 0.6)
+      .filter(() => crypto.randomInt(0, 9) > 5)
       .map(cert => ({
         name: cert,
-        issueDate: new Date(Date.now() - Math.random() * 365 * 3 * 24 * 60 * 60 * 1000),
-        expiryDate: new Date(Date.now() + Math.random() * 365 * 2 * 24 * 60 * 60 * 1000),
+        issueDate: new Date(Date.now() - crypto.randomInt(0, 1094) * 24 * 60 * 60 * 1000),
+        expiryDate: new Date(Date.now() + crypto.randomInt(0, 729) * 24 * 60 * 60 * 1000),
         isActive: true
       }));
   }
@@ -552,17 +553,17 @@ export class EnhancedVendorsController {
 
     return Array.from({ length: reviewCount }, (_, i) => ({
       id: `detailed-review-${vendor.id}-${i + 1}`,
-      customerName: `${Math.random() > 0.5 ? 'Restaurant' : 'Cafe'} ${String.fromCharCode(65 + i)}`,
-      rating: Math.floor(Math.random() * 2) + 4,
+      customerName: `${crypto.randomInt(0, 1) === 0 ? 'Restaurant' : 'Cafe'} ${String.fromCharCode(65 + i)}`,
+      rating: crypto.randomInt(4, 5),
       title: 'Great experience with this vendor',
-      comment: reviewTexts[Math.floor(Math.random() * reviewTexts.length)],
-      date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
-      verified: Math.random() > 0.3,
-      helpful: Math.floor(Math.random() * 15),
-      orderValue: Math.floor(Math.random() * 5000) + 500,
-      productsSatisfaction: Math.floor(Math.random() * 2) + 4,
-      deliverySatisfaction: Math.floor(Math.random() * 2) + 4,
-      serviceSatisfaction: Math.floor(Math.random() * 2) + 4
+      comment: reviewTexts[crypto.randomInt(0, reviewTexts.length - 1)],
+      date: new Date(Date.now() - crypto.randomInt(0, 364) * 24 * 60 * 60 * 1000),
+      verified: crypto.randomInt(0, 9) > 2,
+      helpful: crypto.randomInt(0, 14),
+      orderValue: crypto.randomInt(500, 5499),
+      productsSatisfaction: crypto.randomInt(4, 5),
+      deliverySatisfaction: crypto.randomInt(4, 5),
+      serviceSatisfaction: crypto.randomInt(4, 5)
     }));
   }
 

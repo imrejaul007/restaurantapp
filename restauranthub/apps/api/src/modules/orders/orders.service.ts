@@ -54,7 +54,7 @@ export class OrdersService {
     @Optional() @Inject(forwardRef(() => KdsGateway)) private readonly kdsGateway?: KdsGateway,
   ) {
     if (!this.webhookSecret) {
-      this.logger.warn('⚠️  REZ_WEBHOOK_SECRET is not configured. Webhook signatures will be skipped.');
+      this.logger.warn('⚠️  REZ_WEBHOOK_SECRET is not configured. Webhook sending is disabled.');
     }
   }
 

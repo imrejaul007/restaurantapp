@@ -13,6 +13,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   CreditProfile,
@@ -360,7 +361,7 @@ export class FintechService {
 
     // Stub result — replace with real NBFC disbursement when partner is live
     return {
-      paymentId: `PAY-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      paymentId: `PAY-${Date.now()}-${crypto.randomInt(1000, 9999).toString().padStart(4, '0')}`,
       supplierId: dto.supplierId,
       amount: dto.amount,
       status: 'initiated',

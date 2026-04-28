@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import crypto from 'crypto';
 import { RedisService } from './redis.service';
 
 export interface RateLimitOptions {
@@ -45,7 +46,7 @@ export class RateLimiterService {
       pipeline.zcard(cacheKey);
 
       // Add current request timestamp
-      pipeline.zadd(cacheKey, now, `${now}-${Math.random()}`);
+      pipeline.zadd(cacheKey, now, `${now}-${crypto.randomInt(0, 999999)}`);
 
       // Set expiration
       pipeline.expire(cacheKey, window * 2); // Keep data longer than window for cleanup

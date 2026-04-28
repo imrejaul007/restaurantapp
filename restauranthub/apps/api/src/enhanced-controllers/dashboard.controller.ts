@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/dashboard')
@@ -60,7 +61,7 @@ export class DashboardController {
       avgRating: parseFloat((this.vendors.reduce((sum, v) => sum + v.rating, 0) / this.vendors.length).toFixed(1)),
       totalOrders: this.vendors.reduce((sum, v) => sum + v.stats.totalOrders, 0),
       avgDeliveryTime: parseFloat((this.vendors.reduce((sum, v) => sum + v.stats.onTimeDelivery, 0) / this.vendors.length).toFixed(1)),
-      newThisMonth: this.vendors.filter(vendor => Math.random() > 0.8).length // Simulated
+      newThisMonth: this.vendors.filter(() => crypto.randomInt(0, 9) > 7).length // Simulated
     };
 
     // User statistics
@@ -202,7 +203,7 @@ export class DashboardController {
       data: sampleResults,
       meta: {
         totalResults: Object.values(sampleResults).flat().length,
-        searchTime: Math.floor(Math.random() * 50) + 10 + 'ms'
+        searchTime: crypto.randomInt(10, 60) + 'ms'
       }
     };
   }
@@ -329,16 +330,16 @@ export class DashboardController {
   private getQuickStats() {
     return {
       todayStats: {
-        newJobs: Math.floor(Math.random() * 10) + 2,
-        newPosts: Math.floor(Math.random() * 15) + 5,
-        newUsers: Math.floor(Math.random() * 8) + 1,
-        totalViews: Math.floor(Math.random() * 1000) + 500
+        newJobs: crypto.randomInt(2, 12),
+        newPosts: crypto.randomInt(5, 20),
+        newUsers: crypto.randomInt(1, 9),
+        totalViews: crypto.randomInt(500, 1500)
       },
       thisWeekStats: {
-        jobApplications: Math.floor(Math.random() * 100) + 50,
-        communityEngagement: Math.floor(Math.random() * 500) + 200,
-        restaurantOrders: Math.floor(Math.random() * 300) + 150,
-        vendorDeliveries: Math.floor(Math.random() * 200) + 100
+        jobApplications: crypto.randomInt(50, 150),
+        communityEngagement: crypto.randomInt(200, 700),
+        restaurantOrders: crypto.randomInt(150, 450),
+        vendorDeliveries: crypto.randomInt(100, 300)
       },
       topPerformers: {
         mostActiveUser: this.users

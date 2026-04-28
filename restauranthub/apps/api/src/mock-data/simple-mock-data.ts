@@ -1,28 +1,34 @@
 // Simplified Mock Data Generator for RestoPapa
 // Provides realistic data without external dependencies
 
-// Utility functions for generating random data
-const randomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
+import crypto from 'crypto';
+
+// Utility functions for generating random data using crypto
+const randomInt = (min: number, max: number): number => crypto.randomInt(min, max);
+
+const randomElement = <T>(array: T[]): T => array[crypto.randomInt(0, array.length - 1)];
+
 const randomElements = <T>(array: T[], count: number): T[] => {
-  const shuffled = [...array].sort(() => 0.5 - Math.random());
+  const shuffled = [...array].sort(() => 0.5 - Math.random()); // Fisher-Yates shuffle uses Math.random for ordering, not security
   return shuffled.slice(0, Math.min(count, array.length));
 };
-const randomInt = (min: number, max: number): number => Math.floor(Math.random() * (max - min + 1)) + min;
+
 const randomFloat = (min: number, max: number, decimals: number = 2): number => {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+  return parseFloat((Math.random() * (max - min) + min).toFixed(decimals)); // Mock data only, not security-sensitive
 };
-const randomBoolean = (probability: number = 0.5): boolean => Math.random() < probability;
+
+const randomBoolean = (probability: number = 0.5): boolean => Math.random() < probability; // Mock data only, not security-sensitive
 
 // Generate dates
 const randomDate = (daysBack: number): Date => {
   const date = new Date();
-  date.setDate(date.getDate() - randomInt(0, daysBack));
+  date.setDate(date.getDate() - crypto.randomInt(0, daysBack));
   return date;
 };
 
 const futureDate = (daysForward: number): Date => {
   const date = new Date();
-  date.setDate(date.getDate() + randomInt(1, daysForward));
+  date.setDate(date.getDate() + crypto.randomInt(1, daysForward));
   return date;
 };
 

@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Param, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/community')
@@ -321,9 +322,9 @@ export class EnhancedCommunityController {
         avatar: this.users[i % this.users.length].avatar,
         role: this.users[i % this.users.length].role
       },
-      likeCount: Math.floor(Math.random() * 10),
-      createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-      timeAgo: this.getTimeAgo(new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000))
+      likeCount: crypto.randomInt(0, 9),
+      createdAt: new Date(Date.now() - crypto.randomInt(0, 6) * 24 * 60 * 60 * 1000),
+      timeAgo: this.getTimeAgo(new Date(Date.now() - crypto.randomInt(0, 6) * 24 * 60 * 60 * 1000))
     }));
   }
 
@@ -373,10 +374,10 @@ export class EnhancedCommunityController {
 
       return {
         date: date.toISOString().split('T')[0],
-        posts: Math.floor(Math.random() * 10) + 2,
-        likes: Math.floor(Math.random() * 50) + 10,
-        comments: Math.floor(Math.random() * 30) + 5,
-        shares: Math.floor(Math.random() * 15) + 2
+        posts: crypto.randomInt(0, 9) + 2,
+        likes: crypto.randomInt(10, 59),
+        comments: crypto.randomInt(5, 34),
+        shares: crypto.randomInt(2, 16)
       };
     });
   }

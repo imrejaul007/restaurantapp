@@ -1,4 +1,5 @@
 import { Controller, Get, Query, Param, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import crypto from 'crypto';
 import { mockData } from '../mock-data/simple-mock-data';
 
 @Controller('api/jobs')
@@ -149,7 +150,7 @@ export class EnhancedJobsController {
           weekAgo.setDate(weekAgo.getDate() - 7);
           return new Date(job.postedDate) > weekAgo;
         }).length,
-        applicationsThisWeek: Math.floor(Math.random() * 200) + 50 // Simulated
+        applicationsThisWeek: crypto.randomInt(50, 249) // Simulated
       }
     };
 
@@ -188,8 +189,8 @@ export class EnhancedJobsController {
       data: {
         ...job,
         relatedJobs,
-        applicationsThisWeek: Math.floor(Math.random() * 10) + 1,
-        averageResponseTime: Math.floor(Math.random() * 3) + 1 + ' days'
+        applicationsThisWeek: crypto.randomInt(1, 10),
+        averageResponseTime: crypto.randomInt(1, 3).toString() + ' days'
       }
     };
   }

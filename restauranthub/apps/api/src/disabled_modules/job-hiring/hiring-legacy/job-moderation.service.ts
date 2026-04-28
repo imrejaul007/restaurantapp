@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../redis/redis.service';
 import { ModerateJobDto, ModerationAction, ModerationPriority } from './dto/moderate-job.dto';
@@ -62,7 +63,7 @@ export class JobModerationService {
 
     // Create moderation record
     const moderationRecord: ModerationRecord = {
-      id: `mod_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `mod_${Date.now()}_${crypto.randomInt(100000000, 999999999)}`,
       jobId,
       moderatorId,
       action: moderationData.action,
@@ -276,7 +277,7 @@ export class JobModerationService {
     
     // Create resolution record
     const resolutionRecord: ModerationRecord = {
-      id: `res_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `res_${Date.now()}_${crypto.randomInt(100000000, 999999999)}`,
       jobId,
       moderatorId,
       action: resolution === 'approved' ? ModerationAction.APPROVE : ModerationAction.REJECT,

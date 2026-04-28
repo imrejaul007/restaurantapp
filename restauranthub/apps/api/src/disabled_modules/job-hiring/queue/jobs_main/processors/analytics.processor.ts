@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import crypto from 'crypto';
 import { JobData, JobProcessor } from '../job-queue.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -103,8 +104,8 @@ export class AnalyticsJobProcessor implements JobProcessor {
     const revenue = {
       restaurantId,
       period: { startDate, endDate },
-      totalRevenue: Math.random() * 10000, // Simulated calculation
-      totalOrders: Math.floor(Math.random() * 100),
+      totalRevenue: crypto.randomInt(0, 10000), // Simulated calculation
+      totalOrders: crypto.randomInt(0, 100),
       averageOrderValue: 0,
       calculatedAt: new Date(),
     };
