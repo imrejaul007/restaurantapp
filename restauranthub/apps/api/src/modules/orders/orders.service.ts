@@ -15,6 +15,7 @@ import { KdsGateway } from '../kds/kds.gateway';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { createHmac } from 'crypto';
+import { track } from '../../services/intentCapture.service';
 
 /** Map controller status strings (lowercase) to Prisma OrderStatus enum (UPPERCASE) */
 const STATUS_MAP: Record<string, string> = {
@@ -156,6 +157,21 @@ export class OrdersService {
           storeId: createOrderDto.restaurantId,
         });
       }
+
+      // RTMN Commerce Memory: Capture order placed intent (non-blocking)
+      track({
+        userId: createOrderDto.customerId,
+        event: 'order_placed',
+        intentKey: `restaurant_${createOrderDto.restaurantId}`,
+        properties: {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          totalAmount: order.totalAmount,
+          itemCount: validatedItems.length,
+          fulfillmentType: createOrderDto.fulfillmentType,
+          paymentMethod: createOrderDto.paymentMethod,
+        },
+      });
 
       return {
         success: true,
