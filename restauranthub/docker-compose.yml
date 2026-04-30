@@ -7,9 +7,9 @@ services:
     container_name: restauranthub-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: restauranthub
-      POSTGRES_USER: restauranthub
-      POSTGRES_PASSWORD: restauranthub_secret
+      POSTGRES_DB: ${POSTGRES_DB:-restauranthub}
+      POSTGRES_USER: ${POSTGRES_USER:-restauranthub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes --requirepass redis_secret
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret}
     volumes:
       - redis_data:/data
     healthcheck:

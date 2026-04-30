@@ -203,14 +203,16 @@ send_alert() {
 
     # Send to webhook if configured
     if [ -n "$WEBHOOK_URL" ]; then
-        curl -X POST -H "Content-Type: application/json" \
+        if ! curl -s --max-time 10 -X POST -H "Content-Type: application/json" \
              -d "{\"text\":\"RestaurantHub Backup Alert [$alert_type]: $message\"}" \
-             "$WEBHOOK_URL" 2>/dev/null || true
+             "$WEBHOOK_URL" > /dev/null 2>&1; then
+            warning "Failed to send webhook alert"
+        fi
     fi
 
     # Send email if configured
     if [ -n "$ALERT_EMAIL" ]; then
-        echo "$message" | mail -s "RestaurantHub Backup Alert: $alert_type" "$ALERT_EMAIL" 2>/dev/null || true
+        echo "$message" | timeout 10 mail -s "RestaurantHub Backup Alert: $alert_type" "$ALERT_EMAIL" 2>/dev/null || true
     fi
 
     # Write to metrics for monitoring systems

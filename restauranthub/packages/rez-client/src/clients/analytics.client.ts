@@ -19,10 +19,10 @@ export class RezAnalyticsClient {
     private readonly client: RezHttpClient,
     private readonly config: ConfigService,
   ) {
-    const baseURL = this.config.get<string>(
-      'REZ_ANALYTICS_URL',
-      'https://analytics-events-37yy.onrender.com',
-    );
+    const baseURL = this.config.get<string>('REZ_ANALYTICS_URL');
+    if (!baseURL) {
+      throw new Error('REZ_ANALYTICS_URL environment variable is required');
+    }
     this.http = this.client.buildInstance(baseURL);
   }
 

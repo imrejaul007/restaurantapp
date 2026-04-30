@@ -13,9 +13,11 @@ if ! docker info > /dev/null 2>&1; then
     exit 1
 fi
 
-# Load environment variables
+# Load environment variables safely (only specific, non-sensitive variables)
 if [ -f .env ]; then
-    export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
+    set -a
+    source <(grep -v '^#' .env | grep -v '^$' | sed 's/=.*$//' | sed 's/^/export /')
+    set +a
 fi
 
 # Set default values

@@ -23,10 +23,10 @@ export class RezMerchantClient {
     private readonly client: RezHttpClient,
     private readonly config: ConfigService,
   ) {
-    const baseURL = this.config.get<string>(
-      'REZ_MERCHANT_SERVICE_URL',
-      'https://rez-merchant-service-n3q2.onrender.com',
-    );
+    const baseURL = this.config.get<string>('REZ_MERCHANT_SERVICE_URL');
+    if (!baseURL) {
+      throw new Error('REZ_MERCHANT_SERVICE_URL environment variable is required');
+    }
     this.http = this.client.buildInstance(baseURL);
   }
 

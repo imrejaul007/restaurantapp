@@ -3,11 +3,13 @@
  *
  * Required environment variables:
  *   REZ_INTERNAL_TOKEN         — Inter-service auth token (X-Internal-Token header)
- *   REZ_MERCHANT_SERVICE_URL   — https://rez-merchant-service-n3q2.onrender.com
- *   REZ_ANALYTICS_URL          — https://analytics-events-37yy.onrender.com
- *   REZ_CATALOG_URL            — https://rez-catalog-service-1.onrender.com
- *   REZ_WALLET_URL             — https://rez-wallet-service-36vo.onrender.com
- *   REZ_BACKEND_URL            — https://api.rezapp.com/api
+ *   REZ_MERCHANT_SERVICE_URL   — Merchant service base URL (required in production)
+ *   REZ_ANALYTICS_URL          — Analytics service base URL (required in production)
+ *   REZ_CATALOG_URL            — Catalog service base URL (required in production)
+ *   REZ_WALLET_URL             — Wallet service base URL (required in production)
+ *   REZ_BACKEND_URL            — Backend monolith base URL (required in production)
+ *
+ * SECURITY: No hardcoded fallback URLs — service will fail fast if env vars are missing.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
