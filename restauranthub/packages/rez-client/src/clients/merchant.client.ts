@@ -23,9 +23,9 @@ export class RezMerchantClient {
     private readonly client: RezHttpClient,
     private readonly config: ConfigService,
   ) {
-    const baseURL = this.config.get<string>('REZ_MERCHANT_SERVICE_URL');
+    const baseURL = this.config.get<string>('REZ_MERCHANT_SERVICE_URL', 'https://rez-merchant-service.onrender.com');
     if (!baseURL) {
-      throw new Error('REZ_MERCHANT_SERVICE_URL environment variable is required');
+      this.logger.warn('REZ_MERCHANT_SERVICE_URL not set, using default');
     }
     this.http = this.client.buildInstance(baseURL);
   }

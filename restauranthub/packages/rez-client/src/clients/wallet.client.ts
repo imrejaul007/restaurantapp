@@ -19,9 +19,9 @@ export class RezWalletClient {
     private readonly client: RezHttpClient,
     private readonly config: ConfigService,
   ) {
-    const baseURL = this.config.get<string>('REZ_WALLET_URL');
+    const baseURL = this.config.get<string>('REZ_WALLET_URL', 'https://rez-wallet-service-36vo.onrender.com');
     if (!baseURL) {
-      throw new Error('REZ_WALLET_URL environment variable is required');
+      this.logger.warn('REZ_WALLET_URL not set, using default');
     }
     this.http = this.client.buildInstance(baseURL);
   }

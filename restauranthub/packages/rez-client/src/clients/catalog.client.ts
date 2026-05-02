@@ -19,9 +19,9 @@ export class RezCatalogClient {
     private readonly client: RezHttpClient,
     private readonly config: ConfigService,
   ) {
-    const baseURL = this.config.get<string>('REZ_CATALOG_URL');
+    const baseURL = this.config.get<string>('REZ_CATALOG_URL', 'https://rez-catalog-service.onrender.com');
     if (!baseURL) {
-      throw new Error('REZ_CATALOG_URL environment variable is required');
+      this.logger.warn('REZ_CATALOG_URL not set, using default');
     }
     this.http = this.client.buildInstance(baseURL);
   }
