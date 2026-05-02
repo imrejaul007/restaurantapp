@@ -69,10 +69,24 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       this.logger.log('Successfully connected to database');
 
       // Enhanced connection pool optimization for PostgreSQL
-      await this.$executeRaw`SET statement_timeout = '30s'`;
-      await this.$executeRaw`SET idle_in_transaction_session_timeout = '5min'`;
-      await this.$executeRaw`SET lock_timeout = '10s'`;
-      await this.$executeRaw`SET log_min_duration_statement = 1000`; // Log slow queries > 1s
+      // Set statement timeouts - wrap in try-catch as some require superuser
+      try {
+        await this.$executeRaw`SET statement_timeout = '30s'`;
+      } catch (e) {
+        this.logger.warn('Could not set statement_timeout (may require superuser)');
+      }
+      try {
+        await this.$executeRaw`SET idle_in_transaction_session_timeout = '5min'`;
+      } catch (e) {
+        this.logger.warn('Could not set idle_in_transaction_session_timeout');
+      }
+      try {
+        await this.$executeRaw`SET lock_timeout = '10s'`;
+      } catch (e) {
+        this.logger.warn('Could not set lock_timeout');
+      }
+      // log_min_duration_statement requires superuser - skip it
+      this.logger.debug('Skipping log_min_duration_statement (requires superuser)');
 
       // Connection pool specific optimizations
 
