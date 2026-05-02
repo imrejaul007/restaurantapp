@@ -37,14 +37,14 @@ export class FintechService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    const walletUrl = this.config.get<string>('REZ_WALLET_SERVICE_URL');
-    const paymentUrl = this.config.get<string>('REZ_PAYMENT_SERVICE_URL');
+    const walletUrl = this.config.get<string>('REZ_WALLET_SERVICE_URL', 'https://rez-wallet-service-36vo.onrender.com');
+    const paymentUrl = this.config.get<string>('REZ_PAYMENT_SERVICE_URL', 'https://rez-payment-service.onrender.com');
 
     if (!walletUrl) {
-      throw new Error('REZ_WALLET_SERVICE_URL environment variable is required');
+      this.logger.warn('REZ_WALLET_SERVICE_URL not set, using default');
     }
     if (!paymentUrl) {
-      throw new Error('REZ_PAYMENT_SERVICE_URL environment variable is required');
+      this.logger.warn('REZ_PAYMENT_SERVICE_URL not set, using default');
     }
 
     this.walletServiceUrl = walletUrl;
